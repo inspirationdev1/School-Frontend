@@ -36,7 +36,7 @@ export default function Attendee({ classId, handleMessage,params}){
       axios
         .get(`${baseUrl}/teacher/fetch-with-query`, { params: {} })
         .then((resp) => {
-          console.log("ALL subjects", resp);
+          console.log("ALL Teachers", resp);
           setAllTeachers(resp.data.data);
         })
         .catch((e) => {

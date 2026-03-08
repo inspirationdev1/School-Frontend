@@ -55,6 +55,7 @@ import AttendanceDetails from "./school/components/attendance/attendance details
 import StudentAttendanceList from "./school/components/attendance/StudentAttendanceList";
 import Schedule from "./school/components/periods/Schedule";
 import Examinations from "./school/components/examinations/Examinations";
+import Questionpapers from "./school/components/questionpapers/Questionpapers";
 import AttendanceTeacher from "./teacher/components/attendance/AttendanceTeacher";
 import Invoice2 from './teacher/components/attendance/invoice';
 import AttendancePrint from './teacher/components/attendance/AttendancePrint'
@@ -116,6 +117,8 @@ function App() {
               <Route path="attendance" element={<StudentAttendanceList />} />
               <Route path="attendance-student/:studentId" element={<AttendanceDetails />} />
               <Route path="examinations" element={<Examinations />} />
+              <Route path="questionpapers" element={<Questionpapers />} />
+              
               <Route path="notice" element={<NoticeSchool />} />
             </Route>
 

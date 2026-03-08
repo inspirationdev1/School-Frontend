@@ -75,6 +75,7 @@ export default function Examinations() {
     axios
       .get(`${baseUrl}/examination/single/${id}`)
       .then((resp) => {
+        examFormik.setFieldValue("name", resp.data.data.name);
         examFormik.setFieldValue("exam_date", dayjs(resp.data.data.examDate));
         examFormik.setFieldValue("subject", resp.data.data.subject);
         examFormik.setFieldValue("examtype", resp.data.data.examtype);
@@ -115,7 +116,7 @@ export default function Examinations() {
   };
 
   const examFormik = useFormik({
-    initialValues: { exam_date: "", subject: "", examtype: "" },
+    initialValues: { name:"",exam_date: "", subject: "", examtype: "" },
     validationSchema: examSchema,
     onSubmit: (values) => {
       if (isEditExam) {
@@ -277,6 +278,25 @@ export default function Examinations() {
             gap={3}   // ✅ controls spacing
           >
 
+            {/* Exam Name */}
+            <TextField
+                  fullWidth
+                  sx={{ marginTop: "10px" }}
+                  id="filled-basic"
+                  label="Exam Name"
+                  variant="outlined"
+                  name="name"
+                  value={examFormik.values.name}
+                  onChange={examFormik.handleChange}
+                  onBlur={examFormik.handleBlur}
+                />
+                {examFormik.touched.name && examFormik.errors.name && (
+                  <p style={{ color: "red", textTransform: "capitalize" }}>
+                    {examFormik.errors.name}
+                  </p>
+                )}
+
+                
             {/* Exam Date */}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
@@ -389,6 +409,9 @@ export default function Examinations() {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: "700" }} align="left">
+                  Exam Name
+                </TableCell>
+                <TableCell sx={{ fontWeight: "700" }} align="left">
                   Exam Date
                 </TableCell>
                 <TableCell sx={{ fontWeight: "700" }} align="left">
@@ -407,6 +430,9 @@ export default function Examinations() {
                 examinations.map((examination, i) => {
                   return (
                     <TableRow key={i}>
+                      <TableCell align="left">
+                        {examination.name ? examination.name : ""}
+                      </TableCell>
                       <TableCell component="th" scope="row">
                         {convertDate(examination.examDate)}
                       </TableCell>

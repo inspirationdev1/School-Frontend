@@ -153,6 +153,7 @@ export default function School() {
                 { label: "Schedule", link: "/school/periods" },
                 { label: "Exam Types", link: "/school/examtype" },
                 { label: "Examinations", link: "/school/examinations" },
+                { label: "Questionpapers", link: "/school/questionpapers" },
                 { label: "Notice", link: "/school/notice" },
             ],
         },

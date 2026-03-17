@@ -151,20 +151,8 @@ export default function School() {
                 { label: "Subjects", link: "/school/subject" },
                 { label: "Departments", link: "/school/department" },
                 { label: "Schedule", link: "/school/periods" },
-                { label: "Exam Types", link: "/school/examtype" },
-                { label: "Examinations", link: "/school/examinations" },
-                { label: "Questionpapers", link: "/school/questionpapers" },
                 { label: "Notice", link: "/school/notice" },
-            ],
-        },
-        {
-            label: "Fees",
-            icon: FormatListNumberedIcon,
-            children: [
-                { label: "Fee Types", link: "/school/feestype" },
-                { label: "Fee Structure", link: "/school/feestructure" },
-                { label: "Sales Invoice", link: "/school/salesinvoice" },
-                { label: "Receipts", link: "/school/receipt" },
+
             ],
         },
         {
@@ -173,7 +161,27 @@ export default function School() {
             children: [
                 { label: "Students", link: "/school/students" },
                 { label: "Parents", link: "/school/parents" },
-                // { label: "Users", link: "/school/users" },
+                { label: "Attendance", link: "/school/attendance" },
+            ],
+        },
+        {
+            label: "Fees",
+            icon: FormatListNumberedIcon,
+            children: [
+                { label: "Fee Types", link: "/school/feestype" },
+                { label: "Fee Structure", link: "/school/feestructure" },
+                { label: "Fee Invoice", link: "/school/salesinvoice" },
+                { label: "Receipts", link: "/school/receipt" },
+            ],
+        },
+        {
+            label: "Exam",
+            icon: MenuBookIcon,
+            children: [
+                { label: "Examinations", link: "/school/examinations" },
+                { label: "Questionpapers", link: "/school/questionpapers" },
+                { label: "Marksheets", link: "/school/marksheet" },
+                { label: "Reports", link: "/school/schoolreports" },
             ],
         },
         {
@@ -182,6 +190,16 @@ export default function School() {
             children: [
                 { label: "Teachers", link: "/school/teachers" },
                 { label: "Staff", link: "/school/employees" },
+            ],
+        },
+        {
+            label: "Finance",
+            icon: MenuBookIcon,
+            children: [
+                { label: "Expense Type", link: "/school/expensetype" },
+                { label: "Expenses", link: "/school/expense" },
+                { label: "Reports", link: "/school/financereports" },
+
             ],
         },
         {
@@ -194,11 +212,12 @@ export default function School() {
                 { label: "Users", link: "/school/users" },
             ],
         },
-        {
-            label: "Attendance",
-            icon: RecentActorsIcon,
-            link: "/school/attendance",
-        },
+        // {
+        //     label: "Attendance",
+        //     icon: RecentActorsIcon,
+        //     link: "/school/attendance",
+        // },
+
         {
             label: "Logout",
             icon: LogoutIcon,
@@ -310,18 +329,18 @@ export default function School() {
                 <Divider />
             </Drawer>
 
-            
+
             <Box
                 component="main"
                 sx={{
                     flexGrow: 1,
                     minHeight: "100vh",
-                    marginLeft: 16  ,
+                    marginLeft: 16,
                     px: 2,
                     pt: 10, // space for AppBar height
                 }}
             >
-                
+
                 <Outlet />
             </Box>
 

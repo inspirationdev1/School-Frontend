@@ -578,7 +578,7 @@ export default function Salesinvoice() {
                     variant="h4"
                     sx={{ fontWeight: "800", textAlign: "center" }}
                   >
-                    Add New  salesinvoice
+                    Add New  Fee Invoice
                   </Typography>
                 )}{" "}
                 <Box
@@ -605,7 +605,7 @@ export default function Salesinvoice() {
                     <Box>
                       <TextField
                         fullWidth
-                        label="Salesinvoice Code"
+                        label="Invoice Code"
                         variant="outlined"
                         name="siCode"
                         value={Formik.values.siCode}

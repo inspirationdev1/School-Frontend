@@ -31,6 +31,12 @@ import Salesinvoice from "./school/components/salesinvoices/Salesinvoices";
 import SalesinvoicePrint from './school/components/salesinvoices/SalesinvoicePrint';
 import Receipts from "./school/components/receipts/Receipts";
 import ReceiptPrint from './school/components/receipts/ReceiptPrint';
+import Expensetypes from "./school/components/expensetypes/Expensetypes";
+import Expenses from "./school/components/expenses/Expenses";
+
+import Marksheet from "./school/components/marksheets/Marksheets";
+import MarksheetPrint from './school/components/marksheets/MarksheetPrint';
+
 import ClassDetails from "./school/components/class details/ClassDetails";
 import StudentDetails from "./student/components/student details/StudentDetails";
 import Student from "./student/Student";
@@ -75,6 +81,10 @@ import { useContext, useEffect, useState } from "react";
 import ParentExaminations from "./parent/components/examination/ParentExaminations";
 import ScheduleParent from "./parent/components/schedule/ScheduleParent";
 import NoticeParent from "./parent/components/notice/NoticeParent";
+import SchoolReports from "./school/components/reports/SchoolReports";
+import SchoolReportsPrint from "./school/components/reports/SchoolReportsPrint";
+import ProgressCardPDF from "./school/components/reports/ProgressCardPDF";
+import ExpensePrint from "./school/components/expenses/ExpensePrint";
 // import Receipts from "./school/components/receipts/Receipts";
 
 function App() {
@@ -100,7 +110,10 @@ function App() {
               <Route path="salesinvoice" element={<Salesinvoice />} />
               <Route path="salesinvoiceprint" element={<SalesinvoicePrint />} />
               <Route path="receipt" element={<Receipts />} />
-              <Route path="receiptprint" element={<ReceiptPrint />} />
+              <Route path="receiptprint" element={<ReceiptPrint />} />              
+              <Route path="expensetype" element={<Expensetypes />} />
+              <Route path="expense" element={<Expenses />} />
+              <Route path="expenseprint" element={<ExpensePrint />} />  
 
               <Route path="students" element={<Students />} />
               <Route path="teachers" element={<Teachers />} />
@@ -118,6 +131,11 @@ function App() {
               <Route path="attendance-student/:studentId" element={<AttendanceDetails />} />
               <Route path="examinations" element={<Examinations />} />
               <Route path="questionpapers" element={<Questionpapers />} />
+              <Route path="marksheet" element={<Marksheet />} />
+              <Route path="marksheetprint" element={<MarksheetPrint />} />
+              <Route path="schoolreports" element={<SchoolReports />} />
+              <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
+              <Route path="progressCardPDF" element={<ProgressCardPDF />} />
               
               <Route path="notice" element={<NoticeSchool />} />
             </Route>

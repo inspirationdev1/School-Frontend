@@ -184,18 +184,7 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
   
     const [month, setMonth] = useState([]);
     const [year, setYear] = useState([]);
-    const fetchteacherClass = () => {
-      // axios
-      //   .get(`${baseUrl}/teacher/get-month-year`)
-      //   .then((resp) => {
-      //     console.log("Fetching month and year.", resp);
-      //     setMonth(resp.data.month);
-      //     setYear(resp.data.year);
-      //   })
-      //   .catch((e) => {
-      //     console.log("Error in fetching month and year", e);
-      //   });
-    };
+    
   
     const fetchteachers = () => {
       axios
@@ -210,7 +199,7 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
     };
     useEffect(() => {
       fetchteachers();
-      // fetchteacherClass();
+      
     }, [message, params]);
     return (
       <>

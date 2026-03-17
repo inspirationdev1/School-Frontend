@@ -40,14 +40,11 @@ export default function Examinations() {
   const [examForm, setExamForm] = useState(false);
   const [examEditId, setExamEditId] = useState(null);
 
-  const [allClasses, setAllClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState(null);
+
   const [examinations, setExaminations] = useState([]);
   const [submitted, setSubmitted] = useState("not submitted")
-  const [allSubjects, setAllSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const [allExamtypes, setAllExamtypes] = useState([]);
-  const [selectedExamtype, setSelectedExamtype] = useState(null);
+
+
 
   const [message, setMessage] = useState("");
   const [type, setType] = useState("");
@@ -76,18 +73,8 @@ export default function Examinations() {
       .get(`${baseUrl}/examination/single/${id}`)
       .then((resp) => {
         examFormik.setFieldValue("name", resp.data.data.name);
-        examFormik.setFieldValue("exam_date", dayjs(resp.data.data.examDate));
-        examFormik.setFieldValue("subject", resp.data.data.subject);
-        examFormik.setFieldValue("examtype", resp.data.data.examtype);
-
-        const subjectId = resp.data.data?.subject || resp.data.subject;
-        const matchedSubject = allSubjects.find(c => c._id === subjectId);
-        setSelectedSubject(matchedSubject);
-
-        const examtypeId = resp.data.data?.examtype || resp.data.examtype;
-        const matchedExamtype = allExamtypes.find(c => c._id === examtypeId);
-        setSelectedExamtype(matchedExamtype);
-
+        examFormik.setFieldValue("examCode", resp.data.data.examCode);
+        examFormik.setFieldValue("examNo", resp.data.data.examNo);
 
       })
       .catch((e) => {
@@ -116,7 +103,7 @@ export default function Examinations() {
   };
 
   const examFormik = useFormik({
-    initialValues: { name:"",exam_date: "", subject: "", examtype: "" },
+    initialValues: { name: "", examCode: "", examNo: 0 },
     validationSchema: examSchema,
     onSubmit: (values) => {
       if (isEditExam) {
@@ -130,11 +117,10 @@ export default function Examinations() {
           });
       } else {
         console.log("Values", values)
-        console.log("selected Class", selectedClass)
+
         axios
           .post(`${baseUrl}/examination/new`, {
-            ...values,
-            class_id: selectedClass?._id,
+            ...values
           })
           .then((resp) => {
             handleMessage("success", resp.data.message);
@@ -154,7 +140,7 @@ export default function Examinations() {
 
   const fetchExaminations = () => {
     axios
-      .get(`${baseUrl}/examination/fetch-class/${selectedClass?._id}`)
+      .get(`${baseUrl}/examination/all`)
       .then((resp) => {
         console.log("ALL Examination", resp);
         setExaminations(resp.data.data);
@@ -164,94 +150,22 @@ export default function Examinations() {
       });
   };
   useEffect(() => {
-    if (selectedClass) {
-      fetchExaminations();
-    }
-  }, [selectedClass, message]);
 
-  const fetchAllSubjects = () => {
-    axios
-      .get(`${baseUrl}/subject/fetch-all`, { params: {} })
-      .then((resp) => {
-        console.log("ALL subjects", resp);
-        setAllSubjects(resp.data.data);
-      })
-      .catch((e) => {
-        console.log("Error in fetching  all  Classes");
-      });
-  };
+    fetchExaminations();
+
+  }, [message]);
 
 
-  const fetchAllExamtypes = () => {
-    axios
-      .get(`${baseUrl}/examtype/fetch-all`, { params: {} })
-      .then((resp) => {
-        console.log("ALL examtypes", resp);
-        setAllExamtypes(resp.data.data);
-      })
-      .catch((e) => {
-        console.log("Error in fetching  all  examtypes");
-      });
-  };
 
-  const fetchStudentClass = () => {
-    axios
-      .get(`${baseUrl}/class/fetch-all`)
-      .then((resp) => {
-        setAllClasses(resp.data.data);
-        console.log("Class", resp.data);
-        setSelectedClass(resp.data.data[0]);
-      })
-      .catch((e) => {
-        console.log("Error in fetching student Class", e);
-      });
-  };
-  useEffect(() => {
-    fetchStudentClass();
-    fetchAllSubjects();
-    fetchAllExamtypes();
-  }, []);
+
+
+
 
   return (
     <>
       {message && <CustomizedSnackbars reset={resetMessage} type={type} message={message} />}
       <Box><Typography className="hero-text" variant="h2" sx={{ textAlign: "center" }}>Examinations</Typography></Box>
-      <Paper sx={{ margin: "10px", padding: "10px" }}>
 
-
-        {/* Class */}
-        {allClasses.length > 0 && (
-          <Box>
-
-            <Autocomplete
-              options={allClasses}
-              getOptionLabel={(option) => option.class_text}
-              value={selectedClass}
-              onChange={(event, newValue) => {
-                setSelectedClass(newValue);
-
-                // Formik.setFieldValue(
-                //   "class",
-                //   newValue ? newValue._id : ""
-                // );
-              }}
-              // onBlur={() => Formik.setFieldTouched("class", true)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select Class"
-                  placeholder="Search class..."
-                  fullWidth
-                // error={Formik.touched.class && Boolean(Formik.errors.class)}
-                // helperText={Formik.touched.class && Formik.errors.class}
-                />
-              )}
-            />
-
-
-          </Box>
-        )}
-      </Paper>
 
       {examForm && (
         <Paper sx={{ p: 4, mt: 3, maxWidth: 500, mx: "auto" }}>
@@ -280,101 +194,45 @@ export default function Examinations() {
 
             {/* Exam Name */}
             <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
-                  label="Exam Name"
-                  variant="outlined"
-                  name="name"
-                  value={examFormik.values.name}
-                  onChange={examFormik.handleChange}
-                  onBlur={examFormik.handleBlur}
-                />
-                {examFormik.touched.name && examFormik.errors.name && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {examFormik.errors.name}
-                  </p>
-                )}
-
-                
-            {/* Exam Date */}
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Exam Date"
-                name="exam_date"
-                value={dayjs(examFormik.values.exam_date)}
-                onChange={(e) => {
-                  examFormik.setFieldValue("exam_date", dayjs(e));
-                }}
-                slotProps={{ textField: { fullWidth: true } }}
-              />
-            </LocalizationProvider>
-
-            {/* Subject */}
-            {allSubjects.length > 0 && (
-              <Autocomplete
-                options={allSubjects}
-                getOptionLabel={(option) => option.subject_name}
-                value={selectedSubject}
-                onChange={(event, newValue) => {
-                  setSelectedSubject(newValue);
-                  examFormik.setFieldValue(
-                    "subject",
-                    newValue ? newValue._id : ""
-                  );
-                }}
-                onBlur={() => examFormik.setFieldTouched("subject", true)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Select Subject"
-                    placeholder="Search subject..."
-                    fullWidth
-                    error={
-                      examFormik.touched.subject &&
-                      Boolean(examFormik.errors.subject)
-                    }
-                    helperText={
-                      examFormik.touched.subject &&
-                      examFormik.errors.subject
-                    }
-                  />
-                )}
-              />
+              fullWidth
+              sx={{ marginTop: "10px" }}
+              id="filled-basic"
+              label="Exam Name"
+              variant="outlined"
+              name="name"
+              value={examFormik.values.name}
+              onChange={examFormik.handleChange}
+              onBlur={examFormik.handleBlur}
+            />
+            {examFormik.touched.name && examFormik.errors.name && (
+              <p style={{ color: "red", textTransform: "capitalize" }}>
+                {examFormik.errors.name}
+              </p>
             )}
 
-            {/* Exam Type */}
-            {allExamtypes.length > 0 && (
-              <Autocomplete
-                options={allExamtypes}
-                getOptionLabel={(option) => option.examtype_name}
-                value={selectedExamtype}
-                onChange={(event, newValue) => {
-                  setSelectedExamtype(newValue);
-                  examFormik.setFieldValue(
-                    "examtype",
-                    newValue ? newValue._id : ""
-                  );
-                }}
-                onBlur={() => examFormik.setFieldTouched("examtype", true)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Select Exam Type"
-                    placeholder="Search exam type..."
-                    fullWidth
-                    error={
-                      examFormik.touched.examtype &&
-                      Boolean(examFormik.errors.examtype)
-                    }
-                    helperText={
-                      examFormik.touched.examtype &&
-                      examFormik.errors.examtype
-                    }
-                  />
-                )}
-              />
+            {/* Exam Code */}
+            <TextField
+              fullWidth
+              sx={{ marginTop: "10px" }}
+              id="filled-basic"
+              label="Exam Code"
+              variant="outlined"
+              name="examCode"
+              value={examFormik.values.examCode}
+              onChange={examFormik.handleChange}
+              onBlur={examFormik.handleBlur}
+            />
+            {examFormik.touched.examCode && examFormik.errors.examCode && (
+              <p style={{ color: "red", textTransform: "capitalize" }}>
+                {examFormik.errors.examCode}
+              </p>
             )}
+
+           
+
+
+
+
 
             {/* Buttons */}
             <Box display="flex" gap={2} mt={1}>
@@ -412,14 +270,11 @@ export default function Examinations() {
                   Exam Name
                 </TableCell>
                 <TableCell sx={{ fontWeight: "700" }} align="left">
-                  Exam Date
+                  Exam Code
                 </TableCell>
-                <TableCell sx={{ fontWeight: "700" }} align="left">
-                  Subject
-                </TableCell>
-                <TableCell sx={{ fontWeight: "700" }} align="center">
-                  Exam Type
-                </TableCell>
+
+                
+
                 <TableCell sx={{ fontWeight: "700" }} align="center">
                   Actions
                 </TableCell>
@@ -433,16 +288,13 @@ export default function Examinations() {
                       <TableCell align="left">
                         {examination.name ? examination.name : ""}
                       </TableCell>
-                      <TableCell component="th" scope="row">
-                        {convertDate(examination.examDate)}
-                      </TableCell>
-                      <TableCell align="left">
-                        {examination.subject ? examination.subject.subject_name : "Add One"}
-                      </TableCell>
-                      <TableCell align="center">
 
-                        {examination.examtype ? examination.examtype.examtype_name : "Add One"}
+                      <TableCell align="left">
+                        {examination.examCode ? examination.examCode : ""}
                       </TableCell>
+
+                      
+
                       <TableCell sx={{ fontWeight: "700" }} align="center">
                         <Box
                           sx={{

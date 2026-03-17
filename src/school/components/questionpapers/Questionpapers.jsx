@@ -23,7 +23,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useFormik } from "formik";
 import axios from "axios";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -50,9 +50,16 @@ export default function Questionpapers() {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [allExaminations, setAllExaminations] = useState([]);
   const [selectedExamination, setSelectedExamination] = useState(null);
+  
+
+  const [classExaminations, setClassExaminations] = useState([]);
+
 
   const [message, setMessage] = useState("");
   const [type, setType] = useState("");
+
+  const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null); // Independent state for image preview
 
   const resetMessage = () => {
     setMessage("");
@@ -64,10 +71,52 @@ export default function Questionpapers() {
     setMessage(message)
   }
 
+  // Handle image file selection
+  const addImage = (event) => {
+    const selectedFile = event.target.files[0];
+
+    if (selectedFile) {
+      setFile(selectedFile);
+
+      questionpaperFormik.setFieldValue(
+        "fileName",
+        selectedFile ? selectedFile.name : ""
+      );
+
+      if (selectedFile.type === "application/pdf") {
+        setImageUrl("pdf");   // special indicator
+      } else {
+        setImageUrl(URL.createObjectURL(selectedFile));
+      }
+    }
+  };
+  // const addImage = (event) => {
+  //   const selectedFile = event.target.files[0];
+  //   if (selectedFile) {
+  //     setFile(selectedFile);
+  //     setImageUrl(URL.createObjectURL(selectedFile));
+  //   }
+  // };
+
+  //   CLEARING IMAGE FILE REFENCE FROM INPUT
+  const fileInputRef = useRef(null);
+  const handleClearFile = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear the file input
+    }
+    setFile(null); // Reset the file state
+    setImageUrl(null); // Clear the image preview
+  };
+
 
   const handleNewQuestionpaper = () => {
-    cancelEditQuestionpaper()
+    cancelEditQuestionpaper();
     setQuestionpaperForm(true);
+  };
+
+  const viewUploadFile = (fileName) => {
+    const fileUrl = `/uploads/questionpapers/${fileName}`;
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleEdit = (id) => {
@@ -80,24 +129,31 @@ export default function Questionpapers() {
         questionpaperFormik.setFieldValue("name", resp.data.data.name);
         questionpaperFormik.setFieldValue("description", resp.data.data.description);
         questionpaperFormik.setFieldValue("date", dayjs(resp.data.data.questionpaperDate));
-        questionpaperFormik.setFieldValue("subject", resp.data.data.subject);
-        questionpaperFormik.setFieldValue("teacher", resp.data.data.teacher);
-        questionpaperFormik.setFieldValue("examination", resp.data.data.examination);
+        questionpaperFormik.setFieldValue("class", resp.data.data.class._id);
+        questionpaperFormik.setFieldValue("subject", resp.data.data.subject._id);
+        questionpaperFormik.setFieldValue("teacher", resp.data.data.teacher._id);
+        questionpaperFormik.setFieldValue("examination", resp.data.data.examination._id);
+        questionpaperFormik.setFieldValue("marksLimit", resp.data.data.marksLimit);
 
+        questionpaperFormik.setFieldValue("fileName", resp.data.data.fileName);
 
-        const subjectId = resp.data.data?.subject || resp.data.subject;
-        const matchedSubject = allSubjects.find(c => c._id === subjectId);
-        setSelectedSubject(matchedSubject);
+        // const classId = resp.data.data?.class || resp.data.class;
+        // const matchedClass = allClasses.find(c => c._id === classId);
+        setSelectedClass(resp.data.data.class);
 
-        const teacherId = resp.data.data?.teacher || resp.data.teacher;
-        const matchedTeacher = allTeachers.find(c => c._id === teacherId);
-        setSelectedTeacher(matchedTeacher);
+        // const subjectId = resp.data.data?.subject || resp.data.subject;
+        // const matchedSubject = allSubjects.find(c => c._id === subjectId);
+        setSelectedSubject(resp.data.data.subject);
 
-        const examId = resp.data.data?.examination || resp.data.examination;
-        const matchedExamination = allExaminations.find(c => c._id === examId);
-        setSelectedExamination(matchedExamination);
+        // const teacherId = resp.data.data?.teacher || resp.data.teacher;
+        // const matchedTeacher = allTeachers.find(c => c._id === teacherId);
+        setSelectedTeacher(resp.data.data.teacher);
 
-        questionpaperFormik.setFieldValue("examtype", resp.data.data.examtype);
+        // const examId = resp.data.data?.examination || resp.data.examination;
+        // const matchedExamination = allExaminations.find(c => c._id === examId);
+        setSelectedExamination(resp.data.data.examination);
+
+        
 
       })
       .catch((e) => {
@@ -122,38 +178,64 @@ export default function Questionpapers() {
   const cancelEditQuestionpaper = () => {
     setQuestionpaperForm(false);
     setQuestionpaperEditId(null);
+
+    setSelectedClass(null);
+    setSelectedExamination(null);
+    
+    setSelectedSubject(null);
+    setSelectedTeacher(null);
+
+    setClassExaminations([]);
+    setEditQuestionpaper(false);
     questionpaperFormik.resetForm();
   };
 
   const questionpaperFormik = useFormik({
-    initialValues: { name:"",description:"", date: "", subject: "", teacher: "",examination:"",examtype:"",fileType:"",fileName:"" },
+    initialValues: { name: "", description: "", date: "", class: "", subject: "", teacher: "", examination: "",marksLimit:0, fileType: "", fileName: "" },
     validationSchema: questionpaperSchema,
     onSubmit: (values) => {
       if (isEditQuestionpaper) {
+
+        const fd = new FormData();
+        Object.keys(values).forEach((key) => fd.append(key, values[key]));
+        if (file) {
+          fd.append("image", file, file.name);
+        }
+
         axios
-          .patch(`${baseUrl}/questionpaper/update/${questionpaperEditId}`, { ...values })
+          .patch(`${baseUrl}/questionpaper/update/${questionpaperEditId}`, fd)
           .then((resp) => {
             handleMessage("success", resp.data.message);
+            handleClearFile();
           })
           .catch((e) => {
             handleMessage("error", e.response.data.message);
           });
+
       } else {
         console.log("Values", values)
         console.log("selected Class", selectedClass)
-        axios
-          .post(`${baseUrl}/questionpaper/new`, {
-            ...values,
-            class_id: selectedClass?._id,
-          })
-          .then((resp) => {
-            handleMessage("success", resp.data.message);
-            console.log("success", resp)
-          })
-          .catch((e) => {
-            console.log(e, "error")
-            handleMessage("error", e.response.data.message);
-          });
+
+
+        // values.class_id= selectedClass?._id;
+        const fd = new FormData();
+        Object.keys(values).forEach((key) => fd.append(key, values[key]));
+        if (file) {
+          fd.append("image", file, file.name);
+          axios
+            .post(`${baseUrl}/questionpaper/new`, fd)
+            .then((resp) => {
+              handleMessage("success", resp.data.message);
+              console.log("success", resp);
+              handleClearFile();
+            })
+            .catch((e) => {
+              console.log(e, "error")
+              handleMessage("error", e.response.data.message);
+            });
+        }
+
+
       }
       cancelEditQuestionpaper();
       setSubmitted("Submitted")
@@ -161,10 +243,9 @@ export default function Questionpapers() {
   });
 
 
-
-  const fetchQuestionpapers = () => {
+  const fetchAllQuestionpapers = () => {
     axios
-      .get(`${baseUrl}/questionpaper/fetch-class/${selectedClass?._id}`)
+      .get(`${baseUrl}/questionpaper/all`)
       .then((resp) => {
         console.log("ALL Questionpaper", resp);
         setQuestionpapers(resp.data.data);
@@ -173,11 +254,13 @@ export default function Questionpapers() {
         console.log("Error in fetching  Questionpaperinstions.");
       });
   };
+
+
   useEffect(() => {
-    if (selectedClass) {
-      fetchQuestionpapers();
-    }
-  }, [selectedClass, message]);
+
+    fetchAllQuestionpapers();
+
+  }, [message]);
 
   const fetchStudentClass = () => {
     axios
@@ -185,7 +268,7 @@ export default function Questionpapers() {
       .then((resp) => {
         setAllClasses(resp.data.data);
         console.log("Class", resp.data);
-        setSelectedClass(resp.data.data[0]);
+
       })
       .catch((e) => {
         console.log("Error in fetching student Class", e);
@@ -217,9 +300,11 @@ export default function Questionpapers() {
       });
   };
 
+
+
   const fetchAllExaminations = () => {
     axios
-      .get(`${baseUrl}/examination/fetch-class/${selectedClass?._id}`)
+      .get(`${baseUrl}/examination/all`)
       .then((resp) => {
         console.log("ALL Examination", resp);
         setAllExaminations(resp.data.data);
@@ -234,54 +319,21 @@ export default function Questionpapers() {
     fetchStudentClass();
     fetchAllSubjects();
     fetchAllTeachers();
+    fetchAllExaminations();
 
   }, []);
 
-  useEffect(() => {
-    fetchAllExaminations();
-  }, [selectedClass]);
+
 
 
   return (
     <>
       {message && <CustomizedSnackbars reset={resetMessage} type={type} message={message} />}
       <Box><Typography className="hero-text" variant="h2" sx={{ textAlign: "center" }}>Questionpapers</Typography></Box>
-      <Paper sx={{ margin: "10px", padding: "10px" }}>
+      {/* <Paper sx={{ margin: "10px", padding: "10px" }}> */}
 
 
-        {/* Class */}
-        {allClasses.length > 0 && (
-          <Box>
 
-            <Autocomplete
-              options={allClasses}
-              getOptionLabel={(option) => option.class_text}
-              value={selectedClass}
-              onChange={(event, newValue) => {
-                setSelectedClass(newValue);
-
-                questionpaperFormik.setFieldValue(
-                  "class",
-                  newValue ? newValue._id : ""
-                );
-              }}
-              onBlur={() => questionpaperFormik.setFieldTouched("class", true)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select Class"
-                  placeholder="Search class..."
-                  fullWidth
-                  error={questionpaperFormik.touched.class && Boolean(questionpaperFormik.errors.class)}
-                  helperText={questionpaperFormik.touched.class && questionpaperFormik.errors.class}
-                />
-              )}
-            />
-
-
-          </Box>
-        )}
-      </Paper>
 
       {questionpaperForm && (
         <Paper sx={{ p: 4, mt: 3, maxWidth: 500, mx: "auto" }}>
@@ -308,11 +360,44 @@ export default function Questionpapers() {
             gap={3}
           >
 
-            {/* Paper Name */}
+            {/* Class */}
+
+            <Box>
+
+              <Autocomplete
+                disabled={isEditQuestionpaper}
+                options={allClasses}
+                getOptionLabel={(option) => option.class_text}
+                value={selectedClass}
+                onChange={(event, newValue) => {
+                  setSelectedClass(newValue);
+
+                  questionpaperFormik.setFieldValue(
+                    "class",
+                    newValue ? newValue._id : ""
+                  );
+                }}
+                onBlur={() => questionpaperFormik.setFieldTouched("class", true)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Class"
+                    placeholder="Search class..."
+                    fullWidth
+                    error={questionpaperFormik.touched.class && Boolean(questionpaperFormik.errors.class)}
+                    helperText={questionpaperFormik.touched.class && questionpaperFormik.errors.class}
+                  />
+                )}
+              />
+
+
+            </Box>
+
+
             <Box>
               <TextField
                 fullWidth
-                label="Paper Name"
+                label="Name"
                 variant="outlined"
                 name="name"
                 value={questionpaperFormik.values.name}
@@ -358,65 +443,155 @@ export default function Questionpapers() {
             </LocalizationProvider>
 
             {/* Subject */}
-            {allSubjects.length > 0 && (
-              <Autocomplete
-                options={allSubjects}
-                getOptionLabel={(option) => option.subject_name}
-                value={selectedSubject}
-                onChange={(event, newValue) => {
-                  setSelectedSubject(newValue);
-                  questionpaperFormik.setFieldValue(
-                    "subject",
-                    newValue ? newValue._id : ""
-                  );
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Select Subject" fullWidth />
-                )}
-              />
-            )}
+
+            <Autocomplete
+              options={allSubjects}
+              getOptionLabel={(option) => option.subject_name}
+              value={selectedSubject}
+              onChange={(event, newValue) => {
+                setSelectedSubject(newValue);
+                questionpaperFormik.setFieldValue(
+                  "subject",
+                  newValue ? newValue._id : ""
+                );
+              }}
+              onBlur={() => questionpaperFormik.setFieldTouched("subject", true)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Subject"
+                  placeholder="Search subject..."
+                  fullWidth
+                  error={questionpaperFormik.touched.subject && Boolean(questionpaperFormik.errors.subject)}
+                  helperText={questionpaperFormik.touched.subject && questionpaperFormik.errors.subject}
+                />
+              )}
+            />
+
 
             {/* Teacher */}
-            {allTeachers.length > 0 && (
-              <Autocomplete
-                options={allTeachers}
-                getOptionLabel={(option) => option.name}
-                value={selectedTeacher}
-                onChange={(event, newValue) => {
-                  setSelectedTeacher(newValue);
-                  questionpaperFormik.setFieldValue(
-                    "teacher",
-                    newValue ? newValue._id : ""
-                  );
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Select Teacher" fullWidth />
-                )}
-              />
-            )}
+
+            <Autocomplete
+              options={allTeachers}
+              getOptionLabel={(option) => option.name}
+              value={selectedTeacher}
+              onChange={(event, newValue) => {
+                setSelectedTeacher(newValue);
+                questionpaperFormik.setFieldValue(
+                  "teacher",
+                  newValue ? newValue._id : ""
+                );
+              }}
+              onBlur={() => questionpaperFormik.setFieldTouched("teacher", true)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Teacher"
+                  placeholder="Search teacher..."
+                  fullWidth
+                  error={questionpaperFormik.touched.teacher && Boolean(questionpaperFormik.errors.teacher)}
+                  helperText={questionpaperFormik.touched.teacher && questionpaperFormik.errors.teacher}
+                />
+              )}
+            />
 
             {/* Examination */}
-            {allExaminations.length > 0 && (
-              <Autocomplete
-                options={allExaminations}
-                getOptionLabel={(option) => option.name}
-                value={selectedExamination}
-                onChange={(event, newValue) => {
-                  setSelectedExamination(newValue);
-                  questionpaperFormik.setFieldValue(
-                    "examination",
-                    newValue ? newValue._id : ""
-                  );
-                  questionpaperFormik.setFieldValue(
-                    "examtype",
-                    newValue ? newValue.examtype._id : ""
-                  );
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Select Examination" fullWidth />
-                )}
+
+            <Autocomplete
+              disabled={isEditQuestionpaper}
+              options={allExaminations}
+              getOptionLabel={(option) => option.name}
+              value={selectedExamination}
+              onChange={(event, newValue) => {
+                setSelectedExamination(newValue);
+                questionpaperFormik.setFieldValue(
+                  "examination",
+                  newValue ? newValue._id : ""
+                );
+
+                
+
+
+              }}
+              onBlur={() => questionpaperFormik.setFieldTouched("examination", true)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Examination"
+                  placeholder="Search examination..."
+                  fullWidth
+                  error={questionpaperFormik.touched.examination && Boolean(questionpaperFormik.errors.examination)}
+                  helperText={questionpaperFormik.touched.examination && questionpaperFormik.errors.examination}
+                />
+              )}
+            />
+
+            {/* marksLimit */}
+            <Box>
+              <TextField
+                fullWidth
+                label="marksLimit"
+                variant="outlined"
+                name="marksLimit"
+                type="number"
+                value={questionpaperFormik.values.marksLimit}
+                onChange={questionpaperFormik.handleChange}
+                onBlur={questionpaperFormik.handleBlur}
+
               />
-            )}
+
+              {questionpaperFormik.touched.marksLimit && questionpaperFormik.errors.marksLimit && (
+                <p style={{ color: "red", textTransform: "capitalize" }}>
+                  {questionpaperFormik.errors.marksLimit}
+                </p>
+              )}
+
+            </Box>
+
+
+
+
+
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Typography sx={{ marginRight: "10px" }} variant="h10">
+                File
+              </Typography>
+              <TextField
+                sx={{ marginTop: "10px" }}
+                id="filled-basic"
+                variant="outlined"
+                name="fileName"
+                type="file"
+                inputProps={{ accept: ".pdf,image/*" }}
+                onChange={addImage}
+                inputRef={fileInputRef}
+              />
+
+              {imageUrl && (
+                <Box sx={{ position: "relative" }}>
+                  <CardMedia
+                    component="img"
+                    image={imageUrl}
+                    height="240px"
+                  />
+                </Box>
+              )}
+              {questionpaperFormik.touched.fileName &&
+                questionpaperFormik.errors.fileName && (
+                  <p style={{ color: "red", textTransform: "capitalize" }}>
+                    {questionpaperFormik.errors.fileName}
+                  </p>
+                )}
+            </Box>
+
+
 
             {/* Buttons (Full Width Row) */}
             <Box gridColumn="1 / -1" display="flex" gap={2}>
@@ -466,6 +641,12 @@ export default function Questionpapers() {
                 <TableCell sx={{ fontWeight: "700" }} align="left">
                   Examination
                 </TableCell>
+                <TableCell sx={{ fontWeight: "700" }} align="left">
+                  Marks Limit
+                </TableCell>
+                <TableCell sx={{ fontWeight: "700" }} align="left">
+                  File
+                </TableCell>
                 <TableCell sx={{ fontWeight: "700" }} align="center">
                   Actions
                 </TableCell>
@@ -476,7 +657,7 @@ export default function Questionpapers() {
                 questionpapers.map((questionpaper, i) => {
                   return (
                     <TableRow key={i}>
-                       <TableCell align="left">
+                      <TableCell align="left">
                         {questionpaper.name ? questionpaper.name : ""}
                       </TableCell>
                       <TableCell component="th" scope="row">
@@ -490,6 +671,10 @@ export default function Questionpapers() {
                       </TableCell>
                       <TableCell align="left">
                         {questionpaper.examination ? questionpaper.examination.name : "Add One"}
+                      </TableCell>
+
+                      <TableCell align="right">
+                        {questionpaper.marksLimit ? questionpaper.marksLimit : 0}
                       </TableCell>
 
                       <TableCell sx={{ fontWeight: "700" }} align="center">
@@ -514,6 +699,14 @@ export default function Questionpapers() {
                             onClick={() => handleEdit(questionpaper._id)}
                           >
                             Edit
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{ background: "skyblue", color: "#000" }}
+                            onClick={() => viewUploadFile(questionpaper.fileName)}
+                          >
+                            View Upload File
                           </Button>
                         </Box>
                       </TableCell>

@@ -185,7 +185,13 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
     const [month, setMonth] = useState([]);
     const [year, setYear] = useState([]);
     
-  
+  const [selectedYear, setSelectedYear] = useState(null);
+
+    const years = Array.from({ length: 10 }, (_, i) => {
+        const year = new Date().getFullYear() - i;
+        return { label: `${year}-${year + 1}`, value: year };
+    });
+    
     const fetchteachers = () => {
       axios
         .get(`${baseUrl}/teacher/fetch-with-query`, { params: params })

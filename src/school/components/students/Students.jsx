@@ -32,6 +32,12 @@ export default function Students() {
 
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null); // Independent state for image preview
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
 
   // Handle image file selection
   const addImage = (event) => {
@@ -301,7 +307,7 @@ export default function Students() {
                 )}
               </Box>
 
-              
+
               {/* Other input fields go here */}
               <TextField
                 fullWidth
@@ -348,12 +354,12 @@ export default function Students() {
                     // onChange={(event, newValue) => setSelectedClass(newValue)}
                     onChange={(event, newValue) => {
                       setSelectedClass(newValue);
-                      
+
                       Formik.setFieldValue(
-                              "student_class",
-                              newValue ? newValue._id : ""
-                            );
-                      
+                        "student_class",
+                        newValue ? newValue._id : ""
+                      );
+
                     }}
                     //  onBlur={Formik.handleBlur}
                     renderInput={(params) => (
@@ -363,7 +369,7 @@ export default function Students() {
                         placeholder="Search class..."
                         fullWidth
                         error={Formik.touched.student_class && Boolean(Formik.errors.student_class)}
-                              helperText={Formik.touched.student_class && Formik.errors.student_class}
+                        helperText={Formik.touched.student_class && Formik.errors.student_class}
                       />
                     )}
                   />
@@ -385,13 +391,13 @@ export default function Students() {
                     // onChange={(event, newValue) => setSelectedSection(newValue)}
                     onChange={(event, newValue) => {
                       setSelectedSection(newValue);
-                      
-                       Formik.setFieldValue(
-                              "section",
-                              newValue ? newValue._id : ""
-                            );
+
+                      Formik.setFieldValue(
+                        "section",
+                        newValue ? newValue._id : ""
+                      );
                     }}
-                     onBlur={() => Formik.setFieldTouched("section", true)}
+                    onBlur={() => Formik.setFieldTouched("section", true)}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -399,7 +405,7 @@ export default function Students() {
                         placeholder="Search section..."
                         fullWidth
                         error={Formik.touched.section && Boolean(Formik.errors.section)}
-                              helperText={Formik.touched.section && Formik.errors.section}
+                        helperText={Formik.touched.section && Formik.errors.section}
                       />
                     )}
                   />
@@ -421,12 +427,12 @@ export default function Students() {
                     // onChange={(event, newValue) => setSelectedParent(newValue)}
                     onChange={(event, newValue) => {
                       setSelectedParent(newValue);
-                      
-                      
+
+
                       Formik.setFieldValue(
-                              "parent",
-                              newValue ? newValue._id : ""
-                            );
+                        "parent",
+                        newValue ? newValue._id : ""
+                      );
                     }}
                     //  onBlur={Formik.handleBlur}
                     renderInput={(params) => (
@@ -436,7 +442,7 @@ export default function Students() {
                         placeholder="Search parent..."
                         fullWidth
                         error={Formik.touched.parent && Boolean(Formik.errors.parent)}
-                              helperText={Formik.touched.parent && Formik.errors.parent}
+                        helperText={Formik.touched.parent && Formik.errors.parent}
                       />
                     )}
                   />

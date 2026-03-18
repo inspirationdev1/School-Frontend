@@ -167,19 +167,7 @@ export default function ReceiptPrint() {
     );
 
     const downloadReceiptExcel = () => {
-        // <TD style={styles.td}>{index + 1}</TD>
-        //                     <TD style={styles.td}>{item.student.name}</TD>
-        //                     <TD style={styles.td}>{item.class.class_text}</TD>
-        //                     <TD style={styles.td}>{item.section.section_name}</TD>
-        //                     <TD style={styles.td}>{item.siCode}</TD>
-                           
-        //                     <TD style={styles.td}>
-        //                         <Text style={styles.rightText}>{item.invAmount}</Text>
-        //                     </TD>
-
-        //                     <TD style={styles.td}>
-        //                         <Text style={styles.rightText}>{item.paidAmount}</Text>
-        //                     </TD>
+        
         // 1️⃣ Prepare row data
         const rows = printReceipt.receiptDetails.map((item, index) => ({
             "S.No": index + 1,

@@ -48,6 +48,12 @@ export default function Expenses() {
     const [expensetypes, setExpensetypes] = useState([]);
     const [selectedExpensetype, setSelectedExpensetype] = useState(null);
     const [tab, setTab] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(null);
+
+    const years = Array.from({ length: 10 }, (_, i) => {
+        const year = new Date().getFullYear() - i;
+        return { label: `${year}-${year + 1}`, value: year };
+    });
 
     const [expenseDetails, setExpenseDetails] = useState([
         {
@@ -108,6 +114,9 @@ export default function Expenses() {
 
 
                 Formik.setFieldValue("remarks", resp.data.data.remarks);
+                Formik.setFieldValue("remarks", resp.data.data.remarks);
+                const matchedYear = years.find(s => s.value === resp.data.data.year);
+                setSelectedYear(matchedYear || null);
                 
                 setEditId(resp.data.data._id);
 
@@ -188,7 +197,8 @@ export default function Expenses() {
         expenseTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         paymentMethod: "",
         status: "valid",
-        remarks: ""
+        remarks: "",
+        year:""
     };
 
    
@@ -236,6 +246,7 @@ export default function Expenses() {
                     invAmount: row.invAmount,
                     expenseAmount: row.expenseAmount,
                     remarks: "",
+                    year: values.year
                 })),
             };
             if (isEdit) {
@@ -499,7 +510,34 @@ export default function Expenses() {
                                             )}
                                         </Box>
 
+                                            {/* Academic Year */}
+                                        <Box>
+                                            <Autocomplete
+                                                // disabled={isEdit}
+                                                options={years}
+                                                getOptionLabel={(option) => option.label}
+                                                value={selectedYear}
+                                                onChange={(event, newValue) => {
+                                                    setSelectedYear(newValue);
 
+                                                    Formik.setFieldValue(
+                                                        "year",
+                                                        newValue ? newValue.value : ""
+                                                    );
+                                                }}
+                                                onBlur={() => Formik.setFieldTouched("year", true)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select Academic Year"
+                                                        placeholder="Search year..."
+                                                        fullWidth
+                                                        error={Formik.touched.year && Boolean(Formik.errors.year)}
+                                                        helperText={Formik.touched.year && Formik.errors.year}
+                                                    />
+                                                )}
+                                            />
+                                        </Box>
 
 
                                         <Box>

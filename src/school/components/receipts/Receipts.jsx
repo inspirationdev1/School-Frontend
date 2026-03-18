@@ -48,6 +48,12 @@ export default function Receipts() {
     const [salesinvoices, setSalesinvoices] = useState([]);
     const [selectedSalesinvoice, setSelectedSalesinvoice] = useState(null);
     const [tab, setTab] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(null);
+
+    const years = Array.from({ length: 10 }, (_, i) => {
+        const year = new Date().getFullYear() - i;
+        return { label: `${year}-${year + 1}`, value: year };
+    });
 
     const [receiptDetails, setReceiptDetails] = useState([
         {
@@ -58,6 +64,7 @@ export default function Receipts() {
             invAmount: 0,
             paidAmount: 0,
             remarks: "",
+            year: "",
             isEdit: false
         },
     ]);
@@ -73,6 +80,8 @@ export default function Receipts() {
                 invAmount: 0,
                 paidAmount: 0,
                 remarks: "",
+                year: "",
+                isEdit: false
             },
         ])
         console.log("receiptDetails", receiptDetails);
@@ -111,7 +120,11 @@ export default function Receipts() {
 
 
                 Formik.setFieldValue("remarks", resp.data.data.remarks);
-                
+                Formik.setFieldValue("year", resp.data.data.year);
+
+                const matchedYear = years.find(s => s.value === resp.data.data.year);
+                setSelectedYear(matchedYear || null);
+
                 setEditId(resp.data.data._id);
 
 
@@ -163,6 +176,7 @@ export default function Receipts() {
         setSelectedSection(null);
         setSelectedStudent(null);
         setSelectedSalesinvoice(null);
+        setSelectedYear(null);
         setIsDataValid(true);
         // 🔥 reset Autocomplete values
         clearReceiptDetails();
@@ -193,7 +207,8 @@ export default function Receipts() {
         receiptTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         paymentMethod: "",
         status: "valid",
-        remarks: ""
+        remarks: "",
+        year: "",
     };
 
     const hasDuplicateInvoice = (receiptDetails) => {
@@ -261,6 +276,7 @@ export default function Receipts() {
                     invAmount: row.invAmount,
                     paidAmount: row.paidAmount,
                     remarks: "",
+                    year: values.year,
                 })),
             };
             if (isEdit) {
@@ -412,7 +428,7 @@ export default function Receipts() {
         const updated = [...receiptDetails];
         updated[index][field] = value;
 
-        
+
 
         if (field === "student") {
             updated[index].siId = null;       // 👈 clears invoice
@@ -455,6 +471,7 @@ export default function Receipts() {
                 invAmount: 0,
                 paidAmount: 0,
                 remarks: "",
+                year: "",
             },
         ]);
     };
@@ -483,7 +500,7 @@ export default function Receipts() {
                         textColor="primary"
                         indicatorColor="primary"
                     >
-                        
+
                         <Tab label={isEdit ? "Edit Receipt" : "Create Receipt"} />
                         <Tab label="View List" />
                     </Tabs>
@@ -492,7 +509,7 @@ export default function Receipts() {
                 {tab === 0 && (
                     <Box>
                         {/* Create Receipt */}
-                       
+
 
                         <Box component={"div"} sx={{}}>
                             <Paper
@@ -572,7 +589,34 @@ export default function Receipts() {
                                         </Box>
 
 
+                                        {/* Academic Year */}
+                                        <Box>
+                                            <Autocomplete
+                                                disabled={isEdit}
+                                                options={years}
+                                                getOptionLabel={(option) => option.label}
+                                                value={selectedYear}
+                                                onChange={(event, newValue) => {
+                                                    setSelectedYear(newValue);
 
+                                                    Formik.setFieldValue(
+                                                        "year",
+                                                        newValue ? newValue.value : ""
+                                                    );
+                                                }}
+                                                onBlur={() => Formik.setFieldTouched("year", true)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select Academic Year"
+                                                        placeholder="Search year..."
+                                                        fullWidth
+                                                        error={Formik.touched.year && Boolean(Formik.errors.year)}
+                                                        helperText={Formik.touched.year && Formik.errors.year}
+                                                    />
+                                                )}
+                                            />
+                                        </Box>
 
                                         <Box>
 

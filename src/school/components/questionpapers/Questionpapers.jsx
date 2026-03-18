@@ -50,7 +50,7 @@ export default function Questionpapers() {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [allExaminations, setAllExaminations] = useState([]);
   const [selectedExamination, setSelectedExamination] = useState(null);
-  
+
 
   const [classExaminations, setClassExaminations] = useState([]);
 
@@ -60,6 +60,12 @@ export default function Questionpapers() {
 
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null); // Independent state for image preview
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
 
   const resetMessage = () => {
     setMessage("");
@@ -134,8 +140,11 @@ export default function Questionpapers() {
         questionpaperFormik.setFieldValue("teacher", resp.data.data.teacher._id);
         questionpaperFormik.setFieldValue("examination", resp.data.data.examination._id);
         questionpaperFormik.setFieldValue("marksLimit", resp.data.data.marksLimit);
-
         questionpaperFormik.setFieldValue("fileName", resp.data.data.fileName);
+
+        questionpaperFormik.setFieldValue("year", resp.data.data.year);
+        const matchedYear = years.find(s => s.value === resp.data.data.year);
+        setSelectedYear(matchedYear || null);
 
         // const classId = resp.data.data?.class || resp.data.class;
         // const matchedClass = allClasses.find(c => c._id === classId);
@@ -153,7 +162,7 @@ export default function Questionpapers() {
         // const matchedExamination = allExaminations.find(c => c._id === examId);
         setSelectedExamination(resp.data.data.examination);
 
-        
+
 
       })
       .catch((e) => {
@@ -181,17 +190,22 @@ export default function Questionpapers() {
 
     setSelectedClass(null);
     setSelectedExamination(null);
-    
+
     setSelectedSubject(null);
     setSelectedTeacher(null);
 
     setClassExaminations([]);
     setEditQuestionpaper(false);
+
+    setSelectedYear(null);
     questionpaperFormik.resetForm();
   };
 
   const questionpaperFormik = useFormik({
-    initialValues: { name: "", description: "", date: "", class: "", subject: "", teacher: "", examination: "",marksLimit:0, fileType: "", fileName: "" },
+    initialValues: {
+      name: "", description: "", date: "", class: "", subject: "", teacher: "", examination: ""
+      , marksLimit: 0, fileType: "", fileName: "", year: ""
+    },
     validationSchema: questionpaperSchema,
     onSubmit: (values) => {
       if (isEditQuestionpaper) {
@@ -442,6 +456,36 @@ export default function Questionpapers() {
               />
             </LocalizationProvider>
 
+
+            {/* Academic Year */}
+            <Box>
+              <Autocomplete
+                disabled={isEditQuestionpaper}
+                options={years}
+                getOptionLabel={(option) => option.label}
+                value={selectedYear}
+                onChange={(event, newValue) => {
+                  setSelectedYear(newValue);
+
+                  questionpaperFormik.setFieldValue(
+                    "year",
+                    newValue ? newValue.value : ""
+                  );
+                }}
+                onBlur={() => questionpaperFormik.setFieldTouched("year", true)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Academic Year"
+                    placeholder="Search year..."
+                    fullWidth
+                    error={questionpaperFormik.touched.year && Boolean(questionpaperFormik.errors.year)}
+                    helperText={questionpaperFormik.touched.year && questionpaperFormik.errors.year}
+                  />
+                )}
+              />
+            </Box>
+
             {/* Subject */}
 
             <Autocomplete
@@ -509,7 +553,7 @@ export default function Questionpapers() {
                   newValue ? newValue._id : ""
                 );
 
-                
+
 
 
               }}

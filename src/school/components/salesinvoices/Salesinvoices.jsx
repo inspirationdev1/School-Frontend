@@ -47,6 +47,12 @@ export default function Salesinvoice() {
   const [selectedFeestructure, setSelectedFeestructure] = useState(null);
   const [allFeestructure, setAllFeestructure] = useState([])
   const [tab, setTab] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
 
   const [invoiceDetails, setInvoiceDetails] = useState([
     {
@@ -79,7 +85,8 @@ export default function Salesinvoice() {
         discountPer: 0,
         discountAmount: 0,
         netAmount: 0,
-        remarks: ""
+        remarks: "",
+        year: "",
       },
     ])
     console.log("invoiceDetails", invoiceDetails);
@@ -118,7 +125,10 @@ export default function Salesinvoice() {
         Formik.setFieldValue("paymentMethod", resp.data.data.paymentMethod);
         Formik.setFieldValue("paymentStatus", resp.data.data.paymentStatus);
         Formik.setFieldValue("status", resp.data.data.status);
+        Formik.setFieldValue("year", resp.data.data.year);
 
+        const matchedYear = years.find(s => s.value === resp.data.data.year);
+        setSelectedYear(matchedYear || null);
 
         Formik.setFieldValue("remarks", resp.data.data.remarks);
         const classId = resp.data.data?.class || resp.data.class;
@@ -183,9 +193,10 @@ export default function Salesinvoice() {
     setSelectedClass(null);
     setSelectedSection(null);
     setSelectedStudent(null);
+    setSelectedYear(null);
     setIsDataValid(true);
     // 🔥 reset Autocomplete values
-        clearInvoiceDetails();
+    clearInvoiceDetails();
   };
 
   const clearForm = () => {
@@ -196,6 +207,7 @@ export default function Salesinvoice() {
     setSelectedClass(null);
     setSelectedSection(null);
     setSelectedStudent(null);
+    setSelectedYear(null);
     clearInvoiceDetails();
 
   };
@@ -219,7 +231,8 @@ export default function Salesinvoice() {
     paymentMethod: "",
     paymentStatus: "pending",
     status: "valid",
-    remarks: ""
+    remarks: "",
+    year: "",
   };
   const Formik = useFormik({
     initialValues: initialValues,
@@ -290,6 +303,8 @@ export default function Salesinvoice() {
           discountAmount: row.discountAmount,
           netAmount: row.netAmount,
           remarks: '',
+          student: values.student,
+          year: values.year,
         })),
       };
       if (isEdit) {
@@ -554,7 +569,7 @@ export default function Salesinvoice() {
             indicatorColor="primary"
           >
             {/* <Tab label="Create Receipt" /> */}
-            <Tab label={isEdit ? "Edit Sales Invoice" : "Create Sales Invoice"} />
+            <Tab label={isEdit ? "Edit Fees Invoice" : "Create Fees Invoice"} />
             <Tab label="View List" />
           </Tabs>
         </Box>
@@ -640,6 +655,35 @@ export default function Salesinvoice() {
                           {Formik.errors.invoiceDate}
                         </Typography>
                       )}
+                    </Box>
+
+                    {/* Academic Year */}
+                    <Box>
+                      <Autocomplete
+                        disabled={isEdit}
+                        options={years}
+                        getOptionLabel={(option) => option.label}
+                        value={selectedYear}
+                        onChange={(event, newValue) => {
+                          setSelectedYear(newValue);
+
+                          Formik.setFieldValue(
+                            "year",
+                            newValue ? newValue.value : ""
+                          );
+                        }}
+                        onBlur={() => Formik.setFieldTouched("year", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Academic Year"
+                            placeholder="Search year..."
+                            fullWidth
+                            error={Formik.touched.year && Boolean(Formik.errors.year)}
+                            helperText={Formik.touched.year && Formik.errors.year}
+                          />
+                        )}
+                      />
                     </Box>
 
                     {/* Class */}

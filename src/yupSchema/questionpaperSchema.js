@@ -15,4 +15,5 @@ export const questionpaperSchema = yup.object({
             .required("Marks Limit is required"),
     //fileType:yup.string(),
     fileName:yup.string().required("Examination is a required field."),
+     year: yup.string().required("Year is required"),
 })

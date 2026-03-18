@@ -51,6 +51,12 @@ export default function SchoolReports() {
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
 
   const cancelEdit = () => {
     setEdit(false);
@@ -61,14 +67,14 @@ export default function SchoolReports() {
 
     setPrint(true);
     const data = {
-      student: selectedStudent._id
+      student: selectedStudent._id,
+      year: selectedYear.value
     };
 
     window.open(
       `/school/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
       "_blank"
     );
-
 
     setPrint(false);
 
@@ -112,6 +118,12 @@ export default function SchoolReports() {
           setIsDataValid(false);
           return;
         }
+      }
+
+      if (!values.year) {
+        setDataError('Select the Year');
+        setIsDataValid(false);
+        return;
       }
 
       setIsDataValid(true);
@@ -595,6 +607,34 @@ export default function SchoolReports() {
 
                   </Box>
                 )}
+
+                {/* Academic Year */}
+                <Box>
+                  <Autocomplete
+                    options={years}
+                    getOptionLabel={(option) => option.label}
+                    value={selectedYear}
+                    onChange={(event, newValue) => {
+                      setSelectedYear(newValue);
+
+                      Formik.setFieldValue(
+                        "year",
+                        newValue ? newValue.value : ""
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("year", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Academic Year"
+                        placeholder="Search year..."
+                        fullWidth
+                        error={Formik.touched.year && Boolean(Formik.errors.year)}
+                        helperText={Formik.touched.year && Formik.errors.year}
+                      />
+                    )}
+                  />
+                </Box>
 
 
               </Box>

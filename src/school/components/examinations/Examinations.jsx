@@ -48,6 +48,12 @@ export default function Examinations() {
 
   const [message, setMessage] = useState("");
   const [type, setType] = useState("");
+  const [selectedYear, setSelectedYear] = useState(null);
+
+    const years = Array.from({ length: 10 }, (_, i) => {
+        const year = new Date().getFullYear() - i;
+        return { label: `${year}-${year + 1}`, value: year };
+    });
 
   const resetMessage = () => {
     setMessage("");

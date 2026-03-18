@@ -40,61 +40,9 @@ export default function SchoolReportsPrint() {
 
     const [selectedClassId, setSelectedClassId] = useState(null)
     const [selectedStudentId, setSelectedStudentId] = useState(null)
+    const [selectedYear, setSelectedYear] = useState(null)
+    const [isDataFound, setIsDataFound] = useState(false);
 
-
-    const transformMarksheetData_Old = (data) => {
-
-        const subjects = {};
-        const exams = new Set();
-
-        data.forEach(item => {
-            const subject = item.subject.subject_name || item.subject;
-            const exam = item.examination.examination_name || item.examination;
-
-            exams.add(exam);
-
-            if (!subjects[subject]) {
-                subjects[subject] = {};
-            }
-
-            subjects[subject][exam] = {
-                marks: item.marksheetDetails[0]?.marks || 0,
-                marksLimit: item.marksheetDetails[0]?.marksLimit || 0
-            };
-        });
-
-        return {
-            exams: Array.from(exams),
-            subjects
-        };
-    };
-
-    const transformMarksheetData_Old_1 = (data) => {
-
-        const subjects = {};
-        const exams = new Set();
-
-        data.forEach(item => {
-            const subject = item.subject.subject_name || item.subject;
-            const exam = item.examination.examination_name || item.examination;
-
-            exams.add(exam);
-
-            if (!subjects[subject]) {
-                subjects[subject] = {};
-            }
-
-            subjects[subject][exam] = {
-                marks: item?.marks || 0,
-                marksLimit: item?.marksLimit || 0
-            };
-        });
-
-        return {
-            exams: Array.from(exams),
-            subjects
-        };
-    };
 
     const transformMarksheetData = (data) => {
 
@@ -140,20 +88,10 @@ export default function SchoolReportsPrint() {
             console.log("Student:", data.student);
             // setSelectedClassId(data.class);
             setSelectedStudentId(data.student);
+
+            console.log("Year:", data.year);
+            setSelectedYear(data.year);
         }
-
-
-
-        // const tableData = transformMarksheetData(testData);
-
-        // const examNames = tableData.exams;
-        // const subjects = tableData.subjects;
-
-        // console.log("examNames", examNames);
-        // console.log("subjects", subjects);
-        // setExamNames(examNames);
-        // setSubjects(subjects);
-
 
     }, []);
 
@@ -166,6 +104,7 @@ export default function SchoolReportsPrint() {
         const fetchPrintMarksheet = async () => {
 
             if (!selectedStudentId) return;
+            if (!selectedYear) return;
 
             try {
 
@@ -173,7 +112,8 @@ export default function SchoolReportsPrint() {
                 if (selectedStudentId) {
                     const marksheetPrintResponse = await axios.get(`${baseUrl}/schoolreports/progresscard-print`, {
                         params: {
-                            student: selectedStudentId
+                            student: selectedStudentId,
+                            year: selectedYear
                         }
                     });
                     console.log("marksheetPrintResponse", marksheetPrintResponse.data.data);
@@ -205,8 +145,11 @@ export default function SchoolReportsPrint() {
 
                     setExamNames(tableData.exams);
                     setSubjects(tableData.subjects);
-                    // setPrintData(marksheetPrintResponse.data.data);
-                    // console.log("printData", printData);
+
+                    if (tableData.exams.length > 0 && tableData.subjects) {
+                        setIsDataFound(true);
+                    }
+
                 }
 
 
@@ -214,6 +157,8 @@ export default function SchoolReportsPrint() {
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching marksheet for print:', error);
+                setLoading(false);
+                setIsDataFound(false);
             }
         };
 
@@ -223,9 +168,7 @@ export default function SchoolReportsPrint() {
 
     }, [selectedStudentId]);
 
-    // url(/images/uploaded/school/${reportHeader.school_image})
-    //  src={`./images/uploaded/school/${reportHeader.school_image}?w=248&fit=crop&auto=format`}
-    // src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
+
     const PrintPDF = () => (
 
         <Document>
@@ -408,25 +351,46 @@ export default function SchoolReportsPrint() {
     return (
         <div className="max-w-2xl mx-auto my-10">
             <div className="w-full h-[500px]">
-                <PDFViewer width="100%" height="100%">
+                {/* <PDFViewer width="100%" height="100%">
                     <PrintPDF />
-                </PDFViewer>
-            </div>
-            <div className="mt-6 flex justify-center gap-3">
+                </PDFViewer> */}
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="Progress-Card.pdf">
-                    <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
-                        Download PDF
+                {examNames && examNames.length > 0 ? (
+                    <PDFViewer width="100%" height="100%">
+                        <PrintPDF />
+                    </PDFViewer>
+                ) : (
+                    <Typography
+                        variant="h4"
+                        sx={{ fontWeight: "800", textAlign: "center" }}
+                    >
+                        No Data Found
+                    </Typography>
+
+
+                )}{" "}
+            </div>
+
+            {(isDataFound && <div className="mt-6 flex justify-center gap-3">
+
+                <div className="mt-6 flex justify-center gap-3">
+
+                    <PDFDownloadLink document={<PrintPDF />} fileName="Progress-Card.pdf">
+                        <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                            Download PDF
+                        </button>
+                    </PDFDownloadLink>
+
+
+                    <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadMarksheetExcel}>
+                        Download Excel
                     </button>
-                </PDFDownloadLink>
 
 
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadMarksheetExcel}>
-                    Download Excel
-                </button>
+                </div>
 
 
-            </div>
+            </div>)}
         </div>
     );
 }

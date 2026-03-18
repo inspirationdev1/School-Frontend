@@ -5,5 +5,6 @@ export const receiptSchema = yup.object({
     receiptDate: yup.string().min(3, "Must Contain 3 Character.").required("Receipt Date is  required."),
     paymentMethod: yup.string().min(1, "Must Contain 3 Character.").required("paymentMethod is  required."),
     status: yup.string().min(1, "Must Contain 3 Character.").required("status is  required."),
-    remarks: yup.string().min(3, "Must Contain 3 Character.")
+    remarks: yup.string().min(3, "Must Contain 3 Character."),
+    year: yup.string().required("Year is required"),
 })

@@ -54,6 +54,12 @@ export default function Marksheet() {
     const [selectedQuestionpaper, setSelectedQuestionpaper] = useState(null);
 
     const [tab, setTab] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(null);
+
+    const years = Array.from({ length: 10 }, (_, i) => {
+        const year = new Date().getFullYear() - i;
+        return { label: `${year}-${year + 1}`, value: year };
+    });
 
     const [marksheetDetails, setMarksheetDetails] = useState([
         {
@@ -113,9 +119,10 @@ export default function Marksheet() {
                 Formik.setFieldValue("questionpaper", resp.data.data.questionpaper._id);
                 Formik.setFieldValue("marksLimit", resp.data.data.marksLimit);
                 Formik.setFieldValue("status", resp.data.data.status);
-
-
                 Formik.setFieldValue("remarks", resp.data.data.remarks);
+                Formik.setFieldValue("year", resp.data.data.year);
+                const matchedYear = years.find(s => s.value === resp.data.data.year);
+                setSelectedYear(matchedYear || null);
 
                 setSelectedClass(resp.data.data.class || null);
                 setSelectedSection(resp.data.data.section || null);
@@ -167,7 +174,7 @@ export default function Marksheet() {
         setSelectedSubject(null);
         setSelectedExamination(null);
         setSelectedQuestionpaper(null);
-
+        setSelectedYear(null);
         setIsDataValid(true);
         // 🔥 reset Autocomplete values
         clearMarksheetDetails();
@@ -210,7 +217,8 @@ export default function Marksheet() {
         questionpaper: "",
         marksLimit: 0,
         status: "valid",
-        remarks: ""
+        remarks: "",
+        year: "",
     };
     const Formik = useFormik({
         initialValues: initialValues,
@@ -248,19 +256,20 @@ export default function Marksheet() {
             const payload = {
                 ...values,
                 marksheetDetails: marksheetDetails.map((row) => ({
-                    msDate: values?.msDate, 
-                    msTime: values?.msTime, 
-                    class: values?.class,  
-                    section: values?.section, 
-                    teacher: values?.teacher, 
-                    subject: values?.subject, 
-                    examination: values?.examination, 
-                    questionpaper: values?.questionpaper, 
+                    msDate: values?.msDate,
+                    msTime: values?.msTime,
+                    class: values?.class,
+                    section: values?.section,
+                    teacher: values?.teacher,
+                    subject: values?.subject,
+                    examination: values?.examination,
+                    questionpaper: values?.questionpaper,
 
                     student: row.student?._id, // 👈 convert here
                     marks: row.marks,
                     marksLimit: values.marksLimit,
                     remarks: '',
+                    year: values.year,
                 })),
             };
             if (isEdit) {
@@ -470,7 +479,7 @@ export default function Marksheet() {
         updated[index][field] = value;
 
         if (field === "marks") {
-            const marksLimit = (Formik.values.marksLimit||0);
+            const marksLimit = (Formik.values.marksLimit || 0);
             if (updated[index].marks > marksLimit) {
                 updated[index].marks = 0;
             }
@@ -620,6 +629,35 @@ export default function Marksheet() {
                                                     {Formik.errors.msDate}
                                                 </Typography>
                                             )}
+                                        </Box>
+
+                                        {/* Academic Year */}
+                                        <Box>
+                                            <Autocomplete
+                                                // disabled={isEdit}
+                                                options={years}
+                                                getOptionLabel={(option) => option.label}
+                                                value={selectedYear}
+                                                onChange={(event, newValue) => {
+                                                    setSelectedYear(newValue);
+
+                                                    Formik.setFieldValue(
+                                                        "year",
+                                                        newValue ? newValue.value : ""
+                                                    );
+                                                }}
+                                                onBlur={() => Formik.setFieldTouched("year", true)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select Academic Year"
+                                                        placeholder="Search year..."
+                                                        fullWidth
+                                                        error={Formik.touched.year && Boolean(Formik.errors.year)}
+                                                        helperText={Formik.touched.year && Formik.errors.year}
+                                                    />
+                                                )}
+                                            />
                                         </Box>
 
                                         {/* Class */}
@@ -845,27 +883,27 @@ export default function Marksheet() {
                                         </Box>
 
                                         {/* marksLimit */}
-                                                    <Box>
-                                                      <TextField
-                                                        disabled
-                                                        fullWidth
-                                                        label="marksLimit"
-                                                        variant="outlined"
-                                                        name="marksLimit"
-                                                        type="number"
-                                                        value={Formik.values.marksLimit}
-                                                        onChange={Formik.handleChange}
-                                                        onBlur={Formik.handleBlur}
-                                        
-                                                      />
-                                        
-                                                      {Formik.touched.marksLimit && Formik.errors.marksLimit && (
-                                                        <p style={{ color: "red", textTransform: "capitalize" }}>
-                                                          {Formik.errors.marksLimit}
-                                                        </p>
-                                                      )}
-                                        
-                                                    </Box>
+                                        <Box>
+                                            <TextField
+                                                disabled
+                                                fullWidth
+                                                label="marksLimit"
+                                                variant="outlined"
+                                                name="marksLimit"
+                                                type="number"
+                                                value={Formik.values.marksLimit}
+                                                onChange={Formik.handleChange}
+                                                onBlur={Formik.handleBlur}
+
+                                            />
+
+                                            {Formik.touched.marksLimit && Formik.errors.marksLimit && (
+                                                <p style={{ color: "red", textTransform: "capitalize" }}>
+                                                    {Formik.errors.marksLimit}
+                                                </p>
+                                            )}
+
+                                        </Box>
 
 
 

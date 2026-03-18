@@ -85,6 +85,8 @@ import SchoolReports from "./school/components/reports/SchoolReports";
 import SchoolReportsPrint from "./school/components/reports/SchoolReportsPrint";
 import ProgressCardPDF from "./school/components/reports/ProgressCardPDF";
 import ExpensePrint from "./school/components/expenses/ExpensePrint";
+import FinanceReports from "./school/components/reports/FinanceReports";
+import FinanceReportsPrint from "./school/components/reports/FinanceReportsPrint";
 // import Receipts from "./school/components/receipts/Receipts";
 
 function App() {
@@ -135,7 +137,12 @@ function App() {
               <Route path="marksheetprint" element={<MarksheetPrint />} />
               <Route path="schoolreports" element={<SchoolReports />} />
               <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
+              <Route path="financereports" element={<FinanceReports />} />
+              <Route path="financereportsprint" element={<FinanceReportsPrint />} />
               <Route path="progressCardPDF" element={<ProgressCardPDF />} />
+
+              
+              
               
               <Route path="notice" element={<NoticeSchool />} />
             </Route>

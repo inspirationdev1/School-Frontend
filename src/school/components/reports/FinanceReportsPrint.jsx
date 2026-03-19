@@ -7,8 +7,9 @@ import {
     PDFViewer,
     PDFDownloadLink,
     Image,
+    StyleSheet,
 } from "@react-pdf/renderer";
-import { styles } from "./style";
+// import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
 // import { tableData, totalData } from "./data";
 import { useSearchParams } from "react-router-dom";
@@ -21,6 +22,96 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 
+const styles = StyleSheet.create({
+  page: {
+    padding: 25,
+    fontSize: 10,
+    fontFamily: "Helvetica",
+  },
+
+  // 🔷 Header
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderColor: "#000",
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
+
+  logo: {
+    width: 60,
+    height: 60,
+    marginRight: 10,
+  },
+
+  schoolInfo: {
+    flex: 1,
+    textAlign: "center",
+  },
+
+  schoolName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  schoolText: {
+    fontSize: 10,
+  },
+
+  // 🔷 Title
+  reportTitle: {
+    textAlign: "center",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginVertical: 10,
+    textDecoration: "underline",
+  },
+
+  // 🔷 Table
+  table: {
+    borderWidth: 1,
+    borderColor: "#000",
+  },
+
+  tableRow: {
+    flexDirection: "row",
+  },
+
+  tableHeaderCell: {
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#000",
+    padding: 6,
+    fontWeight: "bold",
+    textAlign: "center",
+    backgroundColor: "#eaeaea",
+  },
+
+  tableCell: {
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#000",
+    padding: 5,
+    textAlign: "center",
+  },
+
+  // 🔷 Column widths
+  colIncome: { width: "35%" },
+  colAmount: { width: "15%" },
+  colExpense: { width: "35%" },
+  colAmount2: { width: "15%" },
+
+  // 🔷 Footer rows
+  totalRow: {
+    flexDirection: "row",
+    backgroundColor: "#f5f5f5",
+  },
+
+  boldText: {
+    fontWeight: "bold",
+  },
+});
 
 export default function FinanceReportsPrint() {
     const [loading, setLoading] = useState(true);
@@ -157,16 +248,19 @@ export default function FinanceReportsPrint() {
                 const maxLength = Math.max(incomeData.length, expenseData.length);
 
                 const rows = Array.from({ length: maxLength }, (_, i) => ({
-                    income: incomeData[i]?.feestructure.name + " - " + incomeData[i]?.student.name || "",
+                    // income: incomeData[i]?.feestructure.name + " - " + incomeData[i]?.student.name || "",
+                    income: incomeData[i]
+                        ? `${incomeData[i]?.feestructure?.name || ""} - ${incomeData[i]?.student?.name || ""}`
+                        : "",
                     incomeAmount: incomeData[i]?.netAmount || "",
                     expense: expenseData[i]?.expensetype.expensetype_name || "",
                     expenseAmount: expenseData[i]?.expenseAmount || "",
                 }));
                 setRows(rows);
 
-                if (rows.length>0){
+                if (rows.length > 0) {
                     setIsDataFound(true);
-                }else{
+                } else {
                     setIsDataFound(false);
                 }
                 const totalIncome = incomeData.reduce((sum, item) => sum + Number(item.netAmount), 0);
@@ -193,7 +287,7 @@ export default function FinanceReportsPrint() {
                 setIncomes(incomeData);
                 setExpenses(expenseData);
                 setLoading(false);
-                
+
             } catch (error) {
                 console.error('Error fetching marksheet for print:', error);
                 setLoading(false);
@@ -208,85 +302,139 @@ export default function FinanceReportsPrint() {
     }, [selectedYear]);
 
 
-    const PrintPDF = () => (
-
-        <Document>
-            <Page size="A4" orientation="portrait" style={styles.page}>
-
-
-                <View style={styles.header}>
-                    <View style={styles.leftHeader}>
-                        <Image
-                            src={`${frontendUrl}/images/uploaded/school/${reportHeader?.school_image}?w=248&fit=crop&auto=format`}
-                            style={{ width: 80, height: 80 }}
-                        />
-                    </View>
-
-
-                    {/* Right Side */}
-                    <View style={styles.rightHeader}>
-                        <Text style={[styles.schoolText, styles.textBold]}>
-                            {reportHeader.school_name}
-                        </Text>
-
-                        <Text style={styles.schoolText}>
-                            {reportHeader.address} - {reportHeader.city}
-                        </Text>
-
-                        <Text style={styles.schoolText}>
-                            {reportHeader.state} - {reportHeader.country}
-                        </Text>
-                    </View>
-
-
-
-                </View>
-
-                <View style={styles.header}>
-                    <View style={styles.centerHeader}>
-                        <Text style={[styles.title, styles.textBold]}>Income-Expense Report</Text>
-                    </View>
-                </View>
-
-                <View style={styles.table}>
-                    {/* Header Row */}
-                    <View style={styles.row}>
-                        <Text style={[styles.cellHeader, { width: 180 }]}>Income</Text>
-                        <Text style={[styles.cellHeader, { width: 100 }]}>Amount</Text>
-                        <Text style={[styles.cellHeader, { width: 180 }]}>Expense</Text>
-                        <Text style={[styles.cellHeader, { width: 100 }]}>Amount</Text>
-                    </View>
-
-                    {/* Data Rows */}
-                    {rows.map((row, index) => (
-                        <View style={styles.row} key={index}>
-                            <Text style={[styles.cell, { width: 180 }]}>{row.income}</Text>
-                            <Text style={[styles.cell, { width: 100 }]}>{formatAmount(row.incomeAmount)}</Text>
-                            <Text style={[styles.cell, { width: 180 }]}>{row.expense}</Text>
-                            <Text style={[styles.cell, { width: 100 }]}>{formatAmount(row.expenseAmount)}</Text>
-                        </View>
-                    ))}
-
-                    {/* Totals Row */}
-                    <View style={styles.row}>
-                        <Text style={[styles.cellHeader, { width: 180 }]}>Totals</Text>
-                        <Text style={[styles.cellHeader, { width: 100 }]}>{formatAmount(totalIncome)}</Text>
-                        <Text style={[styles.cellHeader, { width: 180 }]}>Totals</Text>
-                        <Text style={[styles.cellHeader, { width: 100 }]}>{formatAmount(totalExpense)}</Text>
-                    </View>
-
-                    {/* Net Profit */}
-                    <View style={styles.row}>
-                        <Text style={[styles.cellHeader, { width: 460 }]}>Net Profit</Text>
-                        <Text style={[styles.cellHeader, { width: 100 }]}>{formatAmount(profitLoss)}</Text>
-                    </View>
-                </View>
-
-            </Page>
-        </Document>
-    );
-
     
+
+    const PrintPDF = () => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+
+      {/* 🔷 Header */}
+      <View style={styles.headerContainer}>
+        {/* If you have logo, uncomment */}
+        <Image src={logo} style={styles.logo} />
+
+        <View style={styles.schoolInfo}>
+          <Text style={styles.schoolName}>
+            {reportHeader?.school_name}
+          </Text>
+
+          <Text style={styles.schoolText}>
+            {reportHeader?.address}, {reportHeader?.city}
+          </Text>
+
+          <Text style={styles.schoolText}>
+            {reportHeader?.state}, {reportHeader?.country}
+          </Text>
+        </View>
+      </View>
+
+      {/* 🔷 Title */}
+      <Text style={styles.reportTitle}>
+        INCOME & EXPENDITURE STATEMENT
+      </Text>
+
+      {/* 🔷 Table */}
+      <View style={styles.table}>
+
+        {/* Header Row */}
+        <View style={styles.tableRow}>
+          <View style={[styles.tableHeaderCell, styles.colIncome]}>
+            <Text>Income</Text>
+          </View>
+
+          <View style={[styles.tableHeaderCell, styles.colAmount]}>
+            <Text>Amount</Text>
+          </View>
+
+          <View style={[styles.tableHeaderCell, styles.colExpense]}>
+            <Text>Expense</Text>
+          </View>
+
+          <View style={[styles.tableHeaderCell, styles.colAmount2]}>
+            <Text>Amount</Text>
+          </View>
+        </View>
+
+        {/* Data Rows */}
+        {rows.map((row, i) => (
+          <View style={styles.tableRow} key={i}>
+            <View style={[styles.tableCell, styles.colIncome]}>
+              <Text>{row.income}</Text>
+            </View>
+
+            <View style={[styles.tableCell, styles.colAmount]}>
+              <Text>{row.incomeAmount}</Text>
+            </View>
+
+            <View style={[styles.tableCell, styles.colExpense]}>
+              <Text>{row.expense}</Text>
+            </View>
+
+            <View style={[styles.tableCell, styles.colAmount2]}>
+              <Text>{row.expenseAmount}</Text>
+            </View>
+          </View>
+        ))}
+
+        {/* Totals */}
+        <View style={styles.totalRow}>
+          <View style={[styles.tableCell, styles.colIncome]}>
+            <Text style={styles.boldText}>Total Income</Text>
+          </View>
+
+          <View style={[styles.tableCell, styles.colAmount]}>
+            <Text style={styles.boldText}>{totalIncome}</Text>
+          </View>
+
+          <View style={[styles.tableCell, styles.colExpense]}>
+            <Text style={styles.boldText}>Total Expense</Text>
+          </View>
+
+          <View style={[styles.tableCell, styles.colAmount2]}>
+            <Text style={styles.boldText}>{totalExpense}</Text>
+          </View>
+        </View>
+
+        {/* Net Profit */}
+        <View style={styles.totalRow}>
+          <View style={[styles.tableCell, { width: "85%" }]}>
+            <Text style={styles.boldText}>Net Profit / Loss</Text>
+          </View>
+
+          <View style={[styles.tableCell, { width: "15%" }]}>
+            <Text style={styles.boldText}>{profitLoss}</Text>
+          </View>
+        </View>
+
+      </View>
+
+    </Page>
+  </Document>
+);
+
+
+    const [logo, setLogo] = useState("");
+
+    useEffect(() => {
+        if (reportHeader?.school_image) {
+            getBase64Image(
+                `${frontendUrl}/images/uploaded/school/${reportHeader.school_image}`
+            ).then(setLogo);
+        }
+    }, [reportHeader]);
+
+
+    const getBase64Image = async (url) => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    };
+
 
     const downloadIncomeExpenseExcel = () => {
 
@@ -379,7 +527,22 @@ export default function FinanceReportsPrint() {
 
 
             </div>)}
-            
+            {/* <div className="mt-6 flex justify-center gap-3">
+
+                <PDFDownloadLink document={<PrintPDF />} fileName="Income-Expense.pdf">
+                    <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                        Download PDF
+                    </button>
+                </PDFDownloadLink>
+
+
+                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadIncomeExpenseExcel}>
+                    Download Excel
+                </button>
+
+
+            </div> */}
+
         </div>
     );
 }

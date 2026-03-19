@@ -1,6 +1,4 @@
-// require("dotenv").config();   
-   console.log(import.meta.env.VITE_BASE_URL);
-   console.log(import.meta.env.VITE_FRONTEND_URL);
+
 
    const baseUrl = import.meta.env.VITE_BASE_URL;
    const frontendUrl = import.meta.env.VITE_FRONTEND_URL;

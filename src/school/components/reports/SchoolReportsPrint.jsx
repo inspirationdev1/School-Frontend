@@ -7,8 +7,9 @@ import {
     PDFViewer,
     PDFDownloadLink,
     Image,
+    StyleSheet,
 } from "@react-pdf/renderer";
-import { styles } from "./style";
+// import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
 // import { tableData, totalData } from "./data";
 import { useSearchParams } from "react-router-dom";
@@ -21,6 +22,114 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 
+const styles = StyleSheet.create({
+
+  page: {
+    padding: 30,
+    fontSize: 11
+  },
+
+  // header: {
+  //   textAlign: "center",
+  //   marginBottom: 15
+  // },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 20,
+
+  },
+
+  leftHeader: {
+    width: "40%"
+  },
+
+  rightHeader: {
+    width: "60%",
+    textAlign: "right"
+  },
+
+  // centerHeader: {
+  //   width: "200%",
+  //   textAlign: "center"
+  // },
+  centerHeader: {
+    flex: 1,
+    alignItems: "center"
+  },
+
+
+  schoolText: {
+    fontSize: 11,
+    marginBottom: 3
+  },
+
+  title: {
+    fontSize: 18,
+    fontWeight: "bold"
+  },
+
+  rowStyle: {
+    flexDirection: "row",
+    marginBottom: 6
+  },
+
+  labelStyle: {
+    width: 80,
+    fontWeight: "bold"
+  },
+
+  valueStyle: {
+    width: 150
+  },
+
+  table: {
+    borderWidth: 1,
+    marginTop: 15
+  },
+
+  row: {
+    flexDirection: "row"
+  },
+
+  cellHeader: {
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    padding: 5,
+    fontSize: 10,
+    fontWeight: "bold",
+    textAlign: "center",
+    backgroundColor: "#f2f2f2"
+  },
+
+  cell: {
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    padding: 5,
+    fontSize: 10,
+    textAlign: "center"
+  },
+  // spaceY: {
+  //   display: "flex",
+  //   flexDirection: "column",
+  //   gap: "2px",
+  // },
+  spaceY: {
+    flexDirection: "column",
+  },
+  child: {
+    marginBottom: 2
+  },
+
+  billTo: {
+    marginBottom: 10,
+  },
+  logo: {
+    width: 50,
+    height: 50
+  }
+});
 
 export default function SchoolReportsPrint() {
     const [loading, setLoading] = useState(true);
@@ -169,6 +278,28 @@ export default function SchoolReportsPrint() {
     }, [selectedStudentId]);
 
 
+    const [logo, setLogo] = useState("");
+
+    useEffect(() => {
+        if (reportHeader?.school_image) {
+            getBase64Image(
+                `${frontendUrl}/images/uploaded/school/${reportHeader.school_image}`
+            ).then(setLogo);
+        }
+    }, [reportHeader]);
+
+
+    const getBase64Image = async (url) => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    };
+
     const PrintPDF = () => (
 
         <Document>
@@ -177,10 +308,12 @@ export default function SchoolReportsPrint() {
 
                 <View style={styles.header}>
                     <View style={styles.leftHeader}>
-                        <Image
+                        {/* <Image
                             src={`${frontendUrl}/images/uploaded/school/${reportHeader?.school_image}?w=248&fit=crop&auto=format`}
                             style={{ width: 100, height: 100 }}
-                        />
+                        /> */}
+                        <Image src={logo} style={styles.logo} />
+                        
                     </View>
                     <View style={styles.centerHeader}>
                         <Text style={[styles.title, styles.textBold]}>Progress Card</Text>

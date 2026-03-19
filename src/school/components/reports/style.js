@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 20,
-    
+
   },
 
   leftHeader: {
@@ -28,10 +28,15 @@ export const styles = StyleSheet.create({
     textAlign: "right"
   },
 
+  // centerHeader: {
+  //   width: "200%",
+  //   textAlign: "center"
+  // },
   centerHeader: {
-    width: "200%",
-    textAlign: "center"
+    flex: 1,
+    alignItems: "center"
   },
+
 
   schoolText: {
     fontSize: 11,
@@ -83,17 +88,24 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: "center"
   },
+  // spaceY: {
+  //   display: "flex",
+  //   flexDirection: "column",
+  //   gap: "2px",
+  // },
   spaceY: {
-    display: "flex",
     flexDirection: "column",
-    gap: "2px",
   },
+  child: {
+    marginBottom: 2
+  },
+
   billTo: {
     marginBottom: 10,
   },
   logo: {
-  width: 50,
-  height: 50
-}
+    width: 50,
+    height: 50
+  }
 });
 

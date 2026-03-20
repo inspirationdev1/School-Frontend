@@ -144,29 +144,27 @@ export default function Receipts() {
             });
     };
 
-    const handlePrint = async (id) => {
-        console.log("Handle  Print is called", id);
+    // const handlePrint = async (id) => {
+    //     console.log("Handle  Print is called", id);
+    //     setPrint(true);
+
+
+    //     window.open(`/school/ReceiptPrint?id=${id}`,
+    //         '_blank');
+    //     setPrint(false);
+
+
+    // };
+    
+    const handlePrint = (id) => {
         setPrint(true);
-
-
-        window.open(`/school/ReceiptPrint?id=${id}`,
-            '_blank');
+        const url = `${window.location.origin}/school/ReceiptPrint?id=${id}`;
+        window.open(url, '_blank');
         setPrint(false);
-
-
     };
 
-    const handleReceipt = async (id) => {
-        console.log("Handle  Print is called", id);
-        setPrint(true);
 
 
-        window.open(`/school/ReceiptPrint?id=${id}`,
-            '_blank');
-        setPrint(false);
-
-
-    };
     const cancelEdit = () => {
         setEdit(false);
         setEditId(null);

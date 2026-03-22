@@ -13,7 +13,7 @@ import { useSearchParams } from "react-router-dom";
 import { Typography } from '@mui/material';
 import axios from 'axios';
 import moment from 'moment';
-import { baseUrl } from '../../../environment';
+import { baseUrl, frontendUrl, formatAmount } from '../../../environment';
 import { useState, useEffect } from 'react';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -145,19 +145,19 @@ export default function SalesinvoicePrint() {
                             <TD style={styles.td}>{item.feeFrequency}</TD>
 
                             <TD style={styles.td}>
-                                <Text style={styles.rightText}>{item.feeAmount}</Text>
+                                <Text style={styles.rightText}>{formatAmount(item.feeAmount)}</Text>
                             </TD>
 
                             <TD style={styles.td}>
-                                <Text style={styles.rightText}>{item.grossAmount}</Text>
+                                <Text style={styles.rightText}>{formatAmount(item.grossAmount)}</Text>
                             </TD>
 
                             <TD style={styles.td}>
-                                <Text style={styles.rightText}>{item.discountAmount}</Text>
+                                <Text style={styles.rightText}>{formatAmount(item.discountAmount)}</Text>
                             </TD>
 
                             <TD style={styles.td}>
-                                <Text style={styles.rightText}>{item.netAmount}</Text>
+                                <Text style={styles.rightText}>{formatAmount(item.netAmount)}</Text>
                             </TD>
                         </TR>
                     ))}
@@ -172,15 +172,15 @@ export default function SalesinvoicePrint() {
                         </TD>
 
                         <TD style={styles.td}>
-                            <Text style={styles.rightText}>{printSalesinvoice.totalGrossAmount}</Text>
+                            <Text style={styles.rightText}>{formatAmount(printSalesinvoice.totalGrossAmount)}</Text>
                         </TD>
 
                         <TD style={styles.td}>
-                            <Text style={styles.rightText}>{printSalesinvoice.totalDiscountAmount}</Text>
+                            <Text style={styles.rightText}>{formatAmount(printSalesinvoice.totalDiscountAmount)}</Text>
                         </TD>
 
                         <TD style={styles.td}>
-                            <Text style={styles.rightText}>{printSalesinvoice.totalNetAmount}</Text>
+                            <Text style={styles.rightText}>{formatAmount(printSalesinvoice.totalNetAmount)}</Text>
                         </TD>
                     </TR>
                 </Table>

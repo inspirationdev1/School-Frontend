@@ -363,7 +363,7 @@ export default function FinanceReportsPrint() {
             </View>
 
             <View style={[styles.tableCell, styles.colAmount]}>
-              <Text>{row.incomeAmount}</Text>
+              <Text>{formatAmount(row.incomeAmount)}</Text>
             </View>
 
             <View style={[styles.tableCell, styles.colExpense]}>
@@ -371,7 +371,7 @@ export default function FinanceReportsPrint() {
             </View>
 
             <View style={[styles.tableCell, styles.colAmount2]}>
-              <Text>{row.expenseAmount}</Text>
+              <Text>{formatAmount(row.expenseAmount)}</Text>
             </View>
           </View>
         ))}
@@ -383,7 +383,7 @@ export default function FinanceReportsPrint() {
           </View>
 
           <View style={[styles.tableCell, styles.colAmount]}>
-            <Text style={styles.boldText}>{totalIncome}</Text>
+            <Text style={styles.boldText}>{formatAmount(totalIncome)}</Text>
           </View>
 
           <View style={[styles.tableCell, styles.colExpense]}>
@@ -391,7 +391,7 @@ export default function FinanceReportsPrint() {
           </View>
 
           <View style={[styles.tableCell, styles.colAmount2]}>
-            <Text style={styles.boldText}>{totalExpense}</Text>
+            <Text style={styles.boldText}>{formatAmount(totalExpense)}</Text>
           </View>
         </View>
 
@@ -402,7 +402,7 @@ export default function FinanceReportsPrint() {
           </View>
 
           <View style={[styles.tableCell, { width: "15%" }]}>
-            <Text style={styles.boldText}>{profitLoss}</Text>
+            <Text style={styles.boldText}>{formatAmount(profitLoss)}</Text>
           </View>
         </View>
 
@@ -527,21 +527,7 @@ export default function FinanceReportsPrint() {
 
 
             </div>)}
-            {/* <div className="mt-6 flex justify-center gap-3">
-
-                <PDFDownloadLink document={<PrintPDF />} fileName="Income-Expense.pdf">
-                    <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
-                        Download PDF
-                    </button>
-                </PDFDownloadLink>
-
-
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadIncomeExpenseExcel}>
-                    Download Excel
-                </button>
-
-
-            </div> */}
+            
 
         </div>
     );

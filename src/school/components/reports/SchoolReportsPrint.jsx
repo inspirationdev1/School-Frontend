@@ -16,7 +16,7 @@ import { useSearchParams } from "react-router-dom";
 import { Typography } from '@mui/material';
 import axios from 'axios';
 import moment from 'moment';
-import { baseUrl, frontendUrl } from '../../../environment';
+import { baseUrl, frontendUrl, formatAmount } from '../../../environment';
 import { useState, useEffect } from 'react';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";

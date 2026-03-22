@@ -52,6 +52,8 @@ export default function FinanceReports() {
     const [editId, setEditId] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedYear, setSelectedYear] = useState(null);
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
 
     const years = Array.from({ length: 10 }, (_, i) => {
         const year = new Date().getFullYear() - i;
@@ -66,19 +68,39 @@ export default function FinanceReports() {
     const handlePrint = async () => {
 
         setPrint(true);
-        const data = {
-          year: selectedYear.value
-        };
 
-        window.open(
-          `/school/FinanceReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
 
-        // window.open(
-        //     `/school/FinanceReportsPrint`,
-        //     "_blank"
-        // );
+        if (selectedReport.reportId == "income-expense-report") {
+            const data = {
+                year: selectedYear.value,
+                
+            };
+            window.open(
+                `/school/FinanceReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                "_blank"
+            );
+        } else if (selectedReport.reportId == "expense-report") {
+            const data = {
+                fromDate: fromDate,
+                toDate: toDate,
+                
+            };
+            window.open(
+                `/school/ExpenseReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                "_blank"
+            );
+        } else if (selectedReport.reportId == "income-report") {
+            const data = {
+                fromDate: fromDate,
+                toDate: toDate,      
+            };
+            window.open(
+                `/school/IncomeReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                "_blank"
+            );
+        }
+
+        
         setPrint(false);
 
 
@@ -96,6 +118,8 @@ export default function FinanceReports() {
     const initialValues = {
         reportId: "",
         year: "",   // 👈 add this
+        fromDate: "",   // 👈 add
+        toDate: "",     // 👈 add
         class: "",
         section: "",
         teacher: "",
@@ -116,10 +140,26 @@ export default function FinanceReports() {
                 return;
             }
 
-            if (!values.year) {
-                setDataError('Select the Year');
-                setIsDataValid(false);
-                return;
+            if (values.reportId == "income-expense-report") {
+                if (!values.year) {
+                    setDataError('Select the Year');
+                    setIsDataValid(false);
+                    return;
+                }
+            }
+
+            if (values.reportId == "expense-report" || values.reportId == "income-report") {
+                if (!values.fromDate || !values.toDate) {
+                    setDataError('Select From Date and To Date');
+                    setIsDataValid(false);
+                    return;
+                }
+
+                if (dayjs(values.fromDate).isAfter(dayjs(values.toDate))) {
+                    setDataError('From Date cannot be after To Date');
+                    setIsDataValid(false);
+                    return;
+                }
             }
 
             if (values.reportId == "otherReport") {
@@ -144,7 +184,10 @@ export default function FinanceReports() {
 
     const fetchReportNames = async () => {
         try {
-            const reportsData = [{ reportId: "income-expense-report", reportName: "Income-Expense Report" }];
+            const reportsData = [{ reportId: "income-expense-report", reportName: "Income-Expense Report" },
+             { reportId: "income-report", reportName: "Income Report" },
+             { reportId: "expense-report", reportName: "Expense Report" }
+            ];
             console.log("Report Names", reportsData)
             setReportNames(reportsData);
 
@@ -367,34 +410,74 @@ export default function FinanceReports() {
 
 
                                 {/* Academic Year */}
-                                <Box>
-                                    <Autocomplete
-                                        options={years}
-                                        getOptionLabel={(option) => option.label}
-                                        value={selectedYear}
-                                        onChange={(event, newValue) => {
-                                            setSelectedYear(newValue);
+                                {selectedReport && selectedReport.reportId === "income-expense-report" && (
+                                    <Box>
+                                        <Autocomplete
+                                            options={years}
+                                            getOptionLabel={(option) => option.label}
+                                            value={selectedYear}
+                                            onChange={(event, newValue) => {
+                                                setSelectedYear(newValue);
 
-                                            Formik.setFieldValue(
-                                                "year",
-                                                newValue ? newValue.value : ""
-                                            );
-                                        }}
-                                        onBlur={() => Formik.setFieldTouched("year", true)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Select Academic Year"
-                                                placeholder="Search year..."
-                                                fullWidth
-                                                error={Formik.touched.year && Boolean(Formik.errors.year)}
-                                                helperText={Formik.touched.year && Formik.errors.year}
-                                            />
-                                        )}
-                                    />
-                                </Box>
+                                                Formik.setFieldValue(
+                                                    "year",
+                                                    newValue ? newValue.value : ""
+                                                );
+                                            }}
+                                            onBlur={() => Formik.setFieldTouched("year", true)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Select Academic Year"
+                                                    placeholder="Search year..."
+                                                    fullWidth
+                                                    error={Formik.touched.year && Boolean(Formik.errors.year)}
+                                                    helperText={Formik.touched.year && Formik.errors.year}
+                                                />
+                                            )}
+                                        />
+                                    </Box>
+                                )}
 
-                                
+                                {/* From Date */}
+                                {selectedReport && (selectedReport.reportId === "expense-report"||selectedReport.reportId === "income-report") && (
+                                    <Box>
+                                        <TextField
+                                            label="From Date"
+                                            type="date"
+                                            fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                            value={Formik.values.fromDate}
+                                            onChange={(e) => {
+                                                Formik.setFieldValue("fromDate", e.target.value);
+                                                setFromDate(e.target.value);
+                                            }}
+                                            error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
+                                            helperText={Formik.touched.fromDate && Formik.errors.fromDate}
+                                        />
+                                    </Box>
+                                )}
+
+                                {/* To Date */}
+                                {selectedReport && (selectedReport.reportId === "expense-report"||selectedReport.reportId === "income-report") && (
+                                    <Box>
+                                        <TextField
+                                            label="To Date"
+                                            type="date"
+                                            fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                            value={Formik.values.toDate}
+                                            onChange={(e) => {
+                                                Formik.setFieldValue("toDate", e.target.value);
+                                                setToDate(e.target.value);
+                                            }}
+                                            error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
+                                            helperText={Formik.touched.toDate && Formik.errors.toDate}
+                                        />
+                                    </Box>
+                                )}
+
+
                                 {/* Class */}
                                 {selectedReport && selectedReport.reportId === "otherReport" && (
                                     <Box>

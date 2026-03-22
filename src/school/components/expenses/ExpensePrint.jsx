@@ -13,7 +13,7 @@ import { useSearchParams } from "react-router-dom";
 import { Typography } from '@mui/material';
 import axios from 'axios';
 import moment from 'moment';
-import { baseUrl } from '../../../environment';
+import { baseUrl, frontendUrl, formatAmount } from '../../../environment';
 import { useState, useEffect } from 'react';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -119,7 +119,7 @@ export default function ExpensePrint() {
                             <TD style={styles.td}>{item.employee.employee_name}</TD>
                             <TD style={styles.td}>{item.expensetype.expensetype_name}</TD>
                             <TD style={styles.td}>
-                                <Text style={styles.rightText}>{item.expenseAmount}</Text>
+                                <Text style={styles.rightText}>{formatAmount(item.expenseAmount)}</Text>
                             </TD>
                         </TR>
                     ))}
@@ -135,7 +135,7 @@ export default function ExpensePrint() {
                         
 
                         <TD style={styles.td}>
-                            <Text style={styles.rightText}>{printExpense.totalexpenseAmount}</Text>
+                            <Text style={styles.rightText}>{formatAmount(printExpense.totalexpenseAmount)}</Text>
                         </TD>
 
                         

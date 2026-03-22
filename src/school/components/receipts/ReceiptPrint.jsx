@@ -13,7 +13,7 @@ import { useSearchParams } from "react-router-dom";
 import { Typography } from '@mui/material';
 import axios from 'axios';
 import moment from 'moment';
-import { baseUrl } from '../../../environment';
+import { baseUrl, frontendUrl, formatAmount } from '../../../environment';
 import { useState, useEffect } from 'react';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -127,11 +127,11 @@ export default function ReceiptPrint() {
                             <TD style={styles.td}>{item.siCode}</TD>
                            
                             <TD style={styles.td}>
-                                <Text style={styles.rightText}>{item.invAmount}</Text>
+                                <Text style={styles.rightText}>{formatAmount(item.invAmount)}</Text>
                             </TD>
 
                             <TD style={styles.td}>
-                                <Text style={styles.rightText}>{item.paidAmount}</Text>
+                                <Text style={styles.rightText}>{formatAmount(item.paidAmount)}</Text>
                             </TD>
 
                            
@@ -149,11 +149,11 @@ export default function ReceiptPrint() {
                         </TD>
 
                         <TD style={styles.td}>
-                            <Text style={styles.rightText}>{printReceipt.totalinvAmount}</Text>
+                            <Text style={styles.rightText}>{formatAmount(printReceipt.totalinvAmount)}</Text>
                         </TD>
 
                         <TD style={styles.td}>
-                            <Text style={styles.rightText}>{printReceipt.totalpaidAmount}</Text>
+                            <Text style={styles.rightText}>{formatAmount(printReceipt.totalpaidAmount)}</Text>
                         </TD>
 
                         

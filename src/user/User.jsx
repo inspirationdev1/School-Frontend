@@ -118,7 +118,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-export default function School() {
+export default function User() {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 
@@ -140,7 +140,7 @@ export default function School() {
         {
             label: "Dashboard",
             icon: DashboardIcon,
-            link: "/user",
+            link: "/school",
         },
         {
             label: "Academics",
@@ -150,6 +150,18 @@ export default function School() {
                 { label: "Section", link: "/school/section" },
                 { label: "Subjects", link: "/school/subject" },
                 { label: "Departments", link: "/school/department" },
+                { label: "Schedule", link: "/school/periods" },
+                { label: "Notice", link: "/school/notice" },
+
+            ],
+        },
+        {
+            label: "Students",
+            icon: GroupIcon,
+            children: [
+                { label: "Students", link: "/school/students" },
+                { label: "Parents", link: "/school/parents" },
+                { label: "Attendance", link: "/school/attendance" },
             ],
         },
         {
@@ -158,25 +170,49 @@ export default function School() {
             children: [
                 { label: "Fee Types", link: "/school/feestype" },
                 { label: "Fee Structure", link: "/school/feestructure" },
-                { label: "Sales Invoice", link: "/school/salesinvoice" },
+                { label: "Fee Invoice", link: "/school/salesinvoice" },
                 { label: "Receipts", link: "/school/receipt" },
             ],
         },
         {
-            label: "Users",
-            icon: GroupIcon,
+            label: "Exam",
+            icon: MenuBookIcon,
             children: [
-                { label: "Students", link: "/school/students" },
-                { label: "Teachers", link: "/school/teachers" },
-                { label: "Parents", link: "/school/parents" },
-                { label: "Users", link: "/school/users" },
+                { label: "Examinations", link: "/school/examinations" },
+                { label: "Questionpapers", link: "/school/questionpapers" },
+                { label: "Marksheets", link: "/school/marksheet" },
+                { label: "Reports", link: "/school/schoolreports" },
             ],
         },
         {
-            label: "Attendance",
-            icon: RecentActorsIcon,
-            link: "/school/attendance",
+            label: "Human Res",
+            icon: GroupIcon,
+            children: [
+                { label: "Teachers", link: "/school/teachers" },
+                { label: "Staff", link: "/school/employees" },
+            ],
         },
+        {
+            label: "Finance",
+            icon: MenuBookIcon,
+            children: [
+                { label: "Expense Type", link: "/school/expensetype" },
+                { label: "Expenses", link: "/school/expense" },
+                { label: "Reports", link: "/school/financereports" },
+
+            ],
+        },
+        {
+            label: "Permissions",
+            icon: GroupIcon,
+            children: [
+                { label: "Menu", link: "/school/menu" },
+                { label: "Role", link: "/school/role" },
+                { label: "Screen", link: "/school/screen" },
+                { label: "Users", link: "/school/users" },
+            ],
+        },
+        
         {
             label: "Logout",
             icon: LogoutIcon,
@@ -288,18 +324,18 @@ export default function School() {
                 <Divider />
             </Drawer>
 
-            
+
             <Box
                 component="main"
                 sx={{
                     flexGrow: 1,
                     minHeight: "100vh",
-                    marginLeft: 16  ,
+                    marginLeft: 16,
                     px: 2,
                     pt: 10, // space for AppBar height
                 }}
             >
-                
+
                 <Outlet />
             </Box>
 

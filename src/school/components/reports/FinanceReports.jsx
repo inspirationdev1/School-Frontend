@@ -98,6 +98,24 @@ export default function FinanceReports() {
                 `/school/IncomeReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
                 "_blank"
             );
+        } else if (selectedReport.reportId == "pending-fees-report") {
+            const data = {
+                fromDate: fromDate,
+                toDate: toDate,      
+            };
+            window.open(
+                `/school/PendingFeesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                "_blank"
+            );
+        } else if (selectedReport.reportId == "paid-fees-report") {
+            const data = {
+                fromDate: fromDate,
+                toDate: toDate,      
+            };
+            window.open(
+                `/school/PaidFeesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                "_blank"
+            );
         }
 
         
@@ -148,7 +166,11 @@ export default function FinanceReports() {
                 }
             }
 
-            if (values.reportId == "expense-report" || values.reportId == "income-report") {
+            if (values.reportId == "expense-report" 
+                || values.reportId == "income-report"
+                || values.reportId == "pending-fees-report"
+                || values.reportId == "paid-fees-report"
+            ) {
                 if (!values.fromDate || !values.toDate) {
                     setDataError('Select From Date and To Date');
                     setIsDataValid(false);
@@ -186,7 +208,10 @@ export default function FinanceReports() {
         try {
             const reportsData = [{ reportId: "income-expense-report", reportName: "Income-Expense Report" },
              { reportId: "income-report", reportName: "Income Report" },
-             { reportId: "expense-report", reportName: "Expense Report" }
+             { reportId: "expense-report", reportName: "Expense Report" },
+             { reportId: "pending-fees-report", reportName: "Pending Fees Report" },
+             { reportId: "paid-fees-report", reportName: "Paid Fees Report" }
+             
             ];
             console.log("Report Names", reportsData)
             setReportNames(reportsData);
@@ -440,7 +465,10 @@ export default function FinanceReports() {
                                 )}
 
                                 {/* From Date */}
-                                {selectedReport && (selectedReport.reportId === "expense-report"||selectedReport.reportId === "income-report") && (
+                                {selectedReport && (selectedReport.reportId === "expense-report"
+                                ||selectedReport.reportId === "income-report"
+                                ||selectedReport.reportId === "pending-fees-report"
+                                ||selectedReport.reportId === "paid-fees-report") && (
                                     <Box>
                                         <TextField
                                             label="From Date"
@@ -459,7 +487,10 @@ export default function FinanceReports() {
                                 )}
 
                                 {/* To Date */}
-                                {selectedReport && (selectedReport.reportId === "expense-report"||selectedReport.reportId === "income-report") && (
+                                {selectedReport && (selectedReport.reportId === "expense-report"
+                                ||selectedReport.reportId === "income-report"
+                                ||selectedReport.reportId === "pending-fees-report"
+                                ||selectedReport.reportId === "paid-fees-report") && (
                                     <Box>
                                         <TextField
                                             label="To Date"

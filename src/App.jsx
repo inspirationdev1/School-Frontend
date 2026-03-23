@@ -91,6 +91,8 @@ import ExpenseReportPrint from "./school/components/reports/ExpenseReportPrint";
 import IncomeReportPrint from "./school/components/reports/IncomeReportPrint";
 import StudentReports from "./school/components/reports/StudentReports";
 import AttendanceReportPrint from "./school/components/reports/AttendanceReportPrint";
+import PendingFeesReportPrint from "./school/components/reports/PendingFeesReportPrint";
+import PaidFeesReportPrint from "./school/components/reports/PaidFeesReportPrint";
 
 // import Receipts from "./school/components/receipts/Receipts";
 
@@ -148,6 +150,9 @@ function App() {
               <Route path="incomereportprint" element={<IncomeReportPrint />} />
               <Route path="studentreports" element={<StudentReports />} />
               <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
+
+              <Route path="pendingfeesreportprint" element={<PendingFeesReportPrint />} />
+              <Route path="paidfeesreportprint" element={<PaidFeesReportPrint />} />
 
               
               

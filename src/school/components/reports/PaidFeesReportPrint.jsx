@@ -119,7 +119,7 @@ export default function PaidFeesReportPrint() {
     const [expenses, setExpenses] = useState([]);
     const [rows, setRows] = useState([]);
     const [date, setDate] = useState(new dayjs(Date()).format("YYYY-MM-DD"));
-    const [totalExpense, setTotalExpense] = useState(0);
+    const [totalPaid, setTotalPaid] = useState(0);
 
 
 
@@ -166,28 +166,28 @@ export default function PaidFeesReportPrint() {
 
             try {
 
-                const expense_Print_Response = await axios.get(`${baseUrl}/schoolreports/paid-fees-print`, {
+                const print_Response = await axios.get(`${baseUrl}/schoolreports/paid-fees-print`, {
                     params: {
                         fromDate: fromDate,
                         toDate: toDate
                     }
                 });
-                console.log("expense_Print_Response", expense_Print_Response.data.data);
-                const expenseData = expense_Print_Response.data.data;
+                console.log("print_Response", print_Response.data.data);
+                const rows = print_Response.data.data;
 
 
 
 
-                console.log("subjects", expenseData);
+                console.log("rows", rows);
 
 
 
-                const maxLength = Math.max(expenseData.length);
+                // const maxLength = Math.max(expenseData.length);
 
-                const rows = Array.from({ length: maxLength }, (_, i) => ({
-                    expense: expenseData[i]?.expensetype.expensetype_name || "",
-                    expenseAmount: expenseData[i]?.expenseAmount || "",
-                }));
+                // const rows = Array.from({ length: maxLength }, (_, i) => ({
+                //     expense: expenseData[i]?.expensetype.expensetype_name || "",
+                //     expenseAmount: expenseData[i]?.expenseAmount || "",
+                // }));
                 setRows(rows);
 
                 if (rows.length > 0) {
@@ -195,21 +195,21 @@ export default function PaidFeesReportPrint() {
                 } else {
                     setIsDataFound(false);
                 }
-                const totalExpense = expenseData.reduce((sum, item) => sum + Number(item.expenseAmount), 0);
-                setTotalExpense(totalExpense);
+                const totPaid = rows.reduce((sum, item) => sum + Number(item.totalPaid), 0);
+                setTotalPaid(totPaid);
 
 
                 const rptHeader = {
-                    school_name: expenseData[0].school.school_name,
-                    address: expenseData[0].school.address,
-                    city: expenseData[0].school.city,
-                    state: expenseData[0].school.state,
-                    country: expenseData[0].school.country,
-                    school_image: expenseData[0].school.school_image
+                    school_name: rows[0].school.school_name,
+                    address: rows[0].school.address,
+                    city: rows[0].school.city,
+                    state: rows[0].school.state,
+                    country: rows[0].school.country,
+                    school_image: rows[0].school.school_image
                 }
 
                 setReportHeader(rptHeader);
-                setExpenses(expenseData);
+                
                 setLoading(false);
 
             } catch (error) {
@@ -254,7 +254,7 @@ export default function PaidFeesReportPrint() {
 
                 {/* 🔷 Title */}
                 <Text style={styles.reportTitle}>
-                    EXPENSES REPORT
+                    FEES RECEIPTS REPORT
                 </Text>
 
                 {/* 🔷 Table */}
@@ -263,7 +263,13 @@ export default function PaidFeesReportPrint() {
                     {/* Header */}
                     <View style={styles.tableRow}>
                         <View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>Expense</Text>
+                            <Text>ReceipCode</Text>
+                        </View>
+                        <View style={[styles.tableHeaderCell, styles.colExpense]}>
+                            <Text>Receip Date</Text>
+                        </View>
+                        <View style={[styles.tableHeaderCell, styles.colExpense]}>
+                            <Text>Invoice #</Text>
                         </View>
 
                         <View style={[styles.tableHeaderCell, styles.colAmount]}>
@@ -275,11 +281,17 @@ export default function PaidFeesReportPrint() {
                     {rows.map((row, i) => (
                         <View style={styles.tableRow} key={i}>
                             <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{row.expense}</Text>
+                                <Text>{row.receipt.receiptCode}</Text>
+                            </View>
+                            <View style={[styles.tableCell, styles.colExpense]}>
+                                <Text>{dayjs(row.receipt.receiptDate).format("DD/MM/YYYY") || ""}</Text>
                             </View>
 
+                            <View style={[styles.tableCell, styles.colExpense]}>
+                                <Text>{row.siCode}</Text>
+                            </View>
                             <View style={[styles.tableCell, styles.colAmount]}>
-                                <Text>{formatAmount(row.expenseAmount)}</Text>
+                                <Text>{formatAmount(row.totalPaid)}</Text>
                             </View>
                         </View>
                     ))}
@@ -287,11 +299,17 @@ export default function PaidFeesReportPrint() {
                     {/* Total */}
                     <View style={styles.totalRow}>
                         <View style={[styles.tableCell, styles.colExpense]}>
-                            <Text style={styles.boldText}>Total Expense</Text>
+                            <Text style={styles.boldText}></Text>
+                        </View>
+                        <View style={[styles.tableCell, styles.colExpense]}>
+                            <Text style={styles.boldText}></Text>
+                        </View>
+                        <View style={[styles.tableCell, styles.colExpense]}>
+                            <Text style={styles.boldText}>Total</Text>
                         </View>
 
                         <View style={[styles.tableCell, styles.colAmount]}>
-                            <Text style={styles.boldText}>{formatAmount(totalExpense)}</Text>
+                            <Text style={styles.boldText}>{formatAmount(totalPaid)}</Text>
                         </View>
                     </View>
 
@@ -326,26 +344,31 @@ export default function PaidFeesReportPrint() {
     };
 
 
-    const downloadExpenseExcel = () => {
+    const downloadExcel = () => {
 
+        
         // 1️⃣ Prepare Header
 
         const sheetData = [];
-        sheetData.push(["Expense", "Amount"]);
+        sheetData.push(["ReceipCode","Receip Date","Invoice #", "Amount"]);
 
         // 📥 Data Rows
         rows.forEach((row) => {
             sheetData.push([
-                row.expense || "",
-                Number(row.expenseAmount || 0),
+                row.receipt.receiptCode || "",
+                dayjs(row.receipt.receiptDate).format("DD/MM/YYYY") || "" || "",
+                row.siCode || "",
+                Number(row.totalPaid || 0),
             ]);
         });
 
 
         // 📊 Totals
         sheetData.push([
+            "",
+            "",
             "Totals",
-            Number(totalExpense),
+            Number(totalPaid),
         ]);
 
 
@@ -354,11 +377,11 @@ export default function PaidFeesReportPrint() {
 
         // 4️⃣ Create workbook
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Expense");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "FEES-RECEIPTS-REPORT");
 
         const date = new Date();
         // 5️⃣ Download
-        XLSX.writeFile(workbook, `Expense_${date}.xlsx`);
+        XLSX.writeFile(workbook, `FEES-RECEIPTS-REPORT_${date}.xlsx`);
     };
 
     if (loading) {
@@ -391,14 +414,14 @@ export default function PaidFeesReportPrint() {
 
             {(isDataFound && <div className="mt-6 flex justify-center gap-3">
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="Expense.pdf">
+                <PDFDownloadLink document={<PrintPDF />} fileName="FeesReceipt.pdf">
                     <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                         Download PDF
                     </button>
                 </PDFDownloadLink>
 
 
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadExpenseExcel}>
+                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadExcel}>
                     Download Excel
                 </button>
 

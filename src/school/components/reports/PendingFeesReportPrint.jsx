@@ -390,7 +390,7 @@ export default function PendingFeesReportPrint() {
                 dayjs(row.invoiceDate).format("DD/MM/YYYY") || "",
                 row?.student.name || "",
                 Number(row.invAmount || 0),
-                Number(row.paidAmouint || 0),
+                Number(row.paidAmount || 0),
                 Number(row.invBal || 0),
             ]);
         });
@@ -412,11 +412,11 @@ export default function PendingFeesReportPrint() {
 
         // 4️⃣ Create workbook
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "PendingInvoices");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "PendingFeesInvoices");
 
         const date = new Date();
         // 5️⃣ Download
-        XLSX.writeFile(workbook, `PendingInvoices_${date}.xlsx`);
+        XLSX.writeFile(workbook, `PendingFeesInvoices_${date}.xlsx`);
     };
 
     if (loading) {
@@ -449,7 +449,7 @@ export default function PendingFeesReportPrint() {
 
             {(isDataFound && <div className="mt-6 flex justify-center gap-3">
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="PendingInvoices.pdf">
+                <PDFDownloadLink document={<PrintPDF />} fileName="PendingFeesInvoices.pdf">
                     <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                         Download PDF
                     </button>

@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     },
 
     // ✅ FIXED COLUMN WIDTHS
-    colExpense: {
+    colIncome: {
         width: "75%"
     },
 
@@ -110,16 +110,19 @@ const styles = StyleSheet.create({
 });
 
 
-export default function PaidFeesReportPrint() {
+export default function PendingExpensesReportPrint() {
     const [loading, setLoading] = useState(true);
     const [printData, setPrintData] = useState([]);
 
 
     const [reportHeader, setReportHeader] = useState({});
-    const [expenses, setExpenses] = useState([]);
+    const [incomes, setIncomes] = useState([]);
     const [rows, setRows] = useState([]);
     const [date, setDate] = useState(new dayjs(Date()).format("YYYY-MM-DD"));
-    const [totalPaid, setTotalPaid] = useState(0);
+    const [totalExpAmount, setTotalExpAmount] = useState(0);
+    const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+    const [totalExpBal, setTotalInvBal] = useState(0);
+
 
 
 
@@ -166,7 +169,7 @@ export default function PaidFeesReportPrint() {
 
             try {
 
-                const print_Response = await axios.get(`${baseUrl}/schoolreports/paid-fees-print`, {
+                const print_Response = await axios.get(`${baseUrl}/schoolreports/pending-expenses-print`, {
                     params: {
                         fromDate: fromDate,
                         toDate: toDate
@@ -176,18 +179,6 @@ export default function PaidFeesReportPrint() {
                 const rows = print_Response.data.data;
 
 
-
-
-                console.log("rows", rows);
-
-
-
-                // const maxLength = Math.max(expenseData.length);
-
-                // const rows = Array.from({ length: maxLength }, (_, i) => ({
-                //     expense: expenseData[i]?.expensetype.expensetype_name || "",
-                //     expenseAmount: expenseData[i]?.expenseAmount || "",
-                // }));
                 setRows(rows);
 
                 if (rows.length > 0) {
@@ -195,8 +186,14 @@ export default function PaidFeesReportPrint() {
                 } else {
                     setIsDataFound(false);
                 }
-                const totPaid = rows.reduce((sum, item) => sum + Number(item.totalPaid), 0);
-                setTotalPaid(totPaid);
+                const totalExpAmount = rows.reduce((sum, item) => sum + Number(item.expenseAmount), 0);
+                setTotalExpAmount(totalExpAmount);
+
+                const totalPaidAmount = rows.reduce((sum, item) => sum + Number(item.paidAmount), 0);
+                setTotalPaidAmount(totalPaidAmount);
+
+                const totalExpBal = rows.reduce((sum, item) => sum + Number(item.expBal), 0);
+                setTotalInvBal(totalExpBal);
 
 
                 const rptHeader = {
@@ -209,7 +206,6 @@ export default function PaidFeesReportPrint() {
                 }
 
                 setReportHeader(rptHeader);
-                
                 setLoading(false);
 
             } catch (error) {
@@ -254,7 +250,7 @@ export default function PaidFeesReportPrint() {
 
                 {/* 🔷 Title */}
                 <Text style={styles.reportTitle}>
-                    FEES RECEIPTS REPORT
+                    PENDING EXPENSES REPORT
                 </Text>
 
                 {/* 🔷 Table */}
@@ -262,54 +258,77 @@ export default function PaidFeesReportPrint() {
 
                     {/* Header */}
                     <View style={styles.tableRow}>
-                        <View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>ReceiptCode</Text>
+                        <View style={[styles.tableHeaderCell, styles.colIncome]}>
+                            <Text>EX #</Text>
                         </View>
-                        <View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>Receipt Date</Text>
+                        <View style={[styles.tableHeaderCell, styles.colIncome]}>
+                            <Text>EX Date</Text>
                         </View>
-                        <View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>Invoice #</Text>
+                        <View style={[styles.tableHeaderCell, styles.colIncome]}>
+                            <Text>Employee</Text>
                         </View>
 
                         <View style={[styles.tableHeaderCell, styles.colAmount]}>
-                            <Text>Amount</Text>
+                            <Text>Exp Amount</Text>
+                        </View>
+
+                        <View style={[styles.tableHeaderCell, styles.colAmount]}>
+                            <Text>Paid Amount</Text>
+                        </View>
+
+                        <View style={[styles.tableHeaderCell, styles.colAmount]}>
+                            <Text>Exp Bal</Text>
                         </View>
                     </View>
 
                     {/* Rows */}
                     {rows.map((row, i) => (
                         <View style={styles.tableRow} key={i}>
-                            <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{row.receipt.receiptCode}</Text>
+                            <View style={[styles.tableCell, styles.colIncome]}>
+                                <Text>{row.expenseCode}</Text>
                             </View>
-                            <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{dayjs(row.receipt.receiptDate).format("DD/MM/YYYY") || ""}</Text>
+                            <View style={[styles.tableCell, styles.colIncome]}>
+                                <Text>{dayjs(row.expenseDate).format("DD/MM/YYYY")}</Text>
+
+                            </View>
+                            <View style={[styles.tableCell, styles.colIncome]}>
+                                <Text>{row?.employee.employee_name}</Text>
                             </View>
 
-                            <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{row.siCode}</Text>
+                            <View style={[styles.tableCell, styles.colAmount]}>
+                                <Text>{formatAmount(row.expenseAmount)}</Text>
                             </View>
                             <View style={[styles.tableCell, styles.colAmount]}>
-                                <Text>{formatAmount(row.totalPaid)}</Text>
+                                <Text>{formatAmount(row.paidAmount)}</Text>
+                            </View>
+                            <View style={[styles.tableCell, styles.colAmount]}>
+                                <Text>{formatAmount(row.expBal)}</Text>
                             </View>
                         </View>
                     ))}
 
                     {/* Total */}
                     <View style={styles.totalRow}>
-                        <View style={[styles.tableCell, styles.colExpense]}>
+                        <View style={[styles.tableCell, styles.colIncome]}>
                             <Text style={styles.boldText}></Text>
                         </View>
-                        <View style={[styles.tableCell, styles.colExpense]}>
+                        <View style={[styles.tableCell, styles.colIncome]}>
                             <Text style={styles.boldText}></Text>
                         </View>
-                        <View style={[styles.tableCell, styles.colExpense]}>
+
+                        <View style={[styles.tableCell, styles.colIncome]}>
                             <Text style={styles.boldText}>Total</Text>
                         </View>
 
                         <View style={[styles.tableCell, styles.colAmount]}>
-                            <Text style={styles.boldText}>{formatAmount(totalPaid)}</Text>
+                            <Text style={styles.boldText}>{formatAmount(totalExpAmount)}</Text>
+                        </View>
+
+                        <View style={[styles.tableCell, styles.colAmount]}>
+                            <Text style={styles.boldText}>{formatAmount(totalPaidAmount)}</Text>
+                        </View>
+                        <View style={[styles.tableCell, styles.colAmount]}>
+                            <Text style={styles.boldText}>{formatAmount(totalExpBal)}</Text>
                         </View>
                     </View>
 
@@ -344,21 +363,22 @@ export default function PaidFeesReportPrint() {
     };
 
 
-    const downloadExcel = () => {
+    const downloadIncomeExcel = () => {
 
-        
         // 1️⃣ Prepare Header
 
         const sheetData = [];
-        sheetData.push(["ReceipCode","Receip Date","Invoice #", "Amount"]);
+        sheetData.push(["EX#", "EX Date", "Employee", "Exp Amount", "Paid Amount", "Bal Amount"]);
 
         // 📥 Data Rows
         rows.forEach((row) => {
             sheetData.push([
-                row.receipt.receiptCode || "",
-                dayjs(row.receipt.receiptDate).format("DD/MM/YYYY") || "" || "",
-                row.siCode || "",
-                Number(row.totalPaid || 0),
+                row.expenseCode || "",
+                dayjs(row.expenseDate).format("DD/MM/YYYY") || "",
+                row?.employee.employee_name || "",
+                Number(row.expenseAmount || 0),
+                Number(row.paidAmount || 0),
+                Number(row.expBal || 0),
             ]);
         });
 
@@ -368,7 +388,9 @@ export default function PaidFeesReportPrint() {
             "",
             "",
             "Totals",
-            Number(totalPaid),
+            Number(totalExpAmount),
+            Number(totalPaidAmount),
+            Number(totalExpBal),
         ]);
 
 
@@ -377,11 +399,11 @@ export default function PaidFeesReportPrint() {
 
         // 4️⃣ Create workbook
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "FEES-RECEIPTS-REPORT");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "PendingExpenses");
 
         const date = new Date();
         // 5️⃣ Download
-        XLSX.writeFile(workbook, `FEES-RECEIPTS-REPORT_${date}.xlsx`);
+        XLSX.writeFile(workbook, `PendingExpenses_${date}.xlsx`);
     };
 
     if (loading) {
@@ -414,20 +436,20 @@ export default function PaidFeesReportPrint() {
 
             {(isDataFound && <div className="mt-6 flex justify-center gap-3">
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="FeesReceipt.pdf">
+                <PDFDownloadLink document={<PrintPDF />} fileName="PendingExpenses.pdf">
                     <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                         Download PDF
                     </button>
                 </PDFDownloadLink>
 
 
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadExcel}>
+                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadIncomeExcel}>
                     Download Excel
                 </button>
 
 
             </div>)}
-            
+
 
         </div>
     );

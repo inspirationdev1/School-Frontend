@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
 });
 
 
-export default function PaidFeesReportPrint() {
+export default function PaidExpensesReportPrint() {
     const [loading, setLoading] = useState(true);
     const [printData, setPrintData] = useState([]);
 
@@ -166,7 +166,7 @@ export default function PaidFeesReportPrint() {
 
             try {
 
-                const print_Response = await axios.get(`${baseUrl}/schoolreports/paid-fees-print`, {
+                const print_Response = await axios.get(`${baseUrl}/schoolreports/paid-expenses-print`, {
                     params: {
                         fromDate: fromDate,
                         toDate: toDate
@@ -182,12 +182,7 @@ export default function PaidFeesReportPrint() {
 
 
 
-                // const maxLength = Math.max(expenseData.length);
-
-                // const rows = Array.from({ length: maxLength }, (_, i) => ({
-                //     expense: expenseData[i]?.expensetype.expensetype_name || "",
-                //     expenseAmount: expenseData[i]?.expenseAmount || "",
-                // }));
+               
                 setRows(rows);
 
                 if (rows.length > 0) {
@@ -254,7 +249,7 @@ export default function PaidFeesReportPrint() {
 
                 {/* 🔷 Title */}
                 <Text style={styles.reportTitle}>
-                    FEES RECEIPTS REPORT
+                    EXPENSES PAYMENTS REPORT
                 </Text>
 
                 {/* 🔷 Table */}
@@ -263,10 +258,10 @@ export default function PaidFeesReportPrint() {
                     {/* Header */}
                     <View style={styles.tableRow}>
                         <View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>ReceiptCode</Text>
+                            <Text>PaymentCode</Text>
                         </View>
                         <View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>Receipt Date</Text>
+                            <Text>Payment Date</Text>
                         </View>
                         <View style={[styles.tableHeaderCell, styles.colExpense]}>
                             <Text>Invoice #</Text>
@@ -281,14 +276,14 @@ export default function PaidFeesReportPrint() {
                     {rows.map((row, i) => (
                         <View style={styles.tableRow} key={i}>
                             <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{row.receipt.receiptCode}</Text>
+                                <Text>{row.payment.paymentCode}</Text>
                             </View>
                             <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{dayjs(row.receipt.receiptDate).format("DD/MM/YYYY") || ""}</Text>
+                                <Text>{dayjs(row.payment.paymentDate).format("DD/MM/YYYY") || ""}</Text>
                             </View>
 
                             <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{row.siCode}</Text>
+                                <Text>{row.expenseCode}</Text>
                             </View>
                             <View style={[styles.tableCell, styles.colAmount]}>
                                 <Text>{formatAmount(row.totalPaid)}</Text>
@@ -350,14 +345,14 @@ export default function PaidFeesReportPrint() {
         // 1️⃣ Prepare Header
 
         const sheetData = [];
-        sheetData.push(["ReceipCode","Receip Date","Invoice #", "Amount"]);
+        sheetData.push(["PaymentCode","Payment Date","Expense #", "Amount"]);
 
         // 📥 Data Rows
         rows.forEach((row) => {
             sheetData.push([
-                row.receipt.receiptCode || "",
-                dayjs(row.receipt.receiptDate).format("DD/MM/YYYY") || "" || "",
-                row.siCode || "",
+                row.payment.paymentCode || "",
+                dayjs(row.payment.paymentDate).format("DD/MM/YYYY") || "" || "",
+                row.expenseCode || "",
                 Number(row.totalPaid || 0),
             ]);
         });
@@ -377,11 +372,11 @@ export default function PaidFeesReportPrint() {
 
         // 4️⃣ Create workbook
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "FEES-RECEIPTS-REPORT");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "EXPENSES-PAYMENTS-REPORT");
 
         const date = new Date();
         // 5️⃣ Download
-        XLSX.writeFile(workbook, `FEES-RECEIPTS-REPORT_${date}.xlsx`);
+        XLSX.writeFile(workbook, `EXPENSES-PAYMENTS-REPORT_${date}.xlsx`);
     };
 
     if (loading) {
@@ -414,7 +409,7 @@ export default function PaidFeesReportPrint() {
 
             {(isDataFound && <div className="mt-6 flex justify-center gap-3">
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="FeesReceipt.pdf">
+                <PDFDownloadLink document={<PrintPDF />} fileName="ExpensesReceipt.pdf">
                     <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                         Download PDF
                     </button>

@@ -93,8 +93,10 @@ import StudentReports from "./school/components/reports/StudentReports";
 import AttendanceReportPrint from "./school/components/reports/AttendanceReportPrint";
 import PendingFeesReportPrint from "./school/components/reports/PendingFeesReportPrint";
 import PaidFeesReportPrint from "./school/components/reports/PaidFeesReportPrint";
+import Payments from "./school/components/payments/Payments";
+import PaymentPrint from "./school/components/payments/PaymentPrint";
 
-// import Receipts from "./school/components/receipts/Receipts";
+
 
 function App() {
   const { authenticated, login, themeDark } = useContext(AuthContext);
@@ -119,7 +121,9 @@ function App() {
               <Route path="salesinvoice" element={<Salesinvoice />} />
               <Route path="salesinvoiceprint" element={<SalesinvoicePrint />} />
               <Route path="receipt" element={<Receipts />} />
-              <Route path="receiptprint" element={<ReceiptPrint />} />              
+              <Route path="receiptprint" element={<ReceiptPrint />} />
+              <Route path="payment" element={<Payments />} />
+              <Route path="paymentprint" element={<PaymentPrint />} />                  
               <Route path="expensetype" element={<Expensetypes />} />
               <Route path="expense" element={<Expenses />} />
               <Route path="expenseprint" element={<ExpensePrint />} />  

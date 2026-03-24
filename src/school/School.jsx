@@ -199,6 +199,7 @@ export default function School() {
             children: [
                 { label: "Expense Type", link: "/school/expensetype" },
                 { label: "Expenses", link: "/school/expense" },
+                { label: "Payments", link: "/school/payment" },
                 { label: "Reports", link: "/school/financereports" },
 
             ],

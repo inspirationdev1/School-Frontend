@@ -1,3 +1,4 @@
+
 import {
     Page,
     Text,
@@ -20,30 +21,30 @@ import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 
 
-export default function ExpensePrint() {
+export default function PaymentPrint() {
     const [loading, setLoading] = useState(true);
-    const [printExpense, setPrintExpense] = useState({});
+    const [printPayment, setPrintPayment] = useState({});
     
     const [searchParams] = useSearchParams();
 
     const id = searchParams.get("id");
 
     useEffect(() => {
-        const fetchPrintExpense = async () => {
+        const fetchPrintPayment = async () => {
             try {
-                const expensePrintResponse = await axios.get(`${baseUrl}/expense/fetch-print/${id}`, { params: { id: id } });
-                console.log("expensePrintResponse", expensePrintResponse.data.data);
-                setPrintExpense(expensePrintResponse.data.data);
-                console.log("printExpense", printExpense);
+                const paymentPrintResponse = await axios.get(`${baseUrl}/payment/fetch-print/${id}`, { params: { id: id } });
+                console.log("paymentPrintResponse", paymentPrintResponse.data.data);
+                setPrintPayment(paymentPrintResponse.data.data);
+                console.log("printPayment", printPayment);
 
                 
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching expense for print:', error);
+                console.error('Error fetching payment for print:', error);
             }
         };
 
-        fetchPrintExpense();
+        fetchPrintPayment();
 
 
 
@@ -54,13 +55,13 @@ export default function ExpensePrint() {
             <Page size="A4" style={styles.page}>
                 <View style={styles.header}>
                     <View>
-                        <Text style={[styles.title, styles.textBold]}>Expense</Text>
+                        <Text style={[styles.title, styles.textBold]}>Fees Payment</Text>
 
                     </View>
                     <View style={styles.spaceY}>
-                        <Text style={styles.textBold}>{printExpense.school.school_name}</Text>
-                        <Text style={styles.textBold}>{printExpense.school.address} - {printExpense.school.city}</Text>
-                        <Text style={styles.textBold}>{printExpense.school.state} - {printExpense.school.country}</Text>
+                        <Text style={styles.textBold}>{printPayment.school.school_name}</Text>
+                        <Text style={styles.textBold}>{printPayment.school.address} - {printPayment.school.city}</Text>
+                        <Text style={styles.textBold}>{printPayment.school.state} - {printPayment.school.country}</Text>
 
                     </View>
                 </View>
@@ -70,36 +71,28 @@ export default function ExpensePrint() {
 
                     {/* Row 1 */}
                     <View style={styles.rowStyle}>
-                        <Text style={styles.labelStyle}>Expense # :</Text>
-                        <Text style={styles.valueStyle}>{printExpense.expenseCode}</Text>
+                        <Text style={styles.labelStyle}>Payment # :</Text>
+                        <Text style={styles.valueStyle}>{printPayment.paymentCode}</Text>
 
-                        <Text style={styles.labelStyle}>Expense Date :</Text>
+                        <Text style={styles.labelStyle}>Payment Date :</Text>
                         <Text style={styles.valueStyle}>
-                            {dayjs(printExpense.expenseDate).format("DD/MM/YYYY")}
+                            {dayjs(printPayment.paymentDate).format("DD/MM/YYYY")}
                         </Text>
                     </View>
 
-                     {/* Row 2 */}
-                    <View style={styles.rowStyle}>
-                       
-                        <Text style={styles.labelStyle}>Employee :</Text>
-                        <Text style={styles.valueStyle}>
-                            {printExpense?.employee.employee_name}
-                        </Text>
-
-                        <Text style={styles.labelStyle}>Remarks :</Text>
-                        <Text style={styles.valueStyle}>
-                            {printExpense.remarks}
-                        </Text>
-                    </View>
+                    
 
                     {/* Row 3 */}
                     <View style={styles.rowStyle}>
                        <Text style={styles.labelStyle}>Status :</Text>
                         <Text style={styles.valueStyle}>
-                            {printExpense.status}
+                            {printPayment.status}
                         </Text>
-                        
+
+                        <Text style={styles.labelStyle}>Remarks :</Text>
+                        <Text style={styles.valueStyle}>
+                            {printPayment.remarks}
+                        </Text>
                     </View>
 
                     
@@ -111,36 +104,51 @@ export default function ExpensePrint() {
 
                     <TH style={[styles.tableHeader, styles.textBold]}>
                         <TD style={styles.td}>S.No</TD>
-                       <TD style={styles.td}>Expensetype</TD>
+                        <TD style={styles.td}>Employee</TD>
+                        <TD style={styles.td}>Expense #</TD>
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>Exp Amount</Text>
                         </TD>
-                         
+                        <TD style={styles.td}>
+                            <Text style={styles.rightText}>Paid Amount</Text>
+                        </TD>
+                        
                     </TH>
 
 
 
-                    {printExpense.expenseDetails.map((item, index) => (
+                    {printPayment.paymentDetails.map((item, index) => (
                         <TR key={index}>
                             <TD style={styles.td}>{index + 1}</TD>
-                            <TD style={styles.td}>{item.expensetype.expensetype_name}</TD>
+                            <TD style={styles.td}>{item.employee.employee_name}</TD>
+                            <TD style={styles.td}>{item.expenseCode}</TD>
+                           
                             <TD style={styles.td}>
                                 <Text style={styles.rightText}>{formatAmount(item.expenseAmount)}</Text>
                             </TD>
+
+                            <TD style={styles.td}>
+                                <Text style={styles.rightText}>{formatAmount(item.paidAmount)}</Text>
+                            </TD>
+
+                           
                         </TR>
                     ))}
 
                     <TR key={100}>
+                        <TD style={styles.td}></TD>
                         <TD style={styles.td}></TD>
                         
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>Total</Text>
                         </TD>
 
-                        
+                        <TD style={styles.td}>
+                            <Text style={styles.rightText}>{formatAmount(printPayment.totalexpenseAmount)}</Text>
+                        </TD>
 
                         <TD style={styles.td}>
-                            <Text style={styles.rightText}>{formatAmount(printExpense.totalexpenseAmount)}</Text>
+                            <Text style={styles.rightText}>{formatAmount(printPayment.totalpaidAmount)}</Text>
                         </TD>
 
                         
@@ -153,21 +161,24 @@ export default function ExpensePrint() {
         </Document>
     );
 
-    const downloadExpenseExcel = () => {
+    const downloadPaymentExcel = () => {
         
         // 1️⃣ Prepare row data
-        const rows = printExpense.expenseDetails.map((item, index) => ({
+        const rows = printPayment.paymentDetails.map((item, index) => ({
             "S.No": index + 1,
-            expensetype: item.expensetype.expensetype_name,
+            "Description": item.employee.employee_name,
+            expenseCode: item.expenseCode,
             expenseAmount: item.expenseAmount,
+            paidAmount: item.paidAmount,
         }));
 
         // 2️⃣ Add totals at bottom
         rows.push({
             "S.No": "",
-            expensetype: "Total",
-            expenseAmount: printExpense.totalexpenseAmount,
-           
+            "Description": "",
+            expenseCode: "Total",
+            expenseAmount: printPayment.totalexpenseAmount,
+            paidAmount: printPayment.totalpaidAmount,
         });
 
         
@@ -177,10 +188,10 @@ export default function ExpensePrint() {
 
         // 4️⃣ Create workbook
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Expense");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Payment");
 
         // 5️⃣ Download
-        XLSX.writeFile(workbook, `Expense_${printExpense.expenseDate}.xlsx`);
+        XLSX.writeFile(workbook, `Payment_${printPayment.paymentDate}.xlsx`);
     };
 
     if (loading) {
@@ -195,14 +206,14 @@ export default function ExpensePrint() {
             </div>
             <div className="mt-6 flex justify-center gap-3">
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="expense.pdf">
+                <PDFDownloadLink document={<PrintPDF />} fileName="payment.pdf">
                     <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                         Download PDF
                     </button>
                 </PDFDownloadLink>
 
 
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadExpenseExcel}>
+                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadPaymentExcel}>
                     Download Excel
                 </button>
 

@@ -6,7 +6,6 @@ export const salesinvoiceSchema = yup.object({
     class: yup.string().min(3, "Must Contain 3 Character.").required("Class is  required."),
     section: yup.string().min(3, "Must Contain 3 Character.").required("Section is  required."),
     student: yup.string().min(3, "Must Contain 3 Character.").required("Student is  required."),
-    paymentMethod: yup.string().min(1, "Must Contain 3 Character.").required("paymentMethod is  required."),
     paymentStatus: yup.string().min(1, "Must Contain 3 Character.").required("paymentStatus is  required."),
     status: yup.string().min(1, "Must Contain 3 Character.").required("status is  required."),
     remarks: yup.string().min(3, "Must Contain 3 Character."),

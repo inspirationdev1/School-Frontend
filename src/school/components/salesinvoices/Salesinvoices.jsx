@@ -122,7 +122,6 @@ export default function Salesinvoice() {
         Formik.setFieldValue("class", resp.data.data.class);
         Formik.setFieldValue("section", resp.data.data.section);
         Formik.setFieldValue("student", resp.data.data.student);
-        Formik.setFieldValue("paymentMethod", resp.data.data.paymentMethod);
         Formik.setFieldValue("paymentStatus", resp.data.data.paymentStatus);
         Formik.setFieldValue("status", resp.data.data.status);
         Formik.setFieldValue("year", resp.data.data.year);
@@ -228,7 +227,6 @@ export default function Salesinvoice() {
     class: "",
     section: "",
     student: "",
-    paymentMethod: "",
     paymentStatus: "pending",
     status: "valid",
     remarks: "",
@@ -786,31 +784,7 @@ export default function Salesinvoice() {
 
 
 
-                    <Box>
-
-                      <TextField
-                        select
-                        fullWidth
-                        required
-                        label="Payment Method"
-                        name="paymentMethod"
-                        value={Formik.values.paymentMethod}
-                        onChange={Formik.handleChange}
-                        onBlur={Formik.handleBlur}
-                        disabled={isEdit}
-                      >
-                        <MenuItem value="">Select Payment Method</MenuItem>
-                        <MenuItem value="cash">Cash</MenuItem>
-                        <MenuItem value="bank">Bank</MenuItem>
-                        <MenuItem value="upi">UPI</MenuItem>
-                      </TextField>
-                      {Formik.touched.paymentMethod && Formik.errors.paymentMethod && (
-                        <p style={{ color: "red", textTransform: "capitalize" }}>
-                          {Formik.errors.paymentMethod}
-                        </p>
-                      )}
-                    </Box>
-
+                    
                     <Box>
 
                       <TextField

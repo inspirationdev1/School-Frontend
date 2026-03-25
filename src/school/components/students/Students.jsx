@@ -559,9 +559,9 @@ export default function Students() {
 
 
                     />
-                    {Formik.touched.joinDate && Formik.errors.joinDate && (
+                    {Formik.touched.age && Formik.errors.age && (
                       <Typography color="error" variant="caption">
-                        {Formik.errors.joinDate}
+                        {Formik.errors.age}
                       </Typography>
                     )}
                   </Grid>

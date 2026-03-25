@@ -1,106 +1,145 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
-    Box,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
-    Button,
-    CardMedia,
-    Paper,
-    TextField,
-    Typography,
-    Tabs, Tab,
-  } from "@mui/material";
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Button,
+  CardMedia,
+  Paper,
+  TextField,
+  Typography,
+  Tabs,
+  Tab,
+  Autocomplete,
+  Grid,
+} from "@mui/material";
 
-  import { useFormik } from "formik";
-  import { useEffect, useRef, useState } from "react";
-  import axios from "axios";
-  import { baseUrl } from "../../../environment";
-  import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
-  import { userSchema } from "../../../yupSchema/userSchema";
+import { useFormik } from "formik";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { baseUrl } from "../../../environment";
+import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
+import { userSchema } from "../../../yupSchema/userSchema";
 import UserCardAdmin from "../../utility components/user card/UserCard";
- import dayjs from "dayjs";
-  
-  export default function Users() {
-    const [userClass, setuserClass] = useState([]);
-    const [users, setusers] = useState([]);
-    const [isEdit, setEdit] = useState(false);
-    const [editId, setEditId] = useState(null);
-  
-    const [date, setDate] = useState(null);
-    const [file, setFile] = useState(null);
-    const [imageUrl, setImageUrl] = useState(null);
-    const [tab, setTab] = useState(0);
-    const [selectedYear, setSelectedYear] = useState(null);
+import dayjs from "dayjs";
 
-    const years = Array.from({ length: 10 }, (_, i) => {
+export default function Users() {
+  const [userClass, setuserClass] = useState([]);
+  const [users, setusers] = useState([]);
+  const [isEdit, setEdit] = useState(false);
+  const [editId, setEditId] = useState(null);
+
+  const [date, setDate] = useState(null);
+  const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [tab, setTab] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
   });
-  
-    const addImage = (event) => {
-      const file = event.target.files[0];
-      setImageUrl(URL.createObjectURL(file));
-      console.log("Image", file, event.target.value);
-      setFile(file);
-    };
-  
-    const [params, setParams] = useState({});
 
-  
-    const handleSearch = (e) => {
-      let newParam;
-      if (e.target.value !== "") {
-        newParam = { ...params, search: e.target.value };
-      } else {
-        newParam = { ...params };
-        delete newParam["search"];
-      }
-  
-      setParams(newParam);
-    };
-  
-    const handleDelete = (id) => {
-      if (confirm("Are you sure you want to delete?")) {
-        axios
-          .delete(`${baseUrl}/user/delete/${id}`)
-          .then((resp) => {
-            setMessage(resp.data.message);
-            setType("success");
-          })
-          .catch((e) => {
-            setMessage(e.response.data.message);
-            setType("error");
-            console.log("Error, deleting", e);
-          });
-      }
-    };
-    const handleEdit = (id) => {
-      console.log("Handle  Edit is called", id);
-      setEdit(true);
+  const addImage = (event) => {
+    const file = event.target.files[0];
+    setImageUrl(URL.createObjectURL(file));
+    console.log("Image", file, event.target.value);
+    setFile(file);
+  };
+
+  const [params, setParams] = useState({});
+
+
+  const handleSearch = (e) => {
+    let newParam;
+    if (e.target.value !== "") {
+      newParam = { ...params, search: e.target.value };
+    } else {
+      newParam = { ...params };
+      delete newParam["search"];
+    }
+
+    setParams(newParam);
+  };
+
+  const handleDelete = (id) => {
+    if (confirm("Are you sure you want to delete?")) {
       axios
-        .get(`${baseUrl}/user/fetch-single/${id}`)
+        .delete(`${baseUrl}/user/delete/${id}`)
         .then((resp) => {
-          Formik.setFieldValue("email", resp.data.data.email);
-          Formik.setFieldValue("name", resp.data.data.name);
-          Formik.setFieldValue("qualification", resp.data.data.qualification)
-          Formik.setFieldValue("gender", resp.data.data.gender)
-          Formik.setFieldValue("age", resp.data.data.age);
-          Formik.setFieldValue("password", resp.data.data.password)
-          setEditId(resp.data.data._id);
+          setMessage(resp.data.message);
+          setType("success");
         })
         .catch((e) => {
-          console.log("Error  in fetching edit data.");
+          setMessage(e.response.data.message);
+          setType("error");
+          console.log("Error, deleting", e);
         });
-    };
-  
-    const cancelEdit = () => {
-      setEdit(false);
-      Formik.resetForm()
-    };
+    }
+  };
+  const handleEdit = (id) => {
+    console.log("Handle  Edit is called", id);
+    setEdit(true);
+    axios
+      .get(`${baseUrl}/user/fetch-single/${id}`)
+      .then((resp) => {
+        Formik.setFieldValue("email", resp.data.data.email);
+        Formik.setFieldValue("name", resp.data.data.name);
+        Formik.setFieldValue("qualification", resp.data.data.qualification)
+        Formik.setFieldValue("gender", resp.data.data.gender)
+        // Formik.setFieldValue("age", resp.data.data.age);
+        Formik.setFieldValue("password", resp.data.data.password)
 
-    //   CLEARING IMAGE FILE REFENCE FROM INPUT
+        Formik.setFieldValue("year", resp.data.data.year)
+        const matchedYear = years.find(s => s.value === resp.data.data.year);
+        setSelectedYear(matchedYear || null);
+
+        Formik.setFieldValue("dOBDate", resp.data.data.dOBDate?.split("T")[0] || "")
+        Formik.setFieldValue("joinDate", resp.data.data.joinDate?.split("T")[0] || "")
+
+
+        // Auto calculate age
+        const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
+        Formik.setFieldValue("age", age);
+
+        setEditId(resp.data.data._id);
+        setTab(0); // open Create Receipt tab
+      })
+      .catch((e) => {
+        console.log("Error  in fetching edit data.");
+      });
+  };
+
+  const calculateAge = (dob) => {
+    if (!dob) return "";
+
+    const today = new Date();
+    const birthDate = new Date(dob);
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Adjust age if birthday hasn't occurred yet this year
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
+
+  const cancelEdit = () => {
+    setEdit(false);
+    setSelectedYear(null);
+    Formik.resetForm()
+  };
+
+  //   CLEARING IMAGE FILE REFENCE FROM INPUT
   const fileInputRef = useRef(null);
   const handleClearFile = () => {
     if (fileInputRef.current) {
@@ -110,360 +149,405 @@ import UserCardAdmin from "../../utility components/user card/UserCard";
     setImageUrl(null); // Clear the image preview
   };
 
-  
-    //   MESSAGE
-    const [message, setMessage] = useState("");
-    const [type, setType] = useState("succeess");
-  
-    const resetMessage = () => {
-      setMessage("");
-    };
-  
-    const initialValues = {
-        email: "",
-        name:  "",
-        qualification:  "",
-        gender:  "",
-        age: "",
-        password: ""
-    };
 
-    const Formik = useFormik({
-      initialValues: initialValues,
-      validationSchema: userSchema,
-      onSubmit: (values) => {
-        console.log("user calls admin Formik values", values);
-        if (isEdit) {
+  //   MESSAGE
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("succeess");
 
-            const fd = new FormData();
-            Object.keys(values).forEach((key) => fd.append(key, values[key]));
-            if (file) {
-              fd.append("image", file, file.name);
-            }
-    
-            axios
-              .patch(`${baseUrl}/user/update/${editId}`, fd)
-              .then((resp) => {
-                setMessage(resp.data.message);
-                setType("success");
-                handleClearFile();
-                cancelEdit();
-              })
-              .catch((e) => {
-                setMessage(e.response.data.message);
-                setType("error");
-              });
-          } else {
-          if (file) {
-           
-            const fd = new FormData();
-            fd.append("image", file, file.name);
-            Object.keys(values).forEach((key) => fd.append(key, values[key]));
-  
-            axios
-              .post(`${baseUrl}/user/register`, fd)
-              .then((resp) => {
-                console.log("Response after submitting admin user", resp);
-                setMessage(resp.data.message);
-                setType("success");
-                handleClearFile()
-              })
-              .catch((e) => {
-                setMessage(e.response.data.message);
-                setType("error");
-                console.log("Error, response admin user calls", e);
-              });
-            Formik.resetForm();
-            setFile(null);
-          } else {
-            setMessage("Please provide image.");
-            setType("error");
-          }
+  const resetMessage = () => {
+    setMessage("");
+  };
+
+  const initialValues = {
+    email: "",
+    name: "",
+    qualification: "",
+    gender: "",
+    age: "",
+    password: "",
+    year: "",
+    dOBDate: "",
+    joinDate: "",
+  };
+
+  const Formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: userSchema,
+    onSubmit: (values) => {
+      console.log("user calls admin Formik values", values);
+      if (isEdit) {
+
+        const fd = new FormData();
+        Object.keys(values).forEach((key) => fd.append(key, values[key]));
+        if (file) {
+          fd.append("image", file, file.name);
         }
-      },
-    });
-  
-    const [month, setMonth] = useState([]);
-    const [year, setYear] = useState([]);
-    const fetchuserClass = () => {
-      // axios
-      //   .get(`${baseUrl}/user/get-month-year`)
-      //   .then((resp) => {
-      //     console.log("Fetching month and year.", resp);
-      //     setMonth(resp.data.month);
-      //     setYear(resp.data.year);
-      //   })
-      //   .catch((e) => {
-      //     console.log("Error in fetching month and year", e);
-      //   });
-    };
-  
-    const fetchusers = () => {
-      axios
-        .get(`${baseUrl}/user/fetch-with-query`, { params: params })
-        .then((resp) => {
-          console.log("Fetching data in  user Calls  admin.", resp);
-          setusers(resp.data.data);
-        })
-        .catch((e) => {
-          console.log("Error in fetching user calls admin data", e);
-        });
-    };
-    useEffect(() => {
-      fetchusers();
-      // fetchuserClass();
-    }, [message, params]);
-    return (
-      <>
-        {message && (
-          <CustomizedSnackbars
-            reset={resetMessage}
-            type={type}
-            message={message}
-          />
-        )}
-        <Box
-          sx={{ padding: "40px 10px 20px 10px" }}
-        >
-          
-  
-          <Box component={"div"} sx={{ padding: "40px" }}>
-            <Paper
-              sx={{ padding: "20px", margin: "10px" }}
-            >
-              {isEdit ? (
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "800", textAlign: "center" }}
-                >
-                  Edit users
-                </Typography>
-              ) : (
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "800", textAlign: "center" }}
-                >
-                  Add New user
-                </Typography>
-              )}{" "}
-              <Box
-                component="form"
-                noValidate
-                autoComplete="off"
-                onSubmit={Formik.handleSubmit}
-              >
+
+        axios
+          .patch(`${baseUrl}/user/update/${editId}`, fd)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+            cancelEdit();
+            setTab(1); // go to View List
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+          });
+      } else {
+        if (file) {
+
+          const fd = new FormData();
+          fd.append("image", file, file.name);
+          Object.keys(values).forEach((key) => fd.append(key, values[key]));
+
+          axios
+            .post(`${baseUrl}/user/register`, fd)
+            .then((resp) => {
+              console.log("Response after submitting admin user", resp);
+              setMessage(resp.data.message);
+              setType("success");
+              handleClearFile();
+              setTab(1); // go to View List
+            })
+            .catch((e) => {
+              setMessage(e.response.data.message);
+              setType("error");
+              console.log("Error, response admin user calls", e);
+            });
+          Formik.resetForm();
+          setFile(null);
+        } else {
+          setMessage("Please provide image.");
+          setType("error");
+        }
+      }
+    },
+  });
+
+  const [month, setMonth] = useState([]);
+  const [year, setYear] = useState([]);
+  const fetchuserClass = () => {
+    // axios
+    //   .get(`${baseUrl}/user/get-month-year`)
+    //   .then((resp) => {
+    //     console.log("Fetching month and year.", resp);
+    //     setMonth(resp.data.month);
+    //     setYear(resp.data.year);
+    //   })
+    //   .catch((e) => {
+    //     console.log("Error in fetching month and year", e);
+    //   });
+  };
+
+  const fetchusers = () => {
+    axios
+      .get(`${baseUrl}/user/fetch-with-query`, { params: params })
+      .then((resp) => {
+        console.log("Fetching data in  user Calls  admin.", resp);
+        setusers(resp.data.data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching user calls admin data", e);
+      });
+  };
+  useEffect(() => {
+    fetchusers();
+    // fetchuserClass();
+  }, [message, params]);
+  return (
+    <>
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
+      <Box
               
+            >
+      
+              <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+                <Tabs
+                  value={tab}
+                  onChange={(e, newValue) => setTab(newValue)}
+                  textColor="primary"
+                  indicatorColor="primary"
+                >
+                  {/* <Tab label="Create Receipt" /> */}
+                  <Tab label={isEdit ? "Edit User" : "Add New User"} />
+                  <Tab label="View List" />
+                </Tabs>
+              </Box>
+      
+      
+              {tab === 0 && (
+                <Box component={"div"}>
+                  <Paper
+                    sx={{ padding: "20px", margin: "10px" }}
+                  >
+      
+                    <Box component="form" onSubmit={Formik.handleSubmit}>
+                      <Grid container spacing={2}>
+      
+                        {/* IMAGE FULL WIDTH */}
+                        <Grid item xs={12}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                            <Typography variant="h6">User Pic</Typography>
+      
+                            <TextField
+                              type="file"
+                              name="file"
+                              onChange={addImage}
+                              inputRef={fileInputRef}
+                            />
+      
+                            {file && (
+                              <CardMedia
+                                component="img"
+                                image={imageUrl}
+                                sx={{ width: 120, height: 120 }}
+                              />
+                            )}
+                          </Box>
+                        </Grid>
+      
+                        {/* EMAIL */}
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Email"
+                            name="email"
+                            value={Formik.values.email}
+                            onChange={Formik.handleChange}
+                            onBlur={Formik.handleBlur}
+                          />
+                          {Formik.touched.email && Formik.errors.email && (
+                            <p style={{ color: "red", textTransform: "capitalize" }}>
+                              {Formik.errors.email}
+                            </p>
+                          )}
+                        </Grid>
+      
+                        {/* NAME */}
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Name"
+                            name="name"
+                            value={Formik.values.name}
+                            onChange={Formik.handleChange}
+                            onBlur={Formik.handleBlur}
+                          />
+                          {Formik.touched.name && Formik.errors.name && (
+                            <p style={{ color: "red", textTransform: "capitalize" }}>
+                              {Formik.errors.name}
+                            </p>
+                          )}
+                        </Grid>
+      
+                        {/* QUALIFICATION */}
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Qualification"
+                            name="qualification"
+                            value={Formik.values.qualification}
+                            onChange={Formik.handleChange}
+                          />
+                          {Formik.touched.qualification && Formik.errors.qualification && (
+                            <p style={{ color: "red", textTransform: "capitalize" }}>
+                              {Formik.errors.qualification}
+                            </p>
+                          )}
+                        </Grid>
+      
+                        {/* GENDER */}
+                        <Grid item xs={12} md={6}>
+                          <FormControl fullWidth>
+                            <InputLabel>Gender</InputLabel>
+                            <Select
+                              name="gender"
+                              value={Formik.values.gender}
+                              onChange={Formik.handleChange}
+                            >
+                              <MenuItem value="">Select Gender</MenuItem>
+                              <MenuItem value="male">Male</MenuItem>
+                              <MenuItem value="female">Female</MenuItem>
+                              <MenuItem value="other">Other</MenuItem>
+                            </Select>
+                          </FormControl>
+                          {Formik.touched.gender && Formik.errors.gender && (
+                            <p style={{ color: "red", textTransform: "capitalize" }}>
+                              {Formik.errors.gender}
+                            </p>
+                          )}
+                        </Grid>
+      
+                        {/* DOB */}
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            name="dOBDate"
+                            label="Date of Birth"
+                            type="date"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            value={Formik.values.dOBDate}
+                            onChange={(e) => {
+                              const dob = e.target.value;
+                              Formik.setFieldValue("dOBDate", dob);
+      
+                              const age = calculateAge(dob);
+                              Formik.setFieldValue("age", age);
+                            }}
+                          />
+      
+                          {Formik.touched.dOBDate && Formik.errors.dOBDate && (
+                            <p style={{ color: "red", textTransform: "capitalize" }}>
+                              {Formik.errors.dOBDate}
+                            </p>
+                          )}
+                        </Grid>
+      
+                        {/* AGE */}
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Age"
+                            name="age"
+                            value={Formik.values.age}
+                            disabled
+                          />
+                          {Formik.touched.age && Formik.errors.age && (
+                            <Typography color="error" variant="caption">
+                              {Formik.errors.age}
+                            </Typography>
+                          )}
+                        </Grid>
+      
+                        {/* JOIN DATE */}
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            name="joinDate"
+                            label="Join Date"
+                            type="date"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            value={Formik.values.joinDate}
+                            onChange={Formik.handleChange}
+                          />
+                          {Formik.touched.joinDate && Formik.errors.joinDate && (
+                            <p style={{ color: "red", textTransform: "capitalize" }}>
+                              {Formik.errors.joinDate}
+                            </p>
+                          )}
+                        </Grid>
+      
+                        {/* ACADEMIC YEAR */}
+                        <Grid item xs={12} md={6}>
+                          <Autocomplete
+                            options={years}
+                            getOptionLabel={(option) => option.label}
+                            value={selectedYear}
+                            onChange={(e, newValue) => {
+                              setSelectedYear(newValue);
+                              Formik.setFieldValue("year", newValue?.value || "");
+                            }}
+                            onBlur={() => Formik.setFieldTouched("year", true)}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Select Academic Year"
+                                placeholder="Search year..."
+                                fullWidth
+                                error={Formik.touched.year && Boolean(Formik.errors.year)}
+                                helperText={Formik.touched.year && Formik.errors.year}
+                              />
+                            )}
+                          />
+                        </Grid>
+      
+                        {/* PASSWORD */}
+                        {!isEdit && (
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label="Password"
+                              type="password"
+                              name="password"
+                              value={Formik.values.password}
+                              onChange={Formik.handleChange}
+                            />
+                            {Formik.touched.password && Formik.errors.password && (
+                              <p style={{ color: "red", textTransform: "capitalize" }}>
+                                {Formik.errors.password}
+                              </p>
+                            )}
+                          </Grid>
+                        )}
+      
+                        {/* BUTTONS FULL WIDTH */}
+                        <Grid item xs={12}>
+                          <Button type="submit" variant="contained" sx={{ mr: 1 }}>
+                            Submit
+                          </Button>
+      
+                          {isEdit && (
+                            <Button variant="outlined" onClick={cancelEdit}>
+                              Cancel Edit
+                            </Button>
+                          )}
+                        </Grid>
+      
+                      </Grid>
+                    </Box>
+      
+                  </Paper>
+                </Box>
+              )}
+      
+              {tab === 1 && (
+                <Box>
                   <Box
-                    component={"div"}
                     sx={{
+                      padding: "5px",
+                      minWidth: 120,
                       display: "flex",
-                      flexDirection: "row",
-                      flexWrap: "wrap",
+                      justifyContent: "center",
                       alignItems: "center",
+                      marginBottom: "20px",
                     }}
                   >
-                    <Typography style={{ marginRight: "50px" }} variant="h4">
-                      user Pic
-                    </Typography>
+      
+      
+      
                     <TextField
-                      sx={{ marginTop: "10px" }}
                       id=""
-                      variant="outlined"
-                      name="file"
-                      type="file"
-                      onChange={(event) => {
-                        addImage(event);
-                      }}
-                      inputRef={fileInputRef}
+                      label="Search Name  .. "
+                      onChange={handleSearch}
                     />
-  
-                    {file && (
-                      <Box sx={{ position: "relative" }} component={"div"}>
-                        <CardMedia
-                          component={"img"}
-                          image={imageUrl}
-                          height={"240px"}
-                        />
-                      </Box>
-                    )}
                   </Box>
-  
-                <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id=""
-                  label="Email "
-                  variant="outlined"
-                  name="email"
-                  value={Formik.values.email}
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                />
-                {Formik.touched.email && Formik.errors.email && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.email}
-                  </p>
-                )}
-  
-
-                <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id=""
-                  label="name "
-                  variant="outlined"
-                  name="name"
-                  value={Formik.values.name}
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                />
-                {Formik.touched.name && Formik.errors.name && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.name}
-                  </p>
-                )}
-  
-  <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id=""
-                  label="Qualification "
-                  variant="outlined"
-                  name="qualification"
-                  value={Formik.values.qualification}
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                />
-                {Formik.touched.qualification && Formik.errors.qualification && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.qualification}
-                  </p>
-                )}
-  
-                <FormControl sx={{ minWidth: "220px", marginTop: "10px" }}>
-                  <InputLabel id="demo-simple-select-label">Gender</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    label="Gender"
-                    name="gender"
-                    onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                    value={Formik.values.gender}
-                  >
-                    <MenuItem value={""}>Select Gender</MenuItem>
-                    <MenuItem value={"male"}>Male</MenuItem>
-                    <MenuItem value={"female"}>Female</MenuItem>
-                    <MenuItem value={"other"}>Other</MenuItem>
-                  </Select>
-                </FormControl>
-                {Formik.touched.gender && Formik.errors.gender && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.gender}
-                  </p>
-                )}
-  
-  
-             <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id=""
-                  label="Age "
-                  variant="outlined"
-                  name="age"
-                  value={Formik.values.age}
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                />
-                {Formik.touched.age && Formik.errors.age && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.age}
-                  </p>
-                )}
-  
-  
-           
-             
-  
-                  {!isEdit && <>
-                  
-                <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id=""
-                  label="Password "
-                  variant="outlined"
-                  name="password"
-                  type="password"
-                  value={Formik.values.password}
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                />
-                {Formik.touched.password && Formik.errors.password && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.password}
-                  </p>
-                )}
-                  </>}
-  
-  
-                <Box sx={{ marginTop: "10px" }} component={"div"}>
-                  <Button
-                    type="submit"
-                    sx={{ marginRight: "10px" }}
-                    variant="contained"
-                  >
-                    Submit
-                  </Button>
-                  {isEdit && (
-                    <Button
-                      sx={{ marginRight: "10px" }}
-                      variant="outlined"
-                      onClick={cancelEdit}
-                    >
-                      Cancel Edit
-                    </Button>
-                  )}
+      
+                  <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
+                    {users &&
+                      users.map((user, i) => {
+                        return (
+                          <UserCardAdmin
+                            key={i}
+                            handleEdit={handleEdit}
+                            handleDelete={handleDelete}
+                            user={user}
+                          />
+                        );
+                      })}
+                  </Box>
                 </Box>
-              </Box>
-            </Paper>
-          </Box>
-  
-          <Box
-            sx={{
-              padding: "5px",
-              minWidth: 120,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: "20px",
-            }}
-          >
-           
-           
-  
-            <TextField
-              id=""
-              label="Search Name  .. "
-              onChange={handleSearch}
-            />
-          </Box>
-  
-          <Box sx={{display:"flex",  flexDirection:"row", flexWrap:"wrap",}}>
-            {users &&
-              users.map((user, i) => {
-                return (
-                  <UserCardAdmin
-                    key={i}
-                    handleEdit={handleEdit}
-                    handleDelete={handleDelete}
-                    user={user}
-                  />
-                );
-              })}
-          </Box>
-        </Box>
-      </>
-    );
-  }
-  
+              )}
+      
+            </Box>
+    </>
+  );
+}

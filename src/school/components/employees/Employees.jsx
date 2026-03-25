@@ -10,7 +10,10 @@ import {
     Paper,
     TextField,
     Typography,
-    Tabs, Tab,
+    Tabs,
+    Tab,
+    Autocomplete,
+    Grid,
 } from "@mui/material";
 
 import { useFormik } from "formik";
@@ -35,9 +38,9 @@ export default function Employees() {
     const [selectedYear, setSelectedYear] = useState(null);
 
     const years = Array.from({ length: 10 }, (_, i) => {
-    const year = new Date().getFullYear() - i;
-    return { label: `${year}-${year + 1}`, value: year };
-  });
+        const year = new Date().getFullYear() - i;
+        return { label: `${year}-${year + 1}`, value: year };
+    });
 
     const addImage = (event) => {
         const file = event.target.files[0];
@@ -87,8 +90,22 @@ export default function Employees() {
                 Formik.setFieldValue("employee_code", resp.data.data.employee_code);
                 Formik.setFieldValue("qualification", resp.data.data.qualification)
                 Formik.setFieldValue("gender", resp.data.data.gender)
-                Formik.setFieldValue("age", resp.data.data.age);
+                // Formik.setFieldValue("age", resp.data.data.age);
                 Formik.setFieldValue("password", resp.data.data.password)
+
+
+                Formik.setFieldValue("year", resp.data.data.year)
+                const matchedYear = years.find(s => s.value === resp.data.data.year);
+                setSelectedYear(matchedYear || null);
+
+                Formik.setFieldValue("dOBDate", resp.data.data.dOBDate?.split("T")[0] || "")
+                Formik.setFieldValue("joinDate", resp.data.data.joinDate?.split("T")[0] || "")
+
+
+                // Auto calculate age
+                const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
+                Formik.setFieldValue("age", age);
+
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Receipt tab
             })
@@ -97,8 +114,29 @@ export default function Employees() {
             });
     };
 
+    const calculateAge = (dob) => {
+        if (!dob) return "";
+
+        const today = new Date();
+        const birthDate = new Date(dob);
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        // Adjust age if birthday hasn't occurred yet this year
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+            age--;
+        }
+
+        return age;
+    };
     const cancelEdit = () => {
         setEdit(false);
+        setSelectedYear(null);
         Formik.resetForm()
     };
 
@@ -128,7 +166,10 @@ export default function Employees() {
         qualification: "",
         gender: "",
         age: "",
-        password: ""
+        password: "",
+        year: "",
+        dOBDate: "",
+        joinDate: "",
     };
 
     const Formik = useFormik({
@@ -235,251 +276,284 @@ export default function Employees() {
                 </Box>
 
                 {tab === 0 && (
+          <Box component={"div"}>
+            <Paper
+              sx={{ padding: "20px", margin: "10px" }}
+            >
 
-                <Box component={"div"}>
-                    <Paper
-                        sx={{ padding: "20px", margin: "10px" }}
-                    >
+              <Box component="form" onSubmit={Formik.handleSubmit}>
+                <Grid container spacing={2}>
 
-                        <Box
-                            component="form"
-                            noValidate
-                            autoComplete="off"
-                            onSubmit={Formik.handleSubmit}
-                        >
+                  {/* IMAGE FULL WIDTH */}
+                  <Grid item xs={12}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Typography variant="h6">Employee Pic</Typography>
 
-                            <Box
-                                component={"div"}
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    flexWrap: "wrap",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Typography style={{ marginRight: "50px" }} variant="h4">
-                                    employee Pic
-                                </Typography>
-                                <TextField
-                                    sx={{ marginTop: "10px" }}
-                                    id=""
-                                    variant="outlined"
-                                    name="file"
-                                    type="file"
-                                    onChange={(event) => {
-                                        addImage(event);
-                                    }}
-                                    inputRef={fileInputRef}
-                                />
+                      <TextField
+                        type="file"
+                        name="file"
+                        onChange={addImage}
+                        inputRef={fileInputRef}
+                      />
 
-                                {file && (
-                                    <Box sx={{ position: "relative" }} component={"div"}>
-                                        <CardMedia
-                                            component={"img"}
-                                            image={imageUrl}
-                                            height={"240px"}
-                                        />
-                                    </Box>
-                                )}
-                            </Box>
+                      {file && (
+                        <CardMedia
+                          component="img"
+                          image={imageUrl}
+                          sx={{ width: 120, height: 120 }}
+                        />
+                      )}
+                    </Box>
+                  </Grid>
 
-                            <TextField
-                                fullWidth
-                                sx={{ marginTop: "10px" }}
-                                id=""
-                                label="Email "
-                                variant="outlined"
-                                name="email"
-                                value={Formik.values.email}
-                                onChange={Formik.handleChange}
-                                onBlur={Formik.handleBlur}
-                            />
-                            {Formik.touched.email && Formik.errors.email && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.email}
-                                </p>
-                            )}
+                  {/* EMAIL */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      name="email"
+                      value={Formik.values.email}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.email && Formik.errors.email && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.email}
+                      </p>
+                    )}
+                  </Grid>
 
+                    {/* CODE */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Code"
+                      name="employee_code"
+                      value={Formik.values.employee_code}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.employee_code && Formik.errors.employee_code && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.employee_code}
+                      </p>
+                    )}
+                  </Grid>
+                  {/* NAME */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Name"
+                      name="employee_name"
+                      value={Formik.values.employee_name}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.employee_name && Formik.errors.employee_name && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.employee_name}
+                      </p>
+                    )}
+                  </Grid>
 
-                            <TextField
-                                fullWidth
-                                sx={{ marginTop: "10px" }}
-                                id=""
-                                label="employee_name "
-                                variant="outlined"
-                                name="employee_name"
-                                value={Formik.values.employee_name}
-                                onChange={Formik.handleChange}
-                                onBlur={Formik.handleBlur}
-                            />
-                            {Formik.touched.employee_name && Formik.errors.employee_name && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.employee_name}
-                                </p>
-                            )}
+                  {/* QUALIFICATION */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Qualification"
+                      name="qualification"
+                      value={Formik.values.qualification}
+                      onChange={Formik.handleChange}
+                    />
+                    {Formik.touched.qualification && Formik.errors.qualification && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.qualification}
+                      </p>
+                    )}
+                  </Grid>
 
-                            <TextField
-                                fullWidth
-                                sx={{ marginTop: "10px" }}
-                                id=""
-                                label="employee_code "
-                                variant="outlined"
-                                name="employee_code"
-                                value={Formik.values.employee_code}
-                                onChange={Formik.handleChange}
-                                onBlur={Formik.handleBlur}
-                            />
-                            {Formik.touched.employee_code && Formik.errors.employee_code && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.employee_code}
-                                </p>
-                            )}
+                  {/* GENDER */}
+                  <Grid item xs={12} md={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Gender</InputLabel>
+                      <Select
+                        name="gender"
+                        value={Formik.values.gender}
+                        onChange={Formik.handleChange}
+                      >
+                        <MenuItem value="">Select Gender</MenuItem>
+                        <MenuItem value="male">Male</MenuItem>
+                        <MenuItem value="female">Female</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                      </Select>
+                    </FormControl>
+                    {Formik.touched.gender && Formik.errors.gender && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.gender}
+                      </p>
+                    )}
+                  </Grid>
 
-                            <TextField
-                                fullWidth
-                                sx={{ marginTop: "10px" }}
-                                id=""
-                                label="Qualification "
-                                variant="outlined"
-                                name="qualification"
-                                value={Formik.values.qualification}
-                                onChange={Formik.handleChange}
-                                onBlur={Formik.handleBlur}
-                            />
-                            {Formik.touched.qualification && Formik.errors.qualification && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.qualification}
-                                </p>
-                            )}
+                  {/* DOB */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      name="dOBDate"
+                      label="Date of Birth"
+                      type="date"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      value={Formik.values.dOBDate}
+                      onChange={(e) => {
+                        const dob = e.target.value;
+                        Formik.setFieldValue("dOBDate", dob);
 
-                            <FormControl sx={{ minWidth: "220px", marginTop: "10px" }}>
-                                <InputLabel id="demo-simple-select-label">Gender</InputLabel>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
-                                    label="Gender"
-                                    name="gender"
-                                    onChange={Formik.handleChange}
-                                    onBlur={Formik.handleBlur}
-                                    value={Formik.values.gender}
-                                >
-                                    <MenuItem value={""}>Select Gender</MenuItem>
-                                    <MenuItem value={"male"}>Male</MenuItem>
-                                    <MenuItem value={"female"}>Female</MenuItem>
-                                    <MenuItem value={"other"}>Other</MenuItem>
-                                </Select>
-                            </FormControl>
-                            {Formik.touched.gender && Formik.errors.gender && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.gender}
-                                </p>
-                            )}
+                        const age = calculateAge(dob);
+                        Formik.setFieldValue("age", age);
+                      }}
+                    />
 
+                    {Formik.touched.dOBDate && Formik.errors.dOBDate && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.dOBDate}
+                      </p>
+                    )}
+                  </Grid>
 
-                            <TextField
-                                fullWidth
-                                sx={{ marginTop: "10px" }}
-                                id=""
-                                label="Age "
-                                variant="outlined"
-                                name="age"
-                                value={Formik.values.age}
-                                onChange={Formik.handleChange}
-                                onBlur={Formik.handleBlur}
-                            />
-                            {Formik.touched.age && Formik.errors.age && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.age}
-                                </p>
-                            )}
+                  {/* AGE */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Age"
+                      name="age"
+                      value={Formik.values.age}
+                      disabled
+                    />
+                    {Formik.touched.age && Formik.errors.age && (
+                      <Typography color="error" variant="caption">
+                        {Formik.errors.age}
+                      </Typography>
+                    )}
+                  </Grid>
 
+                  {/* JOIN DATE */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      name="joinDate"
+                      label="Join Date"
+                      type="date"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      value={Formik.values.joinDate}
+                      onChange={Formik.handleChange}
+                    />
+                    {Formik.touched.joinDate && Formik.errors.joinDate && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.joinDate}
+                      </p>
+                    )}
+                  </Grid>
 
+                  {/* ACADEMIC YEAR */}
+                  <Grid item xs={12} md={6}>
+                    <Autocomplete
+                      options={years}
+                      getOptionLabel={(option) => option.label}
+                      value={selectedYear}
+                      onChange={(e, newValue) => {
+                        setSelectedYear(newValue);
+                        Formik.setFieldValue("year", newValue?.value || "");
+                      }}
+                      onBlur={() => Formik.setFieldTouched("year", true)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Academic Year"
+                          placeholder="Search year..."
+                          fullWidth
+                          error={Formik.touched.year && Boolean(Formik.errors.year)}
+                          helperText={Formik.touched.year && Formik.errors.year}
+                        />
+                      )}
+                    />
+                  </Grid>
 
+                  {/* PASSWORD */}
+                  {!isEdit && (
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Password"
+                        type="password"
+                        name="password"
+                        value={Formik.values.password}
+                        onChange={Formik.handleChange}
+                      />
+                      {Formik.touched.password && Formik.errors.password && (
+                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                          {Formik.errors.password}
+                        </p>
+                      )}
+                    </Grid>
+                  )}
 
+                  {/* BUTTONS FULL WIDTH */}
+                  <Grid item xs={12}>
+                    <Button type="submit" variant="contained" sx={{ mr: 1 }}>
+                      Submit
+                    </Button>
 
-                            {!isEdit && <>
+                    {isEdit && (
+                      <Button variant="outlined" onClick={cancelEdit}>
+                        Cancel Edit
+                      </Button>
+                    )}
+                  </Grid>
 
-                                <TextField
-                                    fullWidth
-                                    sx={{ marginTop: "10px" }}
-                                    id=""
-                                    label="Password "
-                                    variant="outlined"
-                                    name="password"
-                                    type="password"
-                                    value={Formik.values.password}
-                                    onChange={Formik.handleChange}
-                                    onBlur={Formik.handleBlur}
-                                />
-                                {Formik.touched.password && Formik.errors.password && (
-                                    <p style={{ color: "red", textTransform: "capitalize" }}>
-                                        {Formik.errors.password}
-                                    </p>
-                                )}
-                            </>}
+                </Grid>
+              </Box>
 
-
-                            <Box sx={{ marginTop: "10px" }} component={"div"}>
-                                <Button
-                                    type="submit"
-                                    sx={{ marginRight: "10px" }}
-                                    variant="contained"
-                                >
-                                    Submit
-                                </Button>
-                                {isEdit && (
-                                    <Button
-                                        sx={{ marginRight: "10px" }}
-                                        variant="outlined"
-                                        onClick={cancelEdit}
-                                    >
-                                        Cancel Edit
-                                    </Button>
-                                )}
-                            </Box>
-                        </Box>
-                    </Paper>
-                </Box>
-                )}
+            </Paper>
+          </Box>
+        )}
 
                 {tab === 1 && (
-                <Box>
+                    <Box>
 
 
-                    <Box
-                        sx={{
-                            padding: "5px",
-                            minWidth: 120,
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            marginBottom: "20px",
-                        }}
-                    >
+                        <Box
+                            sx={{
+                                padding: "5px",
+                                minWidth: 120,
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginBottom: "20px",
+                            }}
+                        >
 
 
 
-                        <TextField
-                            id=""
-                            label="Search Name  .. "
-                            onChange={handleSearch}
-                        />
+                            <TextField
+                                id=""
+                                label="Search Name  .. "
+                                onChange={handleSearch}
+                            />
+                        </Box>
+
+                        <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
+                            {employees &&
+                                employees.map((employee, i) => {
+                                    return (
+                                        <EmployeeCardAdmin
+                                            key={i}
+                                            handleEdit={handleEdit}
+                                            handleDelete={handleDelete}
+                                            employee={employee}
+                                        />
+                                    );
+                                })}
+                        </Box>
                     </Box>
-
-                    <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
-                        {employees &&
-                            employees.map((employee, i) => {
-                                return (
-                                    <EmployeeCardAdmin
-                                        key={i}
-                                        handleEdit={handleEdit}
-                                        handleDelete={handleDelete}
-                                        employee={employee}
-                                    />
-                                );
-                            })}
-                    </Box>
-                </Box>
                 )}
 
             </Box>

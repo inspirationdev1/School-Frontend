@@ -290,7 +290,7 @@ export default function Students() {
         </Box>
 
         {tab === 0 && (
-        <Box sx={{ padding: "40px" }}>
+        <Box>
           <Paper sx={{ padding: "20px", margin: "10px" }}>
             
 

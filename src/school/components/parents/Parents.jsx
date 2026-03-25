@@ -100,6 +100,7 @@ export default function Parents() {
   const cancelEdit = () => {
     setEdit(false);
     Formik.resetForm()
+
   };
 
   //   CLEARING IMAGE FILE REFENCE FROM INPUT
@@ -191,19 +192,7 @@ export default function Parents() {
 
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
-  const fetchparentClass = () => {
-    // axios
-    //   .get(`${baseUrl}/parent/get-month-year`)
-    //   .then((resp) => {
-    //     console.log("Fetching month and year.", resp);
-    //     setMonth(resp.data.month);
-    //     setYear(resp.data.year);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching month and year", e);
-    //   });
-  };
-
+  
   const fetchparents = () => {
     axios
       .get(`${baseUrl}/parent/fetch-with-query`, { params: params })
@@ -217,7 +206,7 @@ export default function Parents() {
   };
   useEffect(() => {
     fetchparents();
-    // fetchparentClass();
+    
   }, [message, params]);
   return (
     <>
@@ -246,25 +235,11 @@ export default function Parents() {
         </Box>
 
         {tab === 0 && (
-          <Box component={"div"} sx={{ padding: "40px" }}>
+          <Box component={"div"}>
             <Paper
               sx={{ padding: "20px", margin: "10px" }}
             >
-              {isEdit ? (
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "800", textAlign: "center" }}
-                >
-                  Edit parents
-                </Typography>
-              ) : (
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "800", textAlign: "center" }}
-                >
-                  Add New parent
-                </Typography>
-              )}{" "}
+              
               <Box
                 component="form"
                 noValidate

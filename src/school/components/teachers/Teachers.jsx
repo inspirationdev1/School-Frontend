@@ -10,6 +10,7 @@ import {
     Paper,
     TextField,
     Typography,
+    Tabs, Tab,
   } from "@mui/material";
 
   import { useFormik } from "formik";
@@ -30,6 +31,7 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
     const [date, setDate] = useState(null);
     const [file, setFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
+    const [tab, setTab] = useState(0);
   
     const addImage = (event) => {
       const file = event.target.files[0];
@@ -81,6 +83,7 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
           Formik.setFieldValue("age", resp.data.data.age);
           Formik.setFieldValue("password", resp.data.data.password)
           setEditId(resp.data.data._id);
+          setTab(0); // open Create Receipt tab
         })
         .catch((e) => {
           console.log("Error  in fetching edit data.");
@@ -140,6 +143,8 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
                 setType("success");
                 handleClearFile();
                 cancelEdit();
+                setParams({});
+                setTab(1); // go to View List
               })
               .catch((e) => {
                 setMessage(e.response.data.message);
@@ -166,6 +171,7 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
                 setMessage(resp.data.message);
                 setType("success");
                 handleClearFile()
+                setTab(1); // go to View List
               })
               .catch((e) => {
                 setMessage(e.response.data.message);
@@ -216,30 +222,32 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
             message={message}
           />
         )}
+
         <Box
           sx={{ padding: "40px 10px 20px 10px" }}
         >
           
-  
-          <Box component={"div"} sx={{ padding: "40px" }}>
+           <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            {/* <Tab label="Create Receipt" /> */}
+            <Tab label={isEdit ? "Edit Teacher" : "Add New Teacher"} />
+            <Tab label="View List" />
+          </Tabs>
+        </Box>
+
+
+        {tab === 0 && (
+          <Box component={"div"} >
             <Paper
               sx={{ padding: "20px", margin: "10px" }}
             >
-              {isEdit ? (
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "800", textAlign: "center" }}
-                >
-                  Edit teachers
-                </Typography>
-              ) : (
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "800", textAlign: "center" }}
-                >
-                  Add New teacher
-                </Typography>
-              )}{" "}
+              
+
               <Box
                 component="form"
                 noValidate
@@ -422,7 +430,10 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
               </Box>
             </Paper>
           </Box>
+        )}
   
+        {tab === 1 && (
+          <Box>
           <Box
             sx={{
               padding: "5px",
@@ -456,6 +467,9 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
                 );
               })}
           </Box>
+          </Box>
+          )}
+
         </Box>
       </>
     );

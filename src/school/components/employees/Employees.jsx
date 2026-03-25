@@ -10,6 +10,7 @@ import {
     Paper,
     TextField,
     Typography,
+    Tabs, Tab,
 } from "@mui/material";
 
 import { useFormik } from "formik";
@@ -30,6 +31,7 @@ export default function Employees() {
     const [date, setDate] = useState(null);
     const [file, setFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
+    const [tab, setTab] = useState(0);
 
     const addImage = (event) => {
         const file = event.target.files[0];
@@ -82,6 +84,7 @@ export default function Employees() {
                 Formik.setFieldValue("age", resp.data.data.age);
                 Formik.setFieldValue("password", resp.data.data.password)
                 setEditId(resp.data.data._id);
+                setTab(0); // open Create Receipt tab
             })
             .catch((e) => {
                 console.log("Error  in fetching edit data.");
@@ -142,6 +145,8 @@ export default function Employees() {
                         setType("success");
                         handleClearFile();
                         cancelEdit();
+                        setParams({});
+                        setTab(1); // go to View List
                     })
                     .catch((e) => {
                         setMessage(e.response.data.message);
@@ -149,7 +154,7 @@ export default function Employees() {
                     });
             } else {
                 if (file) {
-                    
+
                     const fd = new FormData();
                     fd.append("image", file, file.name);
                     Object.keys(values).forEach((key) => fd.append(key, values[key]));
@@ -160,7 +165,8 @@ export default function Employees() {
                             console.log("Response after submitting admin employee", resp);
                             setMessage(resp.data.message);
                             setType("success");
-                            handleClearFile()
+                            handleClearFile();
+                            setTab(1); // go to View List
                         })
                         .catch((e) => {
                             setMessage(e.response.data.message);
@@ -179,18 +185,7 @@ export default function Employees() {
 
     const [month, setMonth] = useState([]);
     const [year, setYear] = useState([]);
-    const fetchemployeeClass = () => {
-        // axios
-        //   .get(`${baseUrl}/employee/get-month-year`)
-        //   .then((resp) => {
-        //     console.log("Fetching month and year.", resp);
-        //     setMonth(resp.data.month);
-        //     setYear(resp.data.year);
-        //   })
-        //   .catch((e) => {
-        //     console.log("Error in fetching month and year", e);
-        //   });
-    };
+
 
     const fetchemployees = () => {
         axios
@@ -205,7 +200,7 @@ export default function Employees() {
     };
     useEffect(() => {
         fetchemployees();
-        // fetchemployeeClass();
+
     }, [message, params]);
     return (
         <>
@@ -216,30 +211,30 @@ export default function Employees() {
                     message={message}
                 />
             )}
-            <Box
-                sx={{ padding: "40px 10px 20px 10px" }}
-            >
 
 
-                <Box component={"div"} sx={{ padding: "40px" }}>
+            <Box>
+
+                <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+                    <Tabs
+                        value={tab}
+                        onChange={(e, newValue) => setTab(newValue)}
+                        textColor="primary"
+                        indicatorColor="primary"
+                    >
+                        {/* <Tab label="Create Receipt" /> */}
+                        <Tab label={isEdit ? "Edit Employee" : "Add New Employee"} />
+                        <Tab label="View List" />
+                    </Tabs>
+                </Box>
+
+                {tab === 0 && (
+
+                <Box component={"div"}>
                     <Paper
                         sx={{ padding: "20px", margin: "10px" }}
                     >
-                        {isEdit ? (
-                            <Typography
-                                variant="h4"
-                                sx={{ fontWeight: "800", textAlign: "center" }}
-                            >
-                                Edit employees
-                            </Typography>
-                        ) : (
-                            <Typography
-                                variant="h4"
-                                sx={{ fontWeight: "800", textAlign: "center" }}
-                            >
-                                Add New employee
-                            </Typography>
-                        )}{" "}
+
                         <Box
                             component="form"
                             noValidate
@@ -439,40 +434,48 @@ export default function Employees() {
                         </Box>
                     </Paper>
                 </Box>
+                )}
 
-                <Box
-                    sx={{
-                        padding: "5px",
-                        minWidth: 120,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginBottom: "20px",
-                    }}
-                >
+                {tab === 1 && (
+                <Box>
 
 
+                    <Box
+                        sx={{
+                            padding: "5px",
+                            minWidth: 120,
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginBottom: "20px",
+                        }}
+                    >
 
-                    <TextField
-                        id=""
-                        label="Search Name  .. "
-                        onChange={handleSearch}
-                    />
+
+
+                        <TextField
+                            id=""
+                            label="Search Name  .. "
+                            onChange={handleSearch}
+                        />
+                    </Box>
+
+                    <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
+                        {employees &&
+                            employees.map((employee, i) => {
+                                return (
+                                    <EmployeeCardAdmin
+                                        key={i}
+                                        handleEdit={handleEdit}
+                                        handleDelete={handleDelete}
+                                        employee={employee}
+                                    />
+                                );
+                            })}
+                    </Box>
                 </Box>
+                )}
 
-                <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
-                    {employees &&
-                        employees.map((employee, i) => {
-                            return (
-                                <EmployeeCardAdmin
-                                    key={i}
-                                    handleEdit={handleEdit}
-                                    handleDelete={handleDelete}
-                                    employee={employee}
-                                />
-                            );
-                        })}
-                </Box>
             </Box>
         </>
     );

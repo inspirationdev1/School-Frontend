@@ -51,7 +51,7 @@ export default function EmployeeCardAdmin({
             variant="h5"
           >
             <b>Name :</b>
-            <span>{employee.name}</span>
+            <span>{employee.employee_name}</span>
           </Typography>
           <Typography component={"div"} variant="h5">
             <b>Email :</b>

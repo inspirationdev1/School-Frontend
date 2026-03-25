@@ -20,7 +20,7 @@ import {
   import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
   import { teacherSchema } from "../../../yupSchema/teacherSchemal";
 import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard";
- 
+ import dayjs from "dayjs";
   
   export default function Teachers() {
     const [teacherClass, setteacherClass] = useState([]);
@@ -32,6 +32,7 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
     const [file, setFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [tab, setTab] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(null);
   
     const addImage = (event) => {
       const file = event.target.files[0];
@@ -191,7 +192,7 @@ import TeacherCardAdmin from "../../utility components/teacher card/TeacherCard"
     const [month, setMonth] = useState([]);
     const [year, setYear] = useState([]);
     
-  const [selectedYear, setSelectedYear] = useState(null);
+  
 
     const years = Array.from({ length: 10 }, (_, i) => {
         const year = new Date().getFullYear() - i;

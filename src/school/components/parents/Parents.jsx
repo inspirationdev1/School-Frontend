@@ -27,7 +27,7 @@ import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { parentSchema } from "../../../yupSchema/parentSchema";
 import ParentCardAdmin from "../../utility components/parent card/ParentCard";
-
+import dayjs from "dayjs";
 
 export default function Parents() {
   const [parentClass, setparentClass] = useState([]);
@@ -39,6 +39,12 @@ export default function Parents() {
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [tab, setTab] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
 
   const addImage = (event) => {
     const file = event.target.files[0];

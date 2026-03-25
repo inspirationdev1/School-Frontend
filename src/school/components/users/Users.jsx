@@ -10,6 +10,7 @@ import {
     Paper,
     TextField,
     Typography,
+    Tabs, Tab,
   } from "@mui/material";
 
   import { useFormik } from "formik";
@@ -19,7 +20,7 @@ import {
   import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
   import { userSchema } from "../../../yupSchema/userSchema";
 import UserCardAdmin from "../../utility components/user card/UserCard";
- 
+ import dayjs from "dayjs";
   
   export default function Users() {
     const [userClass, setuserClass] = useState([]);
@@ -30,6 +31,13 @@ import UserCardAdmin from "../../utility components/user card/UserCard";
     const [date, setDate] = useState(null);
     const [file, setFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
+    const [tab, setTab] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(null);
+
+    const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
   
     const addImage = (event) => {
       const file = event.target.files[0];

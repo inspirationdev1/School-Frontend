@@ -10,5 +10,8 @@ export const studentSchema = yup.object({
     age: yup.number("Age must be a number.").required("You must give Age."),
     guardian: yup.string().min(4, "Guardian must contain 4 characters").required("Guardian is required"),
     guardian_phone: yup.string().min(10, "Phone must contain 10 characters").required("Phone is required"),
+    dOBDate: yup.string().min(4, "Guardian must contain 4 characters").required("dOBDate is required"),
+    joinDate: yup.string().min(4, "Guardian must contain 4 characters").required("joinDate is required"),
+    year: yup.string().required("Year is required"),
     password: yup.string().required("Password is a required field."),
 })

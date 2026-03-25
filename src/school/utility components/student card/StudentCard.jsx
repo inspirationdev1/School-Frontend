@@ -77,7 +77,7 @@ export default function StudentCardAdmin({
           </Typography>
           <Typography component={"div"} variant="p">
                   <b>Date of Admission:</b>
-                  <span>{convertDate(student.createdAt)}</span>{" "}
+                  <span>{convertDate(student.joinDate)}</span>{" "}
                 </Typography>
         </CardContent>
         <CardActions>

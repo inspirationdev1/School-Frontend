@@ -20,7 +20,7 @@ import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { employeeSchema } from "../../../yupSchema/employeeSchema";
 import EmployeeCardAdmin from "../../utility components/employee card/EmployeeCard";
-
+import dayjs from "dayjs";
 
 export default function Employees() {
     const [employeeClass, setemployeeClass] = useState([]);
@@ -32,6 +32,12 @@ export default function Employees() {
     const [file, setFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [tab, setTab] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(null);
+
+    const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
 
     const addImage = (event) => {
         const file = event.target.files[0];

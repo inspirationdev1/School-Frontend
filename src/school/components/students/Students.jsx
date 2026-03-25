@@ -11,6 +11,14 @@ import {
   TextField,
   Typography,
   Autocomplete,
+  Grid,
+  Tabs, Tab,
+   TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
+  Table,
+  TableContainer,
 } from "@mui/material";
 import { useFormik } from "formik";
 import axios from "axios";
@@ -34,6 +42,9 @@ export default function Students() {
   const [imageUrl, setImageUrl] = useState(null); // Independent state for image preview
   const [selectedYear, setSelectedYear] = useState(null);
 
+  const [tab, setTab] = useState(0);
+ 
+
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
@@ -49,19 +60,26 @@ export default function Students() {
   };
 
   const [params, setParams] = useState({});
-  const handleClass = (e) => {
-    setParams((prevParams) => ({
-      ...prevParams,
-      student_class: e.target.value || undefined,
-    }));
-  };
+  
 
-  const handleSearch = (e) => {
+  const handleSearch_Old = (e) => {
     setParams((prevParams) => ({
       ...prevParams,
       search: e.target.value || undefined,
     }));
   };
+
+  const handleSearch = (e) => {
+      let newParam;
+      if (e.target.value !== "") {
+        newParam = { ...params, search: e.target.value };
+      } else {
+        newParam = { ...params };
+        delete newParam["search"];
+      }
+  
+      setParams(newParam);
+    };
 
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
@@ -111,6 +129,7 @@ export default function Students() {
         });
         setImageUrl(data.image); // Assuming response has `image` URL field for preview
         setEditId(data._id);
+        setTab(0); // open Create Receipt tab
       })
       .catch(() => console.log("Error in fetching edit data."));
   };
@@ -161,10 +180,13 @@ export default function Students() {
             setType("success");
             handleClearFile();
             cancelEdit();
+            setParams({});
+            setTab(1); // go to View List
           })
           .catch((e) => {
             setMessage(e.response.data.message);
             setType("error");
+             
           });
       } else {
         if (file) {
@@ -179,6 +201,7 @@ export default function Students() {
               setType("success");
               Formik.resetForm();
               handleClearFile();
+               setTab(1); // go to View List
             })
             .catch((e) => {
               setMessage(e.response.data.message);
@@ -260,15 +283,23 @@ export default function Students() {
       )}
       <Box sx={{ padding: "40px 10px 20px 10px" }}>
 
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            {/* <Tab label="Create Receipt" /> */}
+            <Tab label={isEdit ? "Edit Student" : "Add New Student"} />
+            <Tab label="View List" />
+          </Tabs>
+        </Box>
 
+        {tab === 0 && (
         <Box sx={{ padding: "40px" }}>
           <Paper sx={{ padding: "20px", margin: "10px" }}>
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: "800", textAlign: "center" }}
-            >
-              {isEdit ? "Edit Student" : "Add New Student"}
-            </Typography>
+            
 
             <Box
               component="form"
@@ -276,303 +307,207 @@ export default function Students() {
               autoComplete="off"
               onSubmit={Formik.handleSubmit}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <Typography sx={{ marginRight: "50px" }} variant="h4">
-                  Student Pic
-                </Typography>
-                <TextField
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
-                  variant="outlined"
-                  name="file"
-                  type="file"
-                  onChange={addImage}
-                  inputRef={fileInputRef}
-                />
+              <Grid container spacing={2}>
 
-                {imageUrl && (
-                  <Box sx={{ position: "relative" }}>
-                    <CardMedia
-                      component="img"
-                      image={imageUrl}
-                      height="240px"
+                {/* Student Image Full Row */}
+                <Grid item xs={12}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Typography variant="h6">Student Pic</Typography>
+
+                    <TextField
+                      type="file"
+                      name="file"
+                      onChange={addImage}
+                      inputRef={fileInputRef}
                     />
+
+                    {imageUrl && (
+                      <CardMedia component="img" image={imageUrl} sx={{ width: 120, height: 120 }} />
+                    )}
                   </Box>
-                )}
-              </Box>
+                </Grid>
 
+                {/* Email */}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    name="email"
+                    value={Formik.values.email}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                  />
+                </Grid>
 
-              {/* Other input fields go here */}
-              <TextField
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="email "
-                variant="outlined"
-                name="email"
-                value={Formik.values.email}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.email && Formik.errors.email && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.email}
-                </p>
-              )}
+                {/* Name */}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Name"
+                    name="name"
+                    value={Formik.values.name}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                  />
+                </Grid>
 
-              <TextField
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="name "
-                variant="outlined"
-                name="name"
-                value={Formik.values.name}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.name && Formik.errors.name && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.name}
-                </p>
-              )}
-
-
-              {/* Class */}
-              {studentClass.length > 0 && (
-                <Box>
+                {/* Class */}
+                <Grid item xs={12} md={6}>
                   <Autocomplete
                     options={studentClass}
                     getOptionLabel={(option) => option.class_text}
                     value={selectedClass}
-                    // onChange={(event, newValue) => setSelectedClass(newValue)}
-                    onChange={(event, newValue) => {
+                    onChange={(e, newValue) => {
                       setSelectedClass(newValue);
-
-                      Formik.setFieldValue(
-                        "student_class",
-                        newValue ? newValue._id : ""
-                      );
-
+                      Formik.setFieldValue("student_class", newValue?._id || "");
                     }}
-                    //  onBlur={Formik.handleBlur}
                     renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Class"
-                        placeholder="Search class..."
-                        fullWidth
-                        error={Formik.touched.student_class && Boolean(Formik.errors.student_class)}
-                        helperText={Formik.touched.student_class && Formik.errors.student_class}
-                      />
+                      <TextField {...params} label="Select Class" fullWidth />
                     )}
                   />
-                  {/* {Formik.touched.student_class && Formik.errors.student_class && (
-                    <Typography color="error" variant="caption">
-                      {Formik.errors.student_class}
-                    </Typography>
-                  )} */}
-                </Box>
-              )}
+                </Grid>
 
-              {/* Section */}
-              {section.length > 0 && (
-                <Box>
+                {/* Section */}
+                <Grid item xs={12} md={6}>
                   <Autocomplete
                     options={section}
                     getOptionLabel={(option) => option.section_name}
                     value={selectedSection}
-                    // onChange={(event, newValue) => setSelectedSection(newValue)}
-                    onChange={(event, newValue) => {
+                    onChange={(e, newValue) => {
                       setSelectedSection(newValue);
-
-                      Formik.setFieldValue(
-                        "section",
-                        newValue ? newValue._id : ""
-                      );
+                      Formik.setFieldValue("section", newValue?._id || "");
                     }}
-                    onBlur={() => Formik.setFieldTouched("section", true)}
                     renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Section"
-                        placeholder="Search section..."
-                        fullWidth
-                        error={Formik.touched.section && Boolean(Formik.errors.section)}
-                        helperText={Formik.touched.section && Formik.errors.section}
-                      />
+                      <TextField {...params} label="Select Section" fullWidth />
                     )}
                   />
-                  {/* {Formik.touched.section && Formik.errors.section && (
-                    <Typography color="error" variant="caption">
-                      {Formik.errors.section}
-                    </Typography>
-                  )} */}
-                </Box>
-              )}
+                </Grid>
 
-              {/* Parent */}
-              {parent.length > 0 && (
-                <Box>
+                {/* Parent */}
+                <Grid item xs={12} md={6}>
                   <Autocomplete
                     options={parent}
                     getOptionLabel={(option) => option.name}
                     value={selectedParent}
-                    // onChange={(event, newValue) => setSelectedParent(newValue)}
-                    onChange={(event, newValue) => {
+                    onChange={(e, newValue) => {
                       setSelectedParent(newValue);
-
-
-                      Formik.setFieldValue(
-                        "parent",
-                        newValue ? newValue._id : ""
-                      );
+                      Formik.setFieldValue("parent", newValue?._id || "");
                     }}
-                    //  onBlur={Formik.handleBlur}
                     renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Parent"
-                        placeholder="Search parent..."
-                        fullWidth
-                        error={Formik.touched.parent && Boolean(Formik.errors.parent)}
-                        helperText={Formik.touched.parent && Formik.errors.parent}
-                      />
+                      <TextField {...params} label="Select Parent" fullWidth />
                     )}
                   />
-                  {/* {Formik.touched.parent && Formik.errors.parent && (
-                    <Typography color="error" variant="caption">
-                      {Formik.errors.parent}
-                    </Typography>
-                  )} */}
-                </Box>
-              )}
+                </Grid>
 
-              <br />
-              <FormControl sx={{ minWidth: "220px", marginTop: "10px" }}>
-                <InputLabel id="demo-simple-select-label">Gender</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Gender"
-                  name="gender"
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                  value={Formik.values.gender}
-                >
-                  <MenuItem value={""}>Select Gender</MenuItem>
-                  <MenuItem value={"male"}>Male</MenuItem>
-                  <MenuItem value={"female"}>Female</MenuItem>
-                  <MenuItem value={"other"}>Other</MenuItem>
-                </Select>
-              </FormControl>
-              {Formik.touched.gender && Formik.errors.gender && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.gender}
-                </p>
-              )}
+                {/* Gender */}
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Gender</InputLabel>
+                    <Select
+                      name="gender"
+                      value={Formik.values.gender}
+                      onChange={Formik.handleChange}
+                    >
+                      <MenuItem value="">Select Gender</MenuItem>
+                      <MenuItem value="male">Male</MenuItem>
+                      <MenuItem value="female">Female</MenuItem>
+                      <MenuItem value="other">Other</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
 
-              <TextField
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="Age "
-                variant="outlined"
-                name="age"
-                value={Formik.values.age}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.age && Formik.errors.age && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.age}
-                </p>
-              )}
-
-              <TextField
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="Guardian "
-                variant="outlined"
-                name="guardian"
-                value={Formik.values.guardian}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.guardian && Formik.errors.guardian && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.guardian}
-                </p>
-              )}
-
-              <TextField
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="Guardian Phone "
-                variant="outlined"
-                name="guardian_phone"
-                value={Formik.values.guardian_phone}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.guardian_phone &&
-                Formik.errors.guardian_phone && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.guardian_phone}
-                  </p>
-                )}
-
-              {!isEdit && (
-                <>
+                {/* Age */}
+                <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    sx={{ marginTop: "10px" }}
-                    id="filled-basic"
-                    label="Password "
-                    variant="outlined"
-                    name="password"
-                    value={Formik.values.password}
+                    label="Age"
+                    name="age"
+                    value={Formik.values.age}
                     onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
                   />
-                  {Formik.touched.password && Formik.errors.password && (
-                    <p style={{ color: "red", textTransform: "capitalize" }}>
-                      {Formik.errors.password}
-                    </p>
-                  )}
-                </>
-              )}
+                </Grid>
 
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                sx={{ marginTop: "10px" }}
-              >
-                {isEdit ? "Update Student" : "Register Student"}
-              </Button>
-              {isEdit && (
-                <Button
-                  fullWidth
-                  onClick={cancelEdit}
-                  variant="outlined"
-                  sx={{ marginTop: "10px" }}
-                >
-                  Cancel
-                </Button>
-              )}
+                {/* Guardian */}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Guardian"
+                    name="guardian"
+                    value={Formik.values.guardian}
+                    onChange={Formik.handleChange}
+                  />
+                </Grid>
+
+                {/* Guardian Phone */}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Guardian Phone"
+                    name="guardian_phone"
+                    value={Formik.values.guardian_phone}
+                    onChange={Formik.handleChange}
+                  />
+                </Grid>
+
+                {/* Password */}
+                {!isEdit && (
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      name="password"
+                      value={Formik.values.password}
+                      onChange={Formik.handleChange}
+                    />
+                  </Grid>
+                )}
+
+                {/* Buttons Full Row */}
+                <Grid item xs={12}>
+                  <Button type="submit" fullWidth variant="contained">
+                    {isEdit ? "Update Student" : "Register Student"}
+                  </Button>
+
+                  {isEdit && (
+                    <Button
+                      fullWidth
+                      onClick={cancelEdit}
+                      variant="outlined"
+                      sx={{ mt: 1 }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </Grid>
+
+              </Grid>
             </Box>
+
           </Paper>
         </Box>
+        )}
+
+        {tab === 1 && (
+            <Box>
+          <Box
+            sx={{
+              padding: "5px",
+              minWidth: 120,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: "20px",
+            }}
+          >
+           
+           
+  
+            <TextField
+              id=""
+              label="Search Name  .. "
+              onChange={handleSearch}
+            />
+          </Box>
 
         <Box sx={{ padding: "40px", display: "flex", flexWrap: "wrap" }}>
           {students.length > 0 &&
@@ -585,6 +520,12 @@ export default function Students() {
               />
             ))}
         </Box>
+        </Box>
+        )}
+
+        
+
+        
       </Box>
     </>
   );

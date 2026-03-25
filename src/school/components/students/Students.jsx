@@ -61,14 +61,6 @@ export default function Students() {
 
   const [params, setParams] = useState({});
   
-
-  const handleSearch_Old = (e) => {
-    setParams((prevParams) => ({
-      ...prevParams,
-      search: e.target.value || undefined,
-    }));
-  };
-
   const handleSearch = (e) => {
       let newParam;
       if (e.target.value !== "") {
@@ -201,6 +193,7 @@ export default function Students() {
               setType("success");
               Formik.resetForm();
               handleClearFile();
+              setParams({});
                setTab(1); // go to View List
             })
             .catch((e) => {

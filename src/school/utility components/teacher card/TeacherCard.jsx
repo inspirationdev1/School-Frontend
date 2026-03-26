@@ -42,7 +42,8 @@ export default function TeacherCardAdmin({
           component="img"
           alt="green iguana"
           height="340"
-          image={`/images/uploaded/teacher/${teacher.teacher_image}`}
+          // image={`/images/uploaded/teacher/${teacher.teacher_image}`}
+          image={`${teacher.teacher_image}`}
         />
         <CardContent>
           <Typography

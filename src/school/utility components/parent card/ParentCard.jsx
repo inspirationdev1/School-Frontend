@@ -42,7 +42,8 @@ export default function ParentCardAdmin({
           component="img"
           alt="green iguana"
           height="340"
-          image={`/images/uploaded/parent/${parent.parent_image}`}
+          // image={`/images/uploaded/parent/${parent.parent_image}`}
+          image={`${parent.parent_image}`}
         />
         <CardContent>
           <Typography

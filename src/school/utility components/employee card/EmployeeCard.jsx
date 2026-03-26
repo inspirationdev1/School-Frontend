@@ -42,7 +42,8 @@ export default function EmployeeCardAdmin({
           component="img"
           alt="green iguana"
           height="340"
-          image={`/images/uploaded/employee/${employee.employee_image}`}
+          // image={`/images/uploaded/employee/${employee.employee_image}`}
+          image={`${employee.employee_image}`}
         />
         <CardContent>
           <Typography

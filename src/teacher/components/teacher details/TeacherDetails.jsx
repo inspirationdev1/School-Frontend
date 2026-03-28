@@ -24,8 +24,8 @@ export default function TeacherDetails(){
                 {teacher && <>
 
                     <Box component={"div"} sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",padding:"5px"}}>
-                            <img src={`/images/uploaded/teacher/${teacher.teacher_image}`} alt='image' height={'370px'} width={'370px'} style={{borderRadius:"50%",border:'1px solid lightgreen',padding:"4px"}} />
-                        </Box>
+                            <img src={`${teacher.teacher_image}`} alt='image' height={'370px'} width={'370px'} style={{borderRadius:"50%",border:'1px solid lightgreen',padding:"4px"}} />
+                           </Box>
                     <TableContainer sx={{margin:"auto", width:"90%",border:'1px solid transparent',  borderRadius:"17px", boxShadow:"0 10px 8px -5px lightgray" }} component={'div'}>
                   <Table sx={{ minWidth: 250 }} aria-label="simple table">
                     <TableBody>

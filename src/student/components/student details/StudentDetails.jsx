@@ -24,7 +24,8 @@ export default function StudentDetails(){
                 {student && <>
 
                     <Box component={"div"} sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",padding:"5px" }}>
-                            <img src={`/images/uploaded/student/${student.student_image}`} alt='image' height={'370px'} width={'450px'} style={{borderRadius:"50%"}} />
+                            <img src={`${student.student_image}`} alt='image' height={'370px'} width={'450px'} style={{borderRadius:"50%"}} />
+                           
                         </Box>
                     <TableContainer sx={{margin:"auto", width:"80%",border:'1px solid transparent',  borderRadius:"17px", boxShadow:"0 10px 8px -5px lightgray"
                     }} component={'div'}>

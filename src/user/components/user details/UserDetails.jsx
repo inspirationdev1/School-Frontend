@@ -24,7 +24,7 @@ export default function UserDetails(){
                 {user && <>
 
                     <Box component={"div"} sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",padding:"5px" }}>
-                            <img src={`/images/uploaded/user/${user.user_image}`} alt='image' height={'370px'} width={'450px'} style={{borderRadius:"50%"}} />
+                          <img src={`${user.user_image}`} alt='image' height={'370px'} width={'450px'} style={{borderRadius:"50%"}} />
                         </Box>
                     <TableContainer sx={{margin:"auto", width:"80%",border:'1px solid transparent',  borderRadius:"17px", boxShadow:"0 10px 8px -5px lightgray"
                     }} component={'div'}>

@@ -308,7 +308,7 @@ export default function IncomeReportPrint() {
     useEffect(() => {
         if (reportHeader?.school_image) {
             getBase64Image(
-                `${frontendUrl}/images/uploaded/school/${reportHeader.school_image}`
+                `${reportHeader.school_image}`
             ).then(setLogo);
         }
     }, [reportHeader]);

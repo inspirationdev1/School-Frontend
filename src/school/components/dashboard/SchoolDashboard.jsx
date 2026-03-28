@@ -255,6 +255,7 @@ const handleSubmit = (e)=>{
              <Typography variant="h4" gutterBottom>
               Admin/School Owner Dashboard {schoolDetails && `[ ${schoolDetails.school_name} ]`}
              </Typography>
+             
 
            {preview &&  
             <Box sx={{position:"fixed", top:'0',left:'0', zIndex:'9999',height:'100vh',
@@ -262,7 +263,7 @@ const handleSubmit = (e)=>{
                 <Box sx={{height:"100%", width:"100%"}}>
               <CardMedia
                component="img"
-               image={`/images/uploaded/school/${schooImage}`}
+              image={`${schooImage}`}
                height="100%"
              /> 
              <Button onClick={()=>{setPreview(false)}} sx={{color:'#fff',background:'tomato',position:'absolute', right:'10px', top:"47%"}}> X</Button>
@@ -276,7 +277,7 @@ const handleSubmit = (e)=>{
             position:'relative',
             height: "500px",
             width: "auto",
-            background: `url(/images/uploaded/school/${schoolDetails.school_image})`,
+            background: `url(${schoolDetails.school_image})`,
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             display: "flex",

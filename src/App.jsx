@@ -97,6 +97,7 @@ import Payments from "./school/components/payments/Payments";
 import PaymentPrint from "./school/components/payments/PaymentPrint";
 import PendingExpensesReportPrint from "./school/components/reports/PendingExpensesReportPrint";
 import PaidExpensesReportPrint from "./school/components/reports/PaidExpensesReportPrint";
+import PdfViewer from "./school/components/questionpapers/PdfViewer";
 
 
 
@@ -146,6 +147,8 @@ function App() {
               <Route path="attendance-student/:studentId" element={<AttendanceDetails />} />
               <Route path="examinations" element={<Examinations />} />
               <Route path="questionpapers" element={<Questionpapers />} />
+              <Route path="PdfViewer" element={<PdfViewer />} />
+              
               <Route path="marksheet" element={<Marksheet />} />
               <Route path="marksheetprint" element={<MarksheetPrint />} />
               <Route path="schoolreports" element={<SchoolReports />} />

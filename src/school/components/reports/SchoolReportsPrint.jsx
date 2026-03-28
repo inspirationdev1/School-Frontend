@@ -283,7 +283,7 @@ export default function SchoolReportsPrint() {
     useEffect(() => {
         if (reportHeader?.school_image) {
             getBase64Image(
-                `${frontendUrl}/images/uploaded/school/${reportHeader.school_image}`
+                `${reportHeader.school_image}`
             ).then(setLogo);
         }
     }, [reportHeader]);
@@ -309,7 +309,7 @@ export default function SchoolReportsPrint() {
                 <View style={styles.header}>
                     <View style={styles.leftHeader}>
                         {/* <Image
-                            src={`${frontendUrl}/images/uploaded/school/${reportHeader?.school_image}?w=248&fit=crop&auto=format`}
+                            src={`${reportHeader?.school_image}?w=248&fit=crop&auto=format`}
                             style={{ width: 100, height: 100 }}
                         /> */}
                         <Image src={logo} style={styles.logo} />

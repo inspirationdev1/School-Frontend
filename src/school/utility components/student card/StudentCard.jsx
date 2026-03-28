@@ -44,7 +44,6 @@ export default function StudentCardAdmin({
           component="img"
           alt="green iguana"
           height="360"
-          // image={`/images/uploaded/student/${student.student_image}`}
           image={`${student.student_image}`}
         />
         <CardContent>

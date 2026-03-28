@@ -262,7 +262,7 @@ const handleSubmit = (e)=>{
                 <Box sx={{height:"100%", width:"100%"}}>
               <CardMedia
                component="img"
-               image={`/images/uploaded/user/${userImage}`}
+              image={`${userImage}`}
                height="100%"
              /> 
              <Button onClick={()=>{setPreview(false)}} sx={{color:'#fff',background:'tomato',position:'absolute', right:'10px', top:"47%"}}> X</Button>
@@ -276,7 +276,7 @@ const handleSubmit = (e)=>{
             position:'relative',
             height: "500px",
             width: "auto",
-            background: `url(/images/uploaded/user/${userDetails.user_image})`,
+            background: `url(${userDetails.user_image})`,
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             display: "flex",

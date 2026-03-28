@@ -121,8 +121,12 @@ export default function Questionpapers() {
   };
 
   const viewUploadFile = (fileName) => {
-    const fileUrl = `/uploads/questionpapers/${fileName}`;
+    
+    const fileUrl = `${fileName}`;
     window.open(fileUrl, "_blank", "noopener,noreferrer");
+
+    // const url = `${window.location.origin}/school/PdfViewer?fileUrl=${fileName}`;
+    //     window.open(url, '_blank');
   };
 
   const handleEdit = (id) => {

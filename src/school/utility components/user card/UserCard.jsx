@@ -42,7 +42,6 @@ export default function UserCardAdmin({
           component="img"
           alt="green iguana"
           height="340"
-          // image={`/images/uploaded/user/${user.user_image}`}
           image={`${user.user_image}`}
         />
         <CardContent>

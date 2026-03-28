@@ -49,8 +49,8 @@ const Gallery = () => {
         {schools.map((school,i) => (
           <ImageListItem key={i} sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}>
             <img
-              src={`./images/uploaded/school/${school.school_image}?w=248&fit=crop&auto=format`}
-              srcSet={`./images/uploaded/school/${school.school_image}?w=248&fit=crop&auto=format&dpr=2 2x`}
+              src={`${school.school_image}?w=248&fit=crop&auto=format`}
+              srcSet={`${school.school_image}?w=248&fit=crop&auto=format&dpr=2 2x`}
               alt={school.title}
               loading="lazy"
               onClick={() => handleOpen(school)}
@@ -84,7 +84,7 @@ const Gallery = () => {
             </IconButton>
             <Typography variant='h4'>{selectedSchool && selectedSchool.school_name}</Typography>
             <img
-              src={`./images/uploaded/school/${selectedSchool && selectedSchool.school_image}`}
+              src={`${selectedSchool && selectedSchool.school_image}`}
               alt={selectedSchool && selectedSchool.school_name}
               style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 8 }}
             />

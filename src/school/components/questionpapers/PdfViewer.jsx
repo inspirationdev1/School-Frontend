@@ -1,121 +1,62 @@
-// import React from "react";
-// import {
-//     Page,
-//     Text,
-//     View,
-//     Document,
-//     PDFViewer,
-//     PDFDownloadLink,
-// } from "@react-pdf/renderer";
-// // import { styles } from "./style";
-// import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
-// import { useSearchParams } from "react-router-dom";
-// import { Typography } from '@mui/material';
-// import axios from 'axios';
-// import moment from 'moment';
-// import { baseUrl, frontendUrl, formatAmount } from '../../../environment';
-// import { useState, useEffect } from 'react';
-// import * as XLSX from "xlsx";
-// import { saveAs } from "file-saver";
-// import dayjs from "dayjs";
-
-
-
-// const PdfViewer = () => {
-
-//     const [searchParams] = useSearchParams();
-
-//     const fileUrl = searchParams.get("fileUrl");
-
-//   if (!fileUrl) return <p>No file available</p>;
- 
-
-//   const isPdf = fileUrl.toLowerCase().endsWith(".pdf");
-
-//   const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(
-//     fileUrl
-//   )}&embedded=true`;
-
-//   return (
-//     <div style={{ width: "100%", height: "100%" }}>
-      
-//       {/* Toolbar */}
-//       <div style={{ marginBottom: "10px" }}>
-//         <button onClick={() => window.open(fileUrl, "_blank")}>
-//           Open in New Tab
-//         </button>
-
-//         <button
-//           onClick={() =>
-//             window.open(
-//               fileUrl.replace("/upload/", "/upload/fl_attachment/"),
-//               "_blank"
-//             )
-//           }
-//           style={{ marginLeft: "10px" }}
-//         >
-//           Download
-//         </button>
-//       </div>
-
-//       {/* Viewer */}
-//       {isPdf ? (
-//         <iframe
-//           src={googleViewerUrl}
-//           width="100%"
-//           height="600px"
-//           title="PDF Viewer"
-//           style={{ border: "1px solid #ccc" }}
-//         />
-//       ) : (
-//         <img
-//           src={fileUrl}
-//           alt="preview"
-//           style={{ maxWidth: "100%", maxHeight: "600px" }}
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default PdfViewer;
-
-
-// import { Document, Page, pdfjs } from "react-pdf";
-
-import { Document, Page } from "@react-pdf/renderer";
+import { Document, Page, pdfjs } from "react-pdf";
 import { useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-import { useState } from "react";
-
-// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// ✅ CORRECT worker for Vite
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.js",
+  import.meta.url
+).toString();
 
 const PdfViewer = () => {
-
-        const [searchParams] = useSearchParams();
-
-    const fileUrl = searchParams.get("fileUrl");
-
-  if (!fileUrl) return <p>No file available</p>;
-
-
+  const [pdfData, setPdfData] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
 
-  function onDocumentLoadSuccess({ numPages }) {
+  const [searchParams] = useSearchParams();
+  const fileUrl = searchParams.get("fileUrl");
+
+  useEffect(() => {
+    if (!fileUrl) return;
+
+    const loadPdf = async () => {
+      try {
+        const res = await fetch(fileUrl);
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch PDF");
+        }
+
+        const blob = await res.blob();
+
+        setPdfData(blob); // ✅ no need to convert to File
+      } catch (err) {
+        console.error("Error loading PDF:", err);
+      }
+    };
+
+    loadPdf();
+  }, [fileUrl]);
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
-  }
+  };
+
+  if (!fileUrl) return <p>No file available</p>;
+  if (!pdfData) return <p>Loading PDF...</p>;
 
   return (
     <div>
-      <Document file={fileUrl} onLoadSuccess={onDocumentLoadSuccess}>
+      <p>{fileUrl}</p>
+
+      <Document file={pdfData} onLoadSuccess={onDocumentLoadSuccess}>
         <Page pageNumber={pageNumber} />
       </Document>
 
       <div style={{ marginTop: "10px" }}>
         <button
           disabled={pageNumber <= 1}
-          onClick={() => setPageNumber(pageNumber - 1)}
+          onClick={() => setPageNumber((p) => p - 1)}
         >
           ⬅ Prev
         </button>
@@ -126,7 +67,7 @@ const PdfViewer = () => {
 
         <button
           disabled={pageNumber >= numPages}
-          onClick={() => setPageNumber(pageNumber + 1)}
+          onClick={() => setPageNumber((p) => p + 1)}
         >
           Next ➡
         </button>
@@ -134,5 +75,7 @@ const PdfViewer = () => {
     </div>
   );
 };
+
+
 
 export default PdfViewer;

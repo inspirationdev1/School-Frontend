@@ -126,10 +126,6 @@ export default function Questionpapers() {
     window.open(fileUrl, "_blank", "noopener,noreferrer");
 
 
-    // <PdfViewer fileUrl="https://res.cloudinary.com/.../raw/upload/...pdf" />
-
-    // const url = `${window.location.origin}/school/PdfViewer?fileUrl=${fileName}`;
-    //     window.open(url, '_blank');
   };
 
   const handleEdit = (id) => {

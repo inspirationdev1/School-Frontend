@@ -185,7 +185,10 @@ export default function ExpenseReportPrint() {
                 const maxLength = Math.max(expenseData.length);
 
                 const rows = Array.from({ length: maxLength }, (_, i) => ({
-                    expense: expenseData[i]?.expensetype.expensetype_name || "",
+                    // expense: expenseData[i]?.expensetype.expensetype_name || "",
+                    expense: expenseData[i]
+                        ? `${expenseData[i]?.expensetype?.expensetype_name || ""} - ${expenseData[i]?.employee?.employee_name || ""} - Exp # ${expenseData[i]?.expense?.expenseCode || ""}`
+                        : "",
                     expenseAmount: expenseData[i]?.expenseAmount || "",
                 }));
                 setRows(rows);

@@ -253,7 +253,10 @@ export default function FinanceReportsPrint() {
                         ? `${incomeData[i]?.feestructure?.name || ""} - ${incomeData[i]?.student?.name || ""}`
                         : "",
                     incomeAmount: incomeData[i]?.netAmount || "",
-                    expense: expenseData[i]?.expensetype.expensetype_name || "",
+                    // expense: expenseData[i]?.expensetype.expensetype_name + " - " + expenseData[i]?.employee.employee_name + " - " || "",
+                    expense: expenseData[i]
+                        ? `${expenseData[i]?.expensetype?.expensetype_name || ""} - ${expenseData[i]?.employee?.employee_name || ""}`
+                        : "",
                     expenseAmount: expenseData[i]?.expenseAmount || "",
                 }));
                 setRows(rows);

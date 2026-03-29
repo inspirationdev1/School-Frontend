@@ -243,6 +243,7 @@ export default function Expenses() {
                     invAmount: row.invAmount,
                     expenseAmount: row.expenseAmount,
                     remarks: "",
+                    employee: values.employee,
                     year: values.year
                 })),
             };

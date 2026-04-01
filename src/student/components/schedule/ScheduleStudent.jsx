@@ -26,7 +26,7 @@ const ScheduleStudent = () => {
         // setStudent(resp.data.data)
         setSelectedClass({
           id: resp.data.data.student_class._id,
-          class: resp.data.data.student_class.class_text,
+          class: resp.data.data.student_class.class_name,
         });
         console.log("student", resp);
       })

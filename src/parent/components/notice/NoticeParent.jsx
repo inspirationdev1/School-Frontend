@@ -90,11 +90,11 @@ const NoticeParent = () => {
                 setSelectedStudent(newValue);
                 setSelectedClass({
                   id: newValue.student_class._id,
-                  class: newValue.student_class.class_text,
+                  class: newValue.student_class.class_name,
                 });
                 setClassDetails({
                   id: newValue.student_class._id,
-                  class: newValue.student_class.class_text,
+                  class: newValue.student_class.class_name,
                 });
                 fetchExaminations(newValue.student_class._id);
               }}

@@ -122,7 +122,7 @@ export default function ReceiptPrint() {
                         <TR key={index}>
                             <TD style={styles.td}>{index + 1}</TD>
                             <TD style={styles.td}>{item.student.name}</TD>
-                            <TD style={styles.td}>{item.class.class_text}</TD>
+                            <TD style={styles.td}>{item.class.class_name}</TD>
                             <TD style={styles.td}>{item.section.section_name}</TD>
                             <TD style={styles.td}>{item.siCode}</TD>
                            
@@ -172,7 +172,7 @@ export default function ReceiptPrint() {
         const rows = printReceipt.receiptDetails.map((item, index) => ({
             "S.No": index + 1,
             "Description": item.student.name,
-            class: item.class.class_text,
+            class: item.class.class_name,
             section: item.section.section_name,
             siCode: item.siCode,
             invAmount: item.invAmount,

@@ -296,7 +296,7 @@ const [feestype, setFeestype] = useState([])
                     <Autocomplete
                       disabled={isEdit}
                       options={attendeeClass}
-                      getOptionLabel={(option) => option.class_text}
+                      getOptionLabel={(option) => option.class_name}
                       value={selectedClass}
                       onChange={(event, newValue) => {
                         setSelectedClass(newValue);
@@ -441,7 +441,7 @@ const [feestype, setFeestype] = useState([])
                       {value.name}
                     </TableCell>
                     <TableCell align="right">{value.code}</TableCell>
-                    <TableCell align="right">{value.class.class_text}</TableCell>
+                    <TableCell align="right">{value.class.class_name}</TableCell>
                     <TableCell align="right">{value.feestype.feestype_name}</TableCell>
                     <TableCell align="right">{value.amount}</TableCell>
                     <TableCell align="right">

@@ -120,6 +120,7 @@ export default function Students() {
         Formik.setValues({
           email: data.email,
           name: data.name,
+          student_code: data.student_code||"",
           student_class: data.student_class._id,
           section: data.section._id,
           parent: data.parent._id,
@@ -155,12 +156,70 @@ export default function Students() {
     setSelectedYear(null);
   };
 
+  const handleNumberSeq = (id) => {
+    setEdit(true);
+    axios
+      .get(`${baseUrl}/numberseq/fetch-sequence/${id}`)
+      .then((resp) => {
+        const data = resp.data.data;
+        const classId = data?.student_class?._id || data.student_class;
+        const matchedClass = studentClass.find(c => c._id === classId);
+        setSelectedClass(matchedClass || null);
+
+        const sectionId = data?.section?._id || data.section;
+        const matchedSection = section.find(c => c._id === sectionId);
+        setSelectedSection(matchedSection || null);
+
+        const parentId = data?.parent?._id || data.parent;
+        const matchedParent = parent.find(c => c._id === parentId);
+        setSelectedParent(matchedParent || null);
+
+
+        // Formik.setFieldValue("year", resp.data.data.year);
+
+        const matchedYear = years.find(s => s.value === resp.data.data.year);
+        setSelectedYear(matchedYear || null);
+
+        // Auto calculate age
+        const age = calculateAge(data.dOBDate?.split("T")[0] || "");
+        
+
+        Formik.setValues({
+          email: data.email,
+          name: data.name,
+          student_class: data.student_class._id,
+          section: data.section._id,
+          parent: data.parent._id,
+          gender: data.gender,
+          age: age,
+          guardian: data.guardian,
+          guardian_phone: data.guardian_phone,
+          password: data.password,
+          year: data.year,
+          dOBDate: data.dOBDate?.split("T")[0] || "",
+          joinDate: data.joinDate?.split("T")[0] || "",
+          password: data.password,
+
+        });
+        setImageUrl(data.image); // Assuming response has `image` URL field for preview
+        setEditId(data._id);
+        setTab(0); // open Create Receipt tab
+      })
+      .catch((e) => {
+        console.log("Error in fetching edit data.");
+
+      });
+    // .catch(() => console.log("Error in fetching edit data."));
+
+  };
+
   const [message, setMessage] = useState("");
   const [type, setType] = useState("success");
   const resetMessage = () => setMessage("");
 
   const initialValues = {
     name: "",
+    student_code:"",
     email: "",
     student_class: "",
     section: "",
@@ -383,6 +442,20 @@ export default function Students() {
                     )}
                   </Grid>
 
+                    {/* Name */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      disabled
+                      fullWidth
+                      label="student_code"
+                      name="student_code"
+                      value={Formik.values.student_code}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    
+                  </Grid>
+
                   {/* Name */}
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -404,7 +477,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <Autocomplete
                       options={studentClass}
-                      getOptionLabel={(option) => option.class_text}
+                      getOptionLabel={(option) => option.class_name}
                       value={selectedClass}
                       onChange={(e, newValue) => {
                         setSelectedClass(newValue);

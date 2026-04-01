@@ -127,7 +127,7 @@ const ScheduleParent = () => {
               setSelectedStudent(newValue);
               setSelectedClass({
                 id: newValue.student_class._id,
-                class: newValue.student_class.class_text,
+                class: newValue.student_class.class_name,
               });
             }}
             renderInput={(params) => (

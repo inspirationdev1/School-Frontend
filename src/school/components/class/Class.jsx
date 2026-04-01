@@ -63,8 +63,8 @@ export default function Class() {
     axios
       .get(`${baseUrl}/class/fetch-single/${id}`)
       .then((resp) => {
-        Formik.setFieldValue("class_num", resp.data.data.class_num);
-        Formik.setFieldValue("class_text", resp.data.data.class_text);
+        Formik.setFieldValue("class_code", resp.data.data.class_code);
+        Formik.setFieldValue("class_name", resp.data.data.class_name);
         setEditId(resp.data.data._id);
       })
       .catch((e) => {
@@ -86,8 +86,8 @@ export default function Class() {
   };
 
   const initialValues = {
-    class_num: "",
-    class_text:""
+    class_code: "",
+    class_name:""
   };
   const Formik = useFormik({
     initialValues: initialValues,
@@ -205,16 +205,16 @@ export default function Class() {
                 fullWidth
                 sx={{ marginTop: "10px" }}
                 id="filled-basic"
-                label="Class Text "
+                label="Class Name "
                 variant="outlined"
-                name="class_text"
-                value={Formik.values.class_text}
+                name="class_name"
+                value={Formik.values.class_name}
                 onChange={Formik.handleChange}
                 onBlur={Formik.handleBlur}
               />
-              {Formik.touched.class_text && Formik.errors.class_text && (
+              {Formik.touched.class_name && Formik.errors.class_name && (
                 <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.class_text}
+                  {Formik.errors.class_name}
                 </p>
               )}
 
@@ -223,16 +223,16 @@ export default function Class() {
                 fullWidth
                 sx={{ marginTop: "10px" }}
                 id="filled-basic"
-                label="Class Number "
+                label="Class Code "
                 variant="outlined"
-                name="class_num"
-                value={Formik.values.class_num}
+                name="class_code"
+                value={Formik.values.class_code}
                 onChange={Formik.handleChange}
                 onBlur={Formik.handleBlur}
               />
-              {Formik.touched.class_num && Formik.errors.class_num && (
+              {Formik.touched.class_code && Formik.errors.class_code && (
                 <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.class_num}
+                  {Formik.errors.class_code}
                 </p>
               )}
 
@@ -273,7 +273,7 @@ export default function Class() {
 
 <Paper key={value._id} sx={{ p: 2, m: 2, display: "inline-block",}}>
 <Box>
-  <Typography variant="h4">Class :{value.class_text} [{value.class_num}]</Typography>
+  <Typography variant="h4">Class :{value.class_name} [{value.class_code}]</Typography>
   <Typography variant="h4">{value.message}</Typography>
 
 </Box>

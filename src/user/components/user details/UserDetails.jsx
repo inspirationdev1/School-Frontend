@@ -53,7 +53,7 @@ export default function UserDetails(){
                         Class
                         </TableCell>
                         <TableCell className="table-cell" align="left">
-                         {user.user_class.class_text}
+                         {user.user_class.class_name}
                          </TableCell>
                       </TableRow>
 

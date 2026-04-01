@@ -53,10 +53,10 @@ const UserDashboard = () => {
     totalStudents: 120,
     totalTeachers: 15,
     classes: [
-      { _id: "1", class_text: "Class 1" },
-      { _id: "2", class_text: "Class 2" },
-      { _id: "3", class_text: "Class 3" },
-      { _id: "4", class_text: "Class 4" },
+      { _id: "1", class_name: "Class 1" },
+      { _id: "2", class_name: "Class 2" },
+      { _id: "3", class_name: "Class 3" },
+      { _id: "4", class_name: "Class 4" },
     ],
     subjects: [
       { _id: "1", subject_name: "Mathematics" },
@@ -105,7 +105,7 @@ const UserDashboard = () => {
 
   // Data for Classes and Subjects Chart
   const classesData = {
-    labels: classes.map((classObj) => classObj.class_text),
+    labels: classes.map((classObj) => classObj.class_name),
     datasets: [
       {
         label: "Classes",

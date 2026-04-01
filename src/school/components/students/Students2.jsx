@@ -296,7 +296,7 @@ export default function Students() {
                     studentClass.map((value, i) => {
                       return (
                         <MenuItem key={i} value={value._id}>
-                          {value.class_text}
+                          {value.class_name}
                         </MenuItem>
                       );
                     })}
@@ -445,7 +445,7 @@ export default function Students() {
               <MenuItem value="">Select Class</MenuItem>
               {studentClass.map((value, i) => (
                 <MenuItem key={i} value={value._id}>
-                  {value.class_text}
+                  {value.class_name}
                 </MenuItem>
               ))}
             </Select>

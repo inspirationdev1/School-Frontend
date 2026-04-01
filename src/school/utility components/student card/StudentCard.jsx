@@ -57,7 +57,7 @@ export default function StudentCardAdmin({
           </Typography>
           <Typography component={"div"} variant="h5">
             <b>Student Class :</b>
-            {student.student_class && student.student_class.class_text}
+            {student.student_class && student.student_class.class_name}
           </Typography>
           <Typography component={"div"} variant="h5">
             <b>Age :</b>

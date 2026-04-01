@@ -54,7 +54,7 @@ export default function StudentDetails(){
                         Class
                         </TableCell>
                         <TableCell className="table-cell" align="left">
-                         {student.student_class.class_text}
+                         {student.student_class.class_name}
                          </TableCell>
                       </TableRow>
 

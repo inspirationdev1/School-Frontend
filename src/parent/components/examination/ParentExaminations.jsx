@@ -33,7 +33,7 @@ export default function ParentExaminations() {
   const getParentDetails = () => {
     axios.get(`${baseUrl}/parent/fetch-own`).then(resp => {
       // fetchExaminations(resp.data.data.student_class._id);
-      // setClassDetails({id:resp.data.data.student_class._id, class:resp.data.data.student_class.class_text})
+      // setClassDetails({id:resp.data.data.student_class._id, class:resp.data.data.student_class.class_name})
       setSelectedParent(resp.data.data);
       console.log("parent", resp)
     }).catch(e => {
@@ -91,11 +91,11 @@ export default function ParentExaminations() {
                 setSelectedStudent(newValue);
                 setSelectedClass({
                   id: newValue.student_class._id,
-                  class: newValue.student_class.class_text,
+                  class: newValue.student_class.class_name,
                 });
                 setClassDetails({
                   id: newValue.student_class._id,
-                  class: newValue.student_class.class_text,
+                  class: newValue.student_class.class_name,
                 });
                 fetchExaminations(newValue.student_class._id);
               }}

@@ -25,7 +25,7 @@ export default function StudentExaminations(){
     const getStudentDetails = ()=>{
       axios.get(`${baseUrl}/student/fetch-own`).then(resp=>{
           fetchExaminations(resp.data.data.student_class._id);
-          setClassDetails({id:resp.data.data.student_class._id, class:resp.data.data.student_class.class_text})
+          setClassDetails({id:resp.data.data.student_class._id, class:resp.data.data.student_class.class_name})
   console.log("student",  resp)
       }).catch(e=>{
           console.log("Error in student", e)

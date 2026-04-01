@@ -134,7 +134,7 @@ const Schedule = () => {
 
                         <Autocomplete
                           options={allClasses}
-                          getOptionLabel={(option) => option.class_text}
+                          getOptionLabel={(option) => option.class_name}
                           value={selectedClass}
                           onChange={(event, newValue) => {
                             setSelectedClass(newValue);

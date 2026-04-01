@@ -83,7 +83,7 @@ export default function SalesinvoicePrint() {
                     <View style={styles.rowStyle}>
                         <Text style={styles.labelStyle}>Class :</Text>
                         <Text style={styles.valueStyle}>
-                            {printSalesinvoice.class.class_text}
+                            {printSalesinvoice.class.class_name}
                         </Text>
 
                         <Text style={styles.labelStyle}>Section :</Text>

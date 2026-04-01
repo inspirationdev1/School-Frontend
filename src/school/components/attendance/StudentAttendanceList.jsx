@@ -183,7 +183,7 @@ const StudentAttendanceList = () => {
                   <MenuItem value="">Select Class</MenuItem>
                   {studentClass.map((value, i) => (
                     <MenuItem key={i} value={value._id}>
-                      {value.class_text}
+                      {value.class_name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -194,7 +194,7 @@ const StudentAttendanceList = () => {
 
                         <Autocomplete
                           options={studentClass}
-                          getOptionLabel={(option) => option.class_text}
+                          getOptionLabel={(option) => option.class_name}
                           value={selectedClass}
                           onChange={(event, newValue) => {
                             setSelectedClass(newValue);
@@ -248,7 +248,7 @@ const StudentAttendanceList = () => {
                       <TableCell>{student.name}</TableCell>
                       <TableCell align="right">{student.gender}</TableCell>
                       <TableCell align="right">{student.guardian_phone}</TableCell>
-                      <TableCell align="right">{student.student_class.class_text}</TableCell>
+                      <TableCell align="right">{student.student_class.class_name}</TableCell>
                       <TableCell align="right">
                         {attendanceData[student._id] !== undefined
                           ? `${attendanceData[student._id].toFixed(2)}%`

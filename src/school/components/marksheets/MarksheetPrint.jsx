@@ -83,7 +83,7 @@ export default function MarksheetPrint() {
                     <View style={styles.rowStyle}>
                         <Text style={styles.labelStyle}>Class :</Text>
                         <Text style={styles.valueStyle}>
-                            {printMarksheet.class.class_text}
+                            {printMarksheet.class.class_name}
                         </Text>
 
                         <Text style={styles.labelStyle}>Section :</Text>

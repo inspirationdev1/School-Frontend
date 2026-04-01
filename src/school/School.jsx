@@ -214,6 +214,13 @@ export default function School() {
                 { label: "Users", link: "/school/users" },
             ],
         },
+        {
+            label: "Settings",
+            icon: GroupIcon,
+            children: [
+                { label: "Number Seq", link: "/school/numberseq" },
+            ],
+        },
         
         {
             label: "Logout",

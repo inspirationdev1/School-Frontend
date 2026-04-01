@@ -71,7 +71,7 @@ const AssignPeriod = () => {
           <InputLabel>Class</InputLabel>
           <Select value={classId} onChange={(e) => setClassId(e.target.value)} required>
             {classes.map((cls) => (
-              <MenuItem key={cls._id} value={cls._id}>{cls.class_text}</MenuItem>
+              <MenuItem key={cls._id} value={cls._id}>{cls.class_name}</MenuItem>
             ))}
           </Select>
         </FormControl>

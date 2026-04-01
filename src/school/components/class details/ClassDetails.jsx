@@ -212,7 +212,7 @@ setMessage(message)
           component={"div"}
         >
           <Typography className="text-beautify hero-text">
-            {classDetails && <>{classDetails.class_num}</>}th Class Details
+            {classDetails && <>{classDetails.class_code}</>}th Class Details
           </Typography>
         </Box>
         <Grid container spacing={0} sx={{ background: "black" }}>
@@ -235,7 +235,7 @@ setMessage(message)
                       allClasses.map((value, i) => {
                         return (
                           <MenuItem key={i} value={value._id}>
-                            {value.class_text}
+                            {value.class_name}
                           </MenuItem>
                         );
                       })}
@@ -245,7 +245,7 @@ setMessage(message)
 
               <Paper sx={{ padding: "20px", margin: "10px" }}>
                 <Typography variant="h5" className="text-beautify">
-                  Students {classDetails && <>{classDetails.class_num}</>}th{" "}
+                  Students {classDetails && <>{classDetails.class_code}</>}th{" "}
                 </Typography>
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 230 }} aria-label="simple table">

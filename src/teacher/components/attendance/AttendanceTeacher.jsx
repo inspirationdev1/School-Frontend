@@ -102,7 +102,7 @@ const AttendanceTeacher = () => {
   // Handle class selection
   // const handleClassChange = (event) => {
   //   let input = event.target.value;
-  //   setSelectedClass({ id: input.split(",")[0], class_text: input.split(",")[1] });
+  //   setSelectedClass({ id: input.split(",")[0], class_name: input.split(",")[1] });
   //   console.log(event.target.value)
   // };
 
@@ -182,7 +182,7 @@ const AttendanceTeacher = () => {
       {attendeeClass.length > 0 && (
         <Autocomplete
           options={attendeeClass}
-          getOptionLabel={(option) => option.class_text}
+          getOptionLabel={(option) => option.class_name}
           value={selectedClass}
           onChange={(event, newValue) => {
             setSelectedClass(newValue);
@@ -203,7 +203,7 @@ const AttendanceTeacher = () => {
      
       {attendeeClass.length > 0 && selectedClass && !attendanceTaken && students.length < 1 && (
         <Alert severity="info" sx={{ mb: 3 }}>
-          There is no students in {selectedClass.class_text} class now.
+          There is no students in {selectedClass.class_name} class now.
         </Alert>
       )}
       

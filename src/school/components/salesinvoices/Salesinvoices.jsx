@@ -693,7 +693,7 @@ export default function Salesinvoice() {
                         <Autocomplete
                           disabled={isEdit}
                           options={attendeeClass}
-                          getOptionLabel={(option) => option.class_text}
+                          getOptionLabel={(option) => option.class_name}
                           value={selectedClass}
                           onChange={(event, newValue) => {
                             setSelectedClass(newValue);

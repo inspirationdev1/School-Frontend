@@ -195,7 +195,7 @@ export default function Attendance() {
                 studentClass.map((value, i) => {
                   return (
                     <MenuItem key={i} value={value._id}>
-                      {value.class_text}
+                      {value.class_name}
                     </MenuItem>
                   );
                 })}
@@ -208,7 +208,7 @@ export default function Attendance() {
                         <Autocomplete
                           disabled={isEdit}
                           options={studentClass}
-                          getOptionLabel={(option) => option.class_text}
+                          getOptionLabel={(option) => option.class_name}
                           value={selectedClass}
                           onChange={(event, newValue) => {
                             setSelectedClass(newValue);
@@ -261,7 +261,7 @@ export default function Attendance() {
                         </TableCell>
                         <TableCell align="right">{student.gender}</TableCell>
                         <TableCell align="right">{student.guardian_phone}</TableCell>
-                        <TableCell align="right">{student.student_class.class_text}</TableCell>
+                        <TableCell align="right">{student.student_class.class_name}</TableCell>
                         {/* <TableCell >{fetchAttendanceData(student._id)}</TableCell> */}
                         <TableCell align="right"><Link to={`/school/attendance-student/${student._id}`}>Attendance</Link></TableCell>
                       </TableRow>)

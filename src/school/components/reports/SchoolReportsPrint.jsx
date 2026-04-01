@@ -242,7 +242,7 @@ export default function SchoolReportsPrint() {
                         city: marksheetPrintResponse.data.data[0].school.city,
                         state: marksheetPrintResponse.data.data[0].school.state,
                         country: marksheetPrintResponse.data.data[0].school.country,
-                        class: marksheetPrintResponse.data.data[0].class.class_text,
+                        class: marksheetPrintResponse.data.data[0].class.class_name,
                         section: marksheetPrintResponse.data.data[0].section.section_name,
                         student: marksheetPrintResponse.data.data[0].student.name,
                         school_image: marksheetPrintResponse.data.data[0].school.school_image

@@ -80,7 +80,7 @@ export default function TeacherExaminations() {
             {allClasses &&
               allClasses.map((value) => (
                 <MenuItem key={value._id} value={value._id}>
-                  {value.class_text}
+                  {value.class_name}
                 </MenuItem>
               ))}
           </Select>

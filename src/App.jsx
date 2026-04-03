@@ -26,7 +26,7 @@ import Section from "./school/components/sections/Sections";
 import Department from "./school/components/departments/Departments";
 import Feestype from "./school/components/feestypes/Feestypes";
 import Feestructure from "./school/components/feestructures/Feestructures";
-import Examtype from "./school/components/examtypes/Examtypes";
+// import Examtype from "./school/components/examtypes/Examtypes";
 import Salesinvoice from "./school/components/salesinvoices/Salesinvoices";
 import SalesinvoicePrint from './school/components/salesinvoices/SalesinvoicePrint';
 import Receipts from "./school/components/receipts/Receipts";
@@ -122,7 +122,7 @@ function App() {
               <Route path="section" element={<Section />} />
               <Route path="department" element={<Department />} />
               <Route path="feestype" element={<Feestype />} />
-               <Route path="examtype" element={<Examtype />} />
+               {/* <Route path="examtype" element={<Examtype />} /> */}
               <Route path="feestructure" element={<Feestructure />} />
               <Route path="salesinvoice" element={<Salesinvoice />} />
               <Route path="salesinvoiceprint" element={<SalesinvoicePrint />} />

@@ -43,7 +43,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useNavigate } from "react-router-dom";
-import { examSchema } from "../../../yupSchema/examinationSchema";
+import { examinationSchema } from "../../../yupSchema/examinationSchema";
 import SubjectTeacher from "./sub components/subject teacher/SubjectTeacher";
 import Examinations from "./sub components/examinations/Examinations";
 import Attendence from "./sub components/attendence/Attendence";

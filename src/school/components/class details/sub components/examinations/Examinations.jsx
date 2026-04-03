@@ -30,7 +30,7 @@ import {
   import dayjs from "dayjs";
   import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { baseUrl } from "../../../../../environment";
-import { examSchema } from "../../../../../yupSchema/examinationSchema";
+import { examinationSchema } from "../../../../../yupSchema/examinationSchema";
 import { convertDate } from "../../../../../utilityFunctions";
   
  
@@ -84,7 +84,7 @@ export default function Examinations({allSubjects, handleMessage, examinations})
 
   const examFormik = useFormik({
     initialValues: { exam_date: "", subject: "", exam_type: "" },
-    validationSchema: examSchema,
+    validationSchema: examinationSchema,
 
     onSubmit: (values) => {
       if(isEditExam){

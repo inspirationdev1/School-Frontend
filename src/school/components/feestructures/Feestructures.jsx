@@ -12,6 +12,8 @@ import {
   Table,
   TableContainer,
   Autocomplete,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
@@ -29,9 +31,9 @@ export default function Feestructures() {
   const [attendeeClass, setAttendeeClass] = useState([])
   const [selectedClass, setSelectedClass] = useState(null);
 
-const [feestype, setFeestype] = useState([])
+  const [feestype, setFeestype] = useState([])
   const [selectedFeestype, setSelectedFeestype] = useState(null);
-
+  const [tab, setTab] = useState(0);
 
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
@@ -68,6 +70,7 @@ const [feestype, setFeestype] = useState([])
         setSelectedFeestype(matchedFeestype || null);
 
         setEditId(resp.data.data._id);
+        setTab(0); // open Create Class tab
       })
       .catch((e) => {
         console.log("Error  in fetching edit data.");
@@ -120,6 +123,7 @@ const [feestype, setFeestype] = useState([])
             setMessage(resp.data.message);
             setType("success");
             cancelEdit();
+            setTab(1); // go to View List
           })
           .catch((e) => {
             setMessage(e.response.data.message);
@@ -134,6 +138,7 @@ const [feestype, setFeestype] = useState([])
             console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
             setType("success");
+            setTab(1); // go to View List
           })
           .catch((e) => {
             setMessage(e.response.data.message);
@@ -149,18 +154,7 @@ const [feestype, setFeestype] = useState([])
 
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
-  const fetchStudentFeestructure = () => {
-    // axios
-    //   .get(`${baseUrl}/casting/get-month-year`)
-    //   .then((resp) => {
-    //     console.log("Fetching month and year.", resp);
-    //     setMonth(resp.data.month);
-    //     setYear(resp.data.year);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching month and year", e);
-    //   });
-  };
+
 
   const fetchstudentsfeestructure = () => {
     axios
@@ -200,7 +194,7 @@ const [feestype, setFeestype] = useState([])
     fetchClass();
     fetchFeestype();
     fetchstudentsfeestructure();
-    fetchStudentFeestructure();
+
   }, [message]);
   return (
     <>
@@ -211,274 +205,275 @@ const [feestype, setFeestype] = useState([])
           message={message}
         />
       )}
-      <Box
-      >
-        
+      <Box>
 
-        <Box component={"div"} sx={{}}>
-          <Paper
-            sx={{ padding: '20px', margin: "10px" }}
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
           >
-            {isEdit ? (
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: "800", textAlign: "center" }}
-              >
-                Edit feestructure
-              </Typography>
-            ) : (
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: "800", textAlign: "center" }}
-              >
-                Add New  feestructure
-              </Typography>
-            )}{" "}
-            <Box
-              component="form"
-              noValidate
-              autoComplete="off"
-              onSubmit={Formik.handleSubmit}
+            {/* <Tab label="Create Receipt" /> */}
+            <Tab label={isEdit ? "Edit Feesstructure" : "Add New Feesstructure"} />
+            <Tab label="View List" />
+          </Tabs>
+        </Box>
+
+        {tab === 0 && (
+          <Box component={"div"} sx={{}}>
+            <Paper
+              sx={{ padding: '20px', margin: "10px" }}
             >
 
-
               <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "1fr",        // mobile
-                    md: "1fr 1fr",    // desktop
-                  },
-                  gap: 2.5,
-                  mt: 3,
-                }}
+                component="form"
+                noValidate
+                autoComplete="off"
+                onSubmit={Formik.handleSubmit}
               >
 
-                <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
-                  label="name "
-                  variant="outlined"
-                  name="name"
-                  value={Formik.values.name}
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                />
-                {Formik.touched.name && Formik.errors.name && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.name}
-                  </p>
-                )}
 
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "1fr",        // mobile
+                      md: "1fr 1fr",    // desktop
+                    },
+                    gap: 2.5,
+                    mt: 3,
+                  }}
+                >
 
-                <TextField
-                  fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
-                  label="code "
-                  variant="outlined"
-                  name="code"
-                  value={Formik.values.code}
-                  onChange={Formik.handleChange}
-                  onBlur={Formik.handleBlur}
-                />
-                {Formik.touched.code && Formik.errors.code && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.code}
-                  </p>
-                )}
-
-                {/* Class */}
-                {attendeeClass.length > 0 && (
-                  <Box>
-
-                    <Autocomplete
-                      disabled={isEdit}
-                      options={attendeeClass}
-                      getOptionLabel={(option) => option.class_name}
-                      value={selectedClass}
-                      onChange={(event, newValue) => {
-                        setSelectedClass(newValue);
-
-                        Formik.setFieldValue(
-                          "class",
-                          newValue ? newValue._id : ""
-                        );
-                      }}
-                      onBlur={() => Formik.setFieldTouched("class", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Class"
-                          placeholder="Search class..."
-                          fullWidth
-                          error={Formik.touched.class && Boolean(Formik.errors.class)}
-                          helperText={Formik.touched.class && Formik.errors.class}
-                        />
-                      )}
-                    />
-
-
-                  </Box>
-                )}
-
-                {/* Feestype */}
-                {feestype.length > 0 && (
-                  <Box>
-
-                    <Autocomplete
-                      disabled={isEdit}
-                      options={feestype}
-                      getOptionLabel={(option) => option.feestype_name}
-                      value={selectedFeestype}
-                      onChange={(event, newValue) => {
-                        setSelectedFeestype(newValue);
-
-                        Formik.setFieldValue(
-                          "feestype",
-                          newValue ? newValue._id : ""
-                        );
-                        Formik.setFieldValue(
-                          "name",
-                          newValue ? newValue.feestype_name : ""
-                        );
-                        Formik.setFieldValue(
-                          "code",
-                          newValue ? newValue.feestype_codename : ""
-                        );
-                      }}
-                      onBlur={() => Formik.setFieldTouched("feestype", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Feestype"
-                          placeholder="Search feestype..."
-                          fullWidth
-                          error={Formik.touched.feestype && Boolean(Formik.errors.feestype)}
-                          helperText={Formik.touched.feestype && Formik.errors.feestype}
-                        />
-                      )}
-                    />
-
-
-                  </Box>
-                )}
-
-                {/* amount */}
-                <Box>
                   <TextField
                     fullWidth
-                    label="amount"
+                    sx={{ marginTop: "10px" }}
+                    id="filled-basic"
+                    label="name "
                     variant="outlined"
-                    name="amount"
-                    type="number"
-                    value={Formik.values.amount}
+                    name="name"
+                    value={Formik.values.name}
                     onChange={Formik.handleChange}
                     onBlur={Formik.handleBlur}
-                    disabled={isEdit}
                   />
-                  {Formik.touched.amount && Formik.errors.amount && (
-                    <Typography color="error" variant="caption">
-                      {Formik.errors.amount}
-                    </Typography>
+                  {Formik.touched.name && Formik.errors.name && (
+                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                      {Formik.errors.name}
+                    </p>
                   )}
+
+
+                  <TextField
+                    disabled={isEdit}
+                    fullWidth
+                    sx={{ marginTop: "10px" }}
+                    id="filled-basic"
+                    label="code "
+                    variant="outlined"
+                    name="code"
+                    value={Formik.values.code}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                  />
+                  {Formik.touched.code && Formik.errors.code && (
+                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                      {Formik.errors.code}
+                    </p>
+                  )}
+
+                  {/* Class */}
+                  {attendeeClass.length > 0 && (
+                    <Box>
+
+                      <Autocomplete
+                        disabled={isEdit}
+                        options={attendeeClass}
+                        getOptionLabel={(option) => option.class_name}
+                        value={selectedClass}
+                        onChange={(event, newValue) => {
+                          setSelectedClass(newValue);
+
+                          Formik.setFieldValue(
+                            "class",
+                            newValue ? newValue._id : ""
+                          );
+                        }}
+                        onBlur={() => Formik.setFieldTouched("class", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Class"
+                            placeholder="Search class..."
+                            fullWidth
+                            error={Formik.touched.class && Boolean(Formik.errors.class)}
+                            helperText={Formik.touched.class && Formik.errors.class}
+                          />
+                        )}
+                      />
+
+
+                    </Box>
+                  )}
+
+                  {/* Feestype */}
+                  {feestype.length > 0 && (
+                    <Box>
+
+                      <Autocomplete
+                        disabled={isEdit}
+                        options={feestype}
+                        getOptionLabel={(option) => option.feestype_name}
+                        value={selectedFeestype}
+                        onChange={(event, newValue) => {
+                          setSelectedFeestype(newValue);
+
+                          Formik.setFieldValue(
+                            "feestype",
+                            newValue ? newValue._id : ""
+                          );
+                          Formik.setFieldValue(
+                            "name",
+                            newValue ? newValue.feestype_name : ""
+                          );
+                          Formik.setFieldValue(
+                            "code",
+                            newValue ? newValue.feestype_code : ""
+                          );
+                        }}
+                        onBlur={() => Formik.setFieldTouched("feestype", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Feestype"
+                            placeholder="Search feestype..."
+                            fullWidth
+                            error={Formik.touched.feestype && Boolean(Formik.errors.feestype)}
+                            helperText={Formik.touched.feestype && Formik.errors.feestype}
+                          />
+                        )}
+                      />
+
+
+                    </Box>
+                  )}
+
+                  {/* amount */}
+                  <Box>
+                    <TextField
+                      fullWidth
+                      label="amount"
+                      variant="outlined"
+                      name="amount"
+                      type="number"
+                      value={Formik.values.amount}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                      disabled={isEdit}
+                    />
+                    {Formik.touched.amount && Formik.errors.amount && (
+                      <Typography color="error" variant="caption">
+                        {Formik.errors.amount}
+                      </Typography>
+                    )}
+                  </Box>
+
+
                 </Box>
 
 
-              </Box>
 
 
 
-
-
-              <Box sx={{ marginTop: "10px" }} component={"div"}>
-                <Button
-                  type="submit"
-                  sx={{ marginRight: "10px" }}
-                  variant="contained"
-                >
-                  Submit
-                </Button>
-                {isEdit && (
+                <Box sx={{ marginTop: "10px" }} component={"div"}>
                   <Button
+                    type="submit"
                     sx={{ marginRight: "10px" }}
-                    variant="outlined"
-                    onClick={cancelEdit}
+                    variant="contained"
                   >
-                    Cancel Edit
+                    Submit
                   </Button>
-                )}
+                  {isEdit && (
+                    <Button
+                      sx={{ marginRight: "10px" }}
+                      variant="outlined"
+                      onClick={cancelEdit}
+                    >
+                      Cancel Edit
+                    </Button>
+                  )}
+                </Box>
               </Box>
-            </Box>
 
 
-          </Paper>
-        </Box>
+            </Paper>
+          </Box>
+        )}
 
-
-
-        <Box>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell component="th" scope="row">  Name</TableCell>
-                  <TableCell align="right">Code</TableCell>
-                  <TableCell align="right">Class</TableCell>
-                  <TableCell align="right">Feestype</TableCell>
-                  <TableCell align="right">Amount</TableCell>
-                  <TableCell align="right">Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {studentFeestructure.map((value, i) => (
-                  <TableRow
-                    key={i}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {value.name}
-                    </TableCell>
-                    <TableCell align="right">{value.code}</TableCell>
-                    <TableCell align="right">{value.class.class_name}</TableCell>
-                    <TableCell align="right">{value.feestype.feestype_name}</TableCell>
-                    <TableCell align="right">{value.amount}</TableCell>
-                    <TableCell align="right">
-                     
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          gap: 1.5, // 👈 space between buttons
-                        }}
-                      >
-                        <Button
-                          variant="contained"
-                          sx={{ background: "red", color: "#fff" }}
-                          onClick={() => handleDelete(value._id)}
-                        >
-                          Delete
-                        </Button>
-
-                        <Button
-                          variant="contained"
-                          sx={{ background: "gold", color: "#222222" }}
-                          onClick={() => handleEdit(value._id)}
-                        >
-                          Edit
-                        </Button>
-                      </Box>
-
-                    </TableCell>
-
+        {tab === 1 && (
+          <Box>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell component="th" scope="row">  Name</TableCell>
+                    <TableCell align="right">Code</TableCell>
+                    <TableCell align="right">Class</TableCell>
+                    <TableCell align="right">Feestype</TableCell>
+                    <TableCell align="right">Amount</TableCell>
+                    <TableCell align="right">Action</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {studentFeestructure.map((value, i) => (
+                    <TableRow
+                      key={i}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {value.name}
+                      </TableCell>
+                      <TableCell align="right">{value.code}</TableCell>
+                      <TableCell align="right">{value.class.class_name}</TableCell>
+                      <TableCell align="right">{value.feestype.feestype_name}</TableCell>
+                      <TableCell align="right">{value.amount}</TableCell>
+                      <TableCell align="right">
 
-        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: 1.5, // 👈 space between buttons
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            sx={{ background: "red", color: "#fff" }}
+                            onClick={() => handleDelete(value._id)}
+                          >
+                            Delete
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{ background: "gold", color: "#222222" }}
+                            onClick={() => handleEdit(value._id)}
+                          >
+                            Edit
+                          </Button>
+                        </Box>
+
+                      </TableCell>
+
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+          </Box>
+        )}
+
       </Box>
     </>
   );

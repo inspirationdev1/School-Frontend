@@ -11,6 +11,8 @@ import {
   TableHead,
   Table,
   TableContainer,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
@@ -24,7 +26,7 @@ export default function Expensetypes() {
   const [studentExpensetype, setStudentExpensetype] = useState([]);
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
-
+  const [tab, setTab] = useState(0);
 
 
 
@@ -52,7 +54,9 @@ export default function Expensetypes() {
       .then((resp) => {
         Formik.setFieldValue("expensetype_name", resp.data.data.expensetype_name);
         Formik.setFieldValue("expensetype_code", resp.data.data.expensetype_code);
+
         setEditId(resp.data.data._id);
+        setTab(0); // open Create Expensetype tab
       })
       .catch((e) => {
         console.log("Error  in fetching edit data.");
@@ -91,6 +95,7 @@ export default function Expensetypes() {
             setMessage(resp.data.message);
             setType("success");
             cancelEdit();
+            setTab(1); // go to View List
           })
           .catch((e) => {
             setMessage(e.response.data.message);
@@ -105,6 +110,7 @@ export default function Expensetypes() {
             console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
             setType("success");
+            setTab(1); // go to View List
           })
           .catch((e) => {
             setMessage(e.response.data.message);
@@ -119,18 +125,7 @@ export default function Expensetypes() {
 
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
-  const fetchStudentExpensetype = () => {
-    // axios
-    //   .get(`${baseUrl}/casting/get-month-year`)
-    //   .then((resp) => {
-    //     console.log("Fetching month and year.", resp);
-    //     setMonth(resp.data.month);
-    //     setYear(resp.data.year);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching month and year", e);
-    //   });
-  };
+
 
   const fetchstudentsexpensetype = () => {
     axios
@@ -145,7 +140,7 @@ export default function Expensetypes() {
   };
   useEffect(() => {
     fetchstudentsexpensetype();
-    fetchStudentExpensetype();
+
   }, [message]);
   return (
     <>
@@ -156,29 +151,26 @@ export default function Expensetypes() {
           message={message}
         />
       )}
-      <Box 
-      >
+      <Box>
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            {/* <Tab label="Create " /> */}
+            <Tab label={isEdit ? "Edit Expensetype" : "Add New Expensetype"} />
+            <Tab label="View List" />
+          </Tabs>
+        </Box>
 
-
+        {tab === 0 && (
         <Box component={"div"} sx={{}}>
           <Paper
             sx={{ padding: '20px', margin: "10px" }}
           >
-            {isEdit ? (
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: "800", textAlign: "center" }}
-              >
-                Edit expensetype
-              </Typography>
-            ) : (
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: "800", textAlign: "center" }}
-              >
-                Add New  expensetype
-              </Typography>
-            )}{" "}
+
             <Box
               component="form"
               noValidate
@@ -206,6 +198,7 @@ export default function Expensetypes() {
 
 
               <TextField
+                disabled={isEdit}
                 fullWidth
                 sx={{ marginTop: "10px" }}
                 id="filled-basic"
@@ -250,9 +243,10 @@ export default function Expensetypes() {
             </Box>
           </Paper>
         </Box>
+        )}
 
 
-
+        {tab === 1 && (
         <Box>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -260,7 +254,6 @@ export default function Expensetypes() {
                 <TableRow>
                   <TableCell component="th" scope="row"> expensetype Name</TableCell>
                   <TableCell align="right">Code</TableCell>
-                  <TableCell align="right">Details</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -274,7 +267,6 @@ export default function Expensetypes() {
                       {value.expensetype_name}
                     </TableCell>
                     <TableCell align="right">{value.expensetype_code}</TableCell>
-                    <TableCell align="right">{"Details"}</TableCell>
                     <TableCell align="right">
 
                       <Box
@@ -309,6 +301,7 @@ export default function Expensetypes() {
           </TableContainer>
 
         </Box>
+        )}
       </Box>
     </>
   );

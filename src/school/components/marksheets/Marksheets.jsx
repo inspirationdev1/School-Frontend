@@ -813,7 +813,7 @@ export default function Marksheet() {
                                             <Autocomplete
                                                 disabled={isEdit}
                                                 options={examination}
-                                                getOptionLabel={(option) => option.name}
+                                                getOptionLabel={(option) => option.examination_name}
                                                 value={selectedExamination}
                                                 onChange={(event, newValue) => {
                                                     setSelectedExamination(newValue);

@@ -48,13 +48,11 @@ const periods = [
   { id: 6, label: 'Period 5 (3:00 PM - 4:00 PM)', startTime: '15:00', endTime: '16:00' },
 ];
 
-const Schedule = () => {
+const Schedule_Old = () => {
   const [events, setEvents] = useState([]);
   const [allClasses, setAllClasses] = useState([]);
-  const [allSections, setAllSections] = useState([]);
   const [allTeachers, setAllTeachers] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
-  const [selectedSection, setSelectedSection] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -72,23 +70,10 @@ const Schedule = () => {
       });
   };
 
-
-  // Fetch all sections
-  const fetchAllSections = () => {
-    axios
-      .get(`${baseUrl}/section/fetch-all`)
-      .then((resp) => {
-        setAllSections(resp.data.data);
-        setSelectedSection(resp.data.data[0]);
-      })
-      .catch((e) => {
-        console.error('Error in fetching all Sections');
-      });
-  };
+  
 
   useEffect(() => {
     fetchAllClasses();
-    fetchAllSections()
     // fetchAllTeachers();
   }, []);
 
@@ -102,7 +87,7 @@ const Schedule = () => {
         console.log(periods)
         const eventsData = periods.map((period) => ({
           id: period._id,
-          title: `${period.subject ? period.subject.subject_name : ""}, By ${period.teacher ? period.teacher.name : ""}`,
+          title:`${period.subject?period.subject.subject_name:""}, By ${period.teacher?period.teacher.name:""}`,
           start: new Date(period.startTime),
           end: new Date(period.endTime)
         }));
@@ -113,9 +98,9 @@ const Schedule = () => {
     };
 
     fetchClassPeriods();
-  }, [selectedClass, openDialog, openAddDialog]);
+  }, [selectedClass,openDialog,openAddDialog]);
 
-
+  
 
   const handleSelectEvent = (event) => {
     setSelectedEvent(event.id);
@@ -128,7 +113,7 @@ const Schedule = () => {
   };
 
   const handleOpenAddDialog = () => {
-
+    
     setOpenAddDialog(true);
   };
 
@@ -139,72 +124,42 @@ const Schedule = () => {
 
   return (
     <Container>
-      <Typography className="hero-text" variant="h2" sx={{ textAlign: "center" }}>Schedule</Typography>
+       <Typography className="hero-text" variant="h2" sx={{textAlign:"center"}}>Weekly Schedule</Typography>
 
       <Paper sx={{ margin: '10px', padding: '10px' }}>
-
+        
         {/* Class */}
-        <Box>
+                    {allClasses.length > 0 && (
+                      <Box>
 
-          <Autocomplete
-            options={allClasses}
-            getOptionLabel={(option) => option.class_name}
-            value={selectedClass}
-            onChange={(event, newValue) => {
-              setSelectedClass(newValue);
+                        <Autocomplete
+                          options={allClasses}
+                          getOptionLabel={(option) => option.class_name}
+                          value={selectedClass}
+                          onChange={(event, newValue) => {
+                            setSelectedClass(newValue);
 
-              // Formik.setFieldValue(
-              //   "class",
-              //   newValue ? newValue._id : ""
-              // );
-            }}
-            // onBlur={() => Formik.setFieldTouched("class", true)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select Class"
-                placeholder="Search class..."
-                fullWidth
-              // error={Formik.touched.class && Boolean(Formik.errors.class)}
-              // helperText={Formik.touched.class && Formik.errors.class}
-              />
-            )}
-          />
-
-
-        </Box>
-
-        {/* Section */}
-        <Box>
-
-          <Autocomplete
-            options={allSections}
-            getOptionLabel={(option) => option.section_name}
-            value={selectedSection}
-            onChange={(event, newValue) => {
-              setSelectedSection(newValue);
-
-              // Formik.setFieldValue(
-              //   "class",
-              //   newValue ? newValue._id : ""
-              // );
-            }}
-            // onBlur={() => Formik.setFieldTouched("class", true)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select Section"
-                placeholder="Search section..."
-                fullWidth
-              // error={Formik.touched.class && Boolean(Formik.errors.class)}
-              // helperText={Formik.touched.class && Formik.errors.class}
-              />
-            )}
-          />
+                            // Formik.setFieldValue(
+                            //   "class",
+                            //   newValue ? newValue._id : ""
+                            // );
+                          }}
+                          // onBlur={() => Formik.setFieldTouched("class", true)}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Select Class"
+                              placeholder="Search class..."
+                              fullWidth
+                              // error={Formik.touched.class && Boolean(Formik.errors.class)}
+                              // helperText={Formik.touched.class && Formik.errors.class}
+                            />
+                          )}
+                        />
 
 
-        </Box>
-
+                      </Box>
+                    )}
       </Paper>
 
       <Button variant="contained" color="primary" onClick={handleOpenAddDialog} style={{ marginBottom: '10px' }}>
@@ -219,14 +174,14 @@ const Schedule = () => {
         step={30}
         timeslots={1}
         min={new Date(1970, 1, 1, 10, 0, 0)}
-        startAccessor="start"
-        endAccessor="end"
-        onSelectEvent={handleSelectEvent}
+ startAccessor="start"
+      endAccessor="end"
+      onSelectEvent={handleSelectEvent}
         max={new Date(1970, 1, 1, 17, 0, 0)}
         defaultDate={new Date()}
         showMultiDayTimes
-
-        style={{ height: '100%', width: '100%' }}
+      
+        style={{ height: '100%', width: '100%'}}
         formats={{ timeGutterFormat: 'hh:mm A' }}
       />
 
@@ -237,7 +192,7 @@ const Schedule = () => {
           <AssignPeriod2 classId={selectedClass?._id} isEdit={true} periodId={selectedEvent} close={handleCloseDialog} />
         </DialogContent>
         <DialogActions>
-
+         
           <Button onClick={handleCloseDialog}>Cancel</Button>
         </DialogActions>
       </Dialog>
@@ -245,9 +200,9 @@ const Schedule = () => {
       {/* Modal for Adding New Period */}
       <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
         <DialogTitle>Add New Period</DialogTitle>
-        <AssignPeriod2 classId={selectedClass?._id} close={handleCloseAddDialog} />
+       <AssignPeriod2 classId={selectedClass?._id} close={handleCloseAddDialog} />
         <DialogActions>
-
+          
           <Button onClick={handleCloseAddDialog}>Cancel</Button>
         </DialogActions>
       </Dialog>
@@ -256,4 +211,4 @@ const Schedule = () => {
 };
 
 
-export default Schedule;
+export default Schedule_Old;

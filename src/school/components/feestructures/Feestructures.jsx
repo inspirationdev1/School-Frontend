@@ -59,13 +59,13 @@ export default function Feestructures() {
         Formik.setFieldValue("name", resp.data.data.name);
         Formik.setFieldValue("code", resp.data.data.code);
         Formik.setFieldValue("class", resp.data.data.class._id);
-        Formik.setFieldValue("feestype", resp.data.data.feestype._id);
+        Formik.setFieldValue("feestype", resp?.data?.data?.feestype?._id);
         Formik.setFieldValue("amount", resp.data.data.amount);
         const classId = resp.data.data?.class._id || resp.data.class._id;
         const matchedClass = attendeeClass.find(c => c._id === classId);
         setSelectedClass(matchedClass || null);
 
-        const feestypeId = resp.data.data?.feestype._id || resp.data.feestype._id;
+        const feestypeId = resp.data?.data?.feestype?._id || "";
         const matchedFeestype = feestype.find(c => c._id === feestypeId);
         setSelectedFeestype(matchedFeestype || null);
 
@@ -321,7 +321,7 @@ export default function Feestructures() {
                     <Box>
 
                       <Autocomplete
-                        disabled={isEdit}
+                        // disabled={isEdit}
                         options={feestype}
                         getOptionLabel={(option) => option.feestype_name}
                         value={selectedFeestype}
@@ -435,7 +435,7 @@ export default function Feestructures() {
                       </TableCell>
                       <TableCell align="right">{value.code}</TableCell>
                       <TableCell align="right">{value.class.class_name}</TableCell>
-                      <TableCell align="right">{value.feestype.feestype_name}</TableCell>
+                      <TableCell align="right">{value?.feestype?.feestype_name||""}</TableCell>
                       <TableCell align="right">{value.amount}</TableCell>
                       <TableCell align="right">
 

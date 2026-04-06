@@ -1,259 +1,441 @@
-/* eslint-disable react/prop-types */
-import React, { useState, useEffect } from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import axios from 'axios';
-import { baseUrl } from '../../../environment';
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  Container,
-  Typography,
-  Autocomplete,
   Box,
-} from '@mui/material';
-import AssignPeriod2 from '../../../school/components/assign period/AssignPeriod2';
+  Button,
+  Paper,
+  TextField,
+  Typography,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
+  Table,
+  TableContainer,
+  Autocomplete,
+  Alert,
+} from "@mui/material";
+import dayjs from "dayjs";
+import { useFormik } from "formik";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { baseUrl } from "../../../environment";
+import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
+import { schoolreportsSchema } from "../../../yupSchema/schoolreportsSchema";
 
-const localizer = momentLocalizer(moment);
-const eventStyleGetter = (event, start, end, isSelected) => {
-  const style = {
-    backgroundColor: event.bgColor || '#3174ad',
-    color: 'white',
-    borderRadius: '4px',
-    padding: '5px',
-    border: 'none',
-  };
-  return {
-    style,
-  };
-};
+export default function Schedule() {
 
 
-const periods = [
-  { id: 1, label: 'Period 1 (10:00 AM - 11:00 AM)', startTime: '10:00', endTime: '11:00' },
-  { id: 2, label: 'Period 2 (11:00 AM - 12:00 PM)', startTime: '11:00', endTime: '12:00' },
-  { id: 3, label: 'Period 3 (12:00 PM - 1:00 PM)', startTime: '12:00', endTime: '13:00' },
-  { id: 4, label: 'Lunch Break (1:00 PM - 2:00 PM)', startTime: '13:00', endTime: '14:00' }, // break
-  { id: 5, label: 'Period 4 (2:00 PM - 3:00 PM)', startTime: '14:00', endTime: '15:00' },
-  { id: 6, label: 'Period 5 (3:00 PM - 4:00 PM)', startTime: '15:00', endTime: '16:00' },
-];
 
-const Schedule = () => {
-  const [events, setEvents] = useState([]);
-  const [allClasses, setAllClasses] = useState([]);
-  const [allSections, setAllSections] = useState([]);
-  const [allTeachers, setAllTeachers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+
+  const [reportNames, setReportNames] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
+  const [sections, setSection] = useState([])
   const [selectedSection, setSelectedSection] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [teachers, setTeacher] = useState([])
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [subjects, setSubject] = useState([])
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [examinations, setExamination] = useState([])
+  const [selectedExamination, setSelectedExamination] = useState(null);
+  const [questionpapers, setQuestionpaper] = useState([])
+  const [selectedQuestionpaper, setSelectedQuestionpaper] = useState(null);
+  const [isPrint, setPrint] = useState(false);
+  const [isDataValid, setIsDataValid] = useState(true);
+  const [dataError, setDataError] = useState('');
+  const [isEdit, setEdit] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
 
-  // Fetch all classes
-  const fetchAllClasses = () => {
-    axios
-      .get(`${baseUrl}/class/fetch-all`)
-      .then((resp) => {
-        setAllClasses(resp.data.data);
-        setSelectedClass(resp.data.data[0]);
-      })
-      .catch((e) => {
-        console.error('Error in fetching all Classes');
-      });
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
+
+  const cancelEdit = () => {
+    setEdit(false);
+    Formik.resetForm()
   };
 
+  const handlePrint = async () => {
 
-  // Fetch all sections
-  const fetchAllSections = () => {
-    axios
-      .get(`${baseUrl}/section/fetch-all`)
-      .then((resp) => {
-        setAllSections(resp.data.data);
-        setSelectedSection(resp.data.data[0]);
-      })
-      .catch((e) => {
-        console.error('Error in fetching all Sections');
-      });
-  };
+    setPrint(true);
 
-  useEffect(() => {
-    fetchAllClasses();
-    fetchAllSections()
-    // fetchAllTeachers();
-  }, []);
 
-  // Fetch periods for the selected class
-  useEffect(() => {
-    const fetchClassPeriods = async () => {
-      if (!selectedClass) return;
-      try {
-        const response = await axios.get(`${baseUrl}/period/class/${selectedClass._id}`);
-        const periods = response.data.periods;
-        console.log(periods)
-        const eventsData = periods.map((period) => ({
-          id: period._id,
-          title: `${period.subject ? period.subject.subject_name : ""}, By ${period.teacher ? period.teacher.name : ""}`,
-          start: new Date(period.startTime),
-          end: new Date(period.endTime)
-        }));
-        setEvents(eventsData);
-      } catch (error) {
-        console.error('Error fetching periods:', error);
-      }
+    const data = {
+      year: 2025,
+
     };
+    window.open(
+      `/school/ScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+      "_blank"
+    );
 
-    fetchClassPeriods();
-  }, [selectedClass, openDialog, openAddDialog]);
+
+    setPrint(false);
 
 
-
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event.id);
-    setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedEvent(null);
+
+  //   MESSAGE
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("succeess");
+
+  const resetMessage = () => {
+    setMessage("");
   };
 
-  const handleOpenAddDialog = () => {
+  const initialValues = {
+    reportId: "",
+    year: "",   // 👈 add this
+    fromDate: "",   // 👈 add
+    toDate: "",     // 👈 add
+    class: "",
+    section: "",
+    teacher: "",
+    subject: "",
+    examination: "",
+    questionpaper: "",
+    student: "",
+  };
+  const Formik = useFormik({
+    initialValues: initialValues,
+    // validationSchema: schoolreportsSchema,
+    onSubmit: (values) => {
 
-    setOpenAddDialog(true);
+
+      if (!values.fromDate || !values.toDate) {
+        setDataError('Select From Date and To Date');
+        setIsDataValid(false);
+        return;
+      }
+
+      if (dayjs(values.fromDate).isAfter(dayjs(values.toDate))) {
+        setDataError('From Date cannot be after To Date');
+        setIsDataValid(false);
+        return;
+      }
+
+      if (!values.class) {
+        setDataError('Select the Class');
+        setIsDataValid(false);
+        return;
+      }
+
+      if (!values.section) {
+        setDataError('Select the Section');
+        setIsDataValid(false);
+        return;
+      }
+
+      setIsDataValid(true);
+
+
+
+      handlePrint();
+    },
+  });
+
+
+
+
+
+  const fetchClass = async () => {
+    try {
+      const classData = await axios.get(`${baseUrl}/class/fetch-all`);
+      console.log("class", classData)
+      setClasses(classData.data.data);
+
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    }
+  };
+  const fetchSection = async () => {
+    try {
+      const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
+      console.log("sections", sectionsData)
+      setSection(sectionsData.data.data);
+
+    } catch (error) {
+      console.error('Error fetching section:', error);
+    }
   };
 
-  const handleCloseAddDialog = () => {
-    setOpenAddDialog(false);
+  const fetchTeacher = async () => {
+    const params = {};
+    axios
+      .get(`${baseUrl}/teacher/fetch-with-query`, { params: params })
+      .then((resp) => {
+        console.log("Fetching data in  teacher Calls  admin.", resp);
+        setTeacher(resp.data.data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching teacher calls admin data", e);
+      });
   };
+
+  const fetchSubject = async () => {
+    try {
+      const subjects = await axios.get(`${baseUrl}/subject/fetch-all`);
+      console.log("subjects", subjects)
+      setSubject(subjects.data.data);
+
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+    }
+  };
+
+
+
+
+  useEffect(() => {
+    fetchClass();
+    fetchSection();
+    fetchTeacher();
+
+
+  }, [message]);
+
+
+
+
 
 
   return (
-    <Container>
-      <Typography className="hero-text" variant="h2" sx={{ textAlign: "center" }}>Schedule</Typography>
-
-      <Paper sx={{ margin: '10px', padding: '10px' }}>
-
-        {/* Class */}
-        <Box>
-
-          <Autocomplete
-            options={allClasses}
-            getOptionLabel={(option) => option.class_name}
-            value={selectedClass}
-            onChange={(event, newValue) => {
-              setSelectedClass(newValue);
-
-              // Formik.setFieldValue(
-              //   "class",
-              //   newValue ? newValue._id : ""
-              // );
-            }}
-            // onBlur={() => Formik.setFieldTouched("class", true)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select Class"
-                placeholder="Search class..."
-                fullWidth
-              // error={Formik.touched.class && Boolean(Formik.errors.class)}
-              // helperText={Formik.touched.class && Formik.errors.class}
-              />
-            )}
-          />
+    <>
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
 
 
+      <Box>
+
+
+        <Box component={"div"} sx={{}}>
+          <Paper
+            sx={{ padding: '20px', margin: "10px" }}
+          >
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: "800", textAlign: "center" }}
+            >
+              Schedule
+            </Typography>
+            <Box
+              component="form"
+              noValidate
+              autoComplete="off"
+              onSubmit={Formik.handleSubmit}
+            >
+
+              {!isDataValid && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {dataError}
+                </Alert>
+              )}
+
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",      // mobile
+                    md: "1fr 1fr",  // desktop → 2 columns
+                  },
+                  gap: 2,
+                  mt: 2,
+                }}
+              >
+
+                {/* From Date */}
+
+                <Box>
+                  <TextField
+                    label="From Date"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={Formik.values.fromDate}
+                    onChange={(e) => {
+                      Formik.setFieldValue("fromDate", e.target.value);
+                      setFromDate(e.target.value);
+                    }}
+                    error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
+                    helperText={Formik.touched.fromDate && Formik.errors.fromDate}
+                  />
+                </Box>
+
+
+                {/* To Date */}
+
+                <Box>
+                  <TextField
+                    label="To Date"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={Formik.values.toDate}
+                    onChange={(e) => {
+                      Formik.setFieldValue("toDate", e.target.value);
+                      setToDate(e.target.value);
+                    }}
+                    error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
+                    helperText={Formik.touched.toDate && Formik.errors.toDate}
+                  />
+                </Box>
+
+
+
+                {/* Class */}
+
+                <Box>
+
+                  <Autocomplete
+                    options={classes}
+                    getOptionLabel={(option) => option.class_name}
+                    value={selectedClass}
+                    onChange={(event, newValue) => {
+                      setSelectedClass(newValue);
+
+                      Formik.setFieldValue(
+                        "class",
+                        newValue ? newValue._id : ""
+                      );
+
+                      setSelectedExamination(null);
+                      setSelectedQuestionpaper(null);
+
+                      Formik.setFieldValue(
+                        "examination",
+                        ""
+                      );
+                      Formik.setFieldValue(
+                        "questionpaper",
+                        ""
+                      );
+
+
+                    }}
+                    onBlur={() => Formik.setFieldTouched("class", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Class"
+                        placeholder="Search class..."
+                        fullWidth
+                        error={Formik.touched.class && Boolean(Formik.errors.class)}
+                        helperText={Formik.touched.class && Formik.errors.class}
+                      />
+                    )}
+                  />
+
+
+                </Box>
+
+
+                {/* Section */}
+
+                <Box>
+                  <Autocomplete
+                    options={sections}
+                    getOptionLabel={(option) => option.section_name}
+                    value={selectedSection}
+                    onChange={(event, newValue) => {
+                      setSelectedSection(newValue);
+                      Formik.setFieldValue(
+                        "section",
+                        newValue ? newValue._id : ""
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("section", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Section"
+                        placeholder="Search section..."
+                        fullWidth
+                        error={Formik.touched.section && Boolean(Formik.errors.section)}
+                        helperText={Formik.touched.section && Formik.errors.section}
+                      />
+                    )}
+                  />
+
+
+                </Box>
+
+
+                {/* Teacher */}
+
+                <Box>
+                  <Autocomplete
+                    options={teachers}
+                    getOptionLabel={(option) => option.name}
+                    value={selectedTeacher}
+                    onChange={(event, newValue) => {
+                      setSelectedTeacher(newValue);
+
+                      Formik.setFieldValue(
+                        "teacher",
+                        newValue ? newValue._id : ""
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("teacher", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Teacher"
+                        placeholder="Search teacher..."
+                        fullWidth
+                        error={Formik.touched.teacher && Boolean(Formik.errors.teacher)}
+                        helperText={Formik.touched.teacher && Formik.errors.teacher}
+                      />
+                    )}
+                  />
+
+                </Box>
+
+              </Box>
+
+
+
+              <Box sx={{ marginTop: "10px" }} component={"div"}>
+                <Button
+                  type="submit"
+                  sx={{ marginRight: "10px" }}
+                  variant="contained"
+                >
+                  Submit
+                </Button>
+                {isEdit && (
+                  <Button
+                    sx={{ marginRight: "10px" }}
+                    variant="outlined"
+                    onClick={cancelEdit}
+                  >
+                    Cancel Edit
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          </Paper>
         </Box>
 
-        {/* Section */}
-        <Box>
-
-          <Autocomplete
-            options={allSections}
-            getOptionLabel={(option) => option.section_name}
-            value={selectedSection}
-            onChange={(event, newValue) => {
-              setSelectedSection(newValue);
-
-              // Formik.setFieldValue(
-              //   "class",
-              //   newValue ? newValue._id : ""
-              // );
-            }}
-            // onBlur={() => Formik.setFieldTouched("class", true)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select Section"
-                placeholder="Search section..."
-                fullWidth
-              // error={Formik.touched.class && Boolean(Formik.errors.class)}
-              // helperText={Formik.touched.class && Formik.errors.class}
-              />
-            )}
-          />
 
 
-        </Box>
 
-      </Paper>
-
-      <Button variant="contained" color="primary" onClick={handleOpenAddDialog} style={{ marginBottom: '10px' }}>
-        Add New Period
-      </Button>
-
-      <Calendar
-        localizer={localizer}
-        events={events}
-        defaultView="week"
-        views={['week']}
-        step={30}
-        timeslots={1}
-        min={new Date(1970, 1, 1, 10, 0, 0)}
-        startAccessor="start"
-        endAccessor="end"
-        onSelectEvent={handleSelectEvent}
-        max={new Date(1970, 1, 1, 17, 0, 0)}
-        defaultDate={new Date()}
-        showMultiDayTimes
-
-        style={{ height: '100%', width: '100%' }}
-        formats={{ timeGutterFormat: 'hh:mm A' }}
-      />
-
-      {/* Modal for Editing Events */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Edit Period</DialogTitle>
-        <DialogContent>
-          <AssignPeriod2 classId={selectedClass?._id} isEdit={true} periodId={selectedEvent} close={handleCloseDialog} />
-        </DialogContent>
-        <DialogActions>
-
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Modal for Adding New Period */}
-      <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
-        <DialogTitle>Add New Period</DialogTitle>
-        <AssignPeriod2 classId={selectedClass?._id} close={handleCloseAddDialog} />
-        <DialogActions>
-
-          <Button onClick={handleCloseAddDialog}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      </Box>
+    </>
   );
-};
-
-
-export default Schedule;
+}

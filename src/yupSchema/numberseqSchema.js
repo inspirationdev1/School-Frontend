@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 export const numberseqSchema = yup.object({
     numberseq_name: yup.string().min(3, "Must contain 3 character.").required("Number Seq Name is  required."),
-    screen: yup.string().required("Screen  required."),
+    numberseq_name: yup.string().required("Name  required."),
     seq: yup
                     .number()
                     .typeError("Seq must be a number")

@@ -4,14 +4,19 @@ import App from './App.jsx'
 import './index.css'
 import axios from 'axios'
 import { AuthProvider } from './context/AuthContext.jsx'
-axios.interceptors.request.use((request)=>{
-  if(localStorage.getItem("token")){
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+axios.interceptors.request.use((request) => {
+  if (localStorage.getItem("token")) {
     request.headers.Authorization = localStorage.getItem("token")
   }
   return request;
 })
 createRoot(document.getElementById('root')).render(
-  <AuthProvider>
-    <App />
-  </AuthProvider>
+  <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </LocalizationProvider>
 )

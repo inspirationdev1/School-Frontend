@@ -150,6 +150,7 @@ export default function School() {
                 { label: "Section", link: "/school/section" },
                 { label: "Subjects", link: "/school/subject" },
                 { label: "Departments", link: "/school/department" },
+                { label: "Periods", link: "/school/period" },
                 { label: "Schedule", link: "/school/periods" },
                 { label: "Notice", link: "/school/notice" },
 

@@ -100,6 +100,9 @@ import PaymentPrint from "./school/components/payments/PaymentPrint";
 import PendingExpensesReportPrint from "./school/components/reports/PendingExpensesReportPrint";
 import PaidExpensesReportPrint from "./school/components/reports/PaidExpensesReportPrint";
 import Numberseqs from "./school/components/numberseqs/Numberseqs";
+import Periods from "./school/components/periods/Periods";
+import ScheduleReportPrint from "./school/components/periods/ScheduleReportPrint";
+
 
 
 
@@ -148,6 +151,9 @@ function App() {
 
               <Route path="assign-period" element={<AssignPeriod2 />} />
               <Route path="periods" element={<Schedule />} />
+              <Route path="period" element={<Periods />} />
+              <Route path="schedulereportprint" element={<ScheduleReportPrint />} />
+              
               <Route path="attendance" element={<StudentAttendanceList />} />
               <Route path="attendance-student/:studentId" element={<AttendanceDetails />} />
               <Route path="examinations" element={<Examinations />} />

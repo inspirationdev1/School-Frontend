@@ -153,7 +153,6 @@ export default function School() {
                 { label: "Periods", link: "/school/period" },
                 { label: "Schedule", link: "/school/periods" },
                 { label: "Notice", link: "/school/notice" },
-
             ],
         },
         {

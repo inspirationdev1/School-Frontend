@@ -70,10 +70,15 @@ export default function Schedule() {
     setPrint(true);
 
 
-    const data = {
-      year: 2025,
+    // const data = {
+    //   year: 2025,
 
-    };
+    // };
+    const data = {
+                fromDate: fromDate,
+                toDate: toDate,
+                
+            };
     window.open(
       `/school/ScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
       "_blank"

@@ -109,51 +109,6 @@ const styles = StyleSheet.create({
 });
 
 
-// Sample Data
-const timetableData = [
-    {
-        day: "Monday",
-        math: "8:00 - 9:00",
-        science: "9:00 - 10:00",
-        social: "11:00 - 12:00",
-        english: "13:00 - 14:00",
-        telugu: "15:00 - 16:00",
-    },
-    {
-        day: "Tuesday",
-        math: "8:00 - 9:00",
-        science: "9:00 - 10:00",
-        social: "11:00 - 12:00",
-        english: "13:00 - 14:00",
-        telugu: "15:00 - 16:00",
-    },
-    {
-        day: "Wednesday",
-        math: "8:00 - 9:00",
-        science: "9:00 - 10:00",
-        social: "11:00 - 12:00",
-        english: "13:00 - 14:00",
-        telugu: "15:00 - 16:00",
-    },
-    {
-        day: "Saturday",
-        math: "8:00 - 9:00",
-        science: "9:00 - 10:00",
-        social: "11:00 - 12:00",
-        english: "-",
-        telugu: "-",
-    },
-    {
-        day: "Sunday",
-        math: "-",
-        science: "-",
-        social: "-",
-        english: "-",
-        telugu: "-",
-    },
-];
-
-
 export default function ScheduleReportPrint() {
     const [loading, setLoading] = useState(true);
     // const [printData, setPrintData] = useState([]);
@@ -174,6 +129,11 @@ export default function ScheduleReportPrint() {
     const [selectedYear, setSelectedYear] = useState(2025)
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
+
+    const [selectedClass, setSelectedClass] = useState(null);
+    const [selectedSection, setSelectedSection] = useState(null);
+    const [selectedTeacher, setSelectedTeacher] = useState(null);
+
     const [isDataFound, setIsDataFound] = useState(false)
 
     useEffect(() => {
@@ -191,6 +151,11 @@ export default function ScheduleReportPrint() {
             setFromDate(data.fromDate);
             console.log("toDate", data.toDate);
             setToDate(data.toDate);
+
+            setSelectedClass(data?.class);
+            setSelectedSection(data?.section);
+
+            setSelectedTeacher(data?.teacher);
         }
 
 
@@ -199,34 +164,38 @@ export default function ScheduleReportPrint() {
 
     useEffect(() => {
 
-        const fetchPrintIncomeExpense = async () => {
 
 
-            // if (!selectedYear) return;
+
+        const fetchReportData = async () => {
+
             if (!fromDate) return;
             if (!toDate) return;
+            if (!selectedClass) return;
+            if (!selectedSection) return;
+
 
             try {
 
-                // const periodsData = await axios.get(`${baseUrl}/period/fetch-with-query`, {
-                //     params: {
-                //         year: selectedYear
-                //     }
-                // });
-                const periodsData = await axios.get(`${baseUrl}/period/all`);
-                console.log("periodsData", periodsData);
+                let params = {
+                    class: selectedClass?._id,
+                    section: selectedSection?._id
+                }
+                if (selectedTeacher) {
+                    params["teacher"] = selectedTeacher?._id
+                }
+                const periodsData = await axios.get(`${baseUrl}/schoolreports/schedule-print`, {
+                    params: params
+                });
+                console.log("periodsData", periodsData.data.data);
 
-
-                // const daysOrder = [
-                //     "Monday",
-                //     "Tuesday",
-                //     "Wednesday",
-                //     "Thursday",
-                //     "Friday",
-                //     "Saturday",
-                //     "Sunday",
-                // ];
-
+                if (periodsData?.data?.data?.length > 0) {
+                    setIsDataFound(true);
+                } else {
+                    setIsDataFound(false);
+                    setLoading(false);
+                    return;
+                }
 
                 let daysOrder = [];
 
@@ -246,15 +215,22 @@ export default function ScheduleReportPrint() {
                     const dd = String(currentDate.getDate()).padStart(2, "0");
                     const mm = String(currentDate.getMonth() + 1).padStart(2, "0"); // month starts from 0
                     const yyyy = currentDate.getFullYear();
+                    const formattedDate = `${dd}-${mm}-${yyyy}`;
+
+                    console.log(`Date: ${formattedDate}, Day: ${dayName}`);
+
 
                     // daysOrder.push({ day: dayName, dayseq: dd + mm + yyyy });
-                    daysOrder.push(dayName);
+                    daysOrder.push({ day: dayName, date: formattedDate });
                     // Move to next day
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
 
                 // Normalize subject keys
-                const subjects = ["math", "science", "social", "english", "telugu"];
+                // const subjects = ["math", "science", "social", "english", "telugu"];
+                // const subjects = [...new Set(periodsData.data.data.map(item => item?.subject?.subject_name.toLowerCase()))];
+                const subjects = [...new Set(periodsData.data.data.map(item => item?.subjectkey.toLowerCase()))];
+                console.log(subjects);
 
                 // Initialize result
                 const result = daysOrder.map((day) => {
@@ -263,6 +239,7 @@ export default function ScheduleReportPrint() {
 
                     subjects.forEach((sub) => {
                         obj[sub] = "-";
+
                     });
 
                     return obj;
@@ -270,22 +247,21 @@ export default function ScheduleReportPrint() {
 
                 // Fill data
                 periodsData.data.data.forEach((period) => {
-                    const subjectKey = period.subject.subject_name.toLowerCase(); // math, science...
+                    // const subjectKey = period.subject.subject_name.toLowerCase(); // math, science...
+                    const subjectkey = period.subjectkey.toLowerCase(); // math, science...
+                    const subjectName = subjectkey + "name"; // math, science...
 
                     period.days.forEach((day) => {
-                        const dayObj = result.find((d) => d.day === day);
                         const indexes = result
-                            .map((item, i) => (item.day === day ? i : -1))
+                            .map((item, i) => (item.day.day === day ? i : -1))
                             .filter((i) => i !== -1);
 
                         indexes.forEach((i) => {
-                            result[i][subjectKey] = `${period.starttime} - ${period.endtime}`;
+                            result[i][subjectkey] = `${period.starttime} - ${period.endtime}`;
+                            result[i][subjectName] = `${period?.subject?.subject_name}`;
                         });
 
-                        // if (dayObj) {
-                        //     dayObj[subjectKey] = `${period.starttime} - ${period.endtime}`;
 
-                        // }
                     });
                 });
 
@@ -295,11 +271,6 @@ export default function ScheduleReportPrint() {
 
                 setRows(result);
 
-                if (rows.length > 0) {
-                    setIsDataFound(true);
-                } else {
-                    setIsDataFound(false);
-                }
 
 
                 const rptHeader = {
@@ -310,9 +281,6 @@ export default function ScheduleReportPrint() {
                     country: periodsData.data.data[0].school.country,
                     school_image: periodsData.data.data[0].school.school_image
                 }
-
-
-
                 setReportHeader(rptHeader);
                 setLoading(false);
 
@@ -323,172 +291,127 @@ export default function ScheduleReportPrint() {
             }
         };
 
-        fetchPrintIncomeExpense();
+        fetchReportData();
 
     }, [fromDate, toDate]);
 
 
 
 
-    // const PrintPDF = () => (
-    //     <Document>
-    //         <Page size="A4" style={styles.page}>
-
-    //             {/* 🔷 Header */}
-    //             <View style={styles.headerContainer}>
-    //                 {/* If you have logo, uncomment */}
-    //                 <Image src={logo} style={styles.logo} />
-
-    //                 <View style={styles.schoolInfo}>
-    //                     <Text style={styles.schoolName}>
-    //                         {reportHeader?.school_name}
-    //                     </Text>
-
-    //                     <Text style={styles.schoolText}>
-    //                         {reportHeader?.address}, {reportHeader?.city}
-    //                     </Text>
-
-    //                     <Text style={styles.schoolText}>
-    //                         {reportHeader?.state}, {reportHeader?.country}
-    //                     </Text>
-    //                 </View>
-    //             </View>
-
-    //             {/* 🔷 Title */}
-    //             <Text style={styles.reportTitle}>
-    //                 Schedule
-    //             </Text>
-
-    //             {/* 🔷 Table */}
-    //             <View style={styles.table}>
-
-    //                 {/* Header Row */}
-    //                 <View style={styles.tableRow}>
-    //                     <View style={[styles.tableHeaderCell, styles.colIncome]}>
-    //                         <Text>Income</Text>
-    //                     </View>
-
-    //                     <View style={[styles.tableHeaderCell, styles.colAmount]}>
-    //                         <Text>Amount</Text>
-    //                     </View>
-
-    //                     <View style={[styles.tableHeaderCell, styles.colExpense]}>
-    //                         <Text>Expense</Text>
-    //                     </View>
-
-    //                     <View style={[styles.tableHeaderCell, styles.colAmount2]}>
-    //                         <Text>Amount</Text>
-    //                     </View>
-    //                 </View>
-
-    //                 {/* Data Rows */}
-    //                 {rows.map((row, i) => (
-    //                     <View style={styles.tableRow} key={i}>
-    //                         <View style={[styles.tableCell, styles.colIncome]}>
-    //                             <Text>{row.income}</Text>
-    //                         </View>
-
-    //                         <View style={[styles.tableCell, styles.colAmount]}>
-    //                             <Text>{formatAmount(row.incomeAmount)}</Text>
-    //                         </View>
-
-    //                         <View style={[styles.tableCell, styles.colExpense]}>
-    //                             <Text>{row.expense}</Text>
-    //                         </View>
-
-    //                         <View style={[styles.tableCell, styles.colAmount2]}>
-    //                             <Text>{formatAmount(row.expenseAmount)}</Text>
-    //                         </View>
-    //                     </View>
-    //                 ))}
-
-
-
-    //             </View>
-
-    //         </Page>
-    //     </Document>
-    // );
-
-    // PDF Component
 
     const PrintPDF = () => (
-        <Document>
-            <Page style={styles.page}>
+        <>
+            <Document>
+                <Page style={styles.page}>
 
 
-                {/* 🔷 Header */}
-                <View style={styles.headerContainer}>
-                    {/* If you have logo, uncomment */}
-                    <Image src={logo} style={styles.logo} />
+                    {/* 🔷 Header */}
+                    <View style={styles.headerContainer}>
+                        {/* If you have logo, uncomment */}
+                        <Image src={logo} style={styles.logo} />
 
-                    <View style={styles.schoolInfo}>
-                        <Text style={styles.schoolName}>
-                            {reportHeader?.school_name}
-                        </Text>
+                        <View style={styles.schoolInfo}>
+                            <Text style={styles.schoolName}>
+                                {reportHeader?.school_name}
+                            </Text>
 
-                        <Text style={styles.schoolText}>
-                            {reportHeader?.address}, {reportHeader?.city}
-                        </Text>
+                            <Text style={styles.schoolText}>
+                                {reportHeader?.address}, {reportHeader?.city}
+                            </Text>
 
-                        <Text style={styles.schoolText}>
-                            {reportHeader?.state}, {reportHeader?.country}
-                        </Text>
-                    </View>
-
-                </View>
-
-                {/* 🔷 Title */}
-                <Text style={styles.reportTitle}>
-                    Schedule/Timetable
-                </Text>
-
-                <View>
-
-                    {/* Row 1 */}
-                    <View style={styles.rowStyle}>
-                        <Text style={styles.labelStyle}>From Date:</Text>
-                        <Text style={styles.valueStyle}>{dayjs(fromDate).format("DD/MM/YYYY")}</Text>
-
-                        <Text style={styles.labelStyle}>To Date :</Text>
-                        <Text style={styles.valueStyle}>
-                            {dayjs(toDate).format("DD/MM/YYYY")}
-                        </Text>
-                    </View>
-
-
-
-
-
-
-
-                </View>
-
-                <View style={styles.table}>
-                    {/* Header */}
-                    <View style={styles.row}>
-                        <Text style={styles.cellHeader}>Days</Text>
-                        <Text style={styles.cellHeader}>Math (Start-End)</Text>
-                        <Text style={styles.cellHeader}>Science</Text>
-                        <Text style={styles.cellHeader}>Social Studies</Text>
-                        <Text style={styles.cellHeader}>English</Text>
-                        <Text style={styles.cellHeader}>Telugu</Text>
-                    </View>
-
-                    {/* Rows */}
-                    {rows.map((item, index) => (
-                        <View style={styles.row} key={index}>
-                            <Text style={styles.cell}>{item.day}</Text>
-                            <Text style={styles.cell}>{item.math}</Text>
-                            <Text style={styles.cell}>{item.science}</Text>
-                            <Text style={styles.cell}>{item.social}</Text>
-                            <Text style={styles.cell}>{item.english}</Text>
-                            <Text style={styles.cell}>{item.telugu}</Text>
+                            <Text style={styles.schoolText}>
+                                {reportHeader?.state}, {reportHeader?.country}
+                            </Text>
                         </View>
-                    ))}
-                </View>
-            </Page>
-        </Document>
+
+                    </View>
+
+                    {/* 🔷 Title */}
+                    <Text style={styles.reportTitle}>
+                        Schedule/Timetable
+                    </Text>
+
+                    <View>
+
+                        {/* Row 1 */}
+                        <View style={styles.rowStyle}>
+                            <Text style={styles.labelStyle}>From Date:</Text>
+                            <Text style={styles.valueStyle}>{dayjs(fromDate).format("DD/MM/YYYY")}</Text>
+
+                            <Text style={styles.labelStyle}>To Date :</Text>
+                            <Text style={styles.valueStyle}>
+                                {dayjs(toDate).format("DD/MM/YYYY")}
+                            </Text>
+                        </View>
+
+                        {/* Row 2 */}
+                        <View style={styles.rowStyle}>
+                            <Text style={styles.labelStyle}>Class:</Text>
+                            <Text style={styles.valueStyle}>
+                                {selectedClass?.class_name}
+                            </Text>
+
+                            <Text style={styles.labelStyle}>Section :</Text>
+                            <Text style={styles.valueStyle}>
+                                {selectedSection?.section_name}
+                            </Text>
+                        </View>
+
+                        {/* Row 3 */}
+                        {selectedTeacher && (<View style={styles.rowStyle}>
+                            <Text style={styles.labelStyle}>Teacher:</Text>
+                            <Text style={styles.valueStyle}>
+                                {selectedTeacher?.name}
+                            </Text>
+
+
+                        </View>)}
+
+
+
+
+
+
+                    </View>
+
+                    <View style={styles.table}>
+                        {/* Header */}
+
+
+                        {/* Rows */}
+                        {rows.map((item, index) => (
+                            <>
+                                {index === 0 && ( //Header Row
+                                    <View style={styles.row}>
+                                        <Text style={styles.cellHeader}>Date</Text>
+                                        <Text style={styles.cellHeader}>Days</Text>
+                                        {item?.subject1name && (<><Text style={styles.cellHeader}>{item.subject1name}</Text></>)}
+                                        {item?.subject2name && (<><Text style={styles.cellHeader}>{item.subject2name}</Text></>)}
+                                        {item?.subject3name && (<><Text style={styles.cellHeader}>{item.subject3name}</Text></>)}
+                                        {item?.subject4name && (<><Text style={styles.cellHeader}>{item.subject4name}</Text></>)}
+                                        {item?.subject5name && (<><Text style={styles.cellHeader}>{item.subject5name}</Text></>)}
+
+                                    </View>
+
+                                )}
+
+                                <View style={styles.row} key={index}>
+                                    <Text style={styles.cell}>{item.day.date}</Text>
+                                    <Text style={styles.cell}>{item.day.day}</Text>
+                                    {item?.subject1 && (<><Text style={styles.cell}>{item.subject1}</Text></>)}
+                                    {item?.subject2 && (<><Text style={styles.cell}>{item.subject2}</Text></>)}
+                                    {item?.subject3 && (<><Text style={styles.cell}>{item.subject3}</Text></>)}
+                                    {item?.subject4 && (<><Text style={styles.cell}>{item.subject4}</Text></>)}
+                                    {item?.subject5 && (<><Text style={styles.cell}>{item.subject5}</Text></>)}
+                                </View>
+                            </>
+                        ))}
+                    </View>
+
+
+                </Page>
+            </Document>
+        </>
     );
 
 
@@ -572,12 +495,14 @@ export default function ScheduleReportPrint() {
             <div className="w-full h-[500px]">
 
                 {rows && rows.length > 0 ? (
-                    <PDFViewer width="100%" height="100%">
-                        <PrintPDF />
+                    <>
+                        <PDFViewer width="100%" height="100%">
+                            <PrintPDF />
+                        </PDFViewer>
+                    </>
 
-
-                    </PDFViewer>
                 ) : (
+                    
                     <Typography
                         variant="h4"
                         sx={{ fontWeight: "800", textAlign: "center" }}

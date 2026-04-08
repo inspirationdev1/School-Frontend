@@ -75,10 +75,19 @@ export default function Schedule() {
 
     // };
     const data = {
-                fromDate: fromDate,
-                toDate: toDate,
-                
-            };
+      fromDate: fromDate,
+      toDate: toDate,
+      class: selectedClass,
+      section: selectedSection
+    };
+
+    if (selectedTeacher){
+      data.teacher = selectedTeacher;
+    }
+
+
+
+
     window.open(
       `/school/ScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
       "_blank"
@@ -177,6 +186,8 @@ export default function Schedule() {
 
   const fetchTeacher = async () => {
     const params = {};
+
+
     axios
       .get(`${baseUrl}/teacher/fetch-with-query`, { params: params })
       .then((resp) => {

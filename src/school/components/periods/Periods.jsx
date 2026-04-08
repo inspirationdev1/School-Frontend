@@ -188,6 +188,14 @@ export default function Periods() {
         initialValues: initialValues,
         validationSchema: periodSchema,
         onSubmit: (values) => {
+            console.log("values", values);
+            const [hour, minute] = values.starttime.split(":");
+
+            console.log(hour);   // 8
+            console.log(minute); // 0
+            const timeseq = hour.toString() + minute.toString();
+            values.timeseq = timeseq;
+
             if (isEdit) {
                 console.log("edit id", editId);
                 axios
@@ -288,7 +296,7 @@ export default function Periods() {
                     >
                         <Tab label={isEdit ? "Edit Period" : "Add New Period"} />
                         <Tab label="View List" />
-                        
+
                     </Tabs>
                 </Box>
 
@@ -621,7 +629,7 @@ export default function Periods() {
                     </Box>
                 )}
 
-                
+
             </Box>
         </>
     );

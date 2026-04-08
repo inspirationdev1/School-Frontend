@@ -502,7 +502,6 @@ export default function ScheduleReportPrint() {
                     </>
 
                 ) : (
-                    
                     <Typography
                         variant="h4"
                         sx={{ fontWeight: "800", textAlign: "center" }}

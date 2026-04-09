@@ -439,52 +439,30 @@ export default function ScheduleReportPrint() {
     };
 
 
-    const downloadIncomeExpenseExcel = () => {
-
-        // 1️⃣ Prepare Header
+    const downloadScheduleExcel = () => {
 
         const sheetData = [];
-        sheetData.push(["Income", "Amount", "Expense", "Amount"]);
-
+        
+        let rowSeq = 0;
         // 📥 Data Rows
         rows.forEach((row) => {
-            sheetData.push([
-                row.income || "",
-                Number(row.incomeAmount || 0),
-                row.expense || "",
-                Number(row.expenseAmount || 0),
-            ]);
+            rowSeq+=1;
+            if (rowSeq==1){ // 1️⃣ Prepare Header
+                sheetData.push(["Date", "Days", row?.subject1name, row?.subject2name,row?.subject3name,row?.subject4name,row?.subject5name]);
+            }
+             sheetData.push(["Date", "Days", row?.subject1, row?.subject2,row?.subject3,row?.subject4,row?.subject5]);
         });
-
-
-        // 📊 Totals
-        sheetData.push([
-            "Totals",
-            Number(totalIncome),
-            "Totals",
-            Number(totalExpense),
-        ]);
-
-        // 💰 Net Profit
-        sheetData.push([
-            "Net Profit",
-            Number(profitLoss),
-            "",
-            "",
-        ]);
-
-
 
         // 3️⃣ Create worksheet
         const worksheet = XLSX.utils.json_to_sheet(sheetData);
 
         // 4️⃣ Create workbook
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "IncomeExpense");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Schedule");
 
         const date = new Date();
         // 5️⃣ Download
-        XLSX.writeFile(workbook, `IncomeExpense_${date}.xlsx`);
+        XLSX.writeFile(workbook, `Schedule_${date}.xlsx`);
     };
 
     if (loading) {
@@ -525,7 +503,7 @@ export default function ScheduleReportPrint() {
                 </PDFDownloadLink>
 
 
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadIncomeExpenseExcel}>
+                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadScheduleExcel}>
                     Download Excel
                 </button>
 

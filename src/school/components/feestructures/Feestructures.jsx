@@ -317,7 +317,7 @@ export default function Feestructures() {
                   )}
 
                   {/* Feestype */}
-                  {feestype.length > 0 && (
+                  
                     <Box>
 
                       <Autocomplete
@@ -332,14 +332,7 @@ export default function Feestructures() {
                             "feestype",
                             newValue ? newValue._id : ""
                           );
-                          Formik.setFieldValue(
-                            "name",
-                            newValue ? newValue.feestype_name : ""
-                          );
-                          Formik.setFieldValue(
-                            "code",
-                            newValue ? newValue.feestype_code : ""
-                          );
+                          
                         }}
                         onBlur={() => Formik.setFieldTouched("feestype", true)}
                         renderInput={(params) => (
@@ -356,7 +349,7 @@ export default function Feestructures() {
 
 
                     </Box>
-                  )}
+                  
 
                   {/* amount */}
                   <Box>

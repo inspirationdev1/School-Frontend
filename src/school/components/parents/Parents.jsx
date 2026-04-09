@@ -47,6 +47,14 @@ export default function Parents() {
     return { label: `${year}-${year + 1}`, value: year };
   });
 
+  const viewUploadFile = (fileName) => {
+
+    const fileUrl = `${fileName}`;
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
+
+
+  };
+
   const addImage = (event) => {
     const file = event.target.files[0];
     setImageUrl(URL.createObjectURL(file));
@@ -219,6 +227,7 @@ export default function Parents() {
               setType("success");
               handleClearFile();
               setParams({});
+              cancelEdit();
               setTab(1); // go to View List
             })
             .catch((e) => {
@@ -505,7 +514,7 @@ export default function Parents() {
           </Box>
         )}
 
-        {tab === 1 && (
+        {/* {tab === 1 && (
           <Box>
             <Box
               sx={{
@@ -540,6 +549,75 @@ export default function Parents() {
                   );
                 })}
             </Box>
+          </Box>
+        )} */}
+
+        {tab === 1 && (
+          <Box>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell component="th" scope="row">Name</TableCell>
+                    <TableCell align="right">Email</TableCell>
+                    <TableCell align="right">dOBDate</TableCell>
+                    <TableCell align="right">JoinDate</TableCell>
+                    <TableCell align="right">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {parents.map((value, i) => (
+                    <TableRow
+                      key={i}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {value.name}
+                      </TableCell>
+                      <TableCell align="right">{value?.email}</TableCell>
+                      <TableCell align="right">{dayjs(value?.dOBDate).format("DD/MM/YYYY")}</TableCell>
+                      <TableCell align="right">{dayjs(value?.joinDate).format("DD/MM/YYYY")}</TableCell>
+                      <TableCell align="right">
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: 1.5, // 👈 space between buttons
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            sx={{ background: "red", color: "#fff" }}
+                            onClick={() => handleDelete(value._id)}
+                          >
+                            Delete
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{ background: "gold", color: "#222222" }}
+                            onClick={() => handleEdit(value._id)}
+                          >
+                            Edit
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{ background: "skyblue", color: "#000" }}
+                            onClick={() => viewUploadFile(value?.parent_image)}
+                          >
+                            View Pic
+                          </Button>
+                        </Box>
+                      </TableCell>
+
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
           </Box>
         )}
 

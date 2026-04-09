@@ -17,6 +17,8 @@ import {
   TextField,
   Typography,
   Autocomplete,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2"; // Import Grid2
 import { styled } from '@mui/material/styles';
@@ -27,15 +29,15 @@ import Attendee from "./attendee/Attendee";
 
 
 const Item = styled(Paper)(({ theme }) => ({
-   
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    // ...theme.applyStyles('dark', {
-    //   backgroundColor: '#1A2027',
-    // }),
-  }));
+
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+  // ...theme.applyStyles('dark', {
+  //   backgroundColor: '#1A2027',
+  // }),
+}));
 
 
 const StudentAttendanceList = () => {
@@ -47,6 +49,7 @@ const StudentAttendanceList = () => {
   const [params, setParams] = useState({});
   const [message, setMessage] = useState("");
   const [type, setType] = useState("success");
+  const [tab, setTab] = useState(0);
 
   const handleMessage = (type, message) => {
     setType(type);
@@ -120,20 +123,17 @@ const StudentAttendanceList = () => {
 
   const handleClass = (e) => {
     let newParam;
-    // if (e.target.value !== "") {
-    //   // setSelectedClass(e.target.value);
-    //   newParam = { ...params, student_class: e.target.value };
-    // } else {
-    //   newParam = { ...params };
-    //   delete newParam["student_class"];
-    // }
-    if (e._id !== "") {
-      // setSelectedClass(e.target.value);
-      newParam = { ...params, student_class: e._id };
-    } else {
-      newParam = { ...params };
-      delete newParam["student_class"];
+    try {
+      if (e._id !== "") {
+        newParam = { ...params, student_class: e._id };
+      } else {
+        newParam = { ...params };
+        delete newParam["student_class"];
+      }
+    } catch (error) {
+        setStudents([]);
     }
+
     setParams(newParam);
   };
 
@@ -161,111 +161,184 @@ const StudentAttendanceList = () => {
           message={message}
         />
       )}
-      <Box sx={{  padding: "40px 10px 20px 10px",width:"100%"}}>
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Box >
+        {/* <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <Typography variant="h2" >Attendance</Typography>
+        </Box> */}
+
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            {/* <Tab label="Create Receipt" /> */}
+            <Tab label="Attendee" />
+            <Tab label="View List" />
+          </Tabs>
         </Box>
+        <Box>
+
+
+          {tab === 0 && (
+            <Box>
+              {/* Class */}
+              <Box>
+                <Autocomplete
+                  options={studentClass}
+                  getOptionLabel={(option) => option.class_name}
+                  value={selectedClass}
+                  onChange={(event, newValue) => {
+
+                    setSelectedClass(newValue);
+                    handleClass(newValue);
+                  }}
+                  // onBlur={() => Formik.setFieldTouched("class", true)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Class"
+                      placeholder="Search class..."
+                      fullWidth
+                    // error={Formik.touched.class && Boolean(Formik.errors.class)}
+                    // helperText={Formik.touched.class && Formik.errors.class}
+                    />
+                  )}
+                />
+
+
+              </Box>
+
+              <Box>
+                {selectedClass && <Attendee params={params} classId={selectedClass._id} handleMessage={handleMessage} />}
+              </Box>
+
+            </Box>
+          )}
+
+          {tab === 1 && (
+            <>
+              <Box>
+
+
+                <TextField
+                  label="Search Name"
+                  onChange={handleSearch}
+                  fullWidth
+                />
+
+
+
+              </Box>
+              <Box>
+                <TableContainer sx={{ width: '100%' }} component={Paper}>
+                  <Table sx={{}} aria-label="student attendance table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell align="right">Gender</TableCell>
+                        <TableCell align="right">Guardian Phone</TableCell>
+                        <TableCell align="right">Class</TableCell>
+                        <TableCell align="right">Percentage</TableCell>
+                        <TableCell align="right">View</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {students.map((student, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{student.name}</TableCell>
+                          <TableCell align="right">{student.gender}</TableCell>
+                          <TableCell align="right">{student.guardian_phone}</TableCell>
+                          <TableCell align="right">{student.student_class.class_name}</TableCell>
+                          <TableCell align="right">
+                            {attendanceData[student._id] !== undefined
+                              ? `${attendanceData[student._id].toFixed(2)}%`
+                              : "No Data"}
+                          </TableCell>
+                          <TableCell align="right">
+                            <Link to={`/school/attendance-student/${student._id}`}>
+                              Details
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+
+            </>
+
+
+
+
+          )}
+
+        </Box>
+
 
         {/* Grid layout using Grid2 */}
         <Grid container spacing={2}>
           {/* Left Box: Search and Attendee */}
-          <Grid size={{xs:12, md:4}}>
+          {/* <Grid size={{ xs: 12, md: 4 }}>
             <Item>
-            <Box sx={{ padding: "10px" }}>
-              {/* <FormControl sx={{ minWidth: "200px", marginBottom: "20px" }}>
-                <InputLabel id="class-select-label">Student Class</InputLabel>
-                <Select
-                  labelId="class-select-label"
-                  id="class-select"
-                  value={selectedClass || ""}
-                  onChange={handleClass}
-                >
-                  <MenuItem value="">Select Class</MenuItem>
-                  {studentClass.map((value, i) => (
-                    <MenuItem key={i} value={value._id}>
-                      {value.class_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl> */}
-              {/* Class */}
-                    {studentClass.length > 0 && (
-                      <Box>
+              <Box sx={{ padding: "10px" }}>
 
-                        <Autocomplete
-                          options={studentClass}
-                          getOptionLabel={(option) => option.class_name}
-                          value={selectedClass}
-                          onChange={(event, newValue) => {
-                            setSelectedClass(newValue);
-                            handleClass(newValue);
-                          }}
-                          // onBlur={() => Formik.setFieldTouched("class", true)}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Select Class"
-                              placeholder="Search class..."
-                              fullWidth
-                              // error={Formik.touched.class && Boolean(Formik.errors.class)}
-                              // helperText={Formik.touched.class && Formik.errors.class}
-                            />
-                          )}
-                        />
+                
 
+                <TextField
+                  label="Search Name"
+                  onChange={handleSearch}
+                  fullWidth
+                />
 
-                      </Box>
-                    )}
-              <TextField
-                label="Search Name"
-                onChange={handleSearch}
-                fullWidth
-              />
-
-              {selectedClass && <Attendee params={params} classId={selectedClass._id} handleMessage={handleMessage} />}
-            </Box>
+                {selectedClass && <Attendee params={params} classId={selectedClass._id} handleMessage={handleMessage} />}
+              </Box>
             </Item>
-          </Grid>
+          </Grid> */}
 
           {/* Right Box: Table */}
-          <Grid size={{xs:12, md:8}}>
-            <Item sx={{width:"100%"}}>
-            <TableContainer sx={{width:'100%'}} component={Paper}>
-              <Table sx={{  }} aria-label="student attendance table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell align="right">Gender</TableCell>
-                    <TableCell align="right">Guardian Phone</TableCell>
-                    <TableCell align="right">Class</TableCell>
-                    <TableCell align="right">Percentage</TableCell>
-                    <TableCell align="right">View</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {students.map((student, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{student.name}</TableCell>
-                      <TableCell align="right">{student.gender}</TableCell>
-                      <TableCell align="right">{student.guardian_phone}</TableCell>
-                      <TableCell align="right">{student.student_class.class_name}</TableCell>
-                      <TableCell align="right">
-                        {attendanceData[student._id] !== undefined
-                          ? `${attendanceData[student._id].toFixed(2)}%`
-                          : "No Data"}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Link to={`/school/attendance-student/${student._id}`}>
-                          Details
-                        </Link>
-                      </TableCell>
+          {/* <Grid size={{ xs: 12, md: 8 }}>
+            <Item sx={{ width: "100%" }}>
+              <TableContainer sx={{ width: '100%' }} component={Paper}>
+                <Table sx={{}} aria-label="student attendance table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell align="right">Gender</TableCell>
+                      <TableCell align="right">Guardian Phone</TableCell>
+                      <TableCell align="right">Class</TableCell>
+                      <TableCell align="right">Percentage</TableCell>
+                      <TableCell align="right">View</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {students.map((student, i) => (
+                      <TableRow key={i}>
+                        <TableCell>{student.name}</TableCell>
+                        <TableCell align="right">{student.gender}</TableCell>
+                        <TableCell align="right">{student.guardian_phone}</TableCell>
+                        <TableCell align="right">{student.student_class.class_name}</TableCell>
+                        <TableCell align="right">
+                          {attendanceData[student._id] !== undefined
+                            ? `${attendanceData[student._id].toFixed(2)}%`
+                            : "No Data"}
+                        </TableCell>
+                        <TableCell align="right">
+                          <Link to={`/school/attendance-student/${student._id}`}>
+                            Details
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Item>
-          </Grid>
+          </Grid> */}
+
+
         </Grid>
       </Box>
     </>

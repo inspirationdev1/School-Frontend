@@ -14,6 +14,12 @@ import {
   Tab,
   Autocomplete,
   Grid,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
+  Table,
+  TableContainer,
 } from "@mui/material";
 
 import { useFormik } from "formik";
@@ -41,6 +47,14 @@ export default function Users() {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
   });
+
+  const viewUploadFile = (fileName) => {
+
+    const fileUrl = `${fileName}`;
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
+
+
+  };
 
   const addImage = (event) => {
     const file = event.target.files[0];
@@ -210,6 +224,7 @@ export default function Users() {
               setMessage(resp.data.message);
               setType("success");
               handleClearFile();
+              cancelEdit();
               setTab(1); // go to View List
             })
             .catch((e) => {
@@ -267,249 +282,249 @@ export default function Users() {
         />
       )}
       <Box
-              
+
+      >
+
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            {/* <Tab label="Create Receipt" /> */}
+            <Tab label={isEdit ? "Edit User" : "Add New User"} />
+            <Tab label="View List" />
+          </Tabs>
+        </Box>
+
+
+        {tab === 0 && (
+          <Box component={"div"}>
+            <Paper
+              sx={{ padding: "20px", margin: "10px" }}
             >
-      
-              <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-                <Tabs
-                  value={tab}
-                  onChange={(e, newValue) => setTab(newValue)}
-                  textColor="primary"
-                  indicatorColor="primary"
-                >
-                  {/* <Tab label="Create Receipt" /> */}
-                  <Tab label={isEdit ? "Edit User" : "Add New User"} />
-                  <Tab label="View List" />
-                </Tabs>
-              </Box>
-      
-      
-              {tab === 0 && (
-                <Box component={"div"}>
-                  <Paper
-                    sx={{ padding: "20px", margin: "10px" }}
-                  >
-      
-                    <Box component="form" onSubmit={Formik.handleSubmit}>
-                      <Grid container spacing={2}>
-      
-                        {/* IMAGE FULL WIDTH */}
-                        <Grid item xs={12}>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Typography variant="h6">User Pic</Typography>
-      
-                            <TextField
-                              type="file"
-                              name="file"
-                              onChange={addImage}
-                              inputRef={fileInputRef}
-                            />
-      
-                            {file && (
-                              <CardMedia
-                                component="img"
-                                image={imageUrl}
-                                sx={{ width: 120, height: 120 }}
-                              />
-                            )}
-                          </Box>
-                        </Grid>
-      
-                        {/* EMAIL */}
-                        <Grid item xs={12} md={6}>
-                          <TextField
-                            fullWidth
-                            label="Email"
-                            name="email"
-                            value={Formik.values.email}
-                            onChange={Formik.handleChange}
-                            onBlur={Formik.handleBlur}
-                          />
-                          {Formik.touched.email && Formik.errors.email && (
-                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                              {Formik.errors.email}
-                            </p>
-                          )}
-                        </Grid>
-      
-                        {/* NAME */}
-                        <Grid item xs={12} md={6}>
-                          <TextField
-                            fullWidth
-                            label="Name"
-                            name="name"
-                            value={Formik.values.name}
-                            onChange={Formik.handleChange}
-                            onBlur={Formik.handleBlur}
-                          />
-                          {Formik.touched.name && Formik.errors.name && (
-                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                              {Formik.errors.name}
-                            </p>
-                          )}
-                        </Grid>
-      
-                        {/* QUALIFICATION */}
-                        <Grid item xs={12} md={6}>
-                          <TextField
-                            fullWidth
-                            label="Qualification"
-                            name="qualification"
-                            value={Formik.values.qualification}
-                            onChange={Formik.handleChange}
-                          />
-                          {Formik.touched.qualification && Formik.errors.qualification && (
-                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                              {Formik.errors.qualification}
-                            </p>
-                          )}
-                        </Grid>
-      
-                        {/* GENDER */}
-                        <Grid item xs={12} md={6}>
-                          <FormControl fullWidth>
-                            <InputLabel>Gender</InputLabel>
-                            <Select
-                              name="gender"
-                              value={Formik.values.gender}
-                              onChange={Formik.handleChange}
-                            >
-                              <MenuItem value="">Select Gender</MenuItem>
-                              <MenuItem value="male">Male</MenuItem>
-                              <MenuItem value="female">Female</MenuItem>
-                              <MenuItem value="other">Other</MenuItem>
-                            </Select>
-                          </FormControl>
-                          {Formik.touched.gender && Formik.errors.gender && (
-                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                              {Formik.errors.gender}
-                            </p>
-                          )}
-                        </Grid>
-      
-                        {/* DOB */}
-                        <Grid item xs={12} md={6}>
-                          <TextField
-                            name="dOBDate"
-                            label="Date of Birth"
-                            type="date"
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                            value={Formik.values.dOBDate}
-                            onChange={(e) => {
-                              const dob = e.target.value;
-                              Formik.setFieldValue("dOBDate", dob);
-      
-                              const age = calculateAge(dob);
-                              Formik.setFieldValue("age", age);
-                            }}
-                          />
-      
-                          {Formik.touched.dOBDate && Formik.errors.dOBDate && (
-                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                              {Formik.errors.dOBDate}
-                            </p>
-                          )}
-                        </Grid>
-      
-                        {/* AGE */}
-                        <Grid item xs={12} md={6}>
-                          <TextField
-                            fullWidth
-                            label="Age"
-                            name="age"
-                            value={Formik.values.age}
-                            disabled
-                          />
-                          {Formik.touched.age && Formik.errors.age && (
-                            <Typography color="error" variant="caption">
-                              {Formik.errors.age}
-                            </Typography>
-                          )}
-                        </Grid>
-      
-                        {/* JOIN DATE */}
-                        <Grid item xs={12} md={6}>
-                          <TextField
-                            name="joinDate"
-                            label="Join Date"
-                            type="date"
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                            value={Formik.values.joinDate}
-                            onChange={Formik.handleChange}
-                          />
-                          {Formik.touched.joinDate && Formik.errors.joinDate && (
-                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                              {Formik.errors.joinDate}
-                            </p>
-                          )}
-                        </Grid>
-      
-                        {/* ACADEMIC YEAR */}
-                        <Grid item xs={12} md={6}>
-                          <Autocomplete
-                            options={years}
-                            getOptionLabel={(option) => option.label}
-                            value={selectedYear}
-                            onChange={(e, newValue) => {
-                              setSelectedYear(newValue);
-                              Formik.setFieldValue("year", newValue?.value || "");
-                            }}
-                            onBlur={() => Formik.setFieldTouched("year", true)}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Select Academic Year"
-                                placeholder="Search year..."
-                                fullWidth
-                                error={Formik.touched.year && Boolean(Formik.errors.year)}
-                                helperText={Formik.touched.year && Formik.errors.year}
-                              />
-                            )}
-                          />
-                        </Grid>
-      
-                        {/* PASSWORD */}
-                        {!isEdit && (
-                          <Grid item xs={12} md={6}>
-                            <TextField
-                              fullWidth
-                              label="Password"
-                              type="password"
-                              name="password"
-                              value={Formik.values.password}
-                              onChange={Formik.handleChange}
-                            />
-                            {Formik.touched.password && Formik.errors.password && (
-                              <p style={{ color: "red", textTransform: "capitalize" }}>
-                                {Formik.errors.password}
-                              </p>
-                            )}
-                          </Grid>
-                        )}
-      
-                        {/* BUTTONS FULL WIDTH */}
-                        <Grid item xs={12}>
-                          <Button type="submit" variant="contained" sx={{ mr: 1 }}>
-                            Submit
-                          </Button>
-      
-                          {isEdit && (
-                            <Button variant="outlined" onClick={cancelEdit}>
-                              Cancel Edit
-                            </Button>
-                          )}
-                        </Grid>
-      
-                      </Grid>
+
+              <Box component="form" onSubmit={Formik.handleSubmit}>
+                <Grid container spacing={2}>
+
+                  {/* IMAGE FULL WIDTH */}
+                  <Grid item xs={12}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Typography variant="h6">User Pic</Typography>
+
+                      <TextField
+                        type="file"
+                        name="file"
+                        onChange={addImage}
+                        inputRef={fileInputRef}
+                      />
+
+                      {file && (
+                        <CardMedia
+                          component="img"
+                          image={imageUrl}
+                          sx={{ width: 120, height: 120 }}
+                        />
+                      )}
                     </Box>
-      
-                  </Paper>
-                </Box>
-              )}
-      
-              {tab === 1 && (
+                  </Grid>
+
+                  {/* EMAIL */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      name="email"
+                      value={Formik.values.email}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.email && Formik.errors.email && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.email}
+                      </p>
+                    )}
+                  </Grid>
+
+                  {/* NAME */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Name"
+                      name="name"
+                      value={Formik.values.name}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.name && Formik.errors.name && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.name}
+                      </p>
+                    )}
+                  </Grid>
+
+                  {/* QUALIFICATION */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Qualification"
+                      name="qualification"
+                      value={Formik.values.qualification}
+                      onChange={Formik.handleChange}
+                    />
+                    {Formik.touched.qualification && Formik.errors.qualification && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.qualification}
+                      </p>
+                    )}
+                  </Grid>
+
+                  {/* GENDER */}
+                  <Grid item xs={12} md={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Gender</InputLabel>
+                      <Select
+                        name="gender"
+                        value={Formik.values.gender}
+                        onChange={Formik.handleChange}
+                      >
+                        <MenuItem value="">Select Gender</MenuItem>
+                        <MenuItem value="male">Male</MenuItem>
+                        <MenuItem value="female">Female</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                      </Select>
+                    </FormControl>
+                    {Formik.touched.gender && Formik.errors.gender && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.gender}
+                      </p>
+                    )}
+                  </Grid>
+
+                  {/* DOB */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      name="dOBDate"
+                      label="Date of Birth"
+                      type="date"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      value={Formik.values.dOBDate}
+                      onChange={(e) => {
+                        const dob = e.target.value;
+                        Formik.setFieldValue("dOBDate", dob);
+
+                        const age = calculateAge(dob);
+                        Formik.setFieldValue("age", age);
+                      }}
+                    />
+
+                    {Formik.touched.dOBDate && Formik.errors.dOBDate && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.dOBDate}
+                      </p>
+                    )}
+                  </Grid>
+
+                  {/* AGE */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Age"
+                      name="age"
+                      value={Formik.values.age}
+                      disabled
+                    />
+                    {Formik.touched.age && Formik.errors.age && (
+                      <Typography color="error" variant="caption">
+                        {Formik.errors.age}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  {/* JOIN DATE */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      name="joinDate"
+                      label="Join Date"
+                      type="date"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      value={Formik.values.joinDate}
+                      onChange={Formik.handleChange}
+                    />
+                    {Formik.touched.joinDate && Formik.errors.joinDate && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.joinDate}
+                      </p>
+                    )}
+                  </Grid>
+
+                  {/* ACADEMIC YEAR */}
+                  <Grid item xs={12} md={6}>
+                    <Autocomplete
+                      options={years}
+                      getOptionLabel={(option) => option.label}
+                      value={selectedYear}
+                      onChange={(e, newValue) => {
+                        setSelectedYear(newValue);
+                        Formik.setFieldValue("year", newValue?.value || "");
+                      }}
+                      onBlur={() => Formik.setFieldTouched("year", true)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Academic Year"
+                          placeholder="Search year..."
+                          fullWidth
+                          error={Formik.touched.year && Boolean(Formik.errors.year)}
+                          helperText={Formik.touched.year && Formik.errors.year}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  {/* PASSWORD */}
+                  {!isEdit && (
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Password"
+                        type="password"
+                        name="password"
+                        value={Formik.values.password}
+                        onChange={Formik.handleChange}
+                      />
+                      {Formik.touched.password && Formik.errors.password && (
+                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                          {Formik.errors.password}
+                        </p>
+                      )}
+                    </Grid>
+                  )}
+
+                  {/* BUTTONS FULL WIDTH */}
+                  <Grid item xs={12}>
+                    <Button type="submit" variant="contained" sx={{ mr: 1 }}>
+                      Submit
+                    </Button>
+
+                    {isEdit && (
+                      <Button variant="outlined" onClick={cancelEdit}>
+                        Cancel Edit
+                      </Button>
+                    )}
+                  </Grid>
+
+                </Grid>
+              </Box>
+
+            </Paper>
+          </Box>
+        )}
+
+        {/* {tab === 1 && (
                 <Box>
                   <Box
                     sx={{
@@ -545,9 +560,78 @@ export default function Users() {
                       })}
                   </Box>
                 </Box>
-              )}
-      
-            </Box>
+              )} */}
+
+        {tab === 1 && (
+          <Box>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell component="th" scope="row">Name</TableCell>
+                    <TableCell align="right">Email</TableCell>
+                    <TableCell align="right">dOBDate</TableCell>
+                    <TableCell align="right">JoinDate</TableCell>
+                    <TableCell align="right">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {users.map((value, i) => (
+                    <TableRow
+                      key={i}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {value.name}
+                      </TableCell>
+                      <TableCell align="right">{value?.email}</TableCell>
+                      <TableCell align="right">{dayjs(value?.dOBDate).format("DD/MM/YYYY")}</TableCell>
+                      <TableCell align="right">{dayjs(value?.joinDate).format("DD/MM/YYYY")}</TableCell>
+                      <TableCell align="right">
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: 1.5, // 👈 space between buttons
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            sx={{ background: "red", color: "#fff" }}
+                            onClick={() => handleDelete(value._id)}
+                          >
+                            Delete
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{ background: "gold", color: "#222222" }}
+                            onClick={() => handleEdit(value._id)}
+                          >
+                            Edit
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{ background: "skyblue", color: "#000" }}
+                            onClick={() => viewUploadFile(value?.user_image)}
+                          >
+                            View Pic
+                          </Button>
+                        </Box>
+                      </TableCell>
+
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+          </Box>
+        )}
+
+      </Box>
     </>
   );
 }

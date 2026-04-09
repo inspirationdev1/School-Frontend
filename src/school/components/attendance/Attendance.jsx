@@ -16,6 +16,11 @@ import {
   TableHead,
   Table,
   TableContainer,
+  Tabs,
+  Tab,
+  Autocomplete,
+  Grid,
+  
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
@@ -31,6 +36,7 @@ export default function Attendance() {
   const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState([])
   const [selectedYear, setSelectedYear] = useState(null);
+  const [tab, setTab] = useState(0);
 
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;

@@ -161,7 +161,7 @@ export default function School() {
             children: [
                 { label: "Students", link: "/school/students" },
                 { label: "Parents", link: "/school/parents" },
-                { label: "Attendance", link: "/school/attendance" },
+                { label: "Attendee", link: "/school/attendance" },
                 { label: "Reports", link: "/school/studentreports" },
             ],
         },

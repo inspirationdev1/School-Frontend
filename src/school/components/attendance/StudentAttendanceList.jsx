@@ -219,7 +219,7 @@ const StudentAttendanceList = () => {
 
           {tab === 1 && (
             <>
-              <Box>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
 
 
                 <TextField
@@ -230,8 +230,7 @@ const StudentAttendanceList = () => {
 
 
 
-              </Box>
-              <Box>
+              
                 <TableContainer sx={{ width: '100%' }} component={Paper}>
                   <Table sx={{}} aria-label="student attendance table">
                     <TableHead>

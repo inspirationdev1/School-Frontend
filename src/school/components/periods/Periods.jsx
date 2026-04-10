@@ -155,7 +155,8 @@ export default function Periods() {
         setSelectedSubject(null);
         setSelectedTeacher(null);
         setSelectedSubject(null);
-        Formik.resetForm()
+        Formik.resetForm();
+        
     };
 
     //   MESSAGE
@@ -176,13 +177,6 @@ export default function Periods() {
         starttime: "",
         endtime: "",
         days: [],
-        // monday: true,
-        // tuesday: true,
-        // wednesday: true,
-        // thursday: true,
-        // friday: true,
-        // saturday: true,
-        // sunday: false
     };
     const Formik = useFormik({
         initialValues: initialValues,
@@ -199,23 +193,28 @@ export default function Periods() {
             if (isEdit) {
                 console.log("edit id", editId);
                 axios
-                    // .patch(`${baseUrl}/period/update/${editId}`, {
-                    //     ...values,
-                    // })
+
                     .patch(`${baseUrl}/period/update/${editId}`, {
                         ...values,
                     })
                     .then((resp) => {
                         console.log("Edit submit", resp);
                         setMessage(resp.data.message);
+                        // setType("success");
+                        // cancelEdit();
+                        // setTab(1); // go to View List
+
                         setType("success");
                         cancelEdit();
                         setTab(1); // go to View List
+
+
                     })
                     .catch((e) => {
                         setMessage(e.response.data.message);
                         setType("error");
                         console.log("Error, edit casting submit", e);
+                        
                     });
             } else {
 
@@ -224,16 +223,20 @@ export default function Periods() {
                     .then((resp) => {
                         console.log("Response after submitting admin casting", resp);
                         setMessage(resp.data.message);
+
                         setType("success");
                         cancelEdit();
                         setTab(1); // go to View List
+
+
                     })
                     .catch((e) => {
                         setMessage(e.response.data.message);
                         setType("error");
                         console.log("Error, response admin casting calls", e);
+                        
                     });
-                Formik.resetForm();
+                
 
             }
         },

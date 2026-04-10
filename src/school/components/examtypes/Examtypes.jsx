@@ -25,11 +25,6 @@ import {
     const [isEdit, setEdit] = useState(false);
     const [editId, setEditId] = useState(null);
   
-  
-   
-  
-    
-  
     const handleDelete = (id) => {
       if (confirm("Are you sure you want to delete?")) {
         axios

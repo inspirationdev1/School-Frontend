@@ -233,6 +233,15 @@ export default function Expenses() {
                 return;
             }
 
+
+            const hasDuplicate = new Set(invoiceDetails.map(d => d.feestructure?._id.toString())).size !== invoiceDetails.length;
+            console.log(hasDuplicate); // true
+            if (hasDuplicate) {
+                setIsDataValid(false);
+                setDataError('Fee Item selection is duplicated');
+                return;
+            }
+
             setIsDataValid(true);
 
             const payload = {
@@ -357,7 +366,7 @@ export default function Expenses() {
 
 
 
-        
+
 
         // if (field === "expensetype") {
         //      const invBal = ((updated[index].expensetype.totalNetAmount || 0) - (updated[index].expensetype.totalPaidAmount || 0))
@@ -546,7 +555,7 @@ export default function Expenses() {
                                                         "employee",
                                                         newValue ? newValue._id : ""
                                                     );
-                                                    
+
                                                 }}
                                                 renderInput={(params) => (
                                                     <TextField

@@ -279,10 +279,27 @@ export default function Salesinvoice() {
         console.log(item);
 
       }
+
       if (hasInvalidRow) {
+        setDataError('Invoice Details is missing');
         setIsDataValid(false);
         return;
       }
+
+
+     const hasDuplicate = new Set(invoiceDetails.map(d => d.feestructure?._id.toString())).size !== invoiceDetails.length;
+     console.log(hasDuplicate); // true
+      if (hasDuplicate) {
+        setIsDataValid(false);
+        setDataError('Fee Item selection is duplicated');
+        return;
+      }
+
+      
+      
+
+
+
 
       setIsDataValid(true);
 

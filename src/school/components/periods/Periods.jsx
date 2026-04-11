@@ -54,7 +54,10 @@ export default function Periods() {
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
 
-
+    const toMinutes = (time) => {
+        const [h, m] = time.split(":").map(Number);
+        return h * 60 + m;
+    };
     // Fetch all classes
     const fetchAllClasses = () => {
         axios
@@ -90,7 +93,7 @@ export default function Periods() {
             .get(`${baseUrl}/teacher/fetch-with-query`, { params: {} })
             .then((resp) => {
                 setAllTeachers(resp.data.data);
-                setSelectedTeacher(null);
+                
             })
             .catch((e) => {
                 console.error('Error in fetching all Teachers');
@@ -156,7 +159,7 @@ export default function Periods() {
         setSelectedTeacher(null);
         setSelectedSubject(null);
         Formik.resetForm();
-        
+
     };
 
     //   MESSAGE
@@ -183,12 +186,24 @@ export default function Periods() {
         validationSchema: periodSchema,
         onSubmit: (values) => {
             console.log("values", values);
-            const [hour, minute] = values.starttime.split(":");
+            // const [hour, minute] = values.starttime.split(":");
 
-            console.log(hour);   // 8
-            console.log(minute); // 0
-            const timeseq = hour.toString() + minute.toString();
-            values.timeseq = timeseq;
+            // console.log(hour);   // 8
+            // console.log(minute); // 0
+            // const timeseq = hour.toString() + minute.toString();      
+
+
+            const startminutes = toMinutes(values.starttime);
+            const endminutes = toMinutes(values.endtime);
+
+            if (startminutes >= endminutes) {
+                setMessage("StartTime is greater than Endtime, Set the proper time");
+                setType("error");
+                console.log("Error-StartTime is greater than Endtime, Set the proper time");
+                return;
+            }
+            values.timeseq = startminutes;
+
 
             if (isEdit) {
                 console.log("edit id", editId);
@@ -214,7 +229,7 @@ export default function Periods() {
                         setMessage(e.response.data.message);
                         setType("error");
                         console.log("Error, edit casting submit", e);
-                        
+
                     });
             } else {
 
@@ -234,9 +249,9 @@ export default function Periods() {
                         setMessage(e.response.data.message);
                         setType("error");
                         console.log("Error, response admin casting calls", e);
-                        
+
                     });
-                
+
 
             }
         },

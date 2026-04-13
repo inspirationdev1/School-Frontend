@@ -111,7 +111,7 @@ export default function MarksheetPrint() {
                     <View style={styles.rowStyle}>
                         <Text style={styles.labelStyle}>Examination :</Text>
                         <Text style={styles.valueStyle}>
-                            {printMarksheet.examination.name}
+                            {printMarksheet.examination.examination_name}
                         </Text>
 
                         <Text style={styles.labelStyle}>Questionpaper :</Text>

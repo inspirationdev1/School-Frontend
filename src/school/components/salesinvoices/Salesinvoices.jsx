@@ -903,7 +903,7 @@ export default function Salesinvoice() {
                         key={index}
                         sx={{
                           display: "grid",
-                          gridTemplateColumns: "3fr 1fr 1fr 1fr 0.5fr",
+                          gridTemplateColumns: "2.5fr 1fr 1fr 1fr 1fr 1fr 1fr 0.5fr",
                           gap: 1,
                           mb: 1,
                         }}

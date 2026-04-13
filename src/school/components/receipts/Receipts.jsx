@@ -287,6 +287,7 @@ export default function Receipts() {
                         setMessage(resp.data.message);
                         setType("success");
                         clearForm();
+                        cancelEdit();
                         setTab(1); // go to View List
 
                     })
@@ -301,6 +302,8 @@ export default function Receipts() {
                     .post(`${baseUrl}/receipt/create`, payload)
                     .then((resp) => {
                         console.log("Response after submitting admin casting", resp);
+                        clearForm();
+                        cancelEdit();
                         setMessage(resp.data.message);
                         setType("success");
                     })

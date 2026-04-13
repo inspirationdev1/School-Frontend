@@ -160,7 +160,7 @@ export default function SchoolReportsPrint() {
 
         data.forEach(item => {
             const subject = item.subject.subject_name || item.subject;
-            const exam = item.examination.name || item.examination;
+            const exam = item.examination.examination_name || item.examination;
 
             exams.add(exam);
 

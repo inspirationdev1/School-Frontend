@@ -251,6 +251,14 @@ export default function Marksheet() {
                 return;
             }
 
+            const hasDuplicate = new Set(marksheetDetails.map(d => d.student?._id.toString())).size !== marksheetDetails.length;
+            console.log(hasDuplicate); // true
+            if (hasDuplicate) {
+                setIsDataValid(false);
+                setDataError('Student selection is duplicated');
+                return;
+            }
+
             setIsDataValid(true);
 
             const payload = {

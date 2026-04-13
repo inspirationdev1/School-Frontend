@@ -29,7 +29,12 @@ const resetMessage  =()=>{
         email: "",
         owner_name:"",
         password:"",
-        confirm_password:""
+        confirm_password:"",
+        address:"",
+        city:"",
+        state:"",
+        zipcode:"",
+        country:"",
     }
     const Formik = useFormik({
         initialValues: initialValues,

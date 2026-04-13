@@ -50,6 +50,9 @@ export default function Expenses() {
     const [tab, setTab] = useState(0);
     const [selectedYear, setSelectedYear] = useState(null);
 
+    const [expenseAmountTotal, setExpenseAmountTotal] = useState(0);
+
+
     const years = Array.from({ length: 10 }, (_, i) => {
         const year = new Date().getFullYear() - i;
         return { label: `${year}-${year + 1}`, value: year };
@@ -116,6 +119,8 @@ export default function Expenses() {
                 const matchedYear = years.find(s => s.value === resp.data.data.year);
                 setSelectedYear(matchedYear || null);
 
+                Formik.setFieldValue("expenseAmount", resp.data.data?.expenseAmount||0)
+
                 setEditId(resp.data.data._id);
 
 
@@ -126,6 +131,9 @@ export default function Expenses() {
                 }));
 
                 setExpenseDetails(editExpenseDetails);
+                // const expTotal = calculateTotals();
+                // setExpenseAmountTotal(expTotal);
+                // Formik.setFieldValue("expenseAmount", expTotal);
                 setTab(0); // open Create Expense tab
 
 
@@ -196,7 +204,8 @@ export default function Expenses() {
         employee: null,
         status: "valid",
         remarks: "",
-        year: ""
+        year: "",
+        expenseAmount: 0
     };
 
 
@@ -234,13 +243,7 @@ export default function Expenses() {
             }
 
 
-            const hasDuplicate = new Set(invoiceDetails.map(d => d.feestructure?._id.toString())).size !== invoiceDetails.length;
-            console.log(hasDuplicate); // true
-            if (hasDuplicate) {
-                setIsDataValid(false);
-                setDataError('Fee Item selection is duplicated');
-                return;
-            }
+
 
             setIsDataValid(true);
 
@@ -358,15 +361,18 @@ export default function Expenses() {
     }, [isDataValid]);
 
 
+    const calculateTotals = () => {
+        let expAmountTotal = 0;
 
+        for (const item of expenseDetails) {
+            expAmountTotal += item?.expenseAmount || 0;
+        }
+        return expAmountTotal;
+    }
 
     const handleChange = (index, field, value) => {
         const updated = [...expenseDetails];
         updated[index][field] = value;
-
-
-
-
 
         // if (field === "expensetype") {
         //      const invBal = ((updated[index].expensetype.totalNetAmount || 0) - (updated[index].expensetype.totalPaidAmount || 0))
@@ -376,12 +382,8 @@ export default function Expenses() {
         // }
 
         // if (field === "expenseAmount") {
-        //     if (updated[index].expenseAmount > updated[index].invAmount) {
-        //         updated[index].expenseAmount = 0;
-        //     }
+
         // }
-
-
 
 
 
@@ -595,6 +597,22 @@ export default function Expenses() {
                                             )}
                                         </Box>
 
+                                        {/* expenseAmount */}
+                                        <Box>
+                                            <TextField
+                                                disabled
+                                                fullWidth
+                                                label="expenseAmount"
+                                                variant="outlined"
+                                                name="expenseAmount"
+                                                type="number"
+                                                value={Formik.values.expenseAmount}
+                                                inputProps={{ min: 0 }}   // 👈 prevents negative via arrows
+
+
+                                            />
+                                        </Box>
+
 
 
                                         {/* Remarks → full width */}
@@ -672,6 +690,9 @@ export default function Expenses() {
                                                     onChange={(event, newValue) => {
                                                         setSelectedExpensetype(newValue);
                                                         handleChange(index, "expensetype", newValue);
+                                                        const expTotal = calculateTotals();
+                                                        setExpenseAmountTotal(expTotal);
+                                                        Formik.setFieldValue("expenseAmount", expTotal);
                                                     }}
                                                     renderInput={(params) => (
                                                         <TextField
@@ -682,13 +703,6 @@ export default function Expenses() {
                                                         />
                                                     )}
                                                 />
-
-
-
-
-
-
-
 
 
                                                 {/* expenseAmount */}
@@ -703,6 +717,10 @@ export default function Expenses() {
                                                     onChange={(e) => {
                                                         const value = Math.max(0, Number(e.target.value || 0));
                                                         handleChange(index, "expenseAmount", value);
+                                                        const expTotal = calculateTotals();
+                                                        setExpenseAmountTotal(expTotal);
+                                                        Formik.setFieldValue("expenseAmount", expTotal);
+
                                                     }}
 
                                                 />
@@ -767,6 +785,7 @@ export default function Expenses() {
                                             {/* <TableCell component="th" scope="row"> expense</TableCell> */}
                                             <TableCell align="right">expenseCode</TableCell>
                                             <TableCell align="right">Expense Date</TableCell>
+                                            <TableCell align="right">Expense Amount</TableCell>
                                             <TableCell align="right">Remarks</TableCell>
                                             <TableCell align="right">Status</TableCell>
                                             <TableCell align="right">Action</TableCell>
@@ -782,6 +801,7 @@ export default function Expenses() {
                                                     {value.expenseCode}
                                                 </TableCell>
                                                 <TableCell align="right">{dayjs(value.expenseDate).format("DD-MM-YYYY")}</TableCell>
+                                                <TableCell align="right">{value.expenseAmount}</TableCell>
                                                 <TableCell align="right">{value.remarks}</TableCell>
                                                 <TableCell align="right">{value.status}</TableCell>
                                                 <TableCell align="right">  <Box component={'div'} sx={{ bottom: 0, display: 'flex', justifyContent: "end" }} >

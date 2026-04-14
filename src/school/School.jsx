@@ -219,6 +219,7 @@ export default function School() {
             icon: GroupIcon,
             children: [
                 { label: "Number Seq", link: "/school/numberseq" },
+                { label: "App Settings", link: "/school/appsetting" },
             ],
         },
         

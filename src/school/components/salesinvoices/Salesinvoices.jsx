@@ -38,6 +38,9 @@ export default function Salesinvoice() {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
+  const [appsettings, setAppsettings] = useState([]);
+  const [selectedAppsetting, setSelectedAppsetting] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [attendeeClass, setAttendeeClass] = useState([])
   const [selectedClass, setSelectedClass] = useState(null);
@@ -219,7 +222,7 @@ export default function Salesinvoice() {
     setMessage("");
   };
 
-  
+
 
   const initialValues = {
 
@@ -281,22 +284,22 @@ export default function Salesinvoice() {
       }
 
       if (hasInvalidRow) {
-        setDataError('Invoice Details is missing');
+        // setDataError('Invoice Details is missing');
         setIsDataValid(false);
         return;
       }
 
 
-     const hasDuplicate = new Set(invoiceDetails.map(d => d.feestructure?._id.toString())).size !== invoiceDetails.length;
-     console.log(hasDuplicate); // true
+      const hasDuplicate = new Set(invoiceDetails.map(d => d.feestructure?._id.toString())).size !== invoiceDetails.length;
+      console.log(hasDuplicate); // true
       if (hasDuplicate) {
         setIsDataValid(false);
         setDataError('Fee Item selection is duplicated');
         return;
       }
 
-      
-      
+
+
 
 
 
@@ -389,6 +392,22 @@ export default function Salesinvoice() {
         console.log("Error in fetching casting calls admin data", e);
       });
   };
+  const fetchAppsettings = () => {
+        axios
+            .get(`${baseUrl}/appsetting/fetch-all`)
+            .then((resp) => {
+                console.log("Fetching data in  Casting Calls  admin.", resp);
+                setAppsettings(resp.data.data);
+                const id = resp.data.data[0]._id;
+                setSelectedAppsetting(resp.data.data[0]);
+                console.log("selectedAppseting",selectedAppsetting);
+                
+            })
+            .catch((e) => {
+                console.log("Error in fetching casting calls admin data", e);
+            });
+    };
+
   const fetchClass = async () => {
     try {
       const attendee = await axios.get(`${baseUrl}/class/fetch-all`);
@@ -451,6 +470,7 @@ export default function Salesinvoice() {
   };
 
   useEffect(() => {
+    fetchAppsettings();
     fetchstudentssalesinvoice();
     fetchStudentSalesinvoice();
     fetchClass();
@@ -481,67 +501,75 @@ export default function Salesinvoice() {
   }, [isDataValid]);
 
   const handleChange = (index, field, value) => {
-    const updated = [...invoiceDetails];
-    updated[index][field] = value;
+    try {
 
-    // auto-calculate grossAmount
-    // if (field === "quantity" || field === "salesPrice") {
-    //   updated[index].grossAmount =
-    //     updated[index].quantity * updated[index].salesPrice;
-    // }
+      // console.log("selectedAppsetting",selectedAppsetting);
 
-    if (field === "discountType") {
-      updated[index].discountPer = 0;
-      updated[index].discountAmount = 0;
-      updated[index].discountMonth = 0;
-    }
+      const updated = [...invoiceDetails];
+      updated[index][field] = value;
 
-    if (field === "feestructure") {
-      updated[index].feeAmount = updated[index].feestructure.amount;
-      updated[index].grossAmount = updated[index].feeAmount;
+      // auto-calculate grossAmount
+      // if (field === "quantity" || field === "salesPrice") {
+      //   updated[index].grossAmount =
+      //     updated[index].quantity * updated[index].salesPrice;
+      // }
 
-      updated[index].quantity = 1;
-      updated[index].discountPer = 0;
-      updated[index].discountAmount = 0;
-      updated[index].discountMonth = 0;
-      updated[index].feeFrequency = "";
-    }
-
-    if (field === "feeFrequency") {
-      updated[index].discountPer = 0;
-      updated[index].discountAmount = 0;
-      updated[index].discountMonth = 0;
-
-      if (updated[index].feeFrequency == "annually") {
-        updated[index].quantity = 12;
-        updated[index].grossAmount = updated[index].feeAmount * updated[index].quantity;
-      } else if (updated[index].feeFrequency == "quaterly") {
-        updated[index].quantity = 4;
-        updated[index].grossAmount = updated[index].feeAmount * updated[index].quantity;
-      } else {
-        updated[index].quantity = 1;
-        updated[index].grossAmount = updated[index].feeAmount * updated[index].quantity;
+      if (field === "discountType") {
+        updated[index].discountPer = 0;
+        updated[index].discountAmount = 0;
+        updated[index].discountMonth = 0;
       }
 
+      if (field === "feestructure") {
+        updated[index].feeAmount = updated[index].feestructure.amount;
+        updated[index].grossAmount = updated[index].feeAmount;
 
+        updated[index].quantity = 1;
+        updated[index].discountPer = 0;
+        updated[index].discountAmount = 0;
+        updated[index].discountMonth = 0;
+        updated[index].feeFrequency = "";
+      }
+
+      if (field === "feeFrequency") {
+        updated[index].discountPer = 0;
+        updated[index].discountAmount = 0;
+        updated[index].discountMonth = 0;
+
+        if (updated[index].feeFrequency == "annually") {
+          updated[index].quantity = 12;
+          updated[index].grossAmount = updated[index].feeAmount * updated[index].quantity;
+        } else if (updated[index].feeFrequency == "quaterly") {
+          updated[index].quantity = 4;
+          updated[index].grossAmount = updated[index].feeAmount * updated[index].quantity;
+        } else {
+          updated[index].quantity = 1;
+          updated[index].grossAmount = updated[index].feeAmount * updated[index].quantity;
+        }
+
+
+      }
+
+      if (field === "grossAmount") {
+        updated[index].netAmount = updated[index].grossAmount;
+      }
+
+      if (field === "discountPer") {
+        updated[index].discountAmount = updated[index].grossAmount * updated[index].discountPer / 100;
+
+      }
+
+      if (field === "discountMonth") {
+        updated[index].discountAmount = updated[index].feeAmount * updated[index].discountMonth;
+      }
+
+      updated[index].netAmount = updated[index].grossAmount - updated[index].discountAmount;
+
+      setInvoiceDetails(updated);
+    } catch (error) {
+        console.log("Error:handleChange", error.message)
     }
 
-    if (field === "grossAmount") {
-      updated[index].netAmount = updated[index].grossAmount;
-    }
-
-    if (field === "discountPer") {
-      updated[index].discountAmount = updated[index].grossAmount * updated[index].discountPer / 100;
-
-    }
-
-    if (field === "discountMonth") {
-      updated[index].discountAmount = updated[index].feeAmount * updated[index].discountMonth;
-    }
-
-    updated[index].netAmount = updated[index].grossAmount - updated[index].discountAmount;
-
-    setInvoiceDetails(updated);
   };
 
   const addRow = () => {
@@ -803,7 +831,7 @@ export default function Salesinvoice() {
 
 
 
-                    
+
                     <Box>
 
                       <TextField

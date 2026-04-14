@@ -44,7 +44,7 @@ import Menu from "./school/components/menu/Menu";
 import Role from "./school/components/role/Role";
 import Screen from "./school/components/screen/Screen";
 
-import Numberseq from "./school/components/numberseqs/Numberseqs";
+
 
 import ParentDetails from "./parent/components/parent details/ParentDetails";
 import Parent from "./parent/Parent";
@@ -100,6 +100,7 @@ import PaymentPrint from "./school/components/payments/PaymentPrint";
 import PendingExpensesReportPrint from "./school/components/reports/PendingExpensesReportPrint";
 import PaidExpensesReportPrint from "./school/components/reports/PaidExpensesReportPrint";
 import Numberseqs from "./school/components/numberseqs/Numberseqs";
+import Appsettings from "./school/components/appsettings/Appsettings";
 import Periods from "./school/components/periods/Periods";
 import ScheduleReportPrint from "./school/components/periods/ScheduleReportPrint";
 
@@ -148,6 +149,8 @@ function App() {
               <Route path="screen" element={<Screen />} />
 
               <Route path="numberseq" element={<Numberseqs />} />
+              <Route path="appsetting" element={<Appsettings />} />
+              
 
               <Route path="assign-period" element={<AssignPeriod2 />} />
               <Route path="periods" element={<Schedule />} />

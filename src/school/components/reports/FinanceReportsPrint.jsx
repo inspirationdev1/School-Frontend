@@ -185,75 +185,14 @@ export default function FinanceReportsPrint() {
                 console.log("incomeData", incomeData);
                 console.log("subjects", expenseData);
 
-                // const incomeData = [
-                //     {
-                //         incomeType: "Income-1",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         incomeType: "Income-2",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         incomeType: "Income-3",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         incomeType: "Income-4",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         incomeType: "Income-5",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         incomeType: "Income-6",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         incomeType: "Income-7",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         incomeType: "Income-8",
-                //         amount: "1000",
-                //     },
-                // ];
-
-
-                // const expenseData = [
-                //     {
-                //         expenseType: "Expense-1",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         expenseType: "Expense-2",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         expenseType: "Expense-3",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         expenseType: "Expense-4",
-                //         amount: "1000",
-                //     },
-                //     {
-                //         expenseType: "Expense-5",
-                //         amount: "1000",
-                //     },
-
-                // ];
-
+               
                 const maxLength = Math.max(incomeData.length, expenseData.length);
 
                 const rows = Array.from({ length: maxLength }, (_, i) => ({
-                    // income: incomeData[i]?.feestructure.name + " - " + incomeData[i]?.student.name || "",
                     income: incomeData[i]
                         ? `${incomeData[i]?.feestructure?.name || ""} - ${incomeData[i]?.student?.name || ""}`
                         : "",
                     incomeAmount: incomeData[i]?.netAmount || "",
-                    // expense: expenseData[i]?.expensetype.expensetype_name + " - " + expenseData[i]?.employee.employee_name + " - " || "",
                     expense: expenseData[i]
                         ? `${expenseData[i]?.expensetype?.expensetype_name || ""} - ${expenseData[i]?.employee?.employee_name || ""}`
                         : "",

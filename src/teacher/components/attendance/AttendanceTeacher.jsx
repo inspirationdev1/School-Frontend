@@ -25,10 +25,10 @@ const AttendanceTeacher = () => {
   const [selectedClass, setSelectedClass] = useState(null);
 
 
-  const todayDate = moment().format('YYYY-MM-DD'); // Get today's date in 'YYYY-MM-DD' format
+  const todayDate = moment().format('DD-MM-YYYY'); // Get today's date in 'DD-MM-YYYY' format
 
   const examFormik = useFormik({
-    initialValues: { exam_date: "", subject: "", exam_type: "" }
+    initialValues: { attendance_date: "", subject: "", exam_type: "" }
 
 
   });
@@ -44,8 +44,8 @@ const AttendanceTeacher = () => {
         if (attendeeClass.length > 0 && selectedClass) {
           // Check if attendance is already taken for today
           // const attendanceResponse = await axios.get(`${baseUrl}/attendance/check/${selectedClass.classId}`);
-          const selectedDate = examFormik.values.exam_date
-            ? dayjs(examFormik.values.exam_date).format("YYYY-MM-DD")
+          const selectedDate = examFormik.values.attendance_date
+            ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
             : "";
           const classId = selectedClass.classId;
 
@@ -88,7 +88,7 @@ const AttendanceTeacher = () => {
 
 
 
-  }, [examFormik.values.exam_date, selectedClass]);
+  }, [examFormik.values.attendance_date, selectedClass]);
 
   // Handle attendance status change for each student
   const handleStatusChange = (studentId, status) => {
@@ -109,9 +109,11 @@ const AttendanceTeacher = () => {
   // Submit attendance for all students
   const submitAttendance = async () => {
     try {
-      const selectedDate = examFormik.values.exam_date
-        ? dayjs(examFormik.values.exam_date).format("YYYY-MM-DD")
-        : "";
+      // const selectedDate = examFormik.values.attendance_date
+      //   ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
+      //   : "";
+
+        const selectedDate = dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY");
       console.log("selectedDate", selectedDate);
 
       const attendanceRecords = students.map((student) => ({
@@ -135,9 +137,9 @@ const AttendanceTeacher = () => {
 
   const printAttendance = async () => {
     console.log("selectedClass", selectedClass);
-    console.log("examFormik.values.exam_date", examFormik.values.exam_date);
-    const selectedDate = examFormik.values.exam_date
-      ? dayjs(examFormik.values.exam_date).format("YYYY-MM-DD")
+    console.log("examFormik.values.attendance_date", examFormik.values.attendance_date);
+    const selectedDate = examFormik.values.attendance_date
+      ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
       : "";
 
 
@@ -165,16 +167,17 @@ const AttendanceTeacher = () => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DemoContainer components={["DatePicker"]}>
             <DatePicker
-              label="Exam Date"
-              name="exam_date"
-              value={dayjs(examFormik.values.exam_date)}
+              label="Attendance Date"
+              name="attendance_date"
+              value={dayjs(examFormik.values.attendance_date)}
               onChange={(e) => {
                 console.log(e);
                 //  setDate(dayjs(e))
-                examFormik.setFieldValue("exam_date", dayjs(e));
+                examFormik.setFieldValue("attendance_date", dayjs(e));
 
 
               }}
+              format="DD/MM/YYYY" // ✅ THIS IS WHAT YOU WANT
             />
           </DemoContainer>
         </LocalizationProvider>

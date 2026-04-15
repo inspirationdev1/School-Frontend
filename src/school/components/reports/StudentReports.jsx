@@ -68,470 +68,501 @@ export default function StudentReports() {
   const handlePrint = async () => {
 
     setPrint(true);
-    const data = {
-      student: selectedStudent._id,
-      fromDate: fromDate,
-      toDate: toDate,
-    };
+    // const data = {
+    //   student: selectedStudent?._id||null,
+    //   class: selectedClass._id,
+    //   section: selectedSection._id,
+    //   fromDate: fromDate,
+    //   toDate: toDate,
+    // };
+    let data = {}
+  
 
-    window.open(
-      `/school/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-      "_blank"
-    );
+  if (selectedStudent) {
+    data.student = selectedStudent._id;
+  }
+  if (selectedClass) {
+    data.class = selectedClass._id;
+  }
+  if (selectedSection) {
+    data.section = selectedSection._id;
+  }
+  if (fromDate) {
+    data.fromDate = fromDate;
+  }
+  if (toDate) {
+    data.toDate = toDate;
+  }
+  window.open(
+    `/school/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+    "_blank"
+  );
 
-    setPrint(false);
-
-
-  };
-
-
-  //   MESSAGE
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("succeess");
-
-  const resetMessage = () => {
-    setMessage("");
-  };
-
-  const initialValues = {
-    reportId: "",
-    class: "",
-    section: "",
-    teacher: "",
-    subject: "",
-    examination: "",
-    questionpaper: "",
-    student: "",
-    fromDate: "",
-    toDate: "",
-    year: "",
-  };
-  const Formik = useFormik({
-    initialValues: initialValues,
-    // validationSchema: schoolreportsSchema,
-    onSubmit: (values) => {
+  setPrint(false);
 
 
-      if (!values.reportId) {
-        setDataError('Select the Report Name');
+};
+
+
+//   MESSAGE
+const [message, setMessage] = useState("");
+const [type, setType] = useState("succeess");
+
+const resetMessage = () => {
+  setMessage("");
+};
+
+const initialValues = {
+  reportId: "",
+  class: "",
+  section: "",
+  teacher: "",
+  subject: "",
+  examination: "",
+  questionpaper: "",
+  student: "",
+  fromDate: "",
+  toDate: "",
+  year: "",
+};
+const Formik = useFormik({
+  initialValues: initialValues,
+  // validationSchema: schoolreportsSchema,
+  onSubmit: (values) => {
+
+
+    if (!values.reportId) {
+      setDataError('Select the Report Name');
+      setIsDataValid(false);
+      return;
+    }
+
+    if (values.reportId == "attendance-report") {
+      // if (!values.student) {
+      //   setDataError('Select the Student');
+      //   setIsDataValid(false);
+      //   return;
+      // }
+
+      if (!values.class) {
+        setDataError('Select the class');
         setIsDataValid(false);
         return;
       }
 
-      if (values.reportId == "attendance-report") {
-        if (!values.student) {
-          setDataError('Select the Student');
-          setIsDataValid(false);
-          return;
-        }
+      if (!values.section) {
+        setDataError('Select the Section');
+        setIsDataValid(false);
+        return;
+      }
+    }
+
+    if (values.reportId == "attendance-report") {
+      if (!values.fromDate || !values.toDate) {
+        setDataError('Select From Date and To Date');
+        setIsDataValid(false);
+        return;
       }
 
-      if (values.reportId == "attendance-report") {
-        if (!values.fromDate || !values.toDate) {
-          setDataError('Select From Date and To Date');
-          setIsDataValid(false);
-          return;
-        }
-
-        if (dayjs(values.fromDate).isAfter(dayjs(values.toDate))) {
-          setDataError('From Date cannot be after To Date');
-          setIsDataValid(false);
-          return;
-        }
+      if (dayjs(values.fromDate).isAfter(dayjs(values.toDate))) {
+        setDataError('From Date cannot be after To Date');
+        setIsDataValid(false);
+        return;
       }
+    }
 
-      if (values.reportId == "other-report") {
-        if (!values.student) {
-          setDataError('Select the Student');
-          setIsDataValid(false);
-          return;
-        }
+    if (values.reportId == "other-report") {
+      if (!values.student) {
+        setDataError('Select the Student');
+        setIsDataValid(false);
+        return;
       }
+    }
 
-      if (values.reportId == "other-report") {
-        if (!values.year) {
-          setDataError('Select the Year');
-          setIsDataValid(false);
-          return;
-        }
+    if (values.reportId == "other-report") {
+      if (!values.year) {
+        setDataError('Select the Year');
+        setIsDataValid(false);
+        return;
       }
-
-
-      setIsDataValid(true);
-
-
-
-      handlePrint();
-    },
-  });
-
-  const [month, setMonth] = useState([]);
-  const [year, setYear] = useState([]);
-
-
-  const fetchReportNames = async () => {
-    try {
-      const reportsData = [{ reportId: "attendance-report", reportName: "Attendance Report" }];
-      console.log("Report Names", reportsData)
-      setReportNames(reportsData);
-
-    } catch (error) {
-      console.error('Error fetching Report Names:', error);
     }
-  };
 
-  const fetchClass = async () => {
-    try {
-      const classData = await axios.get(`${baseUrl}/class/fetch-all`);
-      console.log("class", classData)
-      setClasses(classData.data.data);
 
-    } catch (error) {
-      console.error('Error fetching classes:', error);
-    }
-  };
-  const fetchSection = async () => {
-    try {
-      const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
-      console.log("sections", sectionsData)
-      setSection(sectionsData.data.data);
-
-    } catch (error) {
-      console.error('Error fetching section:', error);
-    }
-  };
+    setIsDataValid(true);
 
 
 
+    handlePrint();
+  },
+});
 
-  const fetchStudents = async () => {
-
-    if (!selectedClass?._id) return;
-    if (!selectedSection?._id) return;
-
-    try {
-      const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, {
-        params: {
-          student_class: selectedClass?._id,
-          section: selectedSection?._id
-        }
-      }); // Fetch based on class
-      setStudents(studentsResponse.data.data);
-
-    } catch (error) {
-      console.error('Error fetching students or checking attendance:', error);
-    }
-  };
+const [month, setMonth] = useState([]);
+const [year, setYear] = useState([]);
 
 
-  useEffect(() => {
-    fetchReportNames();
-    fetchClass();
-    fetchSection();
+const fetchReportNames = async () => {
+  try {
+    const reportsData = [{ reportId: "attendance-report", reportName: "Attendance Report" }];
+    console.log("Report Names", reportsData)
+    setReportNames(reportsData);
 
+  } catch (error) {
+    console.error('Error fetching Report Names:', error);
+  }
+};
 
-  }, [message]);
+const fetchClass = async () => {
+  try {
+    const classData = await axios.get(`${baseUrl}/class/fetch-all`);
+    console.log("class", classData)
+    setClasses(classData.data.data);
+
+  } catch (error) {
+    console.error('Error fetching classes:', error);
+  }
+};
+const fetchSection = async () => {
+  try {
+    const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
+    console.log("sections", sectionsData)
+    setSection(sectionsData.data.data);
+
+  } catch (error) {
+    console.error('Error fetching section:', error);
+  }
+};
 
 
 
 
+const fetchStudents = async () => {
+
+  if (!selectedClass?._id) return;
+  if (!selectedSection?._id) return;
+
+  try {
+    const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, {
+      params: {
+        student_class: selectedClass?._id,
+        section: selectedSection?._id
+      }
+    }); // Fetch based on class
+    setStudents(studentsResponse.data.data);
+
+  } catch (error) {
+    console.error('Error fetching students or checking attendance:', error);
+  }
+};
 
 
-  useEffect(() => {
-    fetchStudents();
-
-  }, [selectedClass, selectedSection]);
-
-  return (
-    <>
-      {message && (
-        <CustomizedSnackbars
-          reset={resetMessage}
-          type={type}
-          message={message}
-        />
-      )}
+useEffect(() => {
+  fetchReportNames();
+  fetchClass();
+  fetchSection();
 
 
-      <Box sx={{ padding: "40px 10px 20px 10px" }}
-      >
+}, [message]);
 
 
-        <Box component={"div"} sx={{}}>
-          <Paper
-            sx={{ padding: '20px', margin: "10px" }}
+
+
+
+
+useEffect(() => {
+  fetchStudents();
+
+}, [selectedClass, selectedSection]);
+
+return (
+  <>
+    {message && (
+      <CustomizedSnackbars
+        reset={resetMessage}
+        type={type}
+        message={message}
+      />
+    )}
+
+
+    <Box sx={{ padding: "40px 10px 20px 10px" }}
+    >
+
+
+      <Box component={"div"} sx={{}}>
+        <Paper
+          sx={{ padding: '20px', margin: "10px" }}
+        >
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: "800", textAlign: "center" }}
           >
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: "800", textAlign: "center" }}
-            >
-              Reports
-            </Typography>
+            Reports
+          </Typography>
+          <Box
+            component="form"
+            noValidate
+            autoComplete="off"
+            onSubmit={Formik.handleSubmit}
+          >
+
+            {!isDataValid && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {dataError}
+              </Alert>
+            )}
+
             <Box
-              component="form"
-              noValidate
-              autoComplete="off"
-              onSubmit={Formik.handleSubmit}
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",      // mobile
+                  md: "1fr 1fr",  // desktop → 2 columns
+                },
+                gap: 2,
+                mt: 2,
+              }}
             >
 
-              {!isDataValid && (
-                <Alert severity="error" sx={{ mt: 2 }}>
-                  {dataError}
-                </Alert>
-              )}
 
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "1fr",      // mobile
-                    md: "1fr 1fr",  // desktop → 2 columns
-                  },
-                  gap: 2,
-                  mt: 2,
-                }}
-              >
+              {/* ReportNames */}
+              <Box>
+
+                <Autocomplete
+                  options={reportNames}
+                  getOptionLabel={(option) => option.reportName}
+                  value={selectedReport}
+                  onChange={(event, newValue) => {
+                    setSelectedReport(newValue);
+
+                    Formik.setFieldValue(
+                      "reportId",
+                      newValue ? newValue.reportId : ""
+                    );
 
 
-                {/* ReportNames */}
+                  }}
+                  onBlur={() => Formik.setFieldTouched("reportId", true)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Report Name"
+                      placeholder="Search report name..."
+                      fullWidth
+                      error={Formik.touched.reportId && Boolean(Formik.errors.reportId)}
+                      helperText={Formik.touched.reportId && Formik.errors.reportId}
+                    />
+                  )}
+                />
+
+
+              </Box>
+
+
+
+              {/* (selectedReport && selectedReport.reportId) */}
+              {/* Class */}
+              {selectedReport && selectedReport.reportId === "attendance-report" && (
                 <Box>
 
                   <Autocomplete
-                    options={reportNames}
-                    getOptionLabel={(option) => option.reportName}
-                    value={selectedReport}
+                    options={classes}
+                    getOptionLabel={(option) => option.class_name}
+                    value={selectedClass}
                     onChange={(event, newValue) => {
-                      setSelectedReport(newValue);
+                      setSelectedClass(newValue);
 
                       Formik.setFieldValue(
-                        "reportId",
-                        newValue ? newValue.reportId : ""
+                        "class",
+                        newValue ? newValue._id : ""
                       );
 
 
+
+
                     }}
-                    onBlur={() => Formik.setFieldTouched("reportId", true)}
+                    onBlur={() => Formik.setFieldTouched("class", true)}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Select Report Name"
-                        placeholder="Search report name..."
+                        label="Select Class"
+                        placeholder="Search class..."
                         fullWidth
-                        error={Formik.touched.reportId && Boolean(Formik.errors.reportId)}
-                        helperText={Formik.touched.reportId && Formik.errors.reportId}
+                        error={Formik.touched.class && Boolean(Formik.errors.class)}
+                        helperText={Formik.touched.class && Formik.errors.class}
                       />
                     )}
                   />
 
 
                 </Box>
+              )}
+
+              {/* Section */}
+              {selectedReport && selectedReport.reportId === "attendance-report" && (
+                <Box>
+                  <Autocomplete
+                    options={sections}
+                    getOptionLabel={(option) => option.section_name}
+                    value={selectedSection}
+                    onChange={(event, newValue) => {
+                      setSelectedSection(newValue);
+                      Formik.setFieldValue(
+                        "section",
+                        newValue ? newValue._id : ""
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("section", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Section"
+                        placeholder="Search section..."
+                        fullWidth
+                        error={Formik.touched.section && Boolean(Formik.errors.section)}
+                        helperText={Formik.touched.section && Formik.errors.section}
+                      />
+                    )}
+                  />
 
 
-
-                {/* (selectedReport && selectedReport.reportId) */}
-                {/* Class */}
-                {selectedReport && selectedReport.reportId === "attendance-report" && (
-                  <Box>
-
-                    <Autocomplete
-                      options={classes}
-                      getOptionLabel={(option) => option.class_name}
-                      value={selectedClass}
-                      onChange={(event, newValue) => {
-                        setSelectedClass(newValue);
-
-                        Formik.setFieldValue(
-                          "class",
-                          newValue ? newValue._id : ""
-                        );
-
-
-
-
-                      }}
-                      onBlur={() => Formik.setFieldTouched("class", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Class"
-                          placeholder="Search class..."
-                          fullWidth
-                          error={Formik.touched.class && Boolean(Formik.errors.class)}
-                          helperText={Formik.touched.class && Formik.errors.class}
-                        />
-                      )}
-                    />
-
-
-                  </Box>
-                )}
-
-                {/* Section */}
-                {selectedReport && selectedReport.reportId === "attendance-report" && (
-                  <Box>
-                    <Autocomplete
-                      options={sections}
-                      getOptionLabel={(option) => option.section_name}
-                      value={selectedSection}
-                      onChange={(event, newValue) => {
-                        setSelectedSection(newValue);
-                        Formik.setFieldValue(
-                          "section",
-                          newValue ? newValue._id : ""
-                        );
-                      }}
-                      onBlur={() => Formik.setFieldTouched("section", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Section"
-                          placeholder="Search section..."
-                          fullWidth
-                          error={Formik.touched.section && Boolean(Formik.errors.section)}
-                          helperText={Formik.touched.section && Formik.errors.section}
-                        />
-                      )}
-                    />
-
-
-                  </Box>
-                )}
+                </Box>
+              )}
 
 
 
 
-                {/* Students */}
-                {selectedReport && selectedReport.reportId === "attendance-report" && (
-                  <Box>
-                    <Autocomplete
-                      options={students}
-                      getOptionLabel={(option) => option.name}
-                      value={selectedStudent}
-                      onChange={(event, newValue) => {
-                        setSelectedStudent(newValue);
+              {/* Students */}
+              {selectedReport && selectedReport.reportId === "attendance-report" && (
+                <Box>
+                  <Autocomplete
+                    options={students}
+                    getOptionLabel={(option) => option.name}
+                    value={selectedStudent}
+                    onChange={(event, newValue) => {
+                      setSelectedStudent(newValue);
 
-                        Formik.setFieldValue(
-                          "student",
-                          newValue ? newValue._id : ""
-                        );
+                      Formik.setFieldValue(
+                        "student",
+                        newValue ? newValue._id : ""
+                      );
 
-                      }}
-                      onBlur={() => Formik.setFieldTouched("student", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Student"
-                          placeholder="Search student..."
-                          fullWidth
-                          error={Formik.touched.student && Boolean(Formik.errors.student)}
-                          helperText={Formik.touched.student && Formik.errors.student}
-                        />
-                      )}
-                    />
+                    }}
+                    onBlur={() => Formik.setFieldTouched("student", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Student"
+                        placeholder="Search student..."
+                        fullWidth
+                        error={Formik.touched.student && Boolean(Formik.errors.student)}
+                        helperText={Formik.touched.student && Formik.errors.student}
+                      />
+                    )}
+                  />
 
-                  </Box>
-                )}
+                </Box>
+              )}
 
-                {/* Academic Year */}
-                {selectedReport && (selectedReport.reportId === "other-report") && (
-                  <Box>
-                    <Autocomplete
-                      options={years}
-                      getOptionLabel={(option) => option.label}
-                      value={selectedYear}
-                      onChange={(event, newValue) => {
-                        setSelectedYear(newValue);
+              {/* Academic Year */}
+              {selectedReport && (selectedReport.reportId === "other-report") && (
+                <Box>
+                  <Autocomplete
+                    options={years}
+                    getOptionLabel={(option) => option.label}
+                    value={selectedYear}
+                    onChange={(event, newValue) => {
+                      setSelectedYear(newValue);
 
-                        Formik.setFieldValue(
-                          "year",
-                          newValue ? newValue.value : ""
-                        );
-                      }}
-                      onBlur={() => Formik.setFieldTouched("year", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Academic Year"
-                          placeholder="Search year..."
-                          fullWidth
-                          error={Formik.touched.year && Boolean(Formik.errors.year)}
-                          helperText={Formik.touched.year && Formik.errors.year}
-                        />
-                      )}
-                    />
-                  </Box>
-                )}
+                      Formik.setFieldValue(
+                        "year",
+                        newValue ? newValue.value : ""
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("year", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Academic Year"
+                        placeholder="Search year..."
+                        fullWidth
+                        error={Formik.touched.year && Boolean(Formik.errors.year)}
+                        helperText={Formik.touched.year && Formik.errors.year}
+                      />
+                    )}
+                  />
+                </Box>
+              )}
 
-                {/* From Date */}
-                {selectedReport && (selectedReport.reportId === "attendance-report") && (
-                  <Box>
-                    <TextField
-                      label="From Date"
-                      type="date"
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                      value={Formik.values.fromDate}
-                      onChange={(e) => {
-                        Formik.setFieldValue("fromDate", e.target.value);
-                        setFromDate(e.target.value);
-                      }}
-                      error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
-                      helperText={Formik.touched.fromDate && Formik.errors.fromDate}
-                    />
-                  </Box>
-                )}
+              {/* From Date */}
+              {selectedReport && (selectedReport.reportId === "attendance-report") && (
+                <Box>
+                  <TextField
+                    label="From Date"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={Formik.values.fromDate}
+                    onChange={(e) => {
+                      Formik.setFieldValue("fromDate", e.target.value);
+                      setFromDate(e.target.value);
+                    }}
+                    error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
+                    helperText={Formik.touched.fromDate && Formik.errors.fromDate}
+                  />
+                </Box>
+              )}
 
-                {/* To Date */}
-                {selectedReport && (selectedReport.reportId === "attendance-report") && (
-                  <Box>
-                    <TextField
-                      label="To Date"
-                      type="date"
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                      value={Formik.values.toDate}
-                      onChange={(e) => {
-                        Formik.setFieldValue("toDate", e.target.value);
-                        setToDate(e.target.value);
-                      }}
-                      error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
-                      helperText={Formik.touched.toDate && Formik.errors.toDate}
-                    />
-                  </Box>
-                )}
-
-
-
-              </Box>
+              {/* To Date */}
+              {selectedReport && (selectedReport.reportId === "attendance-report") && (
+                <Box>
+                  <TextField
+                    label="To Date"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={Formik.values.toDate}
+                    onChange={(e) => {
+                      Formik.setFieldValue("toDate", e.target.value);
+                      setToDate(e.target.value);
+                    }}
+                    error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
+                    helperText={Formik.touched.toDate && Formik.errors.toDate}
+                  />
+                </Box>
+              )}
 
 
 
-              <Box sx={{ marginTop: "10px" }} component={"div"}>
-                <Button
-                  type="submit"
-                  sx={{ marginRight: "10px" }}
-                  variant="contained"
-                >
-                  Submit
-                </Button>
-                {isEdit && (
-                  <Button
-                    sx={{ marginRight: "10px" }}
-                    variant="outlined"
-                    onClick={cancelEdit}
-                  >
-                    Cancel Edit
-                  </Button>
-                )}
-              </Box>
             </Box>
-          </Paper>
-        </Box>
 
 
 
-
+            <Box sx={{ marginTop: "10px" }} component={"div"}>
+              <Button
+                type="submit"
+                sx={{ marginRight: "10px" }}
+                variant="contained"
+              >
+                Submit
+              </Button>
+              {isEdit && (
+                <Button
+                  sx={{ marginRight: "10px" }}
+                  variant="outlined"
+                  onClick={cancelEdit}
+                >
+                  Cancel Edit
+                </Button>
+              )}
+            </Box>
+          </Box>
+        </Paper>
       </Box>
-    </>
-  );
+
+
+
+
+    </Box>
+  </>
+);
 }

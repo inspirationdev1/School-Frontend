@@ -114,7 +114,7 @@ export default function AttendanceReportPrint() {
 
 
     const [reportHeader, setReportHeader] = useState({});
-    
+
     const [rows, setRows] = useState([]);
     const [date, setDate] = useState(new dayjs(Date()).format("YYYY-MM-DD"));
     const [counts, setCounts] = useState(0);
@@ -126,6 +126,8 @@ export default function AttendanceReportPrint() {
     // const id = searchParams.get("id");
 
     const [student, setStudent] = useState(null);
+    const [selectedClass, setSelectedClass] = useState(null);
+    const [selectedSection, setSelectedSection] = useState(null);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
 
@@ -146,6 +148,14 @@ export default function AttendanceReportPrint() {
             const data = JSON.parse(decodeURIComponent(dataParam));
             console.log("student", data.student);
             setStudent(data.student);
+
+            console.log("class", data.class);
+            setSelectedClass(data.class);
+
+            console.log("section", data.section);
+            setSelectedSection(data.section);
+
+
             console.log("fromDate", data.fromDate);
             setFromDate(data.fromDate);
             console.log("toDate", data.toDate);
@@ -160,19 +170,40 @@ export default function AttendanceReportPrint() {
 
         const fetchReportData = async () => {
 
-            if (!student) return;
+            // if (!student) return;
             if (!fromDate) return;
             if (!toDate) return;
 
 
             try {
 
+                // let params= {
+                //         student: student,
+                //         fromDate: fromDate,
+                //         toDate: toDate
+                //     }
+
+                let params = {}
+
+
+                if (student) {
+                    params.student = student;
+                }
+                if (selectedClass) {
+                    params.class = selectedClass;
+                }
+                if (selectedSection) {
+                    params.section = selectedSection;
+                }
+                if (fromDate) {
+                    params.fromDate = fromDate;
+                }
+                if (toDate) {
+                    params.toDate = toDate;
+                }
+
                 const attendance_Print_Response = await axios.get(`${baseUrl}/schoolreports/attendance-print`, {
-                    params: {
-                        student: student,
-                        fromDate: fromDate,
-                        toDate: toDate
-                    }
+                    params: params
                 });
                 console.log("attendance_Print_Response", attendance_Print_Response.data.data);
                 const attendanceData = attendance_Print_Response.data.data;
@@ -186,7 +217,7 @@ export default function AttendanceReportPrint() {
 
                 const maxLength = Math.max(attendanceData.length);
 
-                
+
                 setRows(attendanceData);
                 setCounts(attendance_Print_Response.data.counts);
 
@@ -195,7 +226,7 @@ export default function AttendanceReportPrint() {
                 } else {
                     setIsDataFound(false);
                 }
-                
+
 
 
                 const rptHeader = {
@@ -256,7 +287,9 @@ export default function AttendanceReportPrint() {
                 </Text>
 
                 <View style={styles.reportTitle}>
-                    <Text style={[styles.labelStyle]}>Student : {rows[0].student.name}</Text>
+                    {selectedClass&&(<Text style={[styles.labelStyle]}>Class : {rows[0].class.class_name}</Text>)}
+                    {selectedSection&&(<Text style={[styles.labelStyle]}>Section : {rows[0].section.section_name}</Text>)}
+                    {/* {student&&(<Text style={[styles.labelStyle]}>Student : {rows[0].student.name}</Text>)} */}
                     <Text style={[styles.labelStyle]}>From : {dayjs(fromDate).format("DD-MM-YYYY")} To : {dayjs(toDate).format("DD-MM-YYYY")}</Text>
                 </View>
 
@@ -265,11 +298,14 @@ export default function AttendanceReportPrint() {
 
                     {/* Header */}
                     <View style={styles.tableRow}>
+                        {/* <View style={[styles.tableHeaderCell, styles.colExpense]}>
+                            <Text>Student</Text>
+                        </View> */}
+                        {!student && (<View style={[styles.tableHeaderCell, styles.colExpense]}>
+                            <Text>Student</Text>
+                        </View>)}
                         <View style={[styles.tableHeaderCell, styles.colExpense]}>
                             <Text>Date</Text>
-                        </View>
-                        <View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>Time</Text>
                         </View>
                         <View style={[styles.tableHeaderCell, styles.colAmount]}>
                             <Text>Status</Text>
@@ -280,11 +316,14 @@ export default function AttendanceReportPrint() {
                     {rows.map((row, i) => (
                         <View style={styles.tableRow} key={i}>
                             <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{dayjs(row.date).format("DD-MM-YYYY")}</Text>
+                                <Text>{row.student.name}</Text>
                             </View>
                             <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{dayjs(row.date).format("HH:mm:ss")}</Text>
+                                <Text>{dayjs(row.date).format("DD-MM-YYYY")}</Text>
                             </View>
+                            {/* <View style={[styles.tableCell, styles.colExpense]}>
+                                <Text>{dayjs(row.date).format("HH:mm:ss")}</Text>
+                            </View> */}
 
                             <View style={[styles.tableCell, styles.colAmount]}>
                                 <Text>{row.status}</Text>
@@ -298,16 +337,16 @@ export default function AttendanceReportPrint() {
                             <Text style={styles.boldText}>Total Present : {counts.present}</Text>
                         </View>
 
-                        
-                       
+
+
                     </View>
                     <View style={styles.totalRow}>
-                        
+
 
                         <View style={[styles.tableCell, styles.colExpense]}>
                             <Text style={styles.boldText}>Total Absent : {counts.absent}</Text>
                         </View>
-                       
+
                     </View>
 
                 </View>
@@ -404,9 +443,7 @@ export default function AttendanceReportPrint() {
 
                 )}{" "}
 
-                {/* <PDFViewer width="100%" height="100%">
-                    <PrintPDF />
-                </PDFViewer> */}
+
 
             </div>
 

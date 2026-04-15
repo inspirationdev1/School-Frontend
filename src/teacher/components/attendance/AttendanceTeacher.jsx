@@ -24,6 +24,9 @@ const AttendanceTeacher = () => {
   const [attendeeClass, setAttendeeClass] = useState([])
   const [selectedClass, setSelectedClass] = useState(null);
 
+  const [sections, setSection] = useState([])
+  const [selectedSection, setSelectedSection] = useState(null);
+
 
   const todayDate = moment().format('DD-MM-YYYY'); // Get today's date in 'DD-MM-YYYY' format
 
@@ -35,6 +38,7 @@ const AttendanceTeacher = () => {
 
   // Fetch all students and check if attendance is already taken
   useEffect(() => {
+    fetchSection();
     const fetchStudentsAndCheckAttendance = async () => {
       try {
         const attendee = await axios.get(`${baseUrl}/class/attendee`);
@@ -47,13 +51,12 @@ const AttendanceTeacher = () => {
           const selectedDate = examFormik.values.attendance_date
             ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
             : "";
-          const classId = selectedClass.classId;
 
-          const attendanceResponse = await axios.get(`${baseUrl}/attendance/check/${selectedClass.classId}`, { params: { classId: selectedClass.classId, selectedDate: selectedDate } });
+          const attendanceResponse = await axios.get(`${baseUrl}/attendance/check/${selectedClass.classId}`, { params: { classId: selectedClass.classId, sectionId: selectedSection._id, selectedDate: selectedDate } });
           setAttendanceTaken(attendanceResponse.data.attendanceTaken);
           // Fetch students if attendance has not been taken yet
           if (!attendanceResponse.data.attendanceTaken) {
-            const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, { params: { student_class: selectedClass.classId } }); // Fetch based on class
+            const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, { params: { student_class: selectedClass.classId, section: selectedSection._id } }); // Fetch based on class
             setStudents(studentsResponse.data.data);
 
             // Initialize attendance status for each student
@@ -88,7 +91,18 @@ const AttendanceTeacher = () => {
 
 
 
-  }, [examFormik.values.attendance_date, selectedClass]);
+  }, [examFormik.values.attendance_date, selectedClass, selectedSection]);
+
+  const fetchSection = async () => {
+    try {
+      const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
+      console.log("sections", sectionsData)
+      setSection(sectionsData.data.data);
+
+    } catch (error) {
+      console.error('Error fetching section:', error);
+    }
+  };
 
   // Handle attendance status change for each student
   const handleStatusChange = (studentId, status) => {
@@ -113,7 +127,7 @@ const AttendanceTeacher = () => {
       //   ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
       //   : "";
 
-        const selectedDate = dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY");
+      const selectedDate = dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY");
       console.log("selectedDate", selectedDate);
 
       const attendanceRecords = students.map((student) => ({
@@ -121,6 +135,7 @@ const AttendanceTeacher = () => {
         date: selectedDate,
         status: attendanceStatus[student._id],
         classId: selectedClass.classId, // Include the class
+        sectionId: selectedSection._id, // Include the section
       }));
 
       // Send attendance records to backend
@@ -163,53 +178,101 @@ const AttendanceTeacher = () => {
         Your Are Attendee of {attendeeClass.length} class{attendeeClass.length > 1 && 'es'}. Select the class and Print attendance.
       </Alert> :
         <Alert severity='info'>You are not attendee of any Class.</Alert>}
-      <Box component={"div"} sx={{ mb: 1 }}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DemoContainer components={["DatePicker"]}>
-            <DatePicker
-              label="Attendance Date"
-              name="attendance_date"
-              value={dayjs(examFormik.values.attendance_date)}
-              onChange={(e) => {
-                console.log(e);
-                //  setDate(dayjs(e))
-                examFormik.setFieldValue("attendance_date", dayjs(e));
 
+      <Box
+  sx={{
+    display: "grid",
+    gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, // ✅ responsive
+    gap: 2,
+  }}
+>
 
-              }}
-              format="DD/MM/YYYY" // ✅ THIS IS WHAT YOU WANT
-            />
-          </DemoContainer>
-        </LocalizationProvider>
-      </Box>
-      {attendeeClass.length > 0 && (
-        <Autocomplete
-          options={attendeeClass}
-          getOptionLabel={(option) => option.class_name}
-          value={selectedClass}
-          onChange={(event, newValue) => {
-            setSelectedClass(newValue);
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Select Class"
-              placeholder="Search class..."
-              fullWidth
-            />
-          )}
-          sx={{ mb: 3 }}
+  
+
+  {/* Class */}
+  <Box>
+    <Autocomplete
+      options={attendeeClass}
+      getOptionLabel={(option) => option.class_name || ""}
+      value={selectedClass}
+      onChange={(event, newValue) => {
+        setSelectedClass(newValue);
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Select Class"
+          placeholder="Search class..."
+          fullWidth
+          size="small"
         />
       )}
+    />
+  </Box>
+
+  {/* Section */}
+  <Box>
+    <Autocomplete
+      options={sections}
+      getOptionLabel={(option) => option.section_name || ""}
+      value={selectedSection}
+      onChange={(event, newValue) => {
+        setSelectedSection(newValue);
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Select Section"
+          placeholder="Search section..."
+          fullWidth
+          size="small"
+        />
+      )}
+    />
+  </Box>
+
+  {/* Attendance Date */}
+  <Box>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DatePicker
+        label="Attendance Date"
+        name="attendance_date"
+        value={
+          examFormik.values.attendance_date
+            ? dayjs(examFormik.values.attendance_date)
+            : null
+        }
+        onChange={(newValue) => {
+          examFormik.setFieldValue("attendance_date", newValue);
+        }}
+        format="DD/MM/YYYY"
+        slotProps={{
+          textField: {
+            fullWidth: true,
+            size: "small",
+          },
+        }}
+      />
+    </LocalizationProvider>
+  </Box>
+
+</Box>
 
 
-     
-      {attendeeClass.length > 0 && selectedClass && !attendanceTaken && students.length < 1 && (
+
+
+      {/* {attendeeClass.length > 0 && selectedClass && !attendanceTaken && students.length < 1 && (
         <Alert severity="info" sx={{ mb: 3 }}>
           There is no students in {selectedClass.class_name} class now.
         </Alert>
+      )} */}
+
+      {attendeeClass.length > 0 && selectedClass && sections.length > 0 && selectedSection && !attendanceTaken && students.length < 1 && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          There is no students in {selectedClass.class_name} class & {selectedSection.section_name} section now.
+        </Alert>
       )}
-      
+
       {attendeeClass.length > 0 && selectedClass && students.length > 0 && (
         <>
           <Table>

@@ -298,12 +298,10 @@ export default function AttendanceReportPrint() {
 
                     {/* Header */}
                     <View style={styles.tableRow}>
-                        {/* <View style={[styles.tableHeaderCell, styles.colExpense]}>
+                        <View style={[styles.tableHeaderCell, styles.colExpense]}>
                             <Text>Student</Text>
-                        </View> */}
-                        {!student && (<View style={[styles.tableHeaderCell, styles.colExpense]}>
-                            <Text>Student</Text>
-                        </View>)}
+                        </View>
+                        
                         <View style={[styles.tableHeaderCell, styles.colExpense]}>
                             <Text>Date</Text>
                         </View>

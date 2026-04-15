@@ -274,11 +274,26 @@ export default function Salesinvoice() {
           hasInvalidRow = true;
           break; // exit loop when condition met
         }
-        if (item.netAmount === 0) {
-          setDataError('netAmount must be greater than 0');
-          hasInvalidRow = true;
-          break; // exit loop when condition met
+        // if (item.netAmount === 0) {
+        //   setDataError('netAmount must be greater than 0');
+        //   hasInvalidRow = true;
+        //   break; // exit loop when condition met
+        // }
+
+        if (item.discountAmount > 0) {
+          console.log("selectedAppsetting",selectedAppsetting);
+          const grossAmount = item.grossAmount||0;
+          const discountAmount = item.discountAmount || 0;
+          const discPer = Math.round(((discountAmount*100)/grossAmount));
+          const discPerAllowed = selectedAppsetting.discPerAllowed||0;
+          if (discPer>discPerAllowed){
+              setDataError('grossPer cannot be greater than discPerAllowed');
+              hasInvalidRow = true;
+              break; // exit loop when condition met
+          }
         }
+
+        
         console.log(item);
 
       }
@@ -508,11 +523,7 @@ export default function Salesinvoice() {
       const updated = [...invoiceDetails];
       updated[index][field] = value;
 
-      // auto-calculate grossAmount
-      // if (field === "quantity" || field === "salesPrice") {
-      //   updated[index].grossAmount =
-      //     updated[index].quantity * updated[index].salesPrice;
-      // }
+      
 
       if (field === "discountType") {
         updated[index].discountPer = 0;

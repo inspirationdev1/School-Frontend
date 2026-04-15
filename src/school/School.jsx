@@ -37,8 +37,12 @@ import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { AuthContext } from '../context/AuthContext';
+// import { AuthContext } from '../../../context/AuthContext';
 
 const drawerWidth = 200;
+
+
 
 const openedMixin = (theme) => ({
     width: drawerWidth,
@@ -124,6 +128,8 @@ export default function School() {
 
 
     const [openMenu, setOpenMenu] = React.useState({});
+    const { authenticated, user } = React.useContext(AuthContext);
+    console.log("user", user);
 
 
 
@@ -222,7 +228,7 @@ export default function School() {
                 { label: "App Settings", link: "/school/appsetting" },
             ],
         },
-        
+
         {
             label: "Logout",
             icon: LogoutIcon,
@@ -265,6 +271,11 @@ export default function School() {
                     <Typography variant="h6" noWrap component="div">
                         School Management System
                     </Typography>
+                   
+                    {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                        👤 {user?.owner_name}
+                    </Typography> */}
+                    
                 </Toolbar>
             </AppBar>
             <Drawer

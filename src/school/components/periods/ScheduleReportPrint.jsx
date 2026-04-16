@@ -302,7 +302,8 @@ export default function ScheduleReportPrint() {
     const PrintPDF = () => (
         <>
             <Document>
-                <Page style={styles.page}>
+                {/* <Page style={styles.page}> */}
+                <Page size="A4" orientation="landscape" style={styles.page}>
 
 
                     {/* 🔷 Header */}
@@ -390,6 +391,12 @@ export default function ScheduleReportPrint() {
                                         {item?.subject3name && (<><Text style={styles.cellHeader}>{item.subject3name}</Text></>)}
                                         {item?.subject4name && (<><Text style={styles.cellHeader}>{item.subject4name}</Text></>)}
                                         {item?.subject5name && (<><Text style={styles.cellHeader}>{item.subject5name}</Text></>)}
+                                        {item?.subject6name && (<><Text style={styles.cellHeader}>{item.subject6name}</Text></>)}
+                                        {item?.subject7name && (<><Text style={styles.cellHeader}>{item.subject7name}</Text></>)}
+                                        {item?.subject8name && (<><Text style={styles.cellHeader}>{item.subject8name}</Text></>)}
+                                        {item?.subject9name && (<><Text style={styles.cellHeader}>{item.subject9name}</Text></>)}
+                                        {item?.subject10name && (<><Text style={styles.cellHeader}>{item.subject10name}</Text></>)}
+
 
                                     </View>
 
@@ -403,6 +410,11 @@ export default function ScheduleReportPrint() {
                                     {item?.subject3 && (<><Text style={styles.cell}>{item.subject3}</Text></>)}
                                     {item?.subject4 && (<><Text style={styles.cell}>{item.subject4}</Text></>)}
                                     {item?.subject5 && (<><Text style={styles.cell}>{item.subject5}</Text></>)}
+                                    {item?.subject6 && (<><Text style={styles.cell}>{item.subject6}</Text></>)}
+                                    {item?.subject7 && (<><Text style={styles.cell}>{item.subject7}</Text></>)}
+                                    {item?.subject8 && (<><Text style={styles.cell}>{item.subject8}</Text></>)}
+                                    {item?.subject9 && (<><Text style={styles.cell}>{item.subject9}</Text></>)}
+                                    {item?.subject10 && (<><Text style={styles.cell}>{item.subject10}</Text></>)}
                                 </View>
                             </>
                         ))}

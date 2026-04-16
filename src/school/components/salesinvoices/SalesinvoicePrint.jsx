@@ -99,10 +99,10 @@ export default function SalesinvoicePrint() {
                             {printSalesinvoice.student.name}
                         </Text>
 
-                        <Text style={styles.labelStyle}>Payment Status :</Text>
+                        {/* <Text style={styles.labelStyle}>Payment Status :</Text>
                         <Text style={styles.valueStyle}>
                             {printSalesinvoice.paymentStatus}
-                        </Text>
+                        </Text> */}
                     </View>
 
                     {/* Row 4 */}

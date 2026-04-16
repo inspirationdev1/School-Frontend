@@ -1,37 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, Box } from '@mui/material';
 import { Doughnut, Pie } from 'react-chartjs-2';
-import {Chart, ArcElement} from 'chart.js'
+import { Chart, ArcElement } from 'chart.js'
 
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { baseUrl } from '../../../../environment';
 
+import { Button } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
+
 const AttendanceDetails = () => {
-    Chart.register(ArcElement);
+
+  const navigate = useNavigate(); // ✅ required
+  Chart.register(ArcElement);
 
   const [attendanceData, setAttendanceData] = useState([]);
-  const [chartData,  setChartData] = useState([0,0])
+  const [selectedStudent, setSelectedStudent] = useState([]);
+  const [chartData, setChartData] = useState([0, 0])
   const [loading, setLoading] = useState(true);
 
-  const studentId= useParams().studentId;
+  const studentId = useParams().studentId;
 
-const dateConvert = (date)=>{
-    const dateData  = new Date(date);
-    return dateData.getDate()+"-"+ (+dateData.getMonth()+1) + "-" + dateData.getFullYear();
-}
+  const dateConvert = (date) => {
+    const dateData = new Date(date);
+    return dateData.getDate() + "-" + (+dateData.getMonth() + 1) + "-" + dateData.getFullYear();
+  }
 
 
-  const chartDataFunc=(data)=>{
-     
-    data.forEach(data=>{
-       
-        if(data.status==='Present'){
-          setChartData(x=>[x[0]+1,x[1]])
-        }else if(data.status==='Absent'){
-            setChartData(x=>[x[0],x[1]+1])
-        }
-    
+  const chartDataFunc = (data) => {
+
+    data.forEach(data => {
+
+      if (data.status === 'Present') {
+        setChartData(x => [x[0] + 1, x[1]])
+      } else if (data.status === 'Absent') {
+        setChartData(x => [x[0], x[1] + 1])
+      }
+
     })
   }
   // Fetch attendance data for the specific student
@@ -39,8 +46,9 @@ const dateConvert = (date)=>{
     const fetchAttendanceData = async () => {
       try {
         const response = await axios.get(`${baseUrl}/attendance/${studentId}`);
-        console.log(response,"attendance data")
+        console.log(response, "attendance data")
         setAttendanceData(response.data);
+        setSelectedStudent(response.data[0].student)
         chartDataFunc(response.data)
         setLoading(false);
       } catch (error) {
@@ -48,31 +56,31 @@ const dateConvert = (date)=>{
         setLoading(false);
       }
     };
-  
+
 
     fetchAttendanceData();
   }, [studentId]);
 
   // Calculate attendance summary for the chart
-//   const attendanceSummary = attendanceData.reduce(
-//     (summary, record) => {
-//       if (record.status === 'Present') summary.present++;
-//       if (record.status === 'Absent') summary.absent++;
-//       return summary;
-//     },
-//     { present: 0, absent: 0 }
-//   );
+  //   const attendanceSummary = attendanceData.reduce(
+  //     (summary, record) => {
+  //       if (record.status === 'Present') summary.present++;
+  //       if (record.status === 'Absent') summary.absent++;
+  //       return summary;
+  //     },
+  //     { present: 0, absent: 0 }
+  //   );
 
   // Data for the chart
   const data = {
     datasets: [
       {
-        data:chartData, // 1 for Present, 0 for Absent
+        data: chartData, // 1 for Present, 0 for Absent
         backgroundColor: [
-            'rgb(54, 162, 235)',
-            'rgb(255, 205, 86)'
-          ],
-        hoverOffset:20
+          'rgb(54, 162, 235)',
+          'rgb(255, 205, 86)'
+        ],
+        hoverOffset: 20
       },
     ],
     labels: ['Present', 'Absent'],
@@ -85,13 +93,30 @@ const dateConvert = (date)=>{
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Student Attendance</Typography>
+      {/* <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+        Back
+      </button> */}
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate(-1)}
+      > 
+        Back
+      </Button>
+      {/* <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate("/school/attendance")}
+      >
+        Back
+      </Button> */}
 
+      <Typography variant="h4" gutterBottom>Student Attendance</Typography>
+      <Typography variant="h4" gutterBottom>Student : {selectedStudent?.name}</Typography>
       <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
         {/* Attendance Chart */}
         <Box >
           <Typography variant="h6">Attendance Summary</Typography>
-          <Pie style={{padding:"20px"}}  data={data} />
+
+          <Pie style={{ padding: "20px" }} data={data} />
         </Box>
 
         {/* Attendance List */}

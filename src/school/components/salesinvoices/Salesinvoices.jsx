@@ -125,7 +125,7 @@ export default function Salesinvoice() {
         Formik.setFieldValue("class", resp.data.data.class);
         Formik.setFieldValue("section", resp.data.data.section);
         Formik.setFieldValue("student", resp.data.data.student);
-        Formik.setFieldValue("paymentStatus", resp.data.data.paymentStatus);
+        // Formik.setFieldValue("paymentStatus", resp.data.data.paymentStatus);
         Formik.setFieldValue("status", resp.data.data.status);
         Formik.setFieldValue("year", resp.data.data.year);
 
@@ -232,7 +232,7 @@ export default function Salesinvoice() {
     class: "",
     section: "",
     student: "",
-    paymentStatus: "pending",
+    // paymentStatus: "pending",
     status: "valid",
     remarks: "",
     year: "",
@@ -843,7 +843,7 @@ export default function Salesinvoice() {
 
 
 
-                    <Box>
+                    {/* <Box>
 
                       <TextField
                         select
@@ -865,7 +865,7 @@ export default function Salesinvoice() {
                           {Formik.errors.paymentStatus}
                         </p>
                       )}
-                    </Box>
+                    </Box> */}
 
                     <Box>
 
@@ -1218,7 +1218,7 @@ export default function Salesinvoice() {
                       <TableCell align="right">Invoice Date</TableCell>
                       <TableCell align="right">Remarks</TableCell>
                       <TableCell align="right">Status</TableCell>
-                      <TableCell align="right">Payment Status</TableCell>
+                      {/* <TableCell align="right">Payment Status</TableCell> */}
                       <TableCell align="right">Action</TableCell>
                     </TableRow>
                   </TableHead>
@@ -1234,7 +1234,7 @@ export default function Salesinvoice() {
                         <TableCell align="right">{dayjs(value.invoiceDate).format("DD-MM-YYYY")}</TableCell>
                         <TableCell align="right">{value.remarks}</TableCell>
                         <TableCell align="right">{value.status}</TableCell>
-                        <TableCell align="right">{value.paymentStatus}</TableCell>
+                        {/* <TableCell align="right">{value.paymentStatus}</TableCell> */}
                         <TableCell align="right">  <Box component={'div'} sx={{ bottom: 0, display: 'flex', justifyContent: "end" }} >
 
 
@@ -1246,7 +1246,7 @@ export default function Salesinvoice() {
                               gap: 1.5, // 👈 adds space between buttons
                             }}
                           >
-                            {(value.status === "valid" && value.paymentStatus === "pending") && (
+                            {(value.status === "valid") && (
                               <>
                                 <Button
                                   variant="contained"

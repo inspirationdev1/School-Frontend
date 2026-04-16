@@ -97,12 +97,35 @@ export default function Attendee({ classId, handleMessage,params}){
         } 
       };
 
+      const [sectionDetails, setSectionDetails] = useState(null)
+      const fetchSectionWithId = () => {
       
+        if (sectionId) {
+         
+          axios
+            .get(`${baseUrl}/section/fetch-single/${sectionId}`)
+            .then((resp) => {
+              console.log("Single Section", resp.data.data);
+              setSectionDetails(resp.data.data);
+              if(resp.data.data.attendee){
+                setAttendee(resp.data.data.attendee.name)
+              }else{
+                setAttendee("")
+              }
+              
+            })
+            .catch((e) => {
+            //   navigate("/school/class");
+              console.log("Error in fetching.");
+            });
+        } 
+      };
 
 
       useEffect(()=>{
         fetchAllTeachers();
        fetchClassWithId();
+      // fetchSectionWithId();
       },[iseditAttendee,classId,params])
     return (
         <>

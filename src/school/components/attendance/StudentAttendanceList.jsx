@@ -46,10 +46,13 @@ const StudentAttendanceList = () => {
   const [loading, setLoading] = useState(true);
   const [studentClass, setStudentClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
+  const [sections, setSections] = useState([])
+  const [selectedSection, setSelectedSection] = useState(null);
+
   const [params, setParams] = useState({});
   const [message, setMessage] = useState("");
   const [type, setType] = useState("success");
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(1);
 
   const handleMessage = (type, message) => {
     setType(type);
@@ -71,6 +74,17 @@ const StudentAttendanceList = () => {
       });
   };
 
+  const fetchSections = async () => {
+    try {
+      const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
+      console.log("sections", sectionsData)
+      setSections(sectionsData.data.data);
+
+    } catch (error) {
+      console.error('Error fetching section:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -88,6 +102,7 @@ const StudentAttendanceList = () => {
 
     fetchStudents();
     fetchStudentClass();
+    fetchSections()
   }, [params, message]);
 
   const fetchAttendanceForStudents = async (studentsList) => {
@@ -131,7 +146,23 @@ const StudentAttendanceList = () => {
         delete newParam["student_class"];
       }
     } catch (error) {
-        setStudents([]);
+      setStudents([]);
+    }
+
+    setParams(newParam);
+  };
+
+  const handleSection = (e) => {
+    let newParam;
+    try {
+      if (e._id !== "") {
+        newParam = { ...params, section: e._id };
+      } else {
+        newParam = { ...params };
+        delete newParam["section"];
+      }
+    } catch (error) {
+      setStudents([]);
     }
 
     setParams(newParam);
@@ -190,25 +221,45 @@ const StudentAttendanceList = () => {
                   getOptionLabel={(option) => option.class_name}
                   value={selectedClass}
                   onChange={(event, newValue) => {
-
                     setSelectedClass(newValue);
                     handleClass(newValue);
                   }}
-                  // onBlur={() => Formik.setFieldTouched("class", true)}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label="Select Class"
                       placeholder="Search class..."
                       fullWidth
-                    // error={Formik.touched.class && Boolean(Formik.errors.class)}
-                    // helperText={Formik.touched.class && Formik.errors.class}
                     />
                   )}
                 />
 
 
               </Box>
+
+              {/* Section */}
+              <Box>
+                  <Autocomplete
+                    options={sections}
+                    getOptionLabel={(option) => option.section_name}
+                    value={selectedSection}
+                    onChange={(event, newValue) => {
+                      setSelectedSection(newValue);
+                      handleSection(newValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Section"
+                        placeholder="Search section..."
+                        fullWidth
+                        
+                      />
+                    )}
+                  />
+
+
+                </Box>
 
               <Box>
                 {selectedClass && <Attendee params={params} classId={selectedClass._id} handleMessage={handleMessage} />}
@@ -230,7 +281,7 @@ const StudentAttendanceList = () => {
 
 
 
-              
+
                 <TableContainer sx={{ width: '100%' }} component={Paper}>
                   <Table sx={{}} aria-label="student attendance table">
                     <TableHead>
@@ -239,7 +290,8 @@ const StudentAttendanceList = () => {
                         <TableCell align="right">Gender</TableCell>
                         <TableCell align="right">Guardian Phone</TableCell>
                         <TableCell align="right">Class</TableCell>
-                        <TableCell align="right">Percentage</TableCell>
+                        <TableCell align="right">Section</TableCell>
+                        {/* <TableCell align="right">Percentage</TableCell> */}
                         <TableCell align="right">View</TableCell>
                       </TableRow>
                     </TableHead>
@@ -250,15 +302,24 @@ const StudentAttendanceList = () => {
                           <TableCell align="right">{student.gender}</TableCell>
                           <TableCell align="right">{student.guardian_phone}</TableCell>
                           <TableCell align="right">{student.student_class.class_name}</TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right">{student.section.section_name}</TableCell>
+                          {/* <TableCell align="right">
                             {attendanceData[student._id] !== undefined
                               ? `${attendanceData[student._id].toFixed(2)}%`
                               : "No Data"}
-                          </TableCell>
+                          </TableCell> */}
                           <TableCell align="right">
                             <Link to={`/school/attendance-student/${student._id}`}>
                               Details
                             </Link>
+                            {/* <Link
+                              to={`/school/attendance-student/${student._id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Details
+                            </Link> */}
+
                           </TableCell>
                         </TableRow>
                       ))}
@@ -277,68 +338,7 @@ const StudentAttendanceList = () => {
         </Box>
 
 
-        {/* Grid layout using Grid2 */}
-        <Grid container spacing={2}>
-          {/* Left Box: Search and Attendee */}
-          {/* <Grid size={{ xs: 12, md: 4 }}>
-            <Item>
-              <Box sx={{ padding: "10px" }}>
-
-                
-
-                <TextField
-                  label="Search Name"
-                  onChange={handleSearch}
-                  fullWidth
-                />
-
-                {selectedClass && <Attendee params={params} classId={selectedClass._id} handleMessage={handleMessage} />}
-              </Box>
-            </Item>
-          </Grid> */}
-
-          {/* Right Box: Table */}
-          {/* <Grid size={{ xs: 12, md: 8 }}>
-            <Item sx={{ width: "100%" }}>
-              <TableContainer sx={{ width: '100%' }} component={Paper}>
-                <Table sx={{}} aria-label="student attendance table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell align="right">Gender</TableCell>
-                      <TableCell align="right">Guardian Phone</TableCell>
-                      <TableCell align="right">Class</TableCell>
-                      <TableCell align="right">Percentage</TableCell>
-                      <TableCell align="right">View</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {students.map((student, i) => (
-                      <TableRow key={i}>
-                        <TableCell>{student.name}</TableCell>
-                        <TableCell align="right">{student.gender}</TableCell>
-                        <TableCell align="right">{student.guardian_phone}</TableCell>
-                        <TableCell align="right">{student.student_class.class_name}</TableCell>
-                        <TableCell align="right">
-                          {attendanceData[student._id] !== undefined
-                            ? `${attendanceData[student._id].toFixed(2)}%`
-                            : "No Data"}
-                        </TableCell>
-                        <TableCell align="right">
-                          <Link to={`/school/attendance-student/${student._id}`}>
-                            Details
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Item>
-          </Grid> */}
-
-
-        </Grid>
+        
       </Box>
     </>
   );

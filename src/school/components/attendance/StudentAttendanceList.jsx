@@ -19,6 +19,7 @@ import {
   Autocomplete,
   Tabs,
   Tab,
+  Grid2
 } from "@mui/material";
 import Grid from "@mui/material/Grid2"; // Import Grid2
 import { styled } from '@mui/material/styles';
@@ -214,52 +215,54 @@ const StudentAttendanceList = () => {
 
           {tab === 0 && (
             <Box>
-              {/* Class */}
-              <Box>
-                <Autocomplete
-                  options={studentClass}
-                  getOptionLabel={(option) => option.class_name}
-                  value={selectedClass}
-                  onChange={(event, newValue) => {
-                    setSelectedClass(newValue);
-                    handleClass(newValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Select Class"
-                      placeholder="Search class..."
-                      fullWidth
-                    />
-                  )}
-                />
+              <Grid2 container spacing={2}>
 
+  {/* Class */}
+  <Grid2 size={{ xs: 12, md: 6 }}>
+    <Autocomplete
+      options={studentClass}
+      getOptionLabel={(option) => option.class_name || ""}
+      value={selectedClass}
+      onChange={(event, newValue) => {
+        setSelectedClass(newValue);
+        handleClass(newValue);
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Select Class"
+          placeholder="Search class..."
+          fullWidth
+          size="small"
+        />
+      )}
+    />
+  </Grid2>
 
-              </Box>
+  {/* Section */}
+  <Grid2 size={{ xs: 12, md: 6 }}>
+    <Autocomplete
+      options={sections}
+      getOptionLabel={(option) => option.section_name || ""}
+      value={selectedSection}
+      onChange={(event, newValue) => {
+        setSelectedSection(newValue);
+        handleSection(newValue);
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Select Section"
+          placeholder="Search section..."
+          fullWidth
+          size="small"
+        />
+      )}
+    />
+  </Grid2>
 
-              {/* Section */}
-              <Box>
-                  <Autocomplete
-                    options={sections}
-                    getOptionLabel={(option) => option.section_name}
-                    value={selectedSection}
-                    onChange={(event, newValue) => {
-                      setSelectedSection(newValue);
-                      handleSection(newValue);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Section"
-                        placeholder="Search section..."
-                        fullWidth
-                        
-                      />
-                    )}
-                  />
+</Grid2>
 
-
-                </Box>
 
               <Box>
                 {selectedClass && <Attendee params={params} classId={selectedClass._id} handleMessage={handleMessage} />}

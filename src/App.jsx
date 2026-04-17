@@ -34,6 +34,9 @@ import ReceiptPrint from './school/components/receipts/ReceiptPrint';
 import Expensetypes from "./school/components/expensetypes/Expensetypes";
 import Expenses from "./school/components/expenses/Expenses";
 
+import Accountlevels from "./school/components/accountlevels/Accountlevels";
+import Accountledgers from "./school/components/acountledgers/Accountledgers";
+
 import Marksheet from "./school/components/marksheets/Marksheets";
 import MarksheetPrint from './school/components/marksheets/MarksheetPrint';
 
@@ -103,6 +106,11 @@ import Numberseqs from "./school/components/numberseqs/Numberseqs";
 import Appsettings from "./school/components/appsettings/Appsettings";
 import Periods from "./school/components/periods/Periods";
 import ScheduleReportPrint from "./school/components/periods/ScheduleReportPrint";
+import Bonafidecertificates from "./school/components/bonafidecertificates/Bonafidecertificates";
+import Transfercertificates from "./school/components/transfercertificates/Transfercertificates";
+import BonafidecertificatePrint from "./school/components/bonafidecertificates/BonafidecertificatePrint";
+import TransfercertificatePrint from "./school/components/transfercertificates/TransfercertificatePrint";
+
 
 
 
@@ -137,6 +145,14 @@ function App() {
               <Route path="expensetype" element={<Expensetypes />} />
               <Route path="expense" element={<Expenses />} />
               <Route path="expenseprint" element={<ExpensePrint />} />  
+
+              <Route path="accountlevel" element={<Accountlevels />} />
+              <Route path="accountledger" element={<Accountledgers />} />
+
+              <Route path="bonafidecertificate" element={<Bonafidecertificates />} />
+              <Route path="bonafidecertificateprint" element={<BonafidecertificatePrint />} />
+              <Route path="transfercertificate" element={<Transfercertificates />} />
+              <Route path="transfercertificateprint" element={<TransfercertificatePrint />} />
 
               <Route path="students" element={<Students />} />
               <Route path="teachers" element={<Teachers />} />

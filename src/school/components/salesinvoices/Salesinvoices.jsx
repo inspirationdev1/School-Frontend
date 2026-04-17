@@ -176,17 +176,17 @@ export default function Salesinvoice() {
 
   };
 
-  const handleReceipt = async (id) => {
-    console.log("Handle  Print is called", id);
-    setPrint(true);
+  // const handleReceipt = async (id) => {
+  //   console.log("Handle  Print is called", id);
+  //   setPrint(true);
 
 
-    window.open(`/school/SalesinvoicePrint?id=${id}`,
-      '_blank');
-    setPrint(false);
+  //   window.open(`/school/SalesinvoicePrint?id=${id}`,
+  //     '_blank');
+  //   setPrint(false);
 
 
-  };
+  // };
   const cancelEdit = () => {
     setEdit(false);
     setEditId(null);

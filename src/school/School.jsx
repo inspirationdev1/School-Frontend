@@ -168,6 +168,8 @@ export default function School() {
                 { label: "Students", link: "/school/students" },
                 { label: "Parents", link: "/school/parents" },
                 { label: "Attendee", link: "/school/attendance" },
+                { label: "Bonafide Cert", link: "/school/bonafidecertificate" },
+                { label: "Transfer Cert", link: "/school/transfercertificate" },
                 { label: "Reports", link: "/school/studentreports" },
             ],
         },
@@ -207,6 +209,9 @@ export default function School() {
                 { label: "Expenses", link: "/school/expense" },
                 { label: "Payments", link: "/school/payment" },
                 { label: "Reports", link: "/school/financereports" },
+                { label: "Account Level", link: "/school/accountlevel" },
+                { label: "Account Ledger", link: "/school/accountledger" },
+                
 
             ],
         },

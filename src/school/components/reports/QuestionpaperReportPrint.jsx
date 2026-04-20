@@ -131,7 +131,7 @@ export default function QuestionpaperReportPrint() {
 
 
 
-    const [secteledClass, setSelectedClass] = useState(null);
+    const [selectedClass, setSelectedClass] = useState(null);
     const [selectedSection, setSelectedSection] = useState(null);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [selectedSubject, setSelectedSubject] = useState(null);
@@ -187,11 +187,21 @@ export default function QuestionpaperReportPrint() {
                     toDate: toDate
                 }
 
+                if (selectedClass){
+                    params.class = selectedClass;
+                }
+                if (selectedSection){
+                    params.section = selectedSection;
+                }
+                if (selectedTeacher){
+                    params.teacher = selectedTeacher;
+                }
+                if (selectedSubject){
+                    params.subject = selectedSubject;
+                }
+
                 const print_Response = await axios.get(`${baseUrl}/schoolreports/questionpaper-print`, {
-                    params: {
-                        fromDate: fromDate,
-                        toDate: toDate
-                    }
+                    params: params
                 });
                 console.log("questionpaperPrint_Response", print_Response.data.data);
 

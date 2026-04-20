@@ -296,9 +296,6 @@ export default function TeacherScheduleReportPrint() {
     }, [fromDate, toDate]);
 
 
-
-
-
     const PrintPDF = () => (
         <>
             <Document>

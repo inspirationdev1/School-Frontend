@@ -26,7 +26,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import TheatersIcon from '@mui/icons-material/Theaters';
 import GradingIcon from '@mui/icons-material/Grading';
 import HomeIcon from '@mui/icons-material/Home';
- import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
+import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -112,17 +112,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Parent() {
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(true);
 
     const navArr = [
-       { link: "/parent/parent-details", component: "Your Details", icon: DashboardIcon },
+        { link: "/parent/parent-details", component: "Your Details", icon: DashboardIcon },
         { link: "/parent/periods", component: "Periods", icon: CalendarMonthIcon },
-        { link: "/parent/attendance", component: "Attendance", icon:GradingIcon },
+        { link: "/parent/attendance", component: "Attendance", icon: GradingIcon },
         { link: "/parent/examinations", component: "Examination", icon: ExplicitIcon },
-        {link:"/parent/notice", component:"Notice", icon:CircleNotificationsIcon},
-        {link:"/logout", component:"Log Out", icon: LogoutIcon}
+        { link: "/parent/notice", component: "Notice", icon: CircleNotificationsIcon },
+        { link: "/logout", component: "Log Out", icon: LogoutIcon }
     ]
-   
+
     const navigate = useNavigate();
     const handleNavigation = (link) => {
         navigate(link)
@@ -138,7 +138,7 @@ export default function Parent() {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar  position="fixed" open={open}>
+            <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
                         color="inherit"
@@ -166,7 +166,7 @@ export default function Parent() {
                     </IconButton>
                 </DrawerHeader>
                 <Divider />
-                <List sx={{height:"100%"}}>
+                <List sx={{ height: "100%" }}>
                     {navArr && navArr.map((navItem, index) => (
                         <ListItem key={index} disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
@@ -184,7 +184,7 @@ export default function Parent() {
                                         },
                                 ]}
 
-                                
+
                                 onClick={() => { handleNavigation(navItem.link) }}
                             >
                                 <ListItemIcon
@@ -204,17 +204,10 @@ export default function Parent() {
                                 >
                                     <navItem.icon />
                                 </ListItemIcon>
-                                <ListItemText
-                                    primary={navItem.component}
-                                    sx={[
-                                        open
-                                            ? {
-                                                opacity: 1,
-                                            }
-                                            : {
-                                                opacity: 0,
-                                            },
-                                    ]}
+                                <ListItemText primary={navItem.component}
+                                    sx={{
+                                        whiteSpace: 'nowrap'
+                                    }}
                                 />
                             </ListItemButton>
                         </ListItem>

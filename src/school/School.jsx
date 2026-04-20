@@ -158,6 +158,7 @@ export default function School() {
                 { label: "Departments", link: "/school/department" },
                 { label: "Periods", link: "/school/period" },
                 { label: "Schedule", link: "/school/periods" },
+                { label: "Attendee", link: "/school/attendee" },
                 { label: "Notice", link: "/school/notice" },
             ],
         },
@@ -167,7 +168,8 @@ export default function School() {
             children: [
                 { label: "Students", link: "/school/students" },
                 { label: "Parents", link: "/school/parents" },
-                { label: "Attendee", link: "/school/attendance" },
+                // { label: "Attendee", link: "/school/attendance" },
+                
                 { label: "Bonafide Cert", link: "/school/bonafidecertificate" },
                 { label: "Transfer Cert", link: "/school/transfercertificate" },
                 { label: "Reports", link: "/school/studentreports" },

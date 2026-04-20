@@ -7,6 +7,9 @@ import {
   Paper,
   Select,
   Typography,
+  Autocomplete,
+  Alert,
+  TextField,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import Table from "@mui/material/Table";
@@ -24,6 +27,12 @@ import NoData from "../../../basic utility components/NoData";
 export default function TeacherExaminations() {
   const [allClasses, setAllClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
+
+
+  const [sections, setSection] = useState([])
+  const [selectedSection, setSelectedSection] = useState(null);
+
+
   const [examinations, setExaminations] = useState([]);
 
   const handleClassChange = (e) => {
@@ -31,46 +40,70 @@ export default function TeacherExaminations() {
   };
 
   const fetchExaminations = () => {
+    // axios
+    //   .get(`${baseUrl}/examination/fetch-class/${selectedClass}`)
+    //   .then((resp) => {
+    //     console.log("ALL Examination", resp);
+    //     setExaminations(resp.data.data);
+    //   })
+    //   .catch((e) => {
+    //     console.log("Error in fetching Examinations.");
+    //   });
+
+
+    const params = {
+      class: selectedClass?._id,
+      section: selectedSection?._id
+    }
     axios
-      .get(`${baseUrl}/examination/fetch-class/${selectedClass}`)
+      .get(`${baseUrl}/examination/fetch-with-query`, { params })
       .then((resp) => {
-        console.log("ALL Examination", resp);
-        setExaminations(resp.data.data);
+        setExamination(resp.data.data);
       })
-      .catch((e) => {
-        console.log("Error in fetching Examinations.");
-      });
+      .catch(() => console.log("Error in fetching students data"));
   };
 
   useEffect(() => {
     if (selectedClass) {
       fetchExaminations();
     }
-  }, [selectedClass]);
+  }, [selectedClass, selectedSection]);
 
-  const fetchStudentClass = () => {
+  const fetchClasses = () => {
     axios
       .get(`${baseUrl}/class/fetch-all`)
       .then((resp) => {
         setAllClasses(resp.data.data);
         console.log("Class", resp.data);
-        setSelectedClass(resp.data.data[0]._id);
+        // setSelectedClass(resp.data.data[0]._id);
       })
       .catch((e) => {
         console.log("Error in fetching student Class", e);
       });
   };
 
+  const fetchSections = async () => {
+    try {
+      const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
+      console.log("sections", sectionsData)
+      setSection(sectionsData.data.data);
+
+    } catch (error) {
+      console.error('Error fetching section:', error);
+    }
+  };
+
   useEffect(() => {
-    fetchStudentClass();
+    fetchClasses();
+    fetchSections();
   }, []);
 
   return (
     <>
-      <Typography variant="h3" sx={{textAlign:'center', marginBottom:"15px", fontWeight:"600" }}>Examinations</Typography>
-            
+      <Typography variant="h3" sx={{ textAlign: 'center', marginBottom: "15px", fontWeight: "600" }}>Examinations</Typography>
+
       <Paper sx={{ margin: "10px", padding: "10px" }}>
-        <FormControl sx={{ minWidth: "220px", marginTop: "10px" }}>
+        {/* <FormControl sx={{ minWidth: "220px", marginTop: "10px" }}>
           <Typography>Change Class</Typography>
           <Select
             value={selectedClass}
@@ -84,61 +117,121 @@ export default function TeacherExaminations() {
                 </MenuItem>
               ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
+
+        {/* Class */}
+
+        <Box>
+
+          <Autocomplete
+            options={allClasses}
+            getOptionLabel={(option) => option.class_name}
+            value={selectedClass}
+            onChange={(event, newValue) => {
+              setSelectedClass(newValue);
+            }}
+            // onBlur={() => Formik.setFieldTouched("class", true)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select Class"
+                placeholder="Search class..."
+                fullWidth
+              // error={Formik.touched.class && Boolean(Formik.errors.class)}
+              // helperText={Formik.touched.class && Formik.errors.class}
+              />
+            )}
+          />
+
+
+        </Box>
+
+
+        {/* Section */}
+
+        <Box>
+          <Autocomplete
+            options={sections}
+            getOptionLabel={(option) => option.section_name}
+            value={selectedSection}
+            onChange={(event, newValue) => {
+              setSelectedSection(newValue);
+              // Formik.setFieldValue(
+              //   "section",
+              //   newValue ? newValue._id : ""
+              // );
+            }}
+            // onBlur={() => Formik.setFieldTouched("section", true)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select Section"
+                placeholder="Search section..."
+                fullWidth
+              // error={Formik.touched.section && Boolean(Formik.errors.section)}
+              // helperText={Formik.touched.section && Formik.errors.section}
+              />
+            )}
+          />
+
+
+        </Box>
+
+
       </Paper>
 
       <Paper sx={{ padding: "20px", margin: "10px" }}>
-      
 
-        {examinations.length<1?<NoData text={"There is no Examination."} />:
-        <>
-          <Typography
-          sx={{ textAlign: "center"  }}
-          variant="h5"
-        >
-          Examinations List
-        </Typography>
-       
-        
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 250 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: "700" }} align="left">
-                  Exam Date
-                </TableCell>
-                <TableCell sx={{ fontWeight: "700" }} align="left">
-                  Subject
-                </TableCell>
-                <TableCell sx={{ fontWeight: "700" }} align="center">
-                  Exam Type
-                </TableCell>
-                
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {examinations &&
-                examinations.map((examination, i) => {
-                  return (
-                    <TableRow key={i}>
-                      <TableCell component="th" scope="row">
-                        {convertDate(examination.examDate)}
-                      </TableCell>
-                      <TableCell align="left">
-                        {examination.subject.subject_name}
-                      </TableCell>
-                      <TableCell align="center">
-                        {examination.examtype.examtype_name}
-                      </TableCell>
-                    
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        </>
-       }
+
+        {examinations.length < 1 ? <NoData text={"There is no Examination."} /> :
+          <>
+            <Typography
+              sx={{ textAlign: "center" }}
+              variant="h5"
+            >
+              Examinations List
+            </Typography>
+
+
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 250 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: "700" }} align="left">
+                      Exam Date
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "700" }} align="left">
+                      Subject
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "700" }} align="center">
+                      Exam Type
+                    </TableCell>
+
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {examinations &&
+                    examinations.map((examination, i) => {
+                      return (
+                        <TableRow key={i}>
+                          <TableCell component="th" scope="row">
+                            {convertDate(examination.examDate)}
+                          </TableCell>
+                          <TableCell align="left">
+                            {examination.subject.subject_name}
+                          </TableCell>
+                          <TableCell align="center">
+                            {examination.examtype.examtype_name}
+                          </TableCell>
+
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        }
       </Paper>
     </>
   );

@@ -265,7 +265,7 @@ const StudentAttendanceList = () => {
 
 
               <Box>
-                {selectedClass && <Attendee params={params} classId={selectedClass._id} handleMessage={handleMessage} />}
+                {selectedClass && <Attendee params={params} classId={selectedClass._id} sectionId={selectedSection?._id} handleMessage={handleMessage} />}
               </Box>
 
             </Box>

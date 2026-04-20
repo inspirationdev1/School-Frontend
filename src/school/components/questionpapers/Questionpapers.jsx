@@ -45,6 +45,10 @@ export default function Questionpapers() {
 
     const [allClasses, setAllClasses] = useState([]);
     const [selectedClass, setSelectedClass] = useState(null);
+
+    const [allSections, setAllSections] = useState([]);
+    const [selectedSection, setSelectedSection] = useState(null);
+
     const [questionpapers, setQuestionpapers] = useState([]);
     const [submitted, setSubmitted] = useState("not submitted")
     const [allSubjects, setAllSubjects] = useState([]);
@@ -142,7 +146,8 @@ export default function Questionpapers() {
                 questionpaperFormik.setFieldValue("name", resp.data.data.name);
                 questionpaperFormik.setFieldValue("description", resp.data.data.description);
                 questionpaperFormik.setFieldValue("date", dayjs(resp.data.data.questionpaperDate));
-                questionpaperFormik.setFieldValue("class", resp.data.data.class._id);
+                questionpaperFormik.setFieldValue("class", resp.data.data?.class._id);
+                questionpaperFormik.setFieldValue("section", resp.data.data?.section?._id);
                 questionpaperFormik.setFieldValue("subject", resp?.data?.data?.subject?._id||"");
                 questionpaperFormik.setFieldValue("teacher", resp?.data?.data?.teacher?._id)||"";
                 questionpaperFormik.setFieldValue("examination", resp?.data?.data?.examination?._id||"");
@@ -156,6 +161,7 @@ export default function Questionpapers() {
                 // const classId = resp.data.data?.class || resp.data.class;
                 // const matchedClass = allClasses.find(c => c._id === classId);
                 setSelectedClass(resp.data.data.class);
+                setSelectedSection(resp.data.data.section);
 
                 // const subjectId = resp.data.data?.subject || resp.data.subject;
                 // const matchedSubject = allSubjects.find(c => c._id === subjectId);
@@ -196,6 +202,7 @@ export default function Questionpapers() {
         setQuestionpaperEditId(null);
 
         setSelectedClass(null);
+        setSelectedSection(null);
         setSelectedExamination(null);
 
         setSelectedSubject(null);
@@ -210,7 +217,7 @@ export default function Questionpapers() {
 
     const questionpaperFormik = useFormik({
         initialValues: {
-            name: "", description: "", date: "", class: "", subject: "", teacher: "", examination: ""
+            name: "", description: "", date: "", class: "", section: "", subject: "", teacher: "", examination: ""
             , marksLimit: 0, fileType: "", fileName: "", year: ""
         },
         validationSchema: questionpaperSchema,
@@ -285,7 +292,7 @@ export default function Questionpapers() {
 
     }, [message]);
 
-    const fetchStudentClass = () => {
+    const fetchClasses = () => {
         axios
             .get(`${baseUrl}/class/fetch-all`)
             .then((resp) => {
@@ -295,6 +302,19 @@ export default function Questionpapers() {
             })
             .catch((e) => {
                 console.log("Error in fetching student Class", e);
+            });
+    };
+
+    const fetchSections = () => {
+        axios
+            .get(`${baseUrl}/section/fetch-all`)
+            .then((resp) => {
+                setAllSections(resp.data.data);
+                console.log("Section", resp.data.data);
+
+            })
+            .catch((e) => {
+                console.log("Error in fetching Sections", e);
             });
     };
 
@@ -339,7 +359,8 @@ export default function Questionpapers() {
 
 
     useEffect(() => {
-        fetchStudentClass();
+        fetchClasses();
+        fetchSections();
         fetchAllSubjects();
         fetchAllTeachers();
         fetchAllExaminations();
@@ -425,6 +446,39 @@ export default function Questionpapers() {
                                                     fullWidth
                                                     error={questionpaperFormik.touched.class && Boolean(questionpaperFormik.errors.class)}
                                                     helperText={questionpaperFormik.touched.class && questionpaperFormik.errors.class}
+                                                />
+                                            )}
+                                        />
+
+
+                                    </Box>
+
+                                    {/* Section */}
+
+                                    <Box>
+
+                                        <Autocomplete
+                                            // disabled={isEditQuestionpaper}
+                                            options={allSections}
+                                            getOptionLabel={(option) => option.section_name}
+                                            value={selectedSection}
+                                            onChange={(event, newValue) => {
+                                                setSelectedSection(newValue);
+
+                                                questionpaperFormik.setFieldValue(
+                                                    "section",
+                                                    newValue ? newValue._id : ""
+                                                );
+                                            }}
+                                            onBlur={() => questionpaperFormik.setFieldTouched("section", true)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Select Section"
+                                                    placeholder="Search section..."
+                                                    fullWidth
+                                                    error={questionpaperFormik.touched.section && Boolean(questionpaperFormik.errors.section)}
+                                                    helperText={questionpaperFormik.touched.section && questionpaperFormik.errors.section}
                                                 />
                                             )}
                                         />
@@ -717,9 +771,7 @@ export default function Questionpapers() {
                                             <TableCell sx={{ fontWeight: "700" }} align="left">
                                                 Marks Limit
                                             </TableCell>
-                                            <TableCell sx={{ fontWeight: "700" }} align="left">
-                                                File
-                                            </TableCell>
+                                            
                                             <TableCell sx={{ fontWeight: "700" }} align="center">
                                                 Actions
                                             </TableCell>

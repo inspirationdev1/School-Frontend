@@ -26,7 +26,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import TheatersIcon from '@mui/icons-material/Theaters';
 import GradingIcon from '@mui/icons-material/Grading';
 import HomeIcon from '@mui/icons-material/Home';
- import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
+import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -112,19 +112,19 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Student() {
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(true);
 
     const navArr = [
         // {link:"/", component:"Home", icon:HomeIcon},
         // { link: "/student", component: "Dashboard", icon: DashboardIcon },
         { link: "/student/student-details", component: "Your Details", icon: DashboardIcon },
         { link: "/student/periods", component: "Periods", icon: CalendarMonthIcon },
-        { link: "/student/attendance", component: "Attendance", icon:GradingIcon },
+        { link: "/student/attendance", component: "Attendance", icon: GradingIcon },
         { link: "/student/examinations", component: "Examination", icon: ExplicitIcon },
-        {link:"/student/notice", component:"Notice", icon:CircleNotificationsIcon},
-        {link:"/logout", component:"Log Out", icon: LogoutIcon}
+        { link: "/student/notice", component: "Notice", icon: CircleNotificationsIcon },
+        { link: "/logout", component: "Log Out", icon: LogoutIcon }
     ]
-   
+
     const navigate = useNavigate();
     const handleNavigation = (link) => {
         navigate(link)
@@ -140,7 +140,7 @@ export default function Student() {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar  position="fixed" open={open}>
+            <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
                         color="inherit"
@@ -168,55 +168,32 @@ export default function Student() {
                     </IconButton>
                 </DrawerHeader>
                 <Divider />
-                <List sx={{height:"100%"}}>
+                <List sx={{ height: "100%" }}>
                     {navArr && navArr.map((navItem, index) => (
                         <ListItem key={index} disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
-                                sx={[
-                                    {
-                                        minHeight: 48,
-                                        px: 2.5,
-                                    },
-                                    open
-                                        ? {
-                                            justifyContent: 'initial',
-                                        }
-                                        : {
-                                            justifyContent: 'center',
-                                        },
-                                ]}
+                                sx={{
+                                    minHeight: 48,
+                                    px: 2.5,
+                                    justifyContent: 'flex-start', // always left align
+                                }}
 
-                                
+
                                 onClick={() => { handleNavigation(navItem.link) }}
                             >
                                 <ListItemIcon
-                                    sx={[
-                                        {
-                                            minWidth: 0,
-                                            justifyContent: 'center',
-                                        },
-                                        open
-                                            ? {
-                                                mr: 3,
-                                            }
-                                            : {
-                                                mr: 'auto',
-                                            },
-                                    ]}
+                                    sx={{
+                                        minWidth: 40,
+                                        mr: 2,
+                                    }}
                                 >
+
                                     <navItem.icon />
                                 </ListItemIcon>
-                                <ListItemText
-                                    primary={navItem.component}
-                                    sx={[
-                                        open
-                                            ? {
-                                                opacity: 1,
-                                            }
-                                            : {
-                                                opacity: 0,
-                                            },
-                                    ]}
+                                <ListItemText primary={navItem.component}
+                                    sx={{
+                                        whiteSpace: 'nowrap'
+                                    }}
                                 />
                             </ListItemButton>
                         </ListItem>

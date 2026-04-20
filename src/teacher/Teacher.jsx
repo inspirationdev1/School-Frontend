@@ -33,6 +33,10 @@ import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import LogoutIcon from '@mui/icons-material/Logout';
+
+
+
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -115,22 +119,20 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Teacher() {
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(true);
+
+    // { label: "Reports", link: "/school/schoolreports" },
 
     const navArr = [
-        {link:"/", component:"Home", icon:HomeIcon},
+        { link: "/", component: "Home", icon: HomeIcon },
         { link: "/teacher/details", component: "Details", icon: TheatersIcon },
-        // { link: "/teacher/teachers", component: "Teachers", icon: GroupIcon },
-        // { link: "/teacher/application", component: "Application", icon: GradingIcon }
-        // { link: "/teacher/class", component: "Class", icon:FormatListNumberedIcon },
-        // { link: "/teacher/subject", component: "Subjects", icon: MenuBookIcon },
-        // { link: "/teacher/students", component: "Students", icon: GroupIcon },
-        // { link: "/teacher/teachers", component: "Teachers", icon: GroupIcon },
+        
         { link: "/teacher/periods", component: "Periods", icon: CalendarMonthIcon },
         { link: "/teacher/attendance", component: "Attendance", icon: RecentActorsIcon },
-        { link: "/teacher/examinations", component: "Examinations", icon: ExplicitIcon},
-        {link:"/teacher/notice", component:"Notice", icon:CircleNotificationsIcon},
-        {link:"/logout", component:"Log Out", icon: LogoutIcon}
+        // { link: "/teacher/examinations", component: "Examinations", icon: ExplicitIcon },
+        { link: "/teacher/teacherreports", component: "Reports", icon: ExplicitIcon },
+        { link: "/teacher/notice", component: "Notice", icon: CircleNotificationsIcon },
+        { link: "/logout", component: "Log Out", icon: LogoutIcon }
     ]
     const navigate = useNavigate();
     const handleNavigation = (link) => {
@@ -147,7 +149,7 @@ export default function Teacher() {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar  position="fixed" open={open}>
+            <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
                         color="inherit"
@@ -175,54 +177,30 @@ export default function Teacher() {
                     </IconButton>
                 </DrawerHeader>
                 <Divider />
-                <List sx={{height:"100%"}}>
+                <List sx={{ height: "100%" }}>
                     {navArr && navArr.map((navItem, index) => (
                         <ListItem key={index} disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
-                                sx={[
-                                    {
-                                        minHeight: 48,
-                                        px: 2.5,
-                                    },
-                                    open
-                                        ? {
-                                            justifyContent: 'initial',
-                                        }
-                                        : {
-                                            justifyContent: 'center',
-                                        },
-                                ]}
+                                sx={{
+                                    minHeight: 48,
+                                    px: 2.5,
+                                    justifyContent: 'flex-start', // always left align
+                                }}
 
                                 onClick={() => { handleNavigation(navItem.link) }}
                             >
                                 <ListItemIcon
-                                    sx={[
-                                        {
-                                            minWidth: 0,
-                                            justifyContent: 'center',
-                                        },
-                                        open
-                                            ? {
-                                                mr: 3,
-                                            }
-                                            : {
-                                                mr: 'auto',
-                                            },
-                                    ]}
+                                    sx={{
+                                        minWidth: 40,
+                                        mr: 2,
+                                    }}
                                 >
                                     <navItem.icon />
                                 </ListItemIcon>
-                                <ListItemText
-                                    primary={navItem.component}
-                                    sx={[
-                                        open
-                                            ? {
-                                                opacity: 1,
-                                            }
-                                            : {
-                                                opacity: 0,
-                                            },
-                                    ]}
+                                <ListItemText primary={navItem.component}
+                                    sx={{
+                                        whiteSpace: 'nowrap'
+                                    }}
                                 />
                             </ListItemButton>
                         </ListItem>

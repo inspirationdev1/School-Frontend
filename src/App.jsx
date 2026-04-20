@@ -94,6 +94,9 @@ import FinanceReports from "./school/components/reports/FinanceReports";
 import FinanceReportsPrint from "./school/components/reports/FinanceReportsPrint";
 import ExpenseReportPrint from "./school/components/reports/ExpenseReportPrint";
 import IncomeReportPrint from "./school/components/reports/IncomeReportPrint";
+import QuestionpaperReportPrint from "./school/components/reports/QuestionpaperReportPrint";
+
+
 import StudentReports from "./school/components/reports/StudentReports";
 import AttendanceReportPrint from "./school/components/reports/AttendanceReportPrint";
 import PendingFeesReportPrint from "./school/components/reports/PendingFeesReportPrint";
@@ -106,10 +109,12 @@ import Numberseqs from "./school/components/numberseqs/Numberseqs";
 import Appsettings from "./school/components/appsettings/Appsettings";
 import Periods from "./school/components/periods/Periods";
 import ScheduleReportPrint from "./school/components/periods/ScheduleReportPrint";
+import TeacherScheduleReportPrint from "./teacher/components/periods/TeacherScheduleReportPrint";
 import Bonafidecertificates from "./school/components/bonafidecertificates/Bonafidecertificates";
 import Transfercertificates from "./school/components/transfercertificates/Transfercertificates";
 import BonafidecertificatePrint from "./school/components/bonafidecertificates/BonafidecertificatePrint";
 import TransfercertificatePrint from "./school/components/transfercertificates/TransfercertificatePrint";
+import Attendees from "./school/components/Attendees/Attendees";
 
 
 
@@ -154,6 +159,9 @@ function App() {
               <Route path="transfercertificate" element={<Transfercertificates />} />
               <Route path="transfercertificateprint" element={<TransfercertificatePrint />} />
 
+              <Route path="attendee" element={<Attendees />} />
+              
+
               <Route path="students" element={<Students />} />
               <Route path="teachers" element={<Teachers />} />
               <Route path="employees" element={<Employees />} />
@@ -173,6 +181,7 @@ function App() {
               <Route path="period" element={<Periods />} />
               <Route path="schedulereportprint" element={<ScheduleReportPrint />} />
               
+              
               <Route path="attendance" element={<StudentAttendanceList />} />
               <Route path="attendance-student/:studentId" element={<AttendanceDetails />} />
               <Route path="examinations" element={<Examinations />} />
@@ -189,6 +198,8 @@ function App() {
               <Route path="incomereportprint" element={<IncomeReportPrint />} />
               <Route path="studentreports" element={<StudentReports />} />
               <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
+              <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
+              
 
               <Route path="pendingfeesreportprint" element={<PendingFeesReportPrint />} />
               <Route path="paidfeesreportprint" element={<PaidFeesReportPrint />} />
@@ -217,7 +228,11 @@ function App() {
               <Route index element={<TeacherDetails />} />
               <Route path="details" element={<TeacherDetails />} />
               <Route path="examinations" element={<TeacherExaminations />} />
+              <Route path="teacherreports" element={<SchoolReports />} />
+              <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
+
               <Route path="periods" element={<TeacherSchedule />} />
+              <Route path="teacherschedulereportprint" element={<TeacherScheduleReportPrint />} />
               {/* <Route path='sub-teach' element={<StudentSubjectTeacher/>} /> */}
               <Route path="attendance" element={<AttendanceTeacher />} />
               <Route path="invoice2" element={<Invoice2 />} />

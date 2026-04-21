@@ -230,7 +230,8 @@ function App() {
               <Route path="examinations" element={<TeacherExaminations />} />
               <Route path="teacherreports" element={<SchoolReports />} />
               <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
-
+              <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
+              
               <Route path="periods" element={<TeacherSchedule />} />
               <Route path="teacherschedulereportprint" element={<TeacherScheduleReportPrint />} />
               {/* <Route path='sub-teach' element={<StudentSubjectTeacher/>} /> */}
@@ -238,6 +239,10 @@ function App() {
               <Route path="invoice2" element={<Invoice2 />} />
               <Route path="AttendancePrint" element={<AttendancePrint />} />
               <Route path="notice" element={<NoticeTeacher />} />
+
+              <Route path="marksheet" element={<Marksheet />} />
+              <Route path="marksheetprint" element={<MarksheetPrint />} />
+              
             </Route>
 
             <Route path="/" element={<Client />}>

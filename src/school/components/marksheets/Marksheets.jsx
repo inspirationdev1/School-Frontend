@@ -37,7 +37,10 @@ export default function Marksheet() {
 
     const [students, setStudents] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
-    const [allStudents, setAllStudents] = useState([])
+    const [allStudents, setAllStudents] = useState([]);
+
+    const [periods, setPeriods] = useState([])
+
 
     const [loading, setLoading] = useState(true);
     const [classes, setClasses] = useState([]);
@@ -259,6 +262,11 @@ export default function Marksheet() {
                 return;
             }
 
+
+        //    const isValidTeacher =  validateTeacher();
+        //     if (!isValidTeacher){
+        //         return;
+        //     }
             setIsDataValid(true);
 
             const payload = {
@@ -445,6 +453,55 @@ export default function Marksheet() {
         setAllStudents(studentsResponse.data.data);
     };
 
+    const fetchPeriods = async () => {
+
+        const teacherId = selectedTeacher?._id;
+        if (teacherId) {
+            const periodsResponse = await axios.get(`${baseUrl}/period/teacher/${teacherId}`); // Fetch based on class
+            setPeriods(periodsResponse.data.data);
+        }
+
+    };
+
+    const validateTeacher = () => {
+        let isExists = true;
+
+        if (selectedClass) {
+            isExists = periods.some(classData => classData._id === selectedClass?._id);
+            console.log(isExists); // true
+            if (!isExists){
+                setDataError('Class-Period is not assigned to this teacher');
+                setSelectedClass(null);
+            }
+            setIsDataValid(isExists);
+            return isExists;
+        };
+
+        if (selectedSection) {
+            isExists = periods.some(sectionData => sectionData._id === selectedSection?._id);
+            console.log(isExists); // true
+            if (!isExists){
+                setDataError('Class-Period is not assigned to this teacher');
+            }
+            setIsDataValid(isExists);
+            return isExists;
+        };
+
+        if (selectedSubject) {
+            isExists = periods.some(subjectData => subjectData._id === selectedSubject?._id);
+            console.log(isExists); // true
+            if (!isExists){
+                setDataError('Class-Period is not assigned to this teacher');
+            }
+            setIsDataValid(isExists);
+            return isExists;
+        };
+
+        return isExists;
+    }
+
+
+
     useEffect(() => {
         fetchstudentsmarksheet();
 
@@ -473,6 +530,10 @@ export default function Marksheet() {
 
     }, [selectedClass, selectedSection]);
 
+    useEffect(() => {
+        fetchPeriods();
+
+    }, [selectedTeacher]);
 
     useEffect(() => {
         console.log("marksheetDetails:", marksheetDetails);
@@ -668,6 +729,39 @@ export default function Marksheet() {
                                             />
                                         </Box>
 
+
+                                        {/* Teacher */}
+
+                                        <Box>
+                                            <Autocomplete
+                                                disabled={isEdit}
+                                                options={teacher}
+                                                getOptionLabel={(option) => option.name}
+                                                value={selectedTeacher}
+                                                onChange={(event, newValue) => {
+                                                    setSelectedTeacher(newValue);
+
+                                                    Formik.setFieldValue(
+                                                        "teacher",
+                                                        newValue ? newValue._id : ""
+                                                    );
+                                                }}
+                                                onBlur={() => Formik.setFieldTouched("teacher", true)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select Teacher"
+                                                        placeholder="Search teacher..."
+                                                        fullWidth
+                                                        error={Formik.touched.teacher && Boolean(Formik.errors.teacher)}
+                                                        helperText={Formik.touched.teacher && Formik.errors.teacher}
+                                                    />
+                                                )}
+                                            />
+
+                                        </Box>
+
+
                                         {/* Class */}
 
                                         <Box>
@@ -678,6 +772,8 @@ export default function Marksheet() {
                                                 getOptionLabel={(option) => option.class_name}
                                                 value={selectedClass}
                                                 onChange={(event, newValue) => {
+
+                                                    
                                                     setSelectedClass(newValue);
 
                                                     Formik.setFieldValue(
@@ -700,6 +796,8 @@ export default function Marksheet() {
                                                         "marksLimit",
                                                         0
                                                     );
+
+                                                    
 
                                                 }}
                                                 onBlur={() => Formik.setFieldTouched("class", true)}
@@ -751,36 +849,6 @@ export default function Marksheet() {
                                         </Box>
 
 
-                                        {/* Teacher */}
-
-                                        <Box>
-                                            <Autocomplete
-                                                disabled={isEdit}
-                                                options={teacher}
-                                                getOptionLabel={(option) => option.name}
-                                                value={selectedTeacher}
-                                                onChange={(event, newValue) => {
-                                                    setSelectedTeacher(newValue);
-
-                                                    Formik.setFieldValue(
-                                                        "teacher",
-                                                        newValue ? newValue._id : ""
-                                                    );
-                                                }}
-                                                onBlur={() => Formik.setFieldTouched("teacher", true)}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        label="Select Teacher"
-                                                        placeholder="Search teacher..."
-                                                        fullWidth
-                                                        error={Formik.touched.teacher && Boolean(Formik.errors.teacher)}
-                                                        helperText={Formik.touched.teacher && Formik.errors.teacher}
-                                                    />
-                                                )}
-                                            />
-
-                                        </Box>
 
 
                                         {/* Subject */}

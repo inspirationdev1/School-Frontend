@@ -64,7 +64,7 @@ export default function SchoolReports() {
     return { label: `${year}-${year + 1}`, value: year };
   });
 
-  
+
   const { authenticated, user } = React.useContext(AuthContext);
   console.log("user", user);
 
@@ -85,10 +85,18 @@ export default function SchoolReports() {
         student: selectedStudent._id,
         year: selectedYear.value
       };
-      window.open(
-        `/school/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-        "_blank"
-      );
+
+      if (user?.role === 'TEACHER') {
+        window.open(
+          `/teacher/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      } else {
+        window.open(
+          `/school/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      }
     } else if (selectedReport.reportId == "questionpaper-report") {
       const data = {
         fromDate: fromDate,
@@ -257,7 +265,7 @@ export default function SchoolReports() {
 
   const fetchTeacher = async () => {
     const params = {};
-     axios
+    axios
       .get(`${baseUrl}/teacher/fetch-with-query`, { params: params })
       .then((resp) => {
         console.log("Fetching data in  teacher Calls  admin.", resp);
@@ -266,7 +274,7 @@ export default function SchoolReports() {
       .catch((e) => {
         console.log("Error in fetching teacher calls admin data", e);
       });
-    
+
   };
 
   const fetchSubject = async () => {
@@ -346,7 +354,7 @@ export default function SchoolReports() {
     fetchTeacher();
     fetchSubject();
 
-  }, [message,user]);
+  }, [message, user]);
 
 
   useEffect(() => {

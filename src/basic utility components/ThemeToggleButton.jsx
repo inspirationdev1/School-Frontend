@@ -26,9 +26,7 @@ const ThemeToggleButton = () => {
   const { themeDark, themeChange, user } = useContext(AuthContext);
   const [darkMode, setDarkMode] = useState(false);
 
-  const usr = user;
-  console.log("usr", usr);
-  console.log("user", user);
+
 
   const handleClick = () => {
 
@@ -37,12 +35,7 @@ const ThemeToggleButton = () => {
 
   return (
     <>
-      {/* <Box>
-        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-          👤 {user?.owner_name}
-          
-        </Typography>
-      </Box> */}
+      
       <Box>
         <Draggable>
           <IconButton

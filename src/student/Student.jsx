@@ -114,6 +114,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function Student() {
+    const { authenticated, user } = React.useContext(AuthContext);
+        console.log("user", user);
     const theme = useTheme();
     const [open, setOpen] = React.useState(true);
 
@@ -147,24 +149,40 @@ export default function Student() {
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <AppBar position="fixed" open={open}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        sx={[
-                            {
-                                marginRight: 5,
-                            },
-                            open && { display: 'none' },
-                        ]}
+                <Toolbar sx={{ position: "relative" }}>
+
+                    {/* Left Section */}
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            onClick={handleDrawerOpen}
+                            edge="start"
+                            sx={{ mr: 2 }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+
+                        <Typography variant="h6" noWrap sx={{ mr: 2 }}>
+                            {user?.role === 'STUDENT' && user?.name}
+                        </Typography>
+
+                        <AccountCircleIcon />
+                    </Box>
+
+                    {/* Center Title */}
+                    <Typography
+                        variant="h6"
+                        noWrap
+                        sx={{
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                        }}
                     >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap component="div">
-                        School Management System Student
+                        School Management System
                     </Typography>
+
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" open={open}>

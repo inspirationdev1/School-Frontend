@@ -120,6 +120,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Teacher() {
     const { authenticated, user } = React.useContext(AuthContext);
+    console.log("user", user);
     const theme = useTheme();
     const [open, setOpen] = React.useState(true);
 
@@ -169,7 +170,7 @@ export default function Teacher() {
                         </IconButton>
 
                         <Typography variant="h6" noWrap sx={{ mr: 2 }}>
-                            {user?.role === 'SCHOOL' && user?.name}
+                            {user?.role === 'TEACHER' && user?.name}
                         </Typography>
 
                         <AccountCircleIcon />

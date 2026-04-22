@@ -219,8 +219,18 @@ function App() {
               <Route index element={<StudentDetails />} />
               <Route path="student-details" element={<StudentDetails />} />
               <Route path="examinations" element={<StudentExaminations />} />
-              <Route path='periods' element={<ScheduleStudent />} />
-              <Route path="attendance" element={<AttendanceStudent />} />
+              {/* <Route path='periods' element={<ScheduleStudent />} /> */}
+              {/* <Route path="attendance" element={<AttendanceStudent />} /> */}
+
+              <Route path="periodschedule" element={<Schedule />} />
+              <Route path="schedulereportprint" element={<ScheduleReportPrint />} />
+              
+              <Route path="studentreports" element={<StudentReports />} />
+              <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
+
+              <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
+              <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
+
               <Route path="notice" element={<NoticeStudent />} />
             </Route>
 
@@ -242,7 +252,7 @@ function App() {
 
               <Route path="marksheet" element={<Marksheet />} />
               <Route path="marksheetprint" element={<MarksheetPrint />} />
-              
+
             </Route>
 
             <Route path="/" element={<Client />}>
@@ -257,9 +267,18 @@ function App() {
             <Route path="parent" element={<ProtectedRoute allowedRoles={['PARENT']}><Parent /></ProtectedRoute>}>
               <Route index element={<ParentDetails />} />
               <Route path="parent-details" element={<ParentDetails />} />
-              <Route path="examinations" element={<ParentExaminations />} />
+              {/* <Route path="examinations" element={<ParentExaminations />} />
               <Route path='periods' element={<ScheduleParent />} />
-              <Route path="attendance" element={<AttendanceParent />} />
+              <Route path="attendance" element={<AttendanceParent />} /> */}
+
+              <Route path="periodschedule" element={<Schedule />} />
+              <Route path="schedulereportprint" element={<ScheduleReportPrint />} />
+              
+              <Route path="studentreports" element={<StudentReports />} />
+              <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
+
+              <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
+              <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
               <Route path="notice" element={<NoticeParent/>} />
             </Route>
 

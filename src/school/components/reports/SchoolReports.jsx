@@ -14,10 +14,9 @@ import {
   Autocomplete,
   Alert,
 } from "@mui/material";
-import * as React from 'react';
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useContext } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
@@ -65,7 +64,7 @@ export default function SchoolReports() {
   });
 
 
-  const { authenticated, user } = React.useContext(AuthContext);
+  const { authenticated, user } = useContext(AuthContext);
   console.log("user", user);
 
 

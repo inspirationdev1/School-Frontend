@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
@@ -30,6 +31,8 @@ import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { AuthContext } from '../context/AuthContext';
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -118,9 +121,12 @@ export default function Student() {
         // {link:"/", component:"Home", icon:HomeIcon},
         // { link: "/student", component: "Dashboard", icon: DashboardIcon },
         { link: "/student/student-details", component: "Your Details", icon: DashboardIcon },
-        { link: "/student/periods", component: "Periods", icon: CalendarMonthIcon },
-        { link: "/student/attendance", component: "Attendance", icon: GradingIcon },
-        { link: "/student/examinations", component: "Examination", icon: ExplicitIcon },
+        // { link: "/student/periods", component: "Periods", icon: CalendarMonthIcon },
+        { link: "/student/periodschedule", component: "Periods", icon: CalendarMonthIcon },
+        // { link: "/student/attendance", component: "Attendance", icon: GradingIcon },
+        { link: "/student/studentreports", component: "Reports", icon: GradingIcon },
+        
+        // { link: "/student/examinations", component: "Examination", icon: ExplicitIcon },
         { link: "/student/notice", component: "Notice", icon: CircleNotificationsIcon },
         { link: "/logout", component: "Log Out", icon: LogoutIcon }
     ]

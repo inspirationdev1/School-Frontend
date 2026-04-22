@@ -16,16 +16,18 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { schoolreportsSchema } from "../../../yupSchema/schoolreportsSchema";
+import { AuthContext } from '../../../context/AuthContext';
 
 export default function Schedule() {
 
 
-
+  const { authenticated, user } = useContext(AuthContext);
+  console.log("user", user);
   const [loading, setLoading] = useState(true);
 
 
@@ -81,17 +83,31 @@ export default function Schedule() {
       section: selectedSection
     };
 
-    if (selectedTeacher){
+    if (selectedTeacher) {
       data.teacher = selectedTeacher;
     }
 
 
 
 
-    window.open(
-      `/school/ScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-      "_blank"
-    );
+
+    console.log("user", user?.role);
+    if (user?.role === 'STUDENT') {
+      window.open(
+        `/student/ScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+        "_blank"
+      );
+    } else if (user?.role === 'PARENT')  {
+      window.open(
+        `/parent/ScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+        "_blank"
+      );
+    }else {
+      window.open(
+        `/school/ScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+        "_blank"
+      );
+    }
 
 
     setPrint(false);

@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
@@ -38,7 +39,7 @@ import ExplicitIcon from '@mui/icons-material/Explicit';
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { AuthContext } from '../context/AuthContext';
-// import { AuthContext } from '../../../context/AuthContext';
+
 
 const drawerWidth = 200;
 
@@ -169,7 +170,7 @@ export default function School() {
                 { label: "Students", link: "/school/students" },
                 { label: "Parents", link: "/school/parents" },
                 // { label: "Attendee", link: "/school/attendance" },
-                
+
                 { label: "Bonafide Cert", link: "/school/bonafidecertificate" },
                 { label: "Transfer Cert", link: "/school/transfercertificate" },
                 { label: "Reports", link: "/school/studentreports" },
@@ -213,7 +214,7 @@ export default function School() {
                 { label: "Reports", link: "/school/financereports" },
                 { label: "Account Level", link: "/school/accountlevel" },
                 { label: "Account Ledger", link: "/school/accountledger" },
-                
+
 
             ],
         },
@@ -260,30 +261,44 @@ export default function School() {
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <AppBar sx={{}} position="fixed" open={open}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        sx={[
-                            {
-                                marginRight: 5,
-                            },
-                            open && { display: 'none' },
-                        ]}
+                <Toolbar sx={{ position: "relative" }}>
+
+                    {/* Left Section */}
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            onClick={handleDrawerOpen}
+                            edge="start"
+                            sx={{ mr: 2 }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+
+                        <Typography variant="h6" noWrap sx={{ mr: 2 }}>
+                            {user?.role === 'SCHOOL' && user?.owner_name}
+                        </Typography>
+
+                        <AccountCircleIcon />
+                    </Box>
+
+                    {/* Center Title */}
+                    <Typography
+                        variant="h6"
+                        noWrap
+                        sx={{
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                        }}
                     >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap component="div">
                         School Management System
                     </Typography>
-                   
-                    {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                        👤 {user?.owner_name}
-                    </Typography> */}
-                    
+
                 </Toolbar>
+
+
+
             </AppBar>
             <Drawer
                 variant="permanent"

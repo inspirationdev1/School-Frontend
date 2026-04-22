@@ -111,7 +111,7 @@ export default function Expenses() {
                 Formik.setFieldValue("expenseTime", dayjs().format("YYYY-MM-DD HH:mm:ss"));
                 Formik.setFieldValue("expenseCode", resp.data.data.expenseCode);
                 Formik.setFieldValue("status", resp.data.data.status);
-                Formik.setFieldValue("employee", resp.data.data.employee._id);
+                Formik.setFieldValue("employee", resp.data.data?.employee?._id);
                 setSelectedEmployee(resp.data.data.employee);
 
                 Formik.setFieldValue("remarks", resp.data.data.remarks);

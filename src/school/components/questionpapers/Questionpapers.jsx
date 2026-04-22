@@ -24,7 +24,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { useFormik } from "formik";
 import axios from "axios";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -36,7 +36,11 @@ import { questionpaperSchema } from "../../../yupSchema/questionpaperSchema";
 import { convertDate } from "../../../utilityFunctions";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 
+import { AuthContext } from '../../../context/AuthContext';
+
 export default function Questionpapers() {
+    const { authenticated, user } = useContext(AuthContext);
+
     const [isEditQuestionpaper, setEditQuestionpaper] = useState(false);
     const [questionpaperForm, setQuestionpaperForm] = useState(false);
     const [questionpaperEditId, setQuestionpaperEditId] = useState(null);
@@ -148,11 +152,11 @@ export default function Questionpapers() {
                 questionpaperFormik.setFieldValue("date", dayjs(resp.data.data.questionpaperDate));
                 questionpaperFormik.setFieldValue("class", resp.data.data?.class._id);
                 questionpaperFormik.setFieldValue("section", resp.data.data?.section?._id);
-                questionpaperFormik.setFieldValue("subject", resp?.data?.data?.subject?._id||"");
-                questionpaperFormik.setFieldValue("teacher", resp?.data?.data?.teacher?._id)||"";
-                questionpaperFormik.setFieldValue("examination", resp?.data?.data?.examination?._id||"");
-                questionpaperFormik.setFieldValue("marksLimit", resp?.data?.data?.marksLimit||0);
-                questionpaperFormik.setFieldValue("fileName", resp?.data?.data?.fileName||"");
+                questionpaperFormik.setFieldValue("subject", resp?.data?.data?.subject?._id || "");
+                questionpaperFormik.setFieldValue("teacher", resp?.data?.data?.teacher?._id) || "";
+                questionpaperFormik.setFieldValue("examination", resp?.data?.data?.examination?._id || "");
+                questionpaperFormik.setFieldValue("marksLimit", resp?.data?.data?.marksLimit || 0);
+                questionpaperFormik.setFieldValue("fileName", resp?.data?.data?.fileName || "");
 
                 questionpaperFormik.setFieldValue("year", resp.data.data.year);
                 const matchedYear = years.find(s => s.value === resp.data.data.year);
@@ -395,346 +399,346 @@ export default function Questionpapers() {
 
                 {tab === 0 && (
                     <Box>
-                        
-                            <Paper sx={{ p: 4, mt: 3, maxWidth: 500, mx: "auto" }}>
 
-                                {/* Heading */}
-                                <Typography
-                                    variant="h6"
-                                    sx={{
-                                        textAlign: "center",
-                                        fontWeight: 700,
-                                        mb: 3
-                                    }}
-                                >
-                                    Assign Questionpaper
-                                </Typography>
+                        <Paper sx={{ p: 4, mt: 3, maxWidth: 500, mx: "auto" }}>
 
-                                <Box
-                                    component="form"
-                                    noValidate
-                                    autoComplete="off"
-                                    onSubmit={questionpaperFormik.handleSubmit}
-                                    display="grid"
-                                    gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }} // 1 column mobile, 2 columns desktop
-                                    gap={3}
-                                >
+                            {/* Heading */}
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    textAlign: "center",
+                                    fontWeight: 700,
+                                    mb: 3
+                                }}
+                            >
+                                Assign Questionpaper
+                            </Typography>
 
-                                    {/* Class */}
+                            <Box
+                                component="form"
+                                noValidate
+                                autoComplete="off"
+                                onSubmit={questionpaperFormik.handleSubmit}
+                                display="grid"
+                                gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }} // 1 column mobile, 2 columns desktop
+                                gap={3}
+                            >
 
-                                    <Box>
+                                {/* Class */}
 
-                                        <Autocomplete
-                                            disabled={isEditQuestionpaper}
-                                            options={allClasses}
-                                            getOptionLabel={(option) => option.class_name}
-                                            value={selectedClass}
-                                            onChange={(event, newValue) => {
-                                                setSelectedClass(newValue);
+                                <Box>
 
-                                                questionpaperFormik.setFieldValue(
-                                                    "class",
-                                                    newValue ? newValue._id : ""
-                                                );
-                                            }}
-                                            onBlur={() => questionpaperFormik.setFieldTouched("class", true)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select Class"
-                                                    placeholder="Search class..."
-                                                    fullWidth
-                                                    error={questionpaperFormik.touched.class && Boolean(questionpaperFormik.errors.class)}
-                                                    helperText={questionpaperFormik.touched.class && questionpaperFormik.errors.class}
-                                                />
-                                            )}
-                                        />
+                                    <Autocomplete
+                                        disabled={isEditQuestionpaper}
+                                        options={allClasses}
+                                        getOptionLabel={(option) => option.class_name}
+                                        value={selectedClass}
+                                        onChange={(event, newValue) => {
+                                            setSelectedClass(newValue);
 
-
-                                    </Box>
-
-                                    {/* Section */}
-
-                                    <Box>
-
-                                        <Autocomplete
-                                            // disabled={isEditQuestionpaper}
-                                            options={allSections}
-                                            getOptionLabel={(option) => option.section_name}
-                                            value={selectedSection}
-                                            onChange={(event, newValue) => {
-                                                setSelectedSection(newValue);
-
-                                                questionpaperFormik.setFieldValue(
-                                                    "section",
-                                                    newValue ? newValue._id : ""
-                                                );
-                                            }}
-                                            onBlur={() => questionpaperFormik.setFieldTouched("section", true)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select Section"
-                                                    placeholder="Search section..."
-                                                    fullWidth
-                                                    error={questionpaperFormik.touched.section && Boolean(questionpaperFormik.errors.section)}
-                                                    helperText={questionpaperFormik.touched.section && questionpaperFormik.errors.section}
-                                                />
-                                            )}
-                                        />
-
-
-                                    </Box>
-
-
-                                    <Box>
-                                        <TextField
-                                            fullWidth
-                                            label="Name"
-                                            variant="outlined"
-                                            name="name"
-                                            value={questionpaperFormik.values.name}
-                                            onChange={questionpaperFormik.handleChange}
-                                            onBlur={questionpaperFormik.handleBlur}
-                                        />
-                                        {questionpaperFormik.touched.name && questionpaperFormik.errors.name && (
-                                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                                                {questionpaperFormik.errors.name}
-                                            </p>
+                                            questionpaperFormik.setFieldValue(
+                                                "class",
+                                                newValue ? newValue._id : ""
+                                            );
+                                        }}
+                                        onBlur={() => questionpaperFormik.setFieldTouched("class", true)}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Select Class"
+                                                placeholder="Search class..."
+                                                fullWidth
+                                                error={questionpaperFormik.touched.class && Boolean(questionpaperFormik.errors.class)}
+                                                helperText={questionpaperFormik.touched.class && questionpaperFormik.errors.class}
+                                            />
                                         )}
-                                    </Box>
+                                    />
 
-                                    {/* Description */}
-                                    <Box>
-                                        <TextField
-                                            fullWidth
-                                            label="Description"
-                                            variant="outlined"
-                                            name="description"
-                                            value={questionpaperFormik.values.description}
-                                            onChange={questionpaperFormik.handleChange}
-                                            onBlur={questionpaperFormik.handleBlur}
-                                        />
-                                        {/* {questionpaperFormik.touched.description &&
+
+                                </Box>
+
+                                {/* Section */}
+
+                                <Box>
+
+                                    <Autocomplete
+                                        // disabled={isEditQuestionpaper}
+                                        options={allSections}
+                                        getOptionLabel={(option) => option.section_name}
+                                        value={selectedSection}
+                                        onChange={(event, newValue) => {
+                                            setSelectedSection(newValue);
+
+                                            questionpaperFormik.setFieldValue(
+                                                "section",
+                                                newValue ? newValue._id : ""
+                                            );
+                                        }}
+                                        onBlur={() => questionpaperFormik.setFieldTouched("section", true)}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Select Section"
+                                                placeholder="Search section..."
+                                                fullWidth
+                                                error={questionpaperFormik.touched.section && Boolean(questionpaperFormik.errors.section)}
+                                                helperText={questionpaperFormik.touched.section && questionpaperFormik.errors.section}
+                                            />
+                                        )}
+                                    />
+
+
+                                </Box>
+
+
+                                <Box>
+                                    <TextField
+                                        fullWidth
+                                        label="Name"
+                                        variant="outlined"
+                                        name="name"
+                                        value={questionpaperFormik.values.name}
+                                        onChange={questionpaperFormik.handleChange}
+                                        onBlur={questionpaperFormik.handleBlur}
+                                    />
+                                    {questionpaperFormik.touched.name && questionpaperFormik.errors.name && (
+                                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                                            {questionpaperFormik.errors.name}
+                                        </p>
+                                    )}
+                                </Box>
+
+                                {/* Description */}
+                                <Box>
+                                    <TextField
+                                        fullWidth
+                                        label="Description"
+                                        variant="outlined"
+                                        name="description"
+                                        value={questionpaperFormik.values.description}
+                                        onChange={questionpaperFormik.handleChange}
+                                        onBlur={questionpaperFormik.handleBlur}
+                                    />
+                                    {/* {questionpaperFormik.touched.description &&
                 questionpaperFormik.errors.description && (
                   <p style={{ color: "red", textTransform: "capitalize" }}>
                     {questionpaperFormik.errors.description}
                   </p>
                 )} */}
-                                    </Box>
+                                </Box>
 
-                                    {/* Date */}
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                            label="Date"
-                                            value={dayjs(questionpaperFormik.values.date)}
-                                            onChange={(e) => {
-                                                questionpaperFormik.setFieldValue("date", dayjs(e));
-                                            }}
-                                            slotProps={{ textField: { fullWidth: true } }}
-                                        />
-                                    </LocalizationProvider>
-
-
-                                    {/* Academic Year */}
-                                    <Box>
-                                        <Autocomplete
-                                            disabled={isEditQuestionpaper}
-                                            options={years}
-                                            getOptionLabel={(option) => option.label}
-                                            value={selectedYear}
-                                            onChange={(event, newValue) => {
-                                                setSelectedYear(newValue);
-
-                                                questionpaperFormik.setFieldValue(
-                                                    "year",
-                                                    newValue ? newValue.value : ""
-                                                );
-                                            }}
-                                            onBlur={() => questionpaperFormik.setFieldTouched("year", true)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select Academic Year"
-                                                    placeholder="Search year..."
-                                                    fullWidth
-                                                    error={questionpaperFormik.touched.year && Boolean(questionpaperFormik.errors.year)}
-                                                    helperText={questionpaperFormik.touched.year && questionpaperFormik.errors.year}
-                                                />
-                                            )}
-                                        />
-                                    </Box>
-
-                                    {/* Subject */}
-
-                                    <Autocomplete
-                                        options={allSubjects}
-                                        getOptionLabel={(option) => option.subject_name}
-                                        value={selectedSubject}
-                                        onChange={(event, newValue) => {
-                                            setSelectedSubject(newValue);
-                                            questionpaperFormik.setFieldValue(
-                                                "subject",
-                                                newValue ? newValue._id : ""
-                                            );
+                                {/* Date */}
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        label="Date"
+                                        value={dayjs(questionpaperFormik.values.date)}
+                                        onChange={(e) => {
+                                            questionpaperFormik.setFieldValue("date", dayjs(e));
                                         }}
-                                        onBlur={() => questionpaperFormik.setFieldTouched("subject", true)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Select Subject"
-                                                placeholder="Search subject..."
-                                                fullWidth
-                                                error={questionpaperFormik.touched.subject && Boolean(questionpaperFormik.errors.subject)}
-                                                helperText={questionpaperFormik.touched.subject && questionpaperFormik.errors.subject}
-                                            />
-                                        )}
+                                        slotProps={{ textField: { fullWidth: true } }}
                                     />
+                                </LocalizationProvider>
 
 
-                                    {/* Teacher */}
-
-                                    <Autocomplete
-                                        options={allTeachers}
-                                        getOptionLabel={(option) => option.name}
-                                        value={selectedTeacher}
-                                        onChange={(event, newValue) => {
-                                            setSelectedTeacher(newValue);
-                                            questionpaperFormik.setFieldValue(
-                                                "teacher",
-                                                newValue ? newValue._id : ""
-                                            );
-                                        }}
-                                        onBlur={() => questionpaperFormik.setFieldTouched("teacher", true)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Select Teacher"
-                                                placeholder="Search teacher..."
-                                                fullWidth
-                                                error={questionpaperFormik.touched.teacher && Boolean(questionpaperFormik.errors.teacher)}
-                                                helperText={questionpaperFormik.touched.teacher && questionpaperFormik.errors.teacher}
-                                            />
-                                        )}
-                                    />
-
-                                    {/* Examination */}
-
+                                {/* Academic Year */}
+                                <Box>
                                     <Autocomplete
                                         disabled={isEditQuestionpaper}
-                                        options={allExaminations}
-                                        getOptionLabel={(option) => option.examination_name}
-                                        value={selectedExamination}
+                                        options={years}
+                                        getOptionLabel={(option) => option.label}
+                                        value={selectedYear}
                                         onChange={(event, newValue) => {
-                                            setSelectedExamination(newValue);
+                                            setSelectedYear(newValue);
+
                                             questionpaperFormik.setFieldValue(
-                                                "examination",
-                                                newValue ? newValue._id : ""
+                                                "year",
+                                                newValue ? newValue.value : ""
                                             );
-
-
-
-
                                         }}
-                                        onBlur={() => questionpaperFormik.setFieldTouched("examination", true)}
+                                        onBlur={() => questionpaperFormik.setFieldTouched("year", true)}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
-                                                label="Select Examination"
-                                                placeholder="Search examination..."
+                                                label="Select Academic Year"
+                                                placeholder="Search year..."
                                                 fullWidth
-                                                error={questionpaperFormik.touched.examination && Boolean(questionpaperFormik.errors.examination)}
-                                                helperText={questionpaperFormik.touched.examination && questionpaperFormik.errors.examination}
+                                                error={questionpaperFormik.touched.year && Boolean(questionpaperFormik.errors.year)}
+                                                helperText={questionpaperFormik.touched.year && questionpaperFormik.errors.year}
                                             />
                                         )}
                                     />
+                                </Box>
 
-                                    {/* marksLimit */}
-                                    <Box>
+                                {/* Subject */}
+
+                                <Autocomplete
+                                    options={allSubjects}
+                                    getOptionLabel={(option) => option.subject_name}
+                                    value={selectedSubject}
+                                    onChange={(event, newValue) => {
+                                        setSelectedSubject(newValue);
+                                        questionpaperFormik.setFieldValue(
+                                            "subject",
+                                            newValue ? newValue._id : ""
+                                        );
+                                    }}
+                                    onBlur={() => questionpaperFormik.setFieldTouched("subject", true)}
+                                    renderInput={(params) => (
                                         <TextField
+                                            {...params}
+                                            label="Select Subject"
+                                            placeholder="Search subject..."
                                             fullWidth
-                                            label="marksLimit"
-                                            variant="outlined"
-                                            name="marksLimit"
-                                            type="number"
-                                            value={questionpaperFormik.values.marksLimit}
-                                            onChange={questionpaperFormik.handleChange}
-                                            onBlur={questionpaperFormik.handleBlur}
-
+                                            error={questionpaperFormik.touched.subject && Boolean(questionpaperFormik.errors.subject)}
+                                            helperText={questionpaperFormik.touched.subject && questionpaperFormik.errors.subject}
                                         />
-
-                                        {questionpaperFormik.touched.marksLimit && questionpaperFormik.errors.marksLimit && (
-                                            <p style={{ color: "red", textTransform: "capitalize" }}>
-                                                {questionpaperFormik.errors.marksLimit}
-                                            </p>
-                                        )}
-
-                                    </Box>
+                                    )}
+                                />
 
 
+                                {/* Teacher */}
 
-
-
-
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            alignItems: "center",
-                                        }}
-                                    >
-                                        <Typography sx={{ marginRight: "10px" }} variant="h10">
-                                            File
-                                        </Typography>
+                                <Autocomplete
+                                    options={allTeachers}
+                                    getOptionLabel={(option) => option.name}
+                                    value={selectedTeacher}
+                                    onChange={(event, newValue) => {
+                                        setSelectedTeacher(newValue);
+                                        questionpaperFormik.setFieldValue(
+                                            "teacher",
+                                            newValue ? newValue._id : ""
+                                        );
+                                    }}
+                                    onBlur={() => questionpaperFormik.setFieldTouched("teacher", true)}
+                                    renderInput={(params) => (
                                         <TextField
-                                            sx={{ marginTop: "10px" }}
-                                            id="filled-basic"
-                                            variant="outlined"
-                                            name="fileName"
-                                            type="file"
-                                            inputProps={{ accept: ".pdf,image/*" }}
-                                            onChange={addImage}
-                                            inputRef={fileInputRef}
+                                            {...params}
+                                            label="Select Teacher"
+                                            placeholder="Search teacher..."
+                                            fullWidth
+                                            error={questionpaperFormik.touched.teacher && Boolean(questionpaperFormik.errors.teacher)}
+                                            helperText={questionpaperFormik.touched.teacher && questionpaperFormik.errors.teacher}
                                         />
+                                    )}
+                                />
 
-                                        {imageUrl && (
-                                            <Box sx={{ position: "relative" }}>
-                                                <CardMedia
-                                                    component="img"
-                                                    image={imageUrl}
-                                                    height="240px"
-                                                />
-                                            </Box>
-                                        )}
-                                        {questionpaperFormik.touched.fileName &&
-                                            questionpaperFormik.errors.fileName && (
-                                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                                    {questionpaperFormik.errors.fileName}
-                                                </p>
-                                            )}
-                                    </Box>
+                                {/* Examination */}
 
+                                <Autocomplete
+                                    disabled={isEditQuestionpaper}
+                                    options={allExaminations}
+                                    getOptionLabel={(option) => option.examination_name}
+                                    value={selectedExamination}
+                                    onChange={(event, newValue) => {
+                                        setSelectedExamination(newValue);
+                                        questionpaperFormik.setFieldValue(
+                                            "examination",
+                                            newValue ? newValue._id : ""
+                                        );
 
 
-                                    {/* Buttons (Full Width Row) */}
-                                    <Box gridColumn="1 / -1" display="flex" gap={2}>
-                                        <Button type="submit" variant="contained">
-                                            Submit
-                                        </Button>
 
-                                        <Button
-                                            variant="contained"
-                                            sx={{ background: "tomato" }}
-                                            onClick={cancelEditQuestionpaper}
-                                        >
-                                            Cancel
-                                        </Button>
-                                    </Box>
+
+                                    }}
+                                    onBlur={() => questionpaperFormik.setFieldTouched("examination", true)}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Select Examination"
+                                            placeholder="Search examination..."
+                                            fullWidth
+                                            error={questionpaperFormik.touched.examination && Boolean(questionpaperFormik.errors.examination)}
+                                            helperText={questionpaperFormik.touched.examination && questionpaperFormik.errors.examination}
+                                        />
+                                    )}
+                                />
+
+                                {/* marksLimit */}
+                                <Box>
+                                    <TextField
+                                        fullWidth
+                                        label="marksLimit"
+                                        variant="outlined"
+                                        name="marksLimit"
+                                        type="number"
+                                        value={questionpaperFormik.values.marksLimit}
+                                        onChange={questionpaperFormik.handleChange}
+                                        onBlur={questionpaperFormik.handleBlur}
+
+                                    />
+
+                                    {questionpaperFormik.touched.marksLimit && questionpaperFormik.errors.marksLimit && (
+                                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                                            {questionpaperFormik.errors.marksLimit}
+                                        </p>
+                                    )}
 
                                 </Box>
 
-                            </Paper>
-                        
+
+
+
+
+
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    <Typography sx={{ marginRight: "10px" }} variant="h10">
+                                        File
+                                    </Typography>
+                                    <TextField
+                                        sx={{ marginTop: "10px" }}
+                                        id="filled-basic"
+                                        variant="outlined"
+                                        name="fileName"
+                                        type="file"
+                                        inputProps={{ accept: ".pdf,image/*" }}
+                                        onChange={addImage}
+                                        inputRef={fileInputRef}
+                                    />
+
+                                    {imageUrl && (
+                                        <Box sx={{ position: "relative" }}>
+                                            <CardMedia
+                                                component="img"
+                                                image={imageUrl}
+                                                height="240px"
+                                            />
+                                        </Box>
+                                    )}
+                                    {questionpaperFormik.touched.fileName &&
+                                        questionpaperFormik.errors.fileName && (
+                                            <p style={{ color: "red", textTransform: "capitalize" }}>
+                                                {questionpaperFormik.errors.fileName}
+                                            </p>
+                                        )}
+                                </Box>
+
+
+
+                                {/* Buttons (Full Width Row) */}
+                                <Box gridColumn="1 / -1" display="flex" gap={2}>
+                                    <Button type="submit" variant="contained">
+                                        Submit
+                                    </Button>
+
+                                    <Button
+                                        variant="contained"
+                                        sx={{ background: "tomato" }}
+                                        onClick={cancelEditQuestionpaper}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </Box>
+
+                            </Box>
+
+                        </Paper>
+
                     </Box>
                 )}
 
@@ -748,7 +752,7 @@ export default function Questionpapers() {
         >
           Questionpapers
         </Typography> */}
-                            
+
                             <TableContainer component={Paper}>
                                 <Table sx={{ minWidth: 250 }} aria-label="simple table">
                                     <TableHead>
@@ -771,7 +775,7 @@ export default function Questionpapers() {
                                             <TableCell sx={{ fontWeight: "700" }} align="left">
                                                 Marks Limit
                                             </TableCell>
-                                            
+
                                             <TableCell sx={{ fontWeight: "700" }} align="center">
                                                 Actions
                                             </TableCell>
@@ -810,7 +814,7 @@ export default function Questionpapers() {
                                                                     gap: 1.5, // 👈 space between buttons
                                                                 }}
                                                             >
-                                                                <Button
+                                                                {(user?.role !== 'TEACHER' && <><Button
                                                                     variant="contained"
                                                                     sx={{ background: "red", color: "#fff" }}
                                                                     onClick={() => handleDelete(questionpaper._id)}
@@ -818,6 +822,10 @@ export default function Questionpapers() {
                                                                     Delete
                                                                 </Button>
 
+
+                                                                </>
+
+                                                                )}
                                                                 <Button
                                                                     variant="contained"
                                                                     sx={{ background: "gold", color: "#222222" }}
@@ -825,6 +833,8 @@ export default function Questionpapers() {
                                                                 >
                                                                     Edit
                                                                 </Button>
+
+
 
                                                                 <Button
                                                                     variant="contained"

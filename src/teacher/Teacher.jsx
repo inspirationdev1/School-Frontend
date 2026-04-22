@@ -133,6 +133,8 @@ export default function Teacher() {
         { link: "/teacher/periods", component: "Periods", icon: CalendarMonthIcon },
         { link: "/teacher/attendance", component: "Attendance", icon: RecentActorsIcon },
         { link: "/teacher/marksheet", component: "Marksheets", icon: RecentActorsIcon },
+        { link: "/teacher/questionpapers", component: "Questionpapers", icon: RecentActorsIcon },
+        // { label: "Questionpapers", link: "/school/questionpapers" },
         // { label: "Marksheets", link: "/school/marksheet" },
         // { link: "/teacher/examinations", component: "Examinations", icon: ExplicitIcon },
         { link: "/teacher/teacherreports", component: "Reports", icon: ExplicitIcon },

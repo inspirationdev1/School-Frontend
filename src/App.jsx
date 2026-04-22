@@ -253,6 +253,8 @@ function App() {
               <Route path="marksheet" element={<Marksheet />} />
               <Route path="marksheetprint" element={<MarksheetPrint />} />
 
+              <Route path="questionpapers" element={<Questionpapers />} />
+
             </Route>
 
             <Route path="/" element={<Client />}>

@@ -17,14 +17,16 @@ import {
 // import { Container, Button, Table, TableBody, TableCell, TableHead, TableRow, Typography, Select, MenuItem, Alert, FormControl, InputLabel, Autocomplete, TextField, Box } from '@mui/material';
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useContext } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { marksheetSchema } from "../../../yupSchema/marksheetSchema";
 import MarksheetPrint from "./MarksheetPrint";
+import { AuthContext } from '../../../context/AuthContext';
 
 export default function Marksheet() {
+    const { authenticated, user } = useContext(AuthContext);
     const [isDataValid, setIsDataValid] = useState(true);
     const [dataError, setDataError] = useState('');
     const [studentMarksheet, setStudentMarksheet] = useState([]);
@@ -157,9 +159,16 @@ export default function Marksheet() {
         console.log("Handle  Print is called", id);
         setPrint(true);
 
-
-        window.open(`/school/MarksheetPrint?id=${id}`,
+        if (user?.role === 'TEACHER'){
+            window.open(`/teacher/MarksheetPrint?id=${id}`,
             '_blank');
+        }else{
+            window.open(`/school/MarksheetPrint?id=${id}`,
+            '_blank');
+        }
+        
+
+
         setPrint(false);
 
 

@@ -95,9 +95,7 @@ export default function StudentReports() {
       data.year = selectedYear.value;
     }
 
-    // || selectedReport.reportId === "progresscard-report"
-    //                 || selectedReport.reportId === "questionpaper-report"
-    // values.reportId == "attendance-report"
+    
     if (user?.role === 'STUDENT') {
       if (selectedReport.reportId === "attendance-report") {
         window.open(
@@ -346,7 +344,7 @@ export default function StudentReports() {
       )}
 
 
-      <Box sx={{ padding: "40px 10px 20px 10px" }}
+      <Box 
       >
 
 

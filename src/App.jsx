@@ -33,6 +33,7 @@ import Receipts from "./school/components/receipts/Receipts";
 import ReceiptPrint from './school/components/receipts/ReceiptPrint';
 import Expensetypes from "./school/components/expensetypes/Expensetypes";
 import Expenses from "./school/components/expenses/Expenses";
+import Generalmasters from "./school/components/generalmasters/Generalmasters";
 
 import Accountlevels from "./school/components/accountlevels/Accountlevels";
 import Accountledgers from "./school/components/acountledgers/Accountledgers";
@@ -112,9 +113,13 @@ import ScheduleReportPrint from "./school/components/periods/ScheduleReportPrint
 import TeacherScheduleReportPrint from "./teacher/components/periods/TeacherScheduleReportPrint";
 import Bonafidecertificates from "./school/components/bonafidecertificates/Bonafidecertificates";
 import Transfercertificates from "./school/components/transfercertificates/Transfercertificates";
+import Castecertificates from "./school/components/castecertificates/Castecertificates";
 import BonafidecertificatePrint from "./school/components/bonafidecertificates/BonafidecertificatePrint";
 import TransfercertificatePrint from "./school/components/transfercertificates/TransfercertificatePrint";
+import CastecertificatePrint from "./school/components/castecertificates/CastecertificatePrint";
+
 import Attendees from "./school/components/Attendees/Attendees";
+import Uploaddata from "./school/components/uploaddata/Uploaddata";
 
 
 
@@ -158,6 +163,8 @@ function App() {
               <Route path="bonafidecertificateprint" element={<BonafidecertificatePrint />} />
               <Route path="transfercertificate" element={<Transfercertificates />} />
               <Route path="transfercertificateprint" element={<TransfercertificatePrint />} />
+              <Route path="castecertificate" element={<Castecertificates />} />
+              <Route path="castecertificateprint" element={<CastecertificatePrint />} />
 
               <Route path="attendee" element={<Attendees />} />
               
@@ -174,6 +181,10 @@ function App() {
 
               <Route path="numberseq" element={<Numberseqs />} />
               <Route path="appsetting" element={<Appsettings />} />
+              <Route path="generalmaster" element={<Generalmasters />} />
+              
+              <Route path="uploaddata" element={<Uploaddata />} />
+              
               
 
               <Route path="assign-period" element={<AssignPeriod2 />} />

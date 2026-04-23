@@ -173,6 +173,7 @@ export default function School() {
 
                 { label: "Bonafide Cert", link: "/school/bonafidecertificate" },
                 { label: "Transfer Cert", link: "/school/transfercertificate" },
+                { label: "Caste Cert", link: "/school/castecertificate" },
                 { label: "Reports", link: "/school/studentreports" },
             ],
         },
@@ -234,6 +235,8 @@ export default function School() {
             children: [
                 { label: "Number Seq", link: "/school/numberseq" },
                 { label: "App Settings", link: "/school/appsetting" },
+                { label: "General Master", link: "/school/generalmaster" },
+                { label: "Upload Data", link: "/school/uploaddata" },
             ],
         },
 

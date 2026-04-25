@@ -302,16 +302,7 @@ const SchoolDashboard = () => {
     ],
   };
 
-  // const attendanceData = {
-  //   labels: ["Total Students", "Present", "Absent"],
-  //   datasets: [
-  //     {
-  //       label: "Count",
-  //       data: [100, 80, 20],
-  //       backgroundColor: ["#1976d2", "#2e7d32", "#d32f2f"],
-  //     },
-  //   ],
-  // };
+
 
   return (
     <Box sx={{ p: 3 }}>
@@ -384,9 +375,9 @@ const SchoolDashboard = () => {
 
       }
 
-      <Typography variant="h4" gutterBottom>
+      {/* <Typography variant="h4" gutterBottom>
         Admin/School Owner Dashboard {schoolDetails && `[ ${schoolDetails.school_name} ]`}
-      </Typography>
+      </Typography> */}
 
 
       {preview &&
@@ -406,20 +397,8 @@ const SchoolDashboard = () => {
       }
 
       {schoolDetails && (
-        <Box
-          sx={{
-            position: 'relative',
-            height: "500px",
-            width: "auto",
-            background: `url(${schoolDetails.school_image})`,
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h2">{schoolDetails.school_name}</Typography>
+        <Box>
+          {/* <Typography variant="h2">{schoolDetails.school_name}</Typography> */}
           <Box sx={{ position: 'absolute', bottom: '10px', right: '10px' }} >
             <Button onClick={() => { setPreview(true) }}>
               <PreviewIcon sx={{ color: "#fff", fontSize: '40px' }} />

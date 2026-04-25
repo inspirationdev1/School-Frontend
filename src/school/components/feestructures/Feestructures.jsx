@@ -58,10 +58,10 @@ export default function Feestructures() {
       .then((resp) => {
         Formik.setFieldValue("name", resp.data.data.name);
         Formik.setFieldValue("code", resp.data.data.code);
-        Formik.setFieldValue("class", resp.data.data.class._id);
+        Formik.setFieldValue("class", resp.data.data?.class?._id);
         Formik.setFieldValue("feestype", resp?.data?.data?.feestype?._id);
         Formik.setFieldValue("amount", resp.data.data.amount);
-        const classId = resp.data.data?.class._id || resp.data.class._id;
+        const classId = resp.data.data?.class?._id;
         const matchedClass = attendeeClass.find(c => c._id === classId);
         setSelectedClass(matchedClass || null);
 
@@ -289,7 +289,7 @@ export default function Feestructures() {
                       <Autocomplete
                         disabled={isEdit}
                         options={attendeeClass}
-                        getOptionLabel={(option) => option.class_name}
+                        getOptionLabel={(option) => option?.class_name}
                         value={selectedClass}
                         onChange={(event, newValue) => {
                           setSelectedClass(newValue);
@@ -427,7 +427,7 @@ export default function Feestructures() {
                         {value.name}
                       </TableCell>
                       <TableCell align="right">{value.code}</TableCell>
-                      <TableCell align="right">{value.class.class_name}</TableCell>
+                      <TableCell align="right">{value?.class?.class_name}</TableCell>
                       <TableCell align="right">{value?.feestype?.feestype_name||""}</TableCell>
                       <TableCell align="right">{value.amount}</TableCell>
                       <TableCell align="right">

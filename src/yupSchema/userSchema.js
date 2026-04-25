@@ -3,6 +3,7 @@ import * as yup from 'yup';
 export const userSchema = yup.object({
     email: yup.string().email("Must be an Email.").required("Email is required field."),
     name: yup.string().min(4, "Name must contain 4 characters").required("Name is required"),
+    user_code: yup.string().required("Code is required"),
     qualification: yup.string().min(4, "Qualification must contain 4 characters.").required("Qualification is required."),
     gender: yup.string("Gender must be string value.").required("You must select a Gender."),
     age: yup.number("Age must be a number.").required("You must give Age."),

@@ -54,8 +54,10 @@ export default function Accountlevels() {
             .then((resp) => {
                 Formik.setFieldValue("accountlevel_name", resp.data.data.accountlevel_name);
                 Formik.setFieldValue("accountlevel_code", resp.data.data.accountlevel_code);
-                Formik.setFieldValue("levelId", resp.data.data?.levelId);
-                setSelectedAccountlevel(resp.data.data?.levelId);
+                Formik.setFieldValue("level", resp.data.data?.level||0);
+                Formik.setFieldValue("seq", resp.data.data?.seq||0);
+                Formik.setFieldValue("groupId", resp.data.data?.groupId);
+                setSelectedAccountlevel(resp.data.data?.groupId);   
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Class tab
             })
@@ -81,13 +83,13 @@ export default function Accountlevels() {
     const initialValues = {
         accountlevel_name: "",
         accountlevel_code: "",
-        levelId: "",
+        groupId: "",
     };
     const Formik = useFormik({
         initialValues: initialValues,
         validationSchema: accountlevelSchema,
         onSubmit: (values) => {
-            values.levelId = selectedAccountlevel?._id||null;
+            values.groupId = selectedAccountlevel?._id||null;
             if (isEdit) {
                 console.log("edit id", editId);
                 axios
@@ -235,7 +237,7 @@ export default function Accountlevels() {
                                         onChange={(event, newValue) => {
                                             setSelectedAccountlevel(newValue);
                                             Formik.setFieldValue(
-                                                "levelId",
+                                                "groupId",
                                                 newValue ? newValue._id : ""
                                             );
                                         }}
@@ -288,6 +290,7 @@ export default function Accountlevels() {
                                     <TableRow>
                                         <TableCell component="th" scope="row"> accountlevel Name</TableCell>
                                         <TableCell align="right">Code</TableCell>
+                                        <TableCell align="right">Account Group</TableCell>
                                         <TableCell align="right">Account Level</TableCell>
                                         <TableCell align="right">Action</TableCell>
                                     </TableRow>
@@ -302,7 +305,8 @@ export default function Accountlevels() {
                                                 {value.accountlevel_name}
                                             </TableCell>
                                             <TableCell align="right">{value.accountlevel_code}</TableCell>
-                                            <TableCell align="right">{value.levelId?.accountlevel_name}</TableCell>
+                                            <TableCell align="right">{value.groupId?.accountlevel_name}</TableCell>
+                                            <TableCell align="right">{value?.level}</TableCell>
                                             <TableCell align="right">
                                                 <Box
                                                     sx={{

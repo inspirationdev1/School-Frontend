@@ -100,6 +100,8 @@ export default function Parents() {
       .then((resp) => {
         Formik.setFieldValue("email", resp.data.data.email);
         Formik.setFieldValue("name", resp.data.data.name);
+        Formik.setFieldValue("parent_code", resp.data.data?.parent_code);
+        
         Formik.setFieldValue("qualification", resp.data.data.qualification)
         Formik.setFieldValue("gender", resp.data.data.gender)
 
@@ -176,6 +178,7 @@ export default function Parents() {
   const initialValues = {
     email: "",
     name: "",
+    parent_code:"",
     qualification: "",
     gender: "",
     age: "",
@@ -354,6 +357,23 @@ export default function Parents() {
                     )}
                   </Grid>
 
+                  {/* parent_code */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="parent_code"
+                      name="parent_code"
+                      value={Formik.values.parent_code}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.parent_code && Formik.errors.parent_code && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.parent_code}
+                      </p>
+                    )}
+                  </Grid>
+
                   {/* QUALIFICATION */}
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -514,43 +534,7 @@ export default function Parents() {
           </Box>
         )}
 
-        {/* {tab === 1 && (
-          <Box>
-            <Box
-              sx={{
-                padding: "5px",
-                minWidth: 120,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: "20px",
-              }}
-            >
-
-
-
-              <TextField
-                id=""
-                label="Search Name  .. "
-                onChange={handleSearch}
-              />
-            </Box>
-
-            <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
-              {parents &&
-                parents.map((parent, i) => {
-                  return (
-                    <ParentCardAdmin
-                      key={i}
-                      handleEdit={handleEdit}
-                      handleDelete={handleDelete}
-                      parent={parent}
-                    />
-                  );
-                })}
-            </Box>
-          </Box>
-        )} */}
+        
 
         {tab === 1 && (
           <Box>

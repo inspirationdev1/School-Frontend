@@ -88,6 +88,7 @@ export default function Teachers() {
       .then((resp) => {
         Formik.setFieldValue("email", resp.data.data.email);
         Formik.setFieldValue("name", resp.data.data.name);
+        Formik.setFieldValue("teacher_code", resp.data.data?.teacher_code);
         Formik.setFieldValue("qualification", resp.data.data.qualification)
         Formik.setFieldValue("gender", resp.data.data.gender)
         // Formik.setFieldValue("age", resp.data.data.age);
@@ -162,6 +163,7 @@ export default function Teachers() {
   const initialValues = {
     email: "",
     name: "",
+    teacher_code: "",
     qualification: "",
     gender: "",
     age: "",
@@ -325,6 +327,7 @@ export default function Teachers() {
                   {/* EMAIL */}
                   <Grid item xs={12} md={6}>
                     <TextField
+                      disabled={isEdit}
                       fullWidth
                       label="Email"
                       name="email"
@@ -352,6 +355,25 @@ export default function Teachers() {
                     {Formik.touched.name && Formik.errors.name && (
                       <p style={{ color: "red", textTransform: "capitalize" }}>
                         {Formik.errors.name}
+                      </p>
+                    )}
+                  </Grid>
+
+
+                   {/* teacher_code */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      disabled={isEdit}
+                      fullWidth
+                      label="teacher_code"
+                      name="teacher_code"
+                      value={Formik.values.teacher_code}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.teacher_code && Formik.errors.teacher_code && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.teacher_code}
                       </p>
                     )}
                   </Grid>
@@ -516,43 +538,7 @@ export default function Teachers() {
           </Box>
         )}
 
-        {/* {tab === 1 && (
-          <Box>
-            <Box
-              sx={{
-                padding: "5px",
-                minWidth: 120,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: "20px",
-              }}
-            >
-
-
-
-              <TextField
-                id=""
-                label="Search Name  .. "
-                onChange={handleSearch}
-              />
-            </Box>
-
-            <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
-              {teachers &&
-                teachers.map((teacher, i) => {
-                  return (
-                    <TeacherCardAdmin
-                      key={i}
-                      handleEdit={handleEdit}
-                      handleDelete={handleDelete}
-                      teacher={teacher}
-                    />
-                  );
-                })}
-            </Box>
-          </Box>
-        )} */}
+        
 
         {tab === 1 && (
           <Box>
@@ -561,6 +547,7 @@ export default function Teachers() {
                 <TableHead>
                   <TableRow>
                     <TableCell component="th" scope="row">Name</TableCell>
+                    <TableCell align="right">Code</TableCell>
                     <TableCell align="right">Email</TableCell>
                     <TableCell align="right">dOBDate</TableCell>
                     <TableCell align="right">JoinDate</TableCell>
@@ -576,6 +563,7 @@ export default function Teachers() {
                       <TableCell component="th" scope="row">
                         {value.name}
                       </TableCell>
+                      <TableCell align="right">{value?.teacher_code}</TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
                       <TableCell align="right">{dayjs(value?.dOBDate).format("DD/MM/YYYY")}</TableCell>
                       <TableCell align="right">{dayjs(value?.joinDate).format("DD/MM/YYYY")}</TableCell>

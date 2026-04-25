@@ -8,7 +8,6 @@ export const studentSchema = yup.object({
     parent: yup.string("Student Parent must be string value.").required("Select A Parent || Add New Parent & Select."),
     gender: yup.string("Gender must be string value.").required("You must select a Gender."),
     age: yup.number("Age must be a number.").required("You must give Age."),
-    guardian: yup.string().min(4, "Guardian must contain 4 characters").required("Guardian is required"),
     guardian_phone: yup.string().min(10, "Phone must contain 10 characters").required("Phone is required"),
     dOBDate: yup.string().min(4, "dOBDate must contain 4 characters").required("dOBDate is required"),
     joinDate: yup.string().min(4, "joinDate must contain 4 characters").required("joinDate is required"),

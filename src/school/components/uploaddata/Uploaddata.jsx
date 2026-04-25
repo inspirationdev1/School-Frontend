@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
@@ -28,6 +28,8 @@ export default function Uploaddata() {
 
   const { authenticated, user } = useContext(AuthContext);
   const [file, setFile] = useState(null);
+  //   CLEARING IMAGE FILE REFENCE FROM INPUT
+  const fileInputRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -68,18 +70,111 @@ export default function Uploaddata() {
     setFile(e.target.files[0]);
   };
 
+  const handleClearFile = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear the file input
+    }
+    setFile(null); // Reset the file state
+
+  };
+
   const handleUpload = async () => {
     if (!file) return alert("Select file");
 
     const formData = new FormData();
     formData.append("file", file);
-// .post(`${baseUrl}/section/create`, { ...values })
+    // .post(`${baseUrl}/section/create`, { ...values })
     try {
-      await axios
-      .post(`${baseUrl}/upload/upload_accountlevel`, formData);
-      alert("Upload success");
+
+      if (selectedScreen?.screenId == "accountlevel") {
+        await axios
+          .post(`${baseUrl}/upload/upload_accountlevel`, formData);
+        setMessage(resp.data.message);
+        setType("success");
+      } else if (selectedScreen?.screenId == "teacher") {
+
+
+        await axios
+          .post(`${baseUrl}/upload/upload_teacher`, formData)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+            console.log("Error, response admin teacher calls", e);
+          });
+      } else if (selectedScreen?.screenId == "parent") {
+        await axios
+          .post(`${baseUrl}/upload/upload_parent`, formData)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+            console.log("Error, response admin parent calls", e);
+          });
+      } else if (selectedScreen?.screenId == "student") {
+        await axios
+          .post(`${baseUrl}/upload/upload_student`, formData)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+            console.log("Error, response admin student calls", e);
+          });
+      } else if (selectedScreen?.screenId == "class") {
+        await axios
+          .post(`${baseUrl}/upload/upload_class`, formData)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+            console.log("Error, response admin class calls", e);
+          });
+      } else if (selectedScreen?.screenId == "section") {
+        await axios
+          .post(`${baseUrl}/upload/upload_section`, formData)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+            console.log("Error, response admin section calls", e);
+          });
+      }
+
+
+
+
+
+      // alert("Upload success");
     } catch (err) {
       console.error(err);
+      setMessage(err.response.data.message);
+      setType("error");
+
     }
   };
 
@@ -88,96 +183,7 @@ export default function Uploaddata() {
     Formik.resetForm()
   };
 
-  const handlePrint = async () => {
 
-    setPrint(true);
-
-    let data = {}
-
-
-    if (selectedStudent) {
-      data.student = selectedStudent._id;
-    }
-    if (selectedClass) {
-      data.class = selectedClass._id;
-    }
-    if (selectedSection) {
-      data.section = selectedSection._id;
-    }
-    if (fromDate) {
-      data.fromDate = fromDate;
-    }
-    if (toDate) {
-      data.toDate = toDate;
-    }
-
-    if (selectedYear) {
-      data.year = selectedYear.value;
-    }
-
-    
-    if (user?.role === 'STUDENT') {
-      if (selectedScreen.screenId === "attendance-report") {
-        window.open(
-          `/student/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      } else if (selectedScreen.screenId === "progresscard-report") {
-          window.open(
-          `/student/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      }else if (selectedScreen.screenId === "questionpaper-report") {
-          window.open(
-          `/student/QuestionpaperReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      }
-    } else if (user?.role === 'PARENT') {
-      if (selectedScreen.screenId === "attendance-report") {
-        window.open(
-          `/parent/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      } else if (selectedScreen.screenId === "progresscard-report") {
-          window.open(
-          `/parent/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      }else if (selectedScreen.screenId === "questionpaper-report") {
-          window.open(
-          `/parent/QuestionpaperReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      }
-    } else {
-      if (selectedScreen.screenId === "attendance-report") {
-        window.open(
-          `/school/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      } else if (selectedScreen.screenId === "progresscard-report") {
-          window.open(
-          `/school/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      }else if (selectedScreen.screenId === "questionpaper-report") {
-          window.open(
-          `/school/QuestionpaperReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
-        );
-      }
-      
-
-    }
-
-
-
-
-    setPrint(false);
-
-
-  };
 
 
   //   MESSAGE
@@ -218,10 +224,10 @@ export default function Uploaddata() {
         setIsDataValid(false);
         return;
       }
-        
 
-    //   if (values.screenId == "accountlevel") {        
-    //   }
+
+      //   if (values.screenId == "accountlevel") {        
+      //   }
 
       setIsDataValid(true);
       handleUpload();
@@ -234,8 +240,14 @@ export default function Uploaddata() {
 
   const fetchScreenNames = async () => {
     try {
-      const reportsData = [{ screenId: "accountlevel", screenName: "Account Level" },
-      { screenId: "accountledger", screenName: "Account Ledger" },
+      const reportsData = [
+        { screenId: "accountlevel", screenName: "Account Level" },
+        { screenId: "accountledger", screenName: "Account Ledger" },
+        { screenId: "teacher", screenName: "Teacher" },
+        { screenId: "parent", screenName: "Parent" },
+        { screenId: "class", screenName: "Class" },
+        { screenId: "section", screenName: "Section" },
+        { screenId: "student", screenName: "Student" },
       ];
       console.log("Report Names", reportsData)
       setReportNames(reportsData);
@@ -246,53 +258,12 @@ export default function Uploaddata() {
   };
 
 
-  const fetchClass = async () => {
-    try {
-      const classData = await axios.get(`${baseUrl}/class/fetch-all`);
-      console.log("class", classData)
-      setClasses(classData.data.data);
 
-    } catch (error) {
-      console.error('Error fetching classes:', error);
-    }
-  };
-  const fetchSection = async () => {
-    try {
-      const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
-      console.log("sections", sectionsData)
-      setSection(sectionsData.data.data);
-
-    } catch (error) {
-      console.error('Error fetching section:', error);
-    }
-  };
-
-
-
-
-  const fetchStudents = async () => {
-
-    if (!selectedClass?._id) return;
-    if (!selectedSection?._id) return;
-
-    try {
-      const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, {
-        params: {
-          student_class: selectedClass?._id,
-          section: selectedSection?._id
-        }
-      }); // Fetch based on class
-      setStudents(studentsResponse.data.data);
-
-    } catch (error) {
-      console.error('Error fetching students or checking attendance:', error);
-    }
-  };
 
 
   useEffect(() => {
     fetchScreenNames();
-    
+
 
 
   }, [message]);
@@ -302,10 +273,7 @@ export default function Uploaddata() {
 
 
 
-  useEffect(() => {
-    fetchStudents();
 
-  }, [selectedClass, selectedSection]);
 
   return (
     <>
@@ -318,7 +286,7 @@ export default function Uploaddata() {
       )}
 
 
-      <Box 
+      <Box
       >
 
 
@@ -392,7 +360,7 @@ export default function Uploaddata() {
                 </Box>
 
 
-                <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
+                <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} inputRef={fileInputRef} />
 
 
 

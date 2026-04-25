@@ -101,6 +101,7 @@ export default function Users() {
       .then((resp) => {
         Formik.setFieldValue("email", resp.data.data.email);
         Formik.setFieldValue("name", resp.data.data.name);
+        Formik.setFieldValue("user_code", resp.data.data?.user_code);
         Formik.setFieldValue("qualification", resp.data.data.qualification)
         Formik.setFieldValue("gender", resp.data.data.gender)
         // Formik.setFieldValue("age", resp.data.data.age);
@@ -175,6 +176,7 @@ export default function Users() {
   const initialValues = {
     email: "",
     name: "",
+    user_code:"",
     qualification: "",
     gender: "",
     age: "",
@@ -364,6 +366,23 @@ export default function Users() {
                     )}
                   </Grid>
 
+                  {/* user_code */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="user_code"
+                      name="user_code"
+                      value={Formik.values.user_code}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.user_code && Formik.errors.user_code && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.user_code}
+                      </p>
+                    )}
+                  </Grid>
+
                   {/* QUALIFICATION */}
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -524,43 +543,7 @@ export default function Users() {
           </Box>
         )}
 
-        {/* {tab === 1 && (
-                <Box>
-                  <Box
-                    sx={{
-                      padding: "5px",
-                      minWidth: 120,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginBottom: "20px",
-                    }}
-                  >
-      
-      
-      
-                    <TextField
-                      id=""
-                      label="Search Name  .. "
-                      onChange={handleSearch}
-                    />
-                  </Box>
-      
-                  <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
-                    {users &&
-                      users.map((user, i) => {
-                        return (
-                          <UserCardAdmin
-                            key={i}
-                            handleEdit={handleEdit}
-                            handleDelete={handleDelete}
-                            user={user}
-                          />
-                        );
-                      })}
-                  </Box>
-                </Box>
-              )} */}
+        
 
         {tab === 1 && (
           <Box>

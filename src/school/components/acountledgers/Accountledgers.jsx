@@ -55,8 +55,8 @@ export default function Accountledgers() {
             .then((resp) => {
                 Formik.setFieldValue("accountledger_name", resp.data.data.accountledger_name);
                 Formik.setFieldValue("accountledger_code", resp.data.data.accountledger_code);
-                Formik.setFieldValue("levelId", resp.data.data?.levelId?._id);
-                setSelectedAccountlevel(resp.data.data?.levelId);
+                Formik.setFieldValue("groupId", resp.data.data?.groupId?._id);
+                setSelectedAccountlevel(resp.data.data?.groupId);
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Class tab
             })
@@ -82,13 +82,13 @@ export default function Accountledgers() {
     const initialValues = {
         accountledger_name: "",
         accountledger_code: "",
-        levelId: "",
+        groupId: "",
     };
     const Formik = useFormik({
         initialValues: initialValues,
         validationSchema: accountledgerSchema,
         onSubmit: (values) => {
-            values.levelId = selectedAccountlevel?._id;
+            values.groupId = selectedAccountlevel?._id;
             if (isEdit) {
                 console.log("edit id", editId);
                 axios
@@ -251,19 +251,19 @@ export default function Accountledgers() {
                                             setSelectedAccountlevel(newValue);
 
                                             Formik.setFieldValue(
-                                                "levelId",
+                                                "groupId",
                                                 newValue ? newValue._id : ""
                                             );
                                         }}
-                                        onBlur={() => Formik.setFieldTouched("levelId", true)}
+                                        onBlur={() => Formik.setFieldTouched("groupId", true)}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
                                                 label="Select account level"
                                                 placeholder="Search Account level..."
                                                 fullWidth
-                                                error={Formik.touched.levelId && Boolean(Formik.errors.levelId)}
-                                                helperText={Formik.touched.levelId && Formik.errors.levelId}
+                                                error={Formik.touched.groupId && Boolean(Formik.errors.groupId)}
+                                                helperText={Formik.touched.groupId && Formik.errors.groupId}
                                             />
                                         )}
                                     />
@@ -321,7 +321,7 @@ export default function Accountledgers() {
                                                 {value.accountledger_name}
                                             </TableCell>
                                             <TableCell align="right">{value.accountledger_code}</TableCell>
-                                            <TableCell align="right">{value.levelId?.accountlevel_name}</TableCell>
+                                            <TableCell align="right">{value.groupId?.accountlevel_name}</TableCell>
                                             <TableCell align="right">
                                                 <Box
                                                     sx={{

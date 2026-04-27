@@ -9,6 +9,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false); // Loading state for initial auth check
   const [themeDark,setThemeDark] = useState(false)
 
+  const [appsettings,setAppsettings] = useState([]);
+  const [selectedAppsetting,setSelectedAppsetting] = useState(false)
+
+
 
 
   // Check for a token in localStorage to persist login
@@ -52,8 +56,24 @@ export const AuthProvider = ({ children }) => {
     setThemeDark(!themeDark)
   }
 
+  const fetchAppsettings = () => {
+        axios
+            .get(`${baseUrl}/appsetting/fetch-all`)
+            .then((resp) => {
+                console.log("Fetching data in  Casting Calls  admin.", resp);
+                setAppsettings(resp.data.data);
+                const id = resp.data.data[0]._id;
+                setSelectedAppsetting(resp.data.data[0]);
+                console.log("selectedAppseting",selectedAppsetting);
+                
+            })
+            .catch((e) => {
+                console.log("Error in fetching casting calls admin data", e);
+            });
+    };
+
   return (
-    <AuthContext.Provider value={{authenticated, user, login, logout, loading,themeChange,themeDark }}>
+    <AuthContext.Provider value={{authenticated, user, login, logout, loading,themeChange,themeDark,selectedAppsetting }}>
       {children}
     </AuthContext.Provider>
   );

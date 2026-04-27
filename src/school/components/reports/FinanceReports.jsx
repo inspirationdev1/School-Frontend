@@ -45,6 +45,13 @@ export default function FinanceReports() {
     const [selectedExamination, setSelectedExamination] = useState(null);
     const [questionpapers, setQuestionpaper] = useState([])
     const [selectedQuestionpaper, setSelectedQuestionpaper] = useState(null);
+
+    const [accountlevels, setAccountlevels] = useState([]);
+    const [selectedAccountlevel, setSelectedAccountlevel] = useState(null);
+
+    const [accountledgers, setAccountledgers] = useState([]);
+    const [selectedAccountledger, setSelectedAccountledger] = useState(null);
+
     const [isPrint, setPrint] = useState(false);
     const [isDataValid, setIsDataValid] = useState(true);
     const [dataError, setDataError] = useState('');
@@ -69,8 +76,8 @@ export default function FinanceReports() {
 
         setPrint(true);
 
-
-        if (selectedReport.reportId == "income-expense-report") {
+        try {
+            if (selectedReport.reportId == "income-expense-report") {
             const data = {
                 year: selectedYear.value,
                 
@@ -134,7 +141,25 @@ export default function FinanceReports() {
                 `/school/PaidExpensesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
                 "_blank"
             );
+        } else if (selectedReport.reportId == "chart-of-account") {
+            let data = {};
+            if (selectedAccountlevel){
+                data.accountlevel = selectedAccountlevel?._id
+            }
+            if (selectedAccountledger){
+                data.accountledger = selectedAccountledger?._id
+            }
+            window.open(
+                `/school/ChartOfAccountReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                "_blank"
+            );
         }
+        } catch (error) {
+            console.log(error.message);
+        }
+
+
+        
 
         
         setPrint(false);
@@ -163,6 +188,8 @@ export default function FinanceReports() {
         examination: "",
         questionpaper: "",
         student: "",
+        accountlevel: "",
+        accountledger: "",
     };
     const Formik = useFormik({
         initialValues: initialValues,
@@ -232,7 +259,8 @@ export default function FinanceReports() {
              { reportId: "pending-fees-report", reportName: "Pending Fees Report" },
              { reportId: "paid-fees-report", reportName: "Paid Fees Report" },
              { reportId: "pending-expenses-report", reportName: "Pending Expenses Report" },
-             { reportId: "paid-expenses-report", reportName: "Paid Expenses Report" }
+             { reportId: "paid-expenses-report", reportName: "Paid Expenses Report" },
+             { reportId: "chart-of-account", reportName: "Chart of Account" }
              
             ];
             console.log("Report Names", reportsData)
@@ -346,6 +374,33 @@ export default function FinanceReports() {
         }
     };
 
+    const fetchAccountlevels = async () => {
+        try {
+            const accountlevelsResponse = await axios.get(`${baseUrl}/accountlevel/fetch-with-query`, {
+                params: {}
+            }); // Fetch based on class
+            setAccountlevels(accountlevelsResponse.data.data);
+        } catch (error) {
+            console.error('Error fetching accountlevels:', error);
+        }
+    };
+
+    
+    const fetchAccountledgers = async () => {
+        try {
+            let params = {};
+            if (selectedAccountlevel){
+                params["groupId"] = selectedAccountlevel?._id;
+            }
+            const accountledgersResponse = await axios.get(`${baseUrl}/accountledger/fetch-with-query`, {
+                params: params
+            }); // Fetch based on class
+            setAccountledgers(accountledgersResponse.data.data);
+        } catch (error) {
+            console.error('Error fetching accountledgers:', error);
+        }
+    };
+
 
     useEffect(() => {
         fetchReportNames();
@@ -353,6 +408,8 @@ export default function FinanceReports() {
         fetchSection();
         fetchTeacher();
         fetchSubject();
+        fetchAccountlevels();
+        fetchAccountledgers();
 
     }, [message]);
 
@@ -369,6 +426,10 @@ export default function FinanceReports() {
         fetchStudents();
 
     }, [selectedClass, selectedSection]);
+
+    useEffect(() => {
+        fetchAccountledgers();
+    }, [selectedAccountlevel]);
 
     return (
         <>
@@ -776,6 +837,70 @@ export default function FinanceReports() {
                                                     fullWidth
                                                     error={Formik.touched.student && Boolean(Formik.errors.student)}
                                                     helperText={Formik.touched.student && Formik.errors.student}
+                                                />
+                                            )}
+                                        />
+
+                                    </Box>
+                                )}
+
+                                 {/* AccountLevel */}
+                                {selectedReport && selectedReport.reportId === "chart-of-account" && (
+                                    <Box>
+                                        <Autocomplete
+                                            options={accountlevels}
+                                            getOptionLabel={(option) => option.accountlevel_name + "-" + option.accountlevel_code}
+                                            value={selectedAccountlevel}
+                                            onChange={(event, newValue) => {
+                                                setSelectedAccountlevel(newValue);
+
+                                                Formik.setFieldValue(
+                                                    "accountlevel",
+                                                    newValue ? newValue._id : ""
+                                                );
+
+                                            }}
+                                            onBlur={() => Formik.setFieldTouched("accountlevel", true)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Select Accountlevel"
+                                                    placeholder="Search accountlevel..."
+                                                    fullWidth
+                                                    error={Formik.touched.accountlevel && Boolean(Formik.errors.accountlevel)}
+                                                    helperText={Formik.touched.accountlevel && Formik.errors.accountlevel}
+                                                />
+                                            )}
+                                        />
+
+                                    </Box>
+                                )}
+
+                                {/* AccountLedger */}
+                                {selectedReport && selectedReport.reportId === "chart-of-account" && (
+                                    <Box>
+                                        <Autocomplete
+                                            options={accountledgers}
+                                            getOptionLabel={(option) => option.accountledger_name + "-" + option.accountledger_code}
+                                            value={selectedAccountledger}
+                                            onChange={(event, newValue) => {
+                                                setSelectedAccountledger(newValue);
+
+                                                Formik.setFieldValue(
+                                                    "accountledger",
+                                                    newValue ? newValue._id : ""
+                                                );
+
+                                            }}
+                                            onBlur={() => Formik.setFieldTouched("accountledger", true)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Select accountledger"
+                                                    placeholder="Search accountledger..."
+                                                    fullWidth
+                                                    error={Formik.touched.accountledger && Boolean(Formik.errors.accountledger)}
+                                                    helperText={Formik.touched.accountledger && Formik.errors.accountledger}
                                                 />
                                             )}
                                         />

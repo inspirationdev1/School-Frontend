@@ -96,6 +96,8 @@ import FinanceReportsPrint from "./school/components/reports/FinanceReportsPrint
 import ExpenseReportPrint from "./school/components/reports/ExpenseReportPrint";
 import IncomeReportPrint from "./school/components/reports/IncomeReportPrint";
 import QuestionpaperReportPrint from "./school/components/reports/QuestionpaperReportPrint";
+import ChartOfAccountReportPrint from "./school/components/reports/ChartOfAccountReportPrint";
+
 
 
 import StudentReports from "./school/components/reports/StudentReports";
@@ -210,6 +212,7 @@ function App() {
               <Route path="studentreports" element={<StudentReports />} />
               <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
               <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
+              <Route path="chartofaccountreportprint" element={<ChartOfAccountReportPrint />} />
               
 
               <Route path="pendingfeesreportprint" element={<PendingFeesReportPrint />} />

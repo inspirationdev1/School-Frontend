@@ -87,11 +87,40 @@ export default function Uploaddata() {
     try {
 
       if (selectedScreen?.screenId == "accountlevel") {
+        
         await axios
-          .post(`${baseUrl}/upload/upload_accountlevel`, formData);
-        setMessage(resp.data.message);
-        setType("success");
-      } else if (selectedScreen?.screenId == "teacher") {
+          .post(`${baseUrl}/upload/upload_accountlevel`, formData)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+            console.log("Error, response admin accountlevel calls", e);
+          });
+
+
+      } else if (selectedScreen?.screenId == "accountledger") {
+        
+        await axios
+          .post(`${baseUrl}/upload/upload_accountledger`, formData)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+            console.log("Error, response admin accountledger calls", e);
+          });
+
+
+      }else if (selectedScreen?.screenId == "teacher") {
 
 
         await axios

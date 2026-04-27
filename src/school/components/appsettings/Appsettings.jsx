@@ -51,6 +51,7 @@ export default function Appsettings() {
             .then((resp) => {
                 Formik.setFieldValue("appsetting_name", resp.data.data.appsetting_name);
                 Formik.setFieldValue("appsetting_code", resp.data.data.appsetting_code);
+                Formik.setFieldValue("udise_no", resp.data.data.udise_no);
                 Formik.setFieldValue("discPerAllowed", resp.data.data.discPerAllowed);
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Class tab
@@ -77,6 +78,7 @@ export default function Appsettings() {
         appsetting_name: "",
         appsetting_code: "",
         discPerAllowed: 0,
+        udise_no:null,
     };
     const Formik = useFormik({
         initialValues: initialValues,
@@ -215,6 +217,25 @@ export default function Appsettings() {
                                             {Formik.errors.appsetting_code}
                                         </Typography>
                                     )}
+                                </Box>
+
+                                {/* UDISE No */}
+                                <Box>
+                                    <TextField
+                                        // disabled={isEdit}
+                                        fullWidth
+                                        label="UDISE No"
+                                        name="udise_no"
+                                        value={Formik.values.udise_no}
+                                        onChange={Formik.handleChange}
+                                        onBlur={Formik.handleBlur}
+                                        size="small"
+                                    />
+                                    {/* {Formik.touched.udise_no && Formik.errors.udise_no && (
+                                        <Typography color="error" variant="caption">
+                                            {Formik.errors.udise_no}
+                                        </Typography>
+                                    )} */}
                                 </Box>
 
                                 {/* Discount % */}

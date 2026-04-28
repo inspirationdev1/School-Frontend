@@ -51,7 +51,7 @@ export default function Appsettings() {
             .then((resp) => {
                 Formik.setFieldValue("appsetting_name", resp.data.data.appsetting_name);
                 Formik.setFieldValue("appsetting_code", resp.data.data.appsetting_code);
-                Formik.setFieldValue("udise_no", resp.data.data.udise_no);
+                Formik.setFieldValue("udise_no", resp.data.data?.udise_no);
                 Formik.setFieldValue("discPerAllowed", resp.data.data.discPerAllowed);
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Class tab
@@ -78,7 +78,7 @@ export default function Appsettings() {
         appsetting_name: "",
         appsetting_code: "",
         discPerAllowed: 0,
-        udise_no:null,
+        udise_no:"",
     };
     const Formik = useFormik({
         initialValues: initialValues,

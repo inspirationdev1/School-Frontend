@@ -136,6 +136,8 @@ export default function Students() {
           age: age,
           guardian: data.guardian,
           guardian_phone: data.guardian_phone,
+          pen_no: data?.pen_no,
+          aadhar_no: data?.aadhar_no,
           password: data.password,
           year: data.year,
           dOBDate: data.dOBDate?.split("T")[0] || "",
@@ -181,6 +183,8 @@ export default function Students() {
     age: "",
     guardian: "",
     guardian_phone: "",
+    pen_no: "",
+    aadhar_no: "",
     password: "",
     year: "",
     dOBDate: "",
@@ -653,6 +657,38 @@ export default function Students() {
                         {Formik.errors.guardian_phone}
                       </p>
                     )}
+                  </Grid>
+
+                  {/* pen_no */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="pen_no"
+                      name="pen_no"
+                      value={Formik.values.pen_no}
+                      onChange={Formik.handleChange}
+                    />
+                    {/* {Formik.touched.pen_no && Formik.errors.pen_no && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.pen_no}
+                      </p>
+                    )} */}
+                  </Grid>
+
+                  {/* aadhar_no */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="aadhar_no"
+                      name="aadhar_no"
+                      value={Formik.values.aadhar_no}
+                      onChange={Formik.handleChange}
+                    />
+                    {/* {Formik.touched.aadhar_no && Formik.errors.aadhar_no && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.aadhar_no}
+                      </p>
+                    )} */}
                   </Grid>
 
                   {/* Password */}

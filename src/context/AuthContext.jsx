@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { createContext, useState, useEffect } from 'react';
-
+import axios from "axios";
+import { baseUrl } from "../environment";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [themeDark,setThemeDark] = useState(false)
 
   const [appsettings,setAppsettings] = useState([]);
-  const [selectedAppsetting,setSelectedAppsetting] = useState(false)
+  const [selectedAppsetting,setSelectedAppsetting] = useState(null)
 
 
 
@@ -20,6 +21,8 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem("user");
     const theme  = localStorage.getItem("themeDark");
+
+    fetchAppsettings();
     if(theme){
       console.log(theme,"THEME")
       setThemeDark(JSON.parse(theme))

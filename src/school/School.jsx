@@ -129,9 +129,9 @@ export default function School() {
 
 
     const [openMenu, setOpenMenu] = React.useState({});
-    const { authenticated, user } = React.useContext(AuthContext);
+    const { authenticated, user,selectedAppsetting } = React.useContext(AuthContext);
     console.log("user", user);
-
+     console.log("selectedAppsetting", selectedAppsetting);
 
 
     const toggleMenu = (label) => {
@@ -281,8 +281,13 @@ export default function School() {
                         <Typography variant="h6" noWrap sx={{ mr: 2 }}>
                             {user?.role === 'SCHOOL' && user?.owner_name}
                         </Typography>
+                        
 
-                        <AccountCircleIcon />
+                        <AccountCircleIcon sx={{ mr: 2 }}/>
+
+                        <Typography variant="h6" noWrap sx={{ mr: 2 }}>
+                           UDISE # {selectedAppsetting?.udise_no}
+                        </Typography>
                     </Box>
 
                     {/* Center Title */}
@@ -295,8 +300,9 @@ export default function School() {
                             transform: "translateX(-50%)",
                         }}
                     >
-                        School Management System-1
+                        School Management System-1 
                     </Typography>
+                    
 
                 </Toolbar>
 

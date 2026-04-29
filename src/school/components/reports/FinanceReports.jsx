@@ -78,90 +78,166 @@ export default function FinanceReports() {
 
         try {
             if (selectedReport.reportId == "income-expense-report") {
-            const data = {
-                year: selectedYear.value,
-                
-            };
-            window.open(
-                `/school/FinanceReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        } else if (selectedReport.reportId == "expense-report") {
-            const data = {
-                fromDate: fromDate,
-                toDate: toDate,
-                
-            };
-            window.open(
-                `/school/ExpenseReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        } else if (selectedReport.reportId == "income-report") {
-            const data = {
-                fromDate: fromDate,
-                toDate: toDate,      
-            };
-            window.open(
-                `/school/IncomeReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        } else if (selectedReport.reportId == "pending-fees-report") {
-            const data = {
-                fromDate: fromDate,
-                toDate: toDate,      
-            };
-            window.open(
-                `/school/PendingFeesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        } else if (selectedReport.reportId == "paid-fees-report") {
-            const data = {
-                fromDate: fromDate,
-                toDate: toDate,      
-            };
-            window.open(
-                `/school/PaidFeesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        } else if (selectedReport.reportId == "pending-expenses-report") {
-            const data = {
-                fromDate: fromDate,
-                toDate: toDate,      
-            };
-            window.open(
-                `/school/PendingExpensesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        } else if (selectedReport.reportId == "paid-expenses-report") {
-            const data = {
-                fromDate: fromDate,
-                toDate: toDate,      
-            };
-            window.open(
-                `/school/PaidExpensesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        } else if (selectedReport.reportId == "chart-of-account") {
-            let data = {};
-            if (selectedAccountlevel){
-                data.accountlevel = selectedAccountlevel?._id
+                const data = {
+                    year: selectedYear.value,
+
+                };
+                window.open(
+                    `/school/FinanceReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "expense-report") {
+                const data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+
+                };
+                window.open(
+                    `/school/ExpenseReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "income-report") {
+                const data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                window.open(
+                    `/school/IncomeReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "pending-fees-report") {
+                const data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                window.open(
+                    `/school/PendingFeesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "paid-fees-report") {
+                const data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                window.open(
+                    `/school/PaidFeesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "pending-expenses-report") {
+                const data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                window.open(
+                    `/school/PendingExpensesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "paid-expenses-report") {
+                const data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                window.open(
+                    `/school/PaidExpensesReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "chart-of-account") {
+                let data = {};
+                if (selectedAccountlevel) {
+                    data.accountlevel = selectedAccountlevel?._id
+                }
+                if (selectedAccountledger) {
+                    data.accountledger = selectedAccountledger?._id
+                }
+                window.open(
+                    `/school/ChartOfAccountReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "trial-balance") {
+                let data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                if (selectedAccountlevel) {
+                    data.accountlevel = selectedAccountlevel?._id
+                }
+                if (selectedAccountledger) {
+                    data.accountledger = selectedAccountledger?._id
+                }
+                window.open(
+                    `/school/TrialBalanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "profit-or-loss") {
+                let data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                if (selectedAccountlevel) {
+                    data.accountlevel = selectedAccountlevel?._id
+                }
+                if (selectedAccountledger) {
+                    data.accountledger = selectedAccountledger?._id
+                }
+                window.open(
+                    `/school/ProfitOrLossReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "balance-sheet") {
+                let data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                if (selectedAccountlevel) {
+                    data.accountlevel = selectedAccountlevel?._id
+                }
+                if (selectedAccountledger) {
+                    data.accountledger = selectedAccountledger?._id
+                }
+                window.open(
+                    `/school/BalanceSheetReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "statement-of-account-student") {
+                let data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                if (selectedAccountlevel) {
+                    data.accountlevel = selectedAccountlevel?._id
+                }
+                if (selectedAccountledger) {
+                    data.accountledger = selectedAccountledger?._id
+                }
+                window.open(
+                    `/school/StatementOfAccountStudentReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
+            } else if (selectedReport.reportId == "statement-of-account-ledger") {
+                let data = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+                if (selectedAccountlevel) {
+                    data.accountlevel = selectedAccountlevel?._id
+                }
+                if (selectedAccountledger) {
+                    data.accountledger = selectedAccountledger?._id
+                }
+                window.open(
+                    `/school/StatementOfAccountLedgerReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+                    "_blank"
+                );
             }
-            if (selectedAccountledger){
-                data.accountledger = selectedAccountledger?._id
-            }
-            window.open(
-                `/school/ChartOfAccountReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-                "_blank"
-            );
-        }
+            
         } catch (error) {
             console.log(error.message);
         }
 
 
-        
 
-        
+
+
         setPrint(false);
 
 
@@ -211,12 +287,17 @@ export default function FinanceReports() {
                 }
             }
 
-            if (values.reportId == "expense-report" 
+            if (values.reportId == "expense-report"
                 || values.reportId == "income-report"
                 || values.reportId == "pending-fees-report"
                 || values.reportId == "paid-fees-report"
                 || values.reportId == "pending-expenses-report"
                 || values.reportId == "paid-expenses-report"
+                || values.reportId === "trial-balance"
+                || values.reportId === "profit-or-loss"
+                || values.reportId === "balance-sheet"
+                || values.reportId === "statement-of-account-student"
+                || values.reportId === "statement-of-account-ledger"
             ) {
                 if (!values.fromDate || !values.toDate) {
                     setDataError('Select From Date and To Date');
@@ -254,14 +335,19 @@ export default function FinanceReports() {
     const fetchReportNames = async () => {
         try {
             const reportsData = [{ reportId: "income-expense-report", reportName: "Income-Expense Report" },
-             { reportId: "income-report", reportName: "Income Report" },
-             { reportId: "expense-report", reportName: "Expense Report" },
-             { reportId: "pending-fees-report", reportName: "Pending Fees Report" },
-             { reportId: "paid-fees-report", reportName: "Paid Fees Report" },
-             { reportId: "pending-expenses-report", reportName: "Pending Expenses Report" },
-             { reportId: "paid-expenses-report", reportName: "Paid Expenses Report" },
-             { reportId: "chart-of-account", reportName: "Chart of Account" }
-             
+            { reportId: "income-report", reportName: "Income Report" },
+            { reportId: "expense-report", reportName: "Expense Report" },
+            { reportId: "pending-fees-report", reportName: "Pending Fees Report" },
+            { reportId: "paid-fees-report", reportName: "Paid Fees Report" },
+            { reportId: "pending-expenses-report", reportName: "Pending Expenses Report" },
+            { reportId: "paid-expenses-report", reportName: "Paid Expenses Report" },
+            { reportId: "chart-of-account", reportName: "Chart of Account" },
+            { reportId: "trial-balance", reportName: "Trial Balance" },
+            { reportId: "profit-or-loss", reportName: "Profit or Loss" },
+            { reportId: "balance-sheet", reportName: "Balance Sheet" },
+            { reportId: "statement-of-account-student", reportName: "Statement of Account(Student)" },
+            { reportId: "statement-of-account-ledger", reportName: "Statement of Account(Ledger)" },
+            
             ];
             console.log("Report Names", reportsData)
             setReportNames(reportsData);
@@ -385,11 +471,11 @@ export default function FinanceReports() {
         }
     };
 
-    
+
     const fetchAccountledgers = async () => {
         try {
             let params = {};
-            if (selectedAccountlevel){
+            if (selectedAccountlevel) {
                 params["groupId"] = selectedAccountlevel?._id;
             }
             const accountledgersResponse = await axios.get(`${baseUrl}/accountledger/fetch-with-query`, {
@@ -549,54 +635,64 @@ export default function FinanceReports() {
 
                                 {/* From Date */}
                                 {selectedReport && (selectedReport.reportId === "expense-report"
-                                ||selectedReport.reportId === "income-report"
-                                ||selectedReport.reportId === "pending-fees-report"
-                                ||selectedReport.reportId === "paid-fees-report"
-                                ||selectedReport.reportId === "pending-expenses-report"
-                                ||selectedReport.reportId === "paid-expenses-report"
-                            ) && (
-                                    <Box>
-                                        <TextField
-                                            label="From Date"
-                                            type="date"
-                                            fullWidth
-                                            InputLabelProps={{ shrink: true }}
-                                            value={Formik.values.fromDate}
-                                            onChange={(e) => {
-                                                Formik.setFieldValue("fromDate", e.target.value);
-                                                setFromDate(e.target.value);
-                                            }}
-                                            error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
-                                            helperText={Formik.touched.fromDate && Formik.errors.fromDate}
-                                        />
-                                    </Box>
-                                )}
+                                    || selectedReport.reportId === "income-report"
+                                    || selectedReport.reportId === "pending-fees-report"
+                                    || selectedReport.reportId === "paid-fees-report"
+                                    || selectedReport.reportId === "pending-expenses-report"
+                                    || selectedReport.reportId === "paid-expenses-report"
+                                    || selectedReport.reportId === "trial-balance"
+                                    || selectedReport.reportId === "profit-or-loss"
+                                    || selectedReport.reportId === "balance-sheet"
+                                    || selectedReport.reportId === "statement-of-account-student"
+                                    || selectedReport.reportId === "statement-of-account-ledger"
+                                ) && (
+                                        <Box>
+                                            <TextField
+                                                label="From Date"
+                                                type="date"
+                                                fullWidth
+                                                InputLabelProps={{ shrink: true }}
+                                                value={Formik.values.fromDate}
+                                                onChange={(e) => {
+                                                    Formik.setFieldValue("fromDate", e.target.value);
+                                                    setFromDate(e.target.value);
+                                                }}
+                                                error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
+                                                helperText={Formik.touched.fromDate && Formik.errors.fromDate}
+                                            />
+                                        </Box>
+                                    )}
 
                                 {/* To Date */}
                                 {selectedReport && (selectedReport.reportId === "expense-report"
-                                ||selectedReport.reportId === "income-report"
-                                ||selectedReport.reportId === "pending-fees-report"
-                                ||selectedReport.reportId === "paid-fees-report"
-                                ||selectedReport.reportId === "pending-expenses-report"
-                                ||selectedReport.reportId === "paid-expenses-report"
-                                
-                            ) && (
-                                    <Box>
-                                        <TextField
-                                            label="To Date"
-                                            type="date"
-                                            fullWidth
-                                            InputLabelProps={{ shrink: true }}
-                                            value={Formik.values.toDate}
-                                            onChange={(e) => {
-                                                Formik.setFieldValue("toDate", e.target.value);
-                                                setToDate(e.target.value);
-                                            }}
-                                            error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
-                                            helperText={Formik.touched.toDate && Formik.errors.toDate}
-                                        />
-                                    </Box>
-                                )}
+                                    || selectedReport.reportId === "income-report"
+                                    || selectedReport.reportId === "pending-fees-report"
+                                    || selectedReport.reportId === "paid-fees-report"
+                                    || selectedReport.reportId === "pending-expenses-report"
+                                    || selectedReport.reportId === "paid-expenses-report"
+                                    || selectedReport.reportId === "trial-balance"
+                                    || selectedReport.reportId === "profit-or-loss"
+                                    || selectedReport.reportId === "balance-sheet"
+                                    || selectedReport.reportId === "statement-of-account-student"
+                                    || selectedReport.reportId === "statement-of-account-ledger"
+
+                                ) && (
+                                        <Box>
+                                            <TextField
+                                                label="To Date"
+                                                type="date"
+                                                fullWidth
+                                                InputLabelProps={{ shrink: true }}
+                                                value={Formik.values.toDate}
+                                                onChange={(e) => {
+                                                    Formik.setFieldValue("toDate", e.target.value);
+                                                    setToDate(e.target.value);
+                                                }}
+                                                error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
+                                                helperText={Formik.touched.toDate && Formik.errors.toDate}
+                                            />
+                                        </Box>
+                                    )}
 
 
                                 {/* Class */}
@@ -844,69 +940,83 @@ export default function FinanceReports() {
                                     </Box>
                                 )}
 
-                                 {/* AccountLevel */}
-                                {selectedReport && selectedReport.reportId === "chart-of-account" && (
-                                    <Box>
-                                        <Autocomplete
-                                            options={accountlevels}
-                                            getOptionLabel={(option) => option.accountlevel_name + "-" + option.accountlevel_code}
-                                            value={selectedAccountlevel}
-                                            onChange={(event, newValue) => {
-                                                setSelectedAccountlevel(newValue);
+                                {/* AccountLevel */}
+                                {selectedReport && (
+                                    selectedReport.reportId === "chart-of-account"
+                                    || selectedReport.reportId === "trial-balance"
+                                    || selectedReport.reportId === "profit-or-loss"
+                                    || selectedReport.reportId === "balance-sheet"
+                                    || selectedReport.reportId === "statement-of-account-student"
+                                    || selectedReport.reportId === "statement-of-account-ledger"
+                                ) && (
+                                        <Box>
+                                            <Autocomplete
+                                                options={accountlevels}
+                                                getOptionLabel={(option) => option.accountlevel_name + "-" + option.accountlevel_code}
+                                                value={selectedAccountlevel}
+                                                onChange={(event, newValue) => {
+                                                    setSelectedAccountlevel(newValue);
 
-                                                Formik.setFieldValue(
-                                                    "accountlevel",
-                                                    newValue ? newValue._id : ""
-                                                );
+                                                    Formik.setFieldValue(
+                                                        "accountlevel",
+                                                        newValue ? newValue._id : ""
+                                                    );
 
-                                            }}
-                                            onBlur={() => Formik.setFieldTouched("accountlevel", true)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select Accountlevel"
-                                                    placeholder="Search accountlevel..."
-                                                    fullWidth
-                                                    error={Formik.touched.accountlevel && Boolean(Formik.errors.accountlevel)}
-                                                    helperText={Formik.touched.accountlevel && Formik.errors.accountlevel}
-                                                />
-                                            )}
-                                        />
+                                                }}
+                                                onBlur={() => Formik.setFieldTouched("accountlevel", true)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select Accountlevel"
+                                                        placeholder="Search accountlevel..."
+                                                        fullWidth
+                                                        error={Formik.touched.accountlevel && Boolean(Formik.errors.accountlevel)}
+                                                        helperText={Formik.touched.accountlevel && Formik.errors.accountlevel}
+                                                    />
+                                                )}
+                                            />
 
-                                    </Box>
-                                )}
+                                        </Box>
+                                    )}
 
                                 {/* AccountLedger */}
-                                {selectedReport && selectedReport.reportId === "chart-of-account" && (
-                                    <Box>
-                                        <Autocomplete
-                                            options={accountledgers}
-                                            getOptionLabel={(option) => option.accountledger_name + "-" + option.accountledger_code}
-                                            value={selectedAccountledger}
-                                            onChange={(event, newValue) => {
-                                                setSelectedAccountledger(newValue);
+                                {selectedReport && (
+                                    selectedReport.reportId === "chart-of-account"
+                                    || selectedReport.reportId === "trial-balance"
+                                    || selectedReport.reportId === "profit-or-loss"
+                                    || selectedReport.reportId === "balance-sheet"
+                                    || selectedReport.reportId === "statement-of-account-student"
+                                    || selectedReport.reportId === "statement-of-account-ledger"
+                                ) && (
+                                        <Box>
+                                            <Autocomplete
+                                                options={accountledgers}
+                                                getOptionLabel={(option) => option.accountledger_name + "-" + option.accountledger_code}
+                                                value={selectedAccountledger}
+                                                onChange={(event, newValue) => {
+                                                    setSelectedAccountledger(newValue);
 
-                                                Formik.setFieldValue(
-                                                    "accountledger",
-                                                    newValue ? newValue._id : ""
-                                                );
+                                                    Formik.setFieldValue(
+                                                        "accountledger",
+                                                        newValue ? newValue._id : ""
+                                                    );
 
-                                            }}
-                                            onBlur={() => Formik.setFieldTouched("accountledger", true)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select accountledger"
-                                                    placeholder="Search accountledger..."
-                                                    fullWidth
-                                                    error={Formik.touched.accountledger && Boolean(Formik.errors.accountledger)}
-                                                    helperText={Formik.touched.accountledger && Formik.errors.accountledger}
-                                                />
-                                            )}
-                                        />
+                                                }}
+                                                onBlur={() => Formik.setFieldTouched("accountledger", true)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select accountledger"
+                                                        placeholder="Search accountledger..."
+                                                        fullWidth
+                                                        error={Formik.touched.accountledger && Boolean(Formik.errors.accountledger)}
+                                                        helperText={Formik.touched.accountledger && Formik.errors.accountledger}
+                                                    />
+                                                )}
+                                            />
 
-                                    </Box>
-                                )}
+                                        </Box>
+                                    )}
 
 
                             </Box>

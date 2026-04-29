@@ -146,7 +146,18 @@ export default function StudentReports() {
           `/school/QuestionpaperReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
           "_blank"
         );
+      }else if (selectedReport.reportId === "student-list-report") {
+          window.open(
+          `/school/StudentListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      }else if (selectedReport.reportId === "parent-list-report") {
+          window.open(
+          `/school/ParentListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
       }
+      
       
 
     }
@@ -260,7 +271,10 @@ export default function StudentReports() {
 
   const fetchReportNames = async () => {
     try {
-      const reportsData = [{ reportId: "attendance-report", reportName: "Attendance Report" },
+      const reportsData = [
+      { reportId: "student-list-report", reportName: "Student-List Report" },
+      { reportId: "parent-list-report", reportName: "Parent-List Report" },
+      { reportId: "attendance-report", reportName: "Attendance Report" },
       { reportId: "progresscard-report", reportName: "Progress Card" },
       { reportId: "questionpaper-report", reportName: "Exam Schedule" }];
       console.log("Report Names", reportsData)
@@ -418,13 +432,13 @@ export default function StudentReports() {
                 </Box>
 
 
-                {/* { reportId: "progresscard-report", reportName: "Progress Card" },
-      { reportId: "questionpaper-report", reportName: "Exam Question Paper" }]; */}
+                
 
                 {/* Class */}
                 {selectedReport && (selectedReport.reportId === "attendance-report"
                   || selectedReport.reportId === "progresscard-report"
                   || selectedReport.reportId === "questionpaper-report"
+                  || selectedReport.reportId === "student-list-report"
                 ) && (
                     <Box>
 
@@ -465,6 +479,7 @@ export default function StudentReports() {
                 {selectedReport && (selectedReport.reportId === "attendance-report"
                   || selectedReport.reportId === "progresscard-report"
                   || selectedReport.reportId === "questionpaper-report"
+                  || selectedReport.reportId === "student-list-report"
                 ) && (
                     <Box>
                       <Autocomplete

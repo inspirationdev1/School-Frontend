@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
 export default function ParentListReportPrint() {
     const [loading, setLoading] = useState(true);
     const [printData, setPrintData] = useState([]);
-
+    const [pdfUrl, setPdfUrl] = useState(null);
 
     const [reportHeader, setReportHeader] = useState({});
     const [rows, setRows] = useState([]);
@@ -156,183 +156,99 @@ export default function ParentListReportPrint() {
 
     useEffect(() => {
 
-        const fetchReportData = async () => {
+        // const fetchReportData = async () => {
 
 
-            try {
+        //     try {
 
-                const params = new URLSearchParams(window.location.search);
+        //         const params = new URLSearchParams(window.location.search);
 
-                const dataParam = params.get("data");
-
-
-                if (dataParam) {
-                    const data = JSON.parse(decodeURIComponent(dataParam));
+        //         const dataParam = params.get("data");
 
 
-                    let paramsRpt = {
-                    }
-
-                    
+        //         if (dataParam) {
+        //             const data = JSON.parse(decodeURIComponent(dataParam));
 
 
-                    const print_Response = await axios.get(`${baseUrl}/schoolreports/parent-list-print`, {
-                        params: paramsRpt
-                    });
+        //             let paramsRpt = {
+        //             }
 
 
 
-                    if (print_Response.data.data.length > 0) {
-                        setIsDataFound(true);
-                    } else {
-                        setIsDataFound(false);
-                    }
+
+        //             const print_Response = await axios.get(`${baseUrl}/schoolreports/parent-list-print`, {
+        //                 params: paramsRpt
+        //             });
 
 
 
-                    const rptHeader = {
-                        school_name: print_Response.data.data[0].school.school_name,
-                        address: print_Response.data.data[0].school.address,
-                        city: print_Response.data.data[0].school.city,
-                        state: print_Response.data.data[0].school.state,
-                        country: print_Response.data.data[0].school.country,
-                        school_image: print_Response.data.data[0].school.school_image
-                    }
-
-                    setReportHeader(rptHeader);
-                    setPrintData(print_Response.data.data);
-                    setLoading(false);
-
-                }
+        //             if (print_Response.data.data.length > 0) {
+        //                 setIsDataFound(true);
+        //             } else {
+        //                 setIsDataFound(false);
+        //             }
 
 
 
-            } catch (error) {
-                console.error('Error fetching marksheet for print:', error);
-                setLoading(false);
-                setIsDataFound(false);
-            }
-        };
+        //             const rptHeader = {
+        //                 school_name: print_Response.data.data[0].school.school_name,
+        //                 address: print_Response.data.data[0].school.address,
+        //                 city: print_Response.data.data[0].school.city,
+        //                 state: print_Response.data.data[0].school.state,
+        //                 country: print_Response.data.data[0].school.country,
+        //                 school_image: print_Response.data.data[0].school.school_image
+        //             }
 
-        fetchReportData();
+        //             setReportHeader(rptHeader);
+        //             setPrintData(print_Response.data.data);
+        //             setLoading(false);
 
+        //         }
+
+
+
+        //     } catch (error) {
+        //         console.error('Error fetching marksheet for print:', error);
+        //         setLoading(false);
+        //         setIsDataFound(false);
+        //     }
+        // };
+
+        // fetchReportData();
+
+        downloadPDF();
 
 
     }, []);
 
+    const downloadPDF = async () => {
+        try {
+            const response = await axios.post(
+                `${baseUrl}/schoolreports/parent-list-print`,
+                {}, // body (empty or your params)
+                {
+                    responseType: "blob" // ✅ CORRECT PLACE
+                }
+            );
+
+            const blob = new Blob([response.data], {
+                type: "application/pdf"
+            });
+
+            // const url = window.URL.createObjectURL(blob);
+            // window.open(url,"_blank");
+            const url = URL.createObjectURL(blob);
+
+        setPdfUrl(url); // ✅ show in page
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
 
 
-    const PrintPDF = () => (
-        <Document>
-            {/* <Page size="A4" style={styles.page}> */}
-            <Page size="A4" orientation="landscape" style={styles.page}>
-
-                {/* 🔷 Header */}
-                <View style={styles.headerContainer}>
-                    {/* If you have logo, uncomment */}
-                    <Image src={logo} style={styles.logo} />
-
-                    <View style={styles.schoolInfo}>
-                        <Text style={styles.schoolName}>
-                            {reportHeader?.school_name}
-                        </Text>
-
-                        <Text style={styles.schoolText}>
-                            {reportHeader?.address}, {reportHeader?.city}
-                        </Text>
-
-                        <Text style={styles.schoolText}>
-                            {reportHeader?.state}, {reportHeader?.country}
-                        </Text>
-                    </View>
-                </View>
-
-                {/* 🔷 Title */}
-                <Text style={styles.reportTitle}>
-                    PARENT LIST REPORT
-                </Text>
-
-                {/* 🔷 Table */}
-                <View style={styles.table}>
-
-                    {/* Header */}
-                    <View style={styles.tableRow} fixed>
-                        <View style={[styles.tableHeaderCell, styles.col1]}>
-                            <Text>Parent Name</Text>
-                        </View>
-                        <View style={[styles.tableHeaderCell, styles.col2]}>
-                            <Text>Gender</Text>
-                        </View>
-
-                        <View style={[styles.tableHeaderCell, styles.col4]}>
-                            <Text>DOB Date</Text>
-                        </View>
-                        <View style={[styles.tableHeaderCell, styles.col5]}>
-                            <Text>Admission Date</Text>
-                        </View>
-
-                        <View style={[styles.tableHeaderCell, styles.col8]}>
-                            <Text>Phone #</Text>
-                        </View>
-
-                        <View style={[styles.tableHeaderCell, styles.col9, styles.lastCol]}>
-                            <Text>Aadhar #</Text>
-                        </View>
-
-                    </View>
-
-
-
-                    {printData.map((row, i) => (
-                        <View style={styles.tableRow} key={i} wrap={false}>
-                            <View style={[styles.tableCell, styles.col1]}>
-                                <Text>{row?.name}</Text>
-                            </View>
-
-                            <View style={[styles.tableCell, styles.col2]}>
-                                <Text style={styles.centerText}>{row?.gender}</Text>
-                            </View>
-
-
-
-                            <View style={[styles.tableCell, styles.col4]}>
-                                <Text>{row?.dOBDate ? dayjs(row.dOBDate).format("DD-MM-YYYY") : ""}</Text>
-                            </View>
-
-                            <View style={[styles.tableCell, styles.col5]}>
-                                <Text>{row?.joinDate ? dayjs(row.joinDate).format("DD-MM-YYYY") : ""}</Text>
-                            </View>
-
-
-
-                            <View style={[styles.tableCell, styles.col8]}>
-                                <Text>{row?.phoneno}</Text>
-                            </View>
-
-
-
-                            <View style={[styles.tableCell, styles.col9]}>
-                                <Text>{row?.aadhar_no}</Text>
-                            </View>
-
-
-                        </View>
-
-                    ))}
-
-
-
-
-
-                </View>
-
-
-            </Page>
-        </Document>
-    );
-
-
+  
     const [logo, setLogo] = useState("");
 
     useEffect(() => {
@@ -392,12 +308,12 @@ export default function ParentListReportPrint() {
         XLSX.writeFile(workbook, `Parentlist_${date}.xlsx`);
     };
 
-    if (loading) {
-        return <Typography>Loading...</Typography>;
-    }
+    // if (loading) {
+    //     return <Typography>Loading...</Typography>;
+    // }
     return (
         <div className="max-w-2xl mx-auto my-10">
-            <div className="w-full h-[500px]">
+            {/* <div className="w-full h-[500px]">
 
                 {rows && printData.length > 0 ? (
                     <PDFViewer width="100%" height="100%">
@@ -416,11 +332,24 @@ export default function ParentListReportPrint() {
 
 
 
-            </div>
+            </div> */}
 
-            {(isDataFound && <div className="mt-6 flex justify-center gap-3">
+            <div className="w-full h-[600px]">
+    {pdfUrl ? (
+        <iframe
+            src={pdfUrl}
+            width="100%"
+            height="100%"
+            style={{ border: "none" }}
+        />
+    ) : (
+        <Typography>Loading PDF...</Typography>
+    )}
+</div>
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="Parentlist.pdf">
+            {(pdfUrl && <div className="mt-6 flex justify-center gap-3">
+
+                <PDFDownloadLink  fileName="Parentlist.pdf">
                     <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                         Download PDF
                     </button>

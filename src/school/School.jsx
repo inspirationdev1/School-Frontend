@@ -203,6 +203,7 @@ export default function School() {
             children: [
                 { label: "Teachers", link: "/school/teachers" },
                 { label: "Staff", link: "/school/employees" },
+                { label: "Reports", link: "/school/staffreports" },
             ],
         },
         {

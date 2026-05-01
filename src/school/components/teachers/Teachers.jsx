@@ -105,6 +105,8 @@ export default function Teachers() {
         // Auto calculate age
         const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
         Formik.setFieldValue("age", age);
+        Formik.setFieldValue("phoneno", resp.data.data?.phoneno)
+
 
         setEditId(resp.data.data._id);
         setTab(0); // open Create Receipt tab
@@ -171,6 +173,7 @@ export default function Teachers() {
     year: "",
     dOBDate: "",
     joinDate: "",
+    phoneno: "",
   };
 
   const Formik = useFormik({
@@ -473,6 +476,23 @@ export default function Teachers() {
                         {Formik.errors.joinDate}
                       </p>
                     )}
+                  </Grid>
+
+                  {/* phoneno */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="phoneno"
+                      name="phoneno"
+                      value={Formik.values.phoneno}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {/* {Formik.touched.phoneno && Formik.errors.phoneno && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.phoneno}
+                      </p>
+                    )} */}
                   </Grid>
 
                   {/* ACADEMIC YEAR */}

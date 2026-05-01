@@ -180,7 +180,7 @@ export default function StatementOfAccountLedgerReportPrint() {
                 }
 
 
-                const print_Response = await axios.get(`${baseUrl}/schoolreports/char-of-account-print`, {
+                const print_Response = await axios.get(`${baseUrl}/schoolreports/chart-of-account-print`, {
                     params: params
                 });
                 console.log("print_Response", print_Response.data.data);

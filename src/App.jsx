@@ -110,8 +110,10 @@ import StatementOfAccountLedgerReportPrint from "./school/components/reports/Sta
 
 import StudentListReportPrint from "./school/components/reports/StudentListReportPrint";
 import ParentListReportPrint from "./school/components/reports/ParentListReportPrint";
+
+import StaffReports from "./school/components/reports/StaffReports";
 import TeacherListReportPrint from "./school/components/reports/TeacherListReportPrint";
-import StaffListReportPrint from "./school/components/reports/StaffListReportPrint";
+import EmployeeListReportPrint from "./school/components/reports/EmployeeListReportPrint";
 
 
 import StudentReports from "./school/components/reports/StudentReports";
@@ -235,10 +237,11 @@ function App() {
               <Route path="statementofaccountstudentreportprint" element={<StatementOfAccountStudentReportPrint />} />
               <Route path="statementofaccountledgerreportprint" element={<StatementOfAccountLedgerReportPrint />} />
               
+              <Route path="staffreports" element={<StaffReports />} />
               <Route path="studentlistreportprint" element={<StudentListReportPrint />} />
               <Route path="parentlistreportprint" element={<ParentListReportPrint />} />
               <Route path="teacherlistreportprint" element={<TeacherListReportPrint />} />
-              <Route path="stafflistreportprint" element={<StaffListReportPrint />} />
+              <Route path="employeelistreportprint" element={<EmployeeListReportPrint />} />
 
               <Route path="pendingfeesreportprint" element={<PendingFeesReportPrint />} />
               <Route path="paidfeesreportprint" element={<PaidFeesReportPrint />} />

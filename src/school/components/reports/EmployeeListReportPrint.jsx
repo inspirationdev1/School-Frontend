@@ -20,7 +20,7 @@ import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 
-export default function TeacherListReportPrint() {
+export default function EmployeeListReportPrint() {
   const [loading, setLoading] = useState(true);
   const [printData, setPrintData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -69,7 +69,7 @@ export default function TeacherListReportPrint() {
         paramsRpt.requesttype = "PDF";
 
         const response = await axios.post(
-          `${baseUrl}/schoolreports/teacher-list-print`,
+          `${baseUrl}/schoolreports/employee-list-print`,
           {}, // body (empty or your params)
           {
             params: paramsRpt, // ✅ query params
@@ -108,7 +108,7 @@ export default function TeacherListReportPrint() {
 
       paramsRpt.requesttype = "EXL";
       const reportResponse = await axios.post(
-        `${baseUrl}/schoolreports/teacher-list-print`,
+        `${baseUrl}/schoolreports/employee-list-print`,
         {}, // ✅ empty body
         {
           params: paramsRpt, // ✅ goes to req.query
@@ -126,7 +126,7 @@ export default function TeacherListReportPrint() {
 
       const sheetData = [];
       sheetData.push([
-        "Teacher Name",
+        "Employee Name",
         "Gender",
         "Email",
         "DOB Date",
@@ -137,7 +137,7 @@ export default function TeacherListReportPrint() {
       // 📥 Data Rows
       reportResponse.data.data.forEach((row) => {
         sheetData.push([
-          row?.name,
+          row?.employee_name,
           row?.gender,
           row?.email,
           dayjs(row.dOBDate).format("DD-MM-YYYY"),
@@ -151,11 +151,11 @@ export default function TeacherListReportPrint() {
 
       // 4️⃣ Create workbook
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Teacherlist");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Employeelist");
 
       const date = new Date();
       // 5️⃣ Download
-      XLSX.writeFile(workbook, `Teacherlist_${date}.xlsx`);
+      XLSX.writeFile(workbook, `Employeelist_${date}.xlsx`);
     
   };
 
@@ -193,7 +193,7 @@ export default function TeacherListReportPrint() {
             onClick={() => {
               const link = document.createElement("a");
               link.href = pdfUrl;
-              link.download = "Teacherlist.pdf";
+              link.download = "Employeelist.pdf";
               link.click();
             }}
             className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"

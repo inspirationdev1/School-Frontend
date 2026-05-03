@@ -1,19 +1,40 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
 import { Form, useFormik } from "formik";
 import { loginSchema } from "../../../yupSchema/loginSchema";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import "./Login.css"
 import { AuthContext } from "../../../context/AuthContext";
 
 export default function Login() {
-    const { authenticated, login } = useContext(AuthContext);
+    let { role } = useParams();
+    console.log(role);
+    const [loginType, setLoginType] = useState("school_owner");
+    const [isloginType, setIsloginType] = useState(false);
 
-    const [loginType, setLoginType] = useState("student")
+    const { authenticated, login } = useContext(AuthContext);
+    
+    useEffect(() => {
+        if (role) {
+            role=role.toLowerCase();
+            if (role!=="school"){
+                setIsloginType(true);
+                setLoginType(role);
+            }else{
+                setLoginType("school_owner");
+            }
+            
+        } else {
+            setLoginType("school_owner");
+            setIsloginType(false);
+        }
+    }, [role]);
+
+
     const [message, setMessage] = useState("");
     const [type, setType] = useState("succeess");
 
@@ -43,6 +64,11 @@ export default function Login() {
         initialValues: initialValues,
         validationSchema: loginSchema,
         onSubmit: (values) => {
+
+            if (loginType === null || loginType === "") {
+                Alert("Select user type");
+                return;
+            }
             console.log("Login Formik values", values)
             let url;
             let navUrl;
@@ -91,53 +117,77 @@ export default function Login() {
             <Box sx={{ display: 'flex', justifyContent: "center", alignItems: "center", }} component={'div'}>
                 <Typography variant="h2">Log In</Typography>
             </Box>
-            <Paper sx={{ padding: "20px", margin: "10px" }}>
+            
+            <Paper sx={{ p: 4, mt: 2, maxWidth: 400, mx: "auto" }}>
                 <Box
                     component="form"
                     noValidate
                     autoComplete="off"
                     onSubmit={Formik.handleSubmit}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2, // 🔥 consistent spacing
+                    }}
                 >
-                    <FormControl sx={{ minWidth: "120px", padding: "5px" }}>
-                        <InputLabel id="demo-simple-select-label" >User Type</InputLabel>
+                    {/* User Type */}
+                    <FormControl fullWidth size="small">
+                        <InputLabel id="user-type-label">User Type</InputLabel>
                         <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            label="Age"
+                            disabled={isloginType}
+                            labelId="user-type-label"
+                            label="User Type"
                             value={loginType}
                             onChange={handleSelection}
                         >
-
-                            <MenuItem value={"student"}>Student</MenuItem>
-                            <MenuItem value={'teacher'}>Teacher</MenuItem>
-                            <MenuItem value={'school_owner'}>Admin / School Owner</MenuItem>
-                            <MenuItem value={'parent'}>Parent</MenuItem>
-                            <MenuItem value={'user'}>User</MenuItem>
+                            <MenuItem value="student">Student</MenuItem>
+                            <MenuItem value="teacher">Teacher</MenuItem>
+                            <MenuItem value="school_owner">Admin / School Owner</MenuItem>
+                            <MenuItem value="parent">Parent</MenuItem>
+                            <MenuItem value="user">User</MenuItem>
                         </Select>
                     </FormControl>
-                    <TextField fullWidth sx={{ marginTop: "10px" }} id="outlined-basic"
-                        label="Email" variant="outlined"
+
+                    {/* Email */}
+                    <TextField
+                        fullWidth
+                        size="small"
+                        label="Email"
                         name="email"
                         value={Formik.values.email}
                         onChange={Formik.handleChange}
-                        onBlur={Formik.handleBlur} />
-                    {Formik.touched.email && Formik.errors.email && <p style={{ color: "red", textTransform: "capitalize" }}>{Formik.errors.email}</p>}
+                        onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.email && Formik.errors.email && (
+                        <Typography color="error" fontSize={13}>
+                            {Formik.errors.email}
+                        </Typography>
+                    )}
 
-
-                    <TextField fullWidth sx={{ marginTop: "10px" }} id="filled-basic"
+                    {/* Password */}
+                    <TextField
+                        fullWidth
+                        size="small"
                         label="Password"
-                        type="password" variant="outlined" name="password"
+                        type="password"
+                        name="password"
                         value={Formik.values.password}
                         onChange={Formik.handleChange}
-                        onBlur={Formik.handleBlur} />
-                    {Formik.touched.password && Formik.errors.password && <p style={{ color: "red", textTransform: "capitalize" }}>{Formik.errors.password}</p>}
+                        onBlur={Formik.handleBlur}
+                    />
+                    {Formik.touched.password && Formik.errors.password && (
+                        <Typography color="error" fontSize={13}>
+                            {Formik.errors.password}
+                        </Typography>
+                    )}
 
-
-                    <Box sx={{ marginTop: "10px" }} component={'div'}>
-                        <Button type="submit" sx={{ marginRight: "10px" }} variant="contained">Submit</Button>
-                    </Box>
+                    {/* Button */}
+                    <Button type="submit" variant="contained" fullWidth>
+                        Login
+                    </Button>
                 </Box>
             </Paper>
+
         </Box>
     </Box>)
 }

@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 // ICONS
 import LoginIcon from '@mui/icons-material/Login';
@@ -21,14 +21,35 @@ import { useTheme } from '@emotion/react';
 import { AuthContext } from '../../../context/AuthContext';
 
 
+
 import("./Navbar.css")
 
 
 function Navbar() {
+  const { authenticated, user } = React.useContext(AuthContext);
+  const location = useLocation();
+  const isLoginPath = location.pathname.startsWith("/login/");
+  
+  
+  
+ let isLoginWithAdmin = false;
+ let roleName = "";
+  const pathname = location.pathname.split("/");
+  
+if (pathname.length>1){
+    roleName = pathname[2]||"";
+    if (roleName && roleName.toLowerCase()==="school"){
+      isLoginWithAdmin=true;
+    }
+}
+
+
+
+
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const { authenticated, user } = React.useContext(AuthContext);
-  const  [dashboardLink, setDashboardLink] = React.useState('/')
+
+  const [dashboardLink, setDashboardLink] = React.useState('/')
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -53,10 +74,10 @@ function Navbar() {
       textAlign: 'center',
       marginTop: 'auto',
     }}
-     position="static">
+      position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Link className="nav-list" style={{textDecoration:"none"}} to={'/'}>
+          <Link className="nav-list" style={{ textDecoration: "none" }} to={'/'}>
             <Typography
               variant="h6"
               sx={{
@@ -66,12 +87,14 @@ function Navbar() {
                 fontWeight: 700,
                 letterSpacing: '.3rem',
                 color: 'inherit',
-                alignItems:"center"
+                alignItems: "center"
               }}
               className='text-beautify'
             >
-              <img src='./images/static/school_management_system.png' height={"90px"} width={'90px'} />
-            MULTIPLE SCHOOL MANAGEMENT SYSTEM
+              {/* <img src='./images/static/school_management_system.png' height={"90px"} width={'90px'} /> */}
+              <img src="/images/static/school_management_system.png" height="90" width="90" />
+
+              MULTIPLE SCHOOL MANAGEMENT SYSTEM
             </Typography>
           </Link>
 
@@ -103,31 +126,33 @@ function Navbar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-           
 
-            
 
-             {!authenticated && <><MenuItem onClick={handleCloseNavMenu}>
+
+
+              {!authenticated && <><MenuItem onClick={handleCloseNavMenu}>
                 <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
                   <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
                     Register
                   </Box>
                 </Button>
               </MenuItem>
-              
-              <MenuItem onClick={handleCloseNavMenu}>
-              <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
-                <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
-                <LoginIcon sx={{ marginRight: "5px" }} />
-                 Login
-                </Box>
-              </Button>
-            </MenuItem>
-            </>
-              }
-             
 
-             
+                <MenuItem onClick={handleCloseNavMenu}>
+                  <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
+                      <LoginIcon sx={{ marginRight: "5px" }} />
+                      Login
+                    </Box>
+                  </Button>
+                </MenuItem>
+
+
+              </>
+              }
+
+
+
 
             </Menu>
           </Box>
@@ -153,49 +178,69 @@ function Navbar() {
             </Typography></Link>
 
 
-      
+
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: "flex-end" }}>
-          {!authenticated && 
-          <>
-         
-            <Link className="nav-list" to={'/login'}>
-              <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
-                <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
-                  <LoginIcon sx={{ marginRight: "5px" }} />
-                  Login
-                </Box>
-              </Button>
-            </Link>
-          
-            <Link className="nav-list" to={'/register'}>
+            {!authenticated &&
+              <>
+
+
+
+
+
+
+
+
+                <Link className="nav-list" to={'/login/school'}>
+                  <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
+                      <LoginIcon sx={{ marginRight: "5px" }} />
+                      Login
+                    </Box>
+                  </Button>
+                </Link>
+
+                {/* <Link className="nav-list" to={'/register'}>
               <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
                 <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
                   Register
                 </Box>
               </Button>
-            </Link>
-          </>}
-          
+            </Link> */}
+
+                {isLoginWithAdmin && (
+                  <Link className="nav-list" to={'/register'}>
+                    <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
+                      <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
+                        Register
+                      </Box>
+                    </Button>
+                  </Link>
+                )}
 
 
-           {authenticated && 
-           <Link className="nav-list" to={'/logout'}>
-           <Button className='button-beautify button-beautify-danger' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white',  }} >
-               <Box sx={{display: 'flex', flexDirection: 'row'}} className="button-box">
-               Log Out
-               </Box>
-             </Button>
-           </Link>
-           }
-            
+
+              </>}
+
+
+
+            {authenticated &&
+              <Link className="nav-list" to={'/logout'}>
+                <Button className='button-beautify button-beautify-danger' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
+                  <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
+                    Log Out
+                  </Box>
+                </Button>
+              </Link>
+            }
+
             {authenticated && <Link className="nav-list" to={`${user.role.toLowerCase()}`}>
-              <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white'}} >
-              <Box sx={{display: 'flex', flexDirection: 'row',color:"#fff",zIndex:999}} className="button-box">
-                Dashboard
+              <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white' }} >
+                <Box sx={{ display: 'flex', flexDirection: 'row', color: "#fff", zIndex: 999 }} className="button-box">
+                  Dashboard
                 </Box>
               </Button>
             </Link>}
-            
+
           </Box>
         </Toolbar>
       </Container>

@@ -138,6 +138,7 @@ export default function Students() {
           guardian_phone: data.guardian_phone,
           pen_no: data?.pen_no,
           aadhar_no: data?.aadhar_no,
+          admission_no:data?.admission_no,
           password: data.password,
           year: data.year,
           dOBDate: data.dOBDate?.split("T")[0] || "",
@@ -185,6 +186,7 @@ export default function Students() {
     guardian_phone: "",
     pen_no: "",
     aadhar_no: "",
+    admission_no:"",
     password: "",
     year: "",
     dOBDate: "",
@@ -691,6 +693,24 @@ export default function Students() {
                     )} */}
                   </Grid>
 
+                  {/* admission_no */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="admission_no"
+                      name="admission_no"
+                      value={Formik.values.admission_no}
+                      onChange={Formik.handleChange}
+                    />
+                    {/* {Formik.touched.admission_no && Formik.errors.admission_no && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.admission_no}
+                      </p>
+                    )} */}
+                  </Grid>
+
+                  
+
                   {/* Password */}
                   {!isEdit && (
                     <Grid item xs={12} md={6}>
@@ -783,11 +803,7 @@ export default function Students() {
                 marginBottom: "5px",
               }}
             >
-              {/* <TextField
-                id=""
-                label="Search Name  .. "
-                onChange={handleSearch}
-              /> */}
+              
               <TextField
                 label="Search Name .."
                 size="small"

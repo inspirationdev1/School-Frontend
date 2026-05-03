@@ -547,6 +547,34 @@ export default function Users() {
 
         {tab === 1 && (
           <Box>
+            <Box
+              sx={{
+                padding: "2px",
+                minWidth: 120,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: "5px",
+              }}
+            >
+              
+              <TextField
+                label="Search Name .."
+                size="small"
+                onChange={handleSearch}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: 42,
+                    width: 500,
+                    fontSize: "14px",
+                  },
+                  "& .MuiInputLabel-root": {
+                    fontSize: "13px",
+                  },
+                }}
+              />
+
+            </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>

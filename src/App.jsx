@@ -9,8 +9,7 @@ import Client from "./client/Client";
 import Home from "./client/components/home/Home";
 import Contact from "./client/components/contact/Contact";
 import Login from "./client/components/login/Login";
-import LoginTeacher from "./client/components/login/LoginTeacher";
-import LoginStudent from "./client/components/login/LoginStudent";
+
 import Register from "./client/components/register/Register";
 
 import Logout from "./client/components/logout/Logout";
@@ -304,8 +303,7 @@ function App() {
               <Route path="home" element={<Home />} />
               <Route path="contact" element={<Contact />} />
               <Route path="login" element={<Login />} />
-              <Route path="loginteacher" element={<LoginTeacher />} />
-              <Route path="loginstudent" element={<LoginStudent />} />
+              <Route path="/login/:role" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="logout" element={<Logout />} />
             </Route>

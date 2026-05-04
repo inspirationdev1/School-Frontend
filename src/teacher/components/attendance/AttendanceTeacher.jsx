@@ -1,324 +1,326 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Button, Table, TableBody, TableCell, TableHead, TableRow, Typography, Select, MenuItem, Alert, FormControl, InputLabel, Autocomplete, TextField, Box } from '@mui/material';
-import axios from 'axios';
-import moment from 'moment';
-import { baseUrl } from '../../../environment';
-// import Invoice2 from "./components/invoice/invoice";
-import Invoice2 from "./invoice";
-import AttendancePrint from "./AttendancePrint";
-import { pdf } from "@react-pdf/renderer";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  Container,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+  Select,
+  MenuItem,
+  Alert,
+  Autocomplete,
+  TextField,
+  Box,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import axios from "axios";
 import dayjs from "dayjs";
+import { baseUrl } from "../../../environment";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useFormik } from "formik";
-// import { convertDate } from "../../../../../utilityFunctions";
-
-
 
 const AttendanceTeacher = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [students, setStudents] = useState([]);
   const [attendanceStatus, setAttendanceStatus] = useState({});
   const [attendanceTaken, setAttendanceTaken] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [attendeeClass, setAttendeeClass] = useState([])
+  const [loading, setLoading] = useState(false);
+
+  const [attendeeClass, setAttendeeClass] = useState([]);
+  const [sections, setSections] = useState([]);
+
   const [selectedClass, setSelectedClass] = useState(null);
-
-  const [sections, setSection] = useState([])
   const [selectedSection, setSelectedSection] = useState(null);
+  const [attendanceDate, setAttendanceDate] = useState(dayjs());
 
-
-  const todayDate = moment().format('DD-MM-YYYY'); // Get today's date in 'DD-MM-YYYY' format
-
-  const examFormik = useFormik({
-    initialValues: { attendance_date: "", subject: "", exam_type: "" }
-
-
-  });
-
-  // Fetch all students and check if attendance is already taken
+  // ✅ Fetch initial data
   useEffect(() => {
-    fetchSection();
-    const fetchStudentsAndCheckAttendance = async () => {
-      try {
-        const attendee = await axios.get(`${baseUrl}/class/attendee`);
-        console.log("attendee", attendee)
-        setAttendeeClass(attendee.data);
+    fetchInitialData();
+  }, []);
 
-        if (attendeeClass.length > 0 && selectedClass) {
-          // Check if attendance is already taken for today
-          // const attendanceResponse = await axios.get(`${baseUrl}/attendance/check/${selectedClass.classId}`);
-          const selectedDate = examFormik.values.attendance_date
-            ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
-            : "";
-
-          const attendanceResponse = await axios.get(`${baseUrl}/attendance/check/${selectedClass.classId}`, { params: { classId: selectedClass.classId, sectionId: selectedSection._id, selectedDate: selectedDate } });
-          setAttendanceTaken(attendanceResponse.data.attendanceTaken);
-          // Fetch students if attendance has not been taken yet
-          if (!attendanceResponse.data.attendanceTaken) {
-            const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, { params: { student_class: selectedClass.classId, section: selectedSection._id } }); // Fetch based on class
-            setStudents(studentsResponse.data.data);
-
-            // Initialize attendance status for each student
-            const initialStatus = {};
-            studentsResponse.data.data.forEach((student) => {
-              initialStatus[student._id] = 'Present'; // default value
-            });
-            setAttendanceStatus(initialStatus);
-          } else {
-            const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, { params: { student_class: selectedClass.classId } }); // Fetch based on class
-            setStudents(studentsResponse.data.data);
-
-            // Initialize attendance status for each student
-            const initialStatus = {};
-            studentsResponse.data.data.forEach((student) => {
-              const studs = attendanceResponse.data.data;
-              const studentId = student._id;
-              const stud = studs.find((item) => item.student === studentId);
-              console.log(stud);
-              initialStatus[student._id] = stud?.status || 'Present'; // default value
-            });
-            setAttendanceStatus(initialStatus);
-          }
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching students or checking attendance:', error);
-      }
-    };
-
-    fetchStudentsAndCheckAttendance();
-
-
-
-  }, [examFormik.values.attendance_date, selectedClass, selectedSection]);
-
-  const fetchSection = async () => {
+  const fetchInitialData = async () => {
     try {
-      const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
-      console.log("sections", sectionsData)
-      setSection(sectionsData.data.data);
+      setLoading(true);
 
-    } catch (error) {
-      console.error('Error fetching section:', error);
+      const [classRes, sectionRes] = await Promise.all([
+        axios.get(`${baseUrl}/class/attendee`),
+        axios.get(`${baseUrl}/section/fetch-all`),
+      ]);
+
+      setAttendeeClass(classRes.data);
+      setSections(sectionRes.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle attendance status change for each student
-  const handleStatusChange = (studentId, status) => {
-    setAttendanceStatus((prevState) => ({
-      ...prevState,
-      [studentId]: status,
-    }));
+  // ✅ Fetch students & attendance
+  useEffect(() => {
+    if (!selectedClass || !selectedSection || !attendanceDate) return;
+
+    fetchStudents();
+  }, [selectedClass, selectedSection, attendanceDate]);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+
+      const selectedDate = dayjs(attendanceDate).format("DD-MM-YYYY");
+
+      const attendanceRes = await axios.get(
+        `${baseUrl}/attendance/check/${selectedClass.classId}`,
+        {
+          params: {
+            classId: selectedClass.classId,
+            sectionId: selectedSection._id,
+            selectedDate,
+          },
+        }
+      );
+
+      setAttendanceTaken(attendanceRes.data.attendanceTaken);
+
+      const studentRes = await axios.get(
+        `${baseUrl}/student/fetch-with-query`,
+        {
+          params: {
+            student_class: selectedClass.classId,
+            section: selectedSection._id,
+          },
+        }
+      );
+
+      const studentList = studentRes.data.data;
+      setStudents(studentList);
+
+      // ✅ Build attendance map
+      const statusMap = {};
+      studentList.forEach((student) => {
+        const existing = attendanceRes.data.data?.find(
+          (a) => a.student === student._id
+        );
+        statusMap[student._id] = existing?.status || "Present";
+      });
+
+      setAttendanceStatus(statusMap);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ✅ Handle change
+  const handleStatusChange = (id, value) => {
+    setAttendanceStatus((prev) => ({ ...prev, [id]: value }));
+  };
 
-  // Handle class selection
-  // const handleClassChange = (event) => {
-  //   let input = event.target.value;
-  //   setSelectedClass({ id: input.split(",")[0], class_name: input.split(",")[1] });
-  //   console.log(event.target.value)
-  // };
-
-  // Submit attendance for all students
+  // ✅ Submit
   const submitAttendance = async () => {
     try {
-      // const selectedDate = examFormik.values.attendance_date
-      //   ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
-      //   : "";
+      const selectedDate = dayjs(attendanceDate).format("DD-MM-YYYY");
 
-      const selectedDate = dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY");
-      console.log("selectedDate", selectedDate);
-
-      const attendanceRecords = students.map((student) => ({
-        studentId: student._id,
+      const payload = students.map((s) => ({
+        studentId: s._id,
         date: selectedDate,
-        status: attendanceStatus[student._id],
-        classId: selectedClass.classId, // Include the class
-        sectionId: selectedSection._id, // Include the section
+        status: attendanceStatus[s._id],
+        classId: selectedClass.classId,
+        sectionId: selectedSection._id,
       }));
 
-      // Send attendance records to backend
-      await Promise.all(attendanceRecords.map((record) =>
-        axios.post(`${baseUrl}/attendance/mark`, record)
-      ));
+      await Promise.all(
+        payload.map((record) =>
+          axios.post(`${baseUrl}/attendance/mark`, record)
+        )
+      );
 
-      alert('Attendance submitted successfully');
-      setAttendanceTaken(true); // Set attendance as taken
-    } catch (error) {
-      console.error('Error submitting attendance:', error);
+      alert("Attendance submitted successfully");
+      setAttendanceTaken(true);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const printAttendance = async () => {
-    console.log("selectedClass", selectedClass);
-    console.log("examFormik.values.attendance_date", examFormik.values.attendance_date);
-    const selectedDate = examFormik.values.attendance_date
-      ? dayjs(examFormik.values.attendance_date).format("DD-MM-YYYY")
-      : "";
+  const printAttendance = () => {
+    const date = dayjs(attendanceDate).format("DD-MM-YYYY");
 
+    window.open(
+      `/teacher/AttendancePrint?classId=${selectedClass.classId}&date=${date}`,
+      "_blank"
+    );
+  };
 
-    console.log("selectedDate", selectedDate);
+  // ✅ Mobile Card View
+  const renderMobileView = () =>
+    students.map((student) => (
+      <Box
+        key={student._id}
+        sx={{
+          border: "1px solid #ddd",
+          borderRadius: 2,
+          p: 2,
+          mb: 2,
+        }}
+      >
+        <Typography fontWeight="bold">{student.name}</Typography>
+        <Typography variant="body2">
+          Admission#: {student?.admission_no}
+        </Typography>
 
-    window.open(`/teacher/AttendancePrint?classId=${selectedClass.classId}&date=${selectedDate}`,
-      '_blank');
-  }
+        <Select
+          fullWidth
+          size="small"
+          sx={{ mt: 1 }}
+          value={attendanceStatus[student._id]}
+          onChange={(e) =>
+            handleStatusChange(student._id, e.target.value)
+          }
+        >
+          <MenuItem value="Present">Present</MenuItem>
+          <MenuItem value="Absent">Absent</MenuItem>
+        </Select>
+      </Box>
+    ));
 
-
-  if (loading) {
-    return <Typography>Loading...</Typography>;
-  }
+  // ✅ Desktop Table View
+  const renderTableView = () => (
+    <Box sx={{ width: "100%", overflowX: "auto" }}>
+      <Table sx={{ minWidth: 600 }}>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Admission#</TableCell>
+            <TableCell>Status</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {students.map((s) => (
+            <TableRow key={s._id}>
+              <TableCell>{s.name}</TableCell>
+              <TableCell>{s?.admission_no}</TableCell>
+              <TableCell>
+                <Select
+                  fullWidth
+                  size="small"
+                  value={attendanceStatus[s._id]}
+                  onChange={(e) =>
+                    handleStatusChange(s._id, e.target.value)
+                  }
+                >
+                  <MenuItem value="Present">Present</MenuItem>
+                  <MenuItem value="Absent">Absent</MenuItem>
+                </Select>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Box>
+  );
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>Mark Attendance for All Students</Typography>
-      {attendeeClass.length > 0 && !attendanceTaken ? <Alert severity="info" sx={{ mb: 3 }}>
-        Your Are Attendee of {attendeeClass.length} class{attendeeClass.length > 1 && 'es'}. Select the class and Take attendance.
-      </Alert> : attendeeClass.length > 0 && attendanceTaken ? <Alert severity="info" sx={{ mb: 3 }}>
-        Your Are Attendee of {attendeeClass.length} class{attendeeClass.length > 1 && 'es'}. Select the class and Print attendance.
-      </Alert> :
-        <Alert severity='info'>You are not attendee of any Class.</Alert>}
+    <Container maxWidth="lg" sx={{ py: 2 }}>
+      <Typography
+        sx={{ fontSize: { xs: 20, md: 28 }, mb: 2 }}
+        fontWeight="bold"
+      >
+        Student Attendance
+      </Typography>
 
+      {/* Alerts */}
+      {attendeeClass.length === 0 && (
+        <Alert severity="info">No assigned classes</Alert>
+      )}
+
+      {/* Form */}
       <Box
-  sx={{
-    display: "grid",
-    gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, // ✅ responsive
-    gap: 2,
-  }}
->
-
-  
-
-  {/* Class */}
-  <Box>
-    <Autocomplete
-      options={attendeeClass}
-      getOptionLabel={(option) => option.class_name || ""}
-      value={selectedClass}
-      onChange={(event, newValue) => {
-        setSelectedClass(newValue);
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Select Class"
-          placeholder="Search class..."
-          fullWidth
-          size="small"
-        />
-      )}
-    />
-  </Box>
-
-  {/* Section */}
-  <Box>
-    <Autocomplete
-      options={sections}
-      getOptionLabel={(option) => option.section_name || ""}
-      value={selectedSection}
-      onChange={(event, newValue) => {
-        setSelectedSection(newValue);
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Select Section"
-          placeholder="Search section..."
-          fullWidth
-          size="small"
-        />
-      )}
-    />
-  </Box>
-
-  {/* Attendance Date */}
-  <Box>
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        label="Attendance Date"
-        name="attendance_date"
-        value={
-          examFormik.values.attendance_date
-            ? dayjs(examFormik.values.attendance_date)
-            : null
-        }
-        onChange={(newValue) => {
-          examFormik.setFieldValue("attendance_date", newValue);
-        }}
-        format="DD/MM/YYYY"
-        slotProps={{
-          textField: {
-            fullWidth: true,
-            size: "small",
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "1fr 1fr",
+            lg: "1fr 1fr 1fr",
           },
+          gap: 2,
+          mb: 2,
         }}
-      />
-    </LocalizationProvider>
-  </Box>
+      >
+        <Autocomplete
+          options={attendeeClass}
+          getOptionLabel={(o) => o.class_name || ""}
+          value={selectedClass}
+          onChange={(e, val) => setSelectedClass(val)}
+          renderInput={(params) => (
+            <TextField {...params} label="Class" size="small" />
+          )}
+        />
 
-</Box>
+        <Autocomplete
+          options={sections}
+          getOptionLabel={(o) => o.section_name || ""}
+          value={selectedSection}
+          onChange={(e, val) => setSelectedSection(val)}
+          renderInput={(params) => (
+            <TextField {...params} label="Section" size="small" />
+          )}
+        />
 
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Date"
+            value={attendanceDate}
+            onChange={setAttendanceDate}
+            format="DD/MM/YYYY"
+            slotProps={{ textField: { size: "small" } }}
+          />
+        </LocalizationProvider>
+      </Box>
 
+      {/* Loading */}
+      {loading && <CircularProgress />}
 
-
-      {/* {attendeeClass.length > 0 && selectedClass && !attendanceTaken && students.length < 1 && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          There is no students in {selectedClass.class_name} class now.
-        </Alert>
-      )} */}
-
-      {attendeeClass.length > 0 && selectedClass && sections.length > 0 && selectedSection && !attendanceTaken && students.length < 1 && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          There is no students in {selectedClass.class_name} class & {selectedSection.section_name} section now.
-        </Alert>
+      {/* Empty */}
+      {!loading && students.length === 0 && selectedClass && (
+        <Alert severity="info">No students found</Alert>
       )}
 
-      {attendeeClass.length > 0 && selectedClass && students.length > 0 && (
+      {/* Data */}
+      {!loading && students.length > 0 && (
         <>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Student Name</TableCell>
-                <TableCell>Roll Number</TableCell>
-                <TableCell>Attendance Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {students.map((student) => (
-                <TableRow key={student._id}>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.rollNumber}</TableCell>
-                  <TableCell>
-                    <Select
-                      value={attendanceStatus[student._id]}
-                      onChange={(e) => handleStatusChange(student._id, e.target.value)}
-                    >
-                      <MenuItem value="Present">Present</MenuItem>
-                      <MenuItem value="Absent">Absent</MenuItem>
-                    </Select>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {isMobile ? renderMobileView() : renderTableView()}
 
-          <Button variant="contained" color="primary" onClick={submitAttendance} sx={{ mt: 3 }}>
-            Submit Attendance
-          </Button>
-          {attendanceTaken && <Button variant="contained" color="primary" onClick={printAttendance} sx={{ mt: 3, ml: 1 }}>
-            Print Attendance
-          </Button>}
+          {/* Buttons */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+              mt: 3,
+            }}
+          >
+            {!attendanceTaken && (
+              <Button fullWidth variant="contained" onClick={submitAttendance}>
+                Submit
+              </Button>
+            )}
 
-
-
+            {attendanceTaken && (
+              <Button fullWidth variant="contained" onClick={printAttendance}>
+                Print
+              </Button>
+            )}
+          </Box>
         </>
       )}
-
-
-
-
-
-
     </Container>
   );
 };

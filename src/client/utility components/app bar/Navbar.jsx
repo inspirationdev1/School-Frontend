@@ -199,13 +199,7 @@ if (pathname.length>1){
                   </Button>
                 </Link>
 
-                {/* <Link className="nav-list" to={'/register'}>
-              <Button className='button-beautify button-beautify-one' onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', }} >
-                <Box sx={{ display: 'flex', flexDirection: 'row' }} className="button-box">
-                  Register
-                </Box>
-              </Button>
-            </Link> */}
+                
 
                 {isLoginWithAdmin && (
                   <Link className="nav-list" to={'/register'}>

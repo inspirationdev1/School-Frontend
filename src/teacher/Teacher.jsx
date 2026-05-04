@@ -119,6 +119,14 @@ export default function Teacher() {
             <MenuIcon />
           </IconButton>
 
+          {/* User */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <AccountCircleIcon />
+            <Typography sx={{ display: { xs: "none", sm: "block" } }}>
+              {user?.name}
+            </Typography>
+          </Box>
+
           {/* Title */}
           <Typography
             variant="h6"
@@ -130,13 +138,7 @@ export default function Teacher() {
             School Management System
           </Typography>
 
-          {/* User */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <AccountCircleIcon />
-            <Typography sx={{ display: { xs: "none", sm: "block" } }}>
-              {user?.name}
-            </Typography>
-          </Box>
+          
         </Toolbar>
       </AppBar>
 

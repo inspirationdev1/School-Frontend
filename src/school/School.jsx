@@ -301,7 +301,7 @@ export default function School() {
                             transform: "translateX(-50%)",
                         }}
                     >
-                        School Management System-1 
+                        School Management System
                     </Typography>
                     
 

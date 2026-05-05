@@ -49,7 +49,7 @@ export default function Students() {
 
   const [previouslyappliedArray, setPreviouslyappliedArray] = useState([]);
   const [selectedpreviouslyapplied, setSelectedpreviouslyapplied] = useState(null);
-  
+
 
   const [dataError, setDataError] = useState('');
 
@@ -70,6 +70,7 @@ export default function Students() {
   const [modeoftransports, setModeoftransports] = useState([]);
   const [selectedmodeoftransport, setSelectedmodeoftransport] = useState(null);
 
+  const [noofstudents, setNoofstudents] = useState(0);
 
 
   const years = Array.from({ length: 10 }, (_, i) => {
@@ -90,7 +91,7 @@ export default function Students() {
     }
   };
 
-  const fetchpreviouslyapplied= async () => {
+  const fetchpreviouslyapplied = async () => {
     try {
       const fieldData = [{ fieldId: "yes", fieldValue: "Yes" },
       { fieldId: "no", fieldValue: "No" },
@@ -184,7 +185,7 @@ export default function Students() {
         setSelectedfirstlanguage(data?.firstlanguage || null);
 
 
-        const matchedPreviouslyapplied= previouslyappliedArray.find((s) => s.fieldValue === resp.data.data?.previouslyapplied);
+        const matchedPreviouslyapplied = previouslyappliedArray.find((s) => s.fieldValue === resp.data.data?.previouslyapplied);
         setSelectedpreviouslyapplied(matchedPreviouslyapplied || null);
 
 
@@ -320,6 +321,13 @@ export default function Students() {
     initialValues,
     validationSchema: studentSchema,
     onSubmit: (values) => {
+
+
+      if (!selectedbloodgroup) {
+        setMessage("Select Bloodgroup on Tab-2");
+        setType("error");
+        return;
+      }
 
       if (!selectednationality) {
         setMessage("Select Nationality on Tab-2");
@@ -464,6 +472,7 @@ export default function Students() {
       .get(`${baseUrl}/student/fetch-with-query`, { params })
       .then((resp) => {
         setStudents(resp.data.data);
+        setNoofstudents(resp.data.data.length);
       })
       .catch(() => console.log("Error in fetching students data"));
   };
@@ -1453,10 +1462,10 @@ export default function Students() {
                 onSubmit={Formik.handleSubmit}
               >
                 <Grid container spacing={2}>
-                  
-                  
 
-                  
+
+
+
 
 
 
@@ -1586,7 +1595,7 @@ export default function Students() {
 
                         Formik.setFieldValue("dateofaddmission", doa);
 
-                       
+
                       }}
                       onBlur={Formik.handleBlur}
                     />
@@ -1629,30 +1638,50 @@ export default function Students() {
           <Box>
             <Box
               sx={{
-                padding: "2px",
-                minWidth: 120,
                 display: "flex",
-                justifyContent: "center",
+                gap: 2,
+                flexDirection: { xs: "column", sm: "row" },
                 alignItems: "center",
-                marginBottom: "5px",
+                mb: 2,
               }}
             >
+              {/* Search */}
               <TextField
                 label="Search Name .."
                 size="small"
                 onChange={handleSearch}
+                fullWidth
                 sx={{
+                  flex: 2,
                   "& .MuiInputBase-root": {
                     height: 42,
-                    width: 500,
                     fontSize: "14px",
-                  },
-                  "& .MuiInputLabel-root": {
-                    fontSize: "13px",
                   },
                 }}
               />
+
+              {/* No of Students Card */}
+              <Box
+                sx={{
+                  flex: 1,
+                  minWidth: { xs: "100%", sm: 160 },
+                  height: 42,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 2,
+                  bgcolor: "primary.main",
+                  color: "white",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  boxShadow: 2,
+                }}
+              >
+                Students Count : {noofstudents}
+              </Box>
             </Box>
+
+
 
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">

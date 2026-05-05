@@ -138,7 +138,12 @@ export default function Generalmasters() {
     try {
       const generalmastertypesData = [
         { generalmaster_type: "castecategory", generalmaster_name: "Caste Categoary" },
-
+        { generalmaster_type: "bloodgroup", generalmaster_name: "Blood Group" },
+        { generalmaster_type: "nationality", generalmaster_name: "Nationality" },
+        { generalmaster_type: "religion", generalmaster_name: "Religion" },
+        { generalmaster_type: "language", generalmaster_name: "Language" },
+        { generalmaster_type: "modeoftransport", generalmaster_name: "mode of transport" },
+        
 
       ];
       setGeneralmastertypes(generalmastertypesData);

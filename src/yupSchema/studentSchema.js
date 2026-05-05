@@ -12,5 +12,6 @@ export const studentSchema = yup.object({
     dOBDate: yup.string().min(4, "dOBDate must contain 4 characters").required("dOBDate is required"),
     joinDate: yup.string().min(4, "joinDate must contain 4 characters").required("joinDate is required"),
     year: yup.string().required("Year is required"),
+    bloodgroup: yup.string().required("Bloodgroup is required"),
     password: yup.string().required("Password is a required field."),
 })

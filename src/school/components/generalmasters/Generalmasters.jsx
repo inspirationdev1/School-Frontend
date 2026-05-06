@@ -32,6 +32,20 @@ export default function Generalmasters() {
   const [editId, setEditId] = useState(null);
   const [tab, setTab] = useState(0);
 
+  const [params, setParams] = useState({});
+    
+      const handleSearch = (e) => {
+        let newParam;
+        if (e.target.value !== "") {
+          newParam = { ...params, search: e.target.value };
+        } else {
+          newParam = { ...params };
+          delete newParam["search"];
+        }
+    
+        setParams(newParam);
+      };
+
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
       axios
@@ -101,6 +115,7 @@ export default function Generalmasters() {
             setMessage(resp.data.message);
             setType("success");
             cancelEdit();
+            setParams({});
             setTab(1); // go to View List
           })
           .catch((e) => {
@@ -117,6 +132,7 @@ export default function Generalmasters() {
             setMessage(resp.data.message);
             setType("success");
             cancelEdit();
+            setParams({});
             setTab(1); // go to View List
           })
           .catch((e) => {
@@ -143,6 +159,9 @@ export default function Generalmasters() {
         { generalmaster_type: "religion", generalmaster_name: "Religion" },
         { generalmaster_type: "language", generalmaster_name: "Language" },
         { generalmaster_type: "modeoftransport", generalmaster_name: "mode of transport" },
+        { generalmaster_type: "board", generalmaster_name: "Board" },
+        { generalmaster_type: "previousschool", generalmaster_name: "Previous School" },
+        
         
 
       ];
@@ -153,21 +172,28 @@ export default function Generalmasters() {
     }
   };
   const fetchgeneralmaster = () => {
+    // axios
+    //   .get(`${baseUrl}/generalmaster/fetch-all`)
+    //   .then((resp) => {
+    //     console.log("Fetching data in  Casting Calls  admin.", resp);
+    //     setStudentGeneralmaster(resp.data.data);
+    //   })
+    //   .catch((e) => {
+    //     console.log("Error in fetching casting calls admin data", e);
+    //   });
     axios
-      .get(`${baseUrl}/generalmaster/fetch-all`)
+      .get(`${baseUrl}/generalmaster/fetch-with-query`, { params })
       .then((resp) => {
-        console.log("Fetching data in  Casting Calls  admin.", resp);
         setStudentGeneralmaster(resp.data.data);
+        
       })
-      .catch((e) => {
-        console.log("Error in fetching casting calls admin data", e);
-      });
+      .catch(() => console.log("Error in fetching students data"));
   };
   useEffect(() => {
     fetchGeneralmastertypes();
     fetchgeneralmaster();
 
-  }, [message]);
+  }, [message, params]);
   return (
     <>
       {message && (
@@ -272,12 +298,57 @@ export default function Generalmasters() {
 
         {tab === 1 && (
           <Box>
+            <Box
+                          sx={{
+                            display: "flex",
+                            gap: 2,
+                            flexDirection: { xs: "column", sm: "row" },
+                            alignItems: "center",
+                            mb: 2,
+                          }}
+                        >
+                          {/* Search */}
+                          <TextField
+                            label="Search .."
+                            size="small"
+                            onChange={handleSearch}
+                            fullWidth
+                            sx={{
+                              flex: 2,
+                              "& .MuiInputBase-root": {
+                                height: 42,
+                                fontSize: "14px",
+                              },
+                            }}
+                          />
+            
+                          {/* No of Students Card */}
+                          {/* <Box
+                            sx={{
+                              flex: 1,
+                              minWidth: { xs: "100%", sm: 160 },
+                              height: 42,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              borderRadius: 2,
+                              bgcolor: "primary.main",
+                              color: "white",
+                              fontWeight: 600,
+                              fontSize: "14px",
+                              boxShadow: 2,
+                            }}
+                          >
+                            Students Count : {noofstudents}
+                          </Box> */}
+                        </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
                     <TableCell component="th" scope="row"> generalmaster Name</TableCell>
                     <TableCell align="right">Code</TableCell>
+                    <TableCell align="right">Type</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -291,6 +362,7 @@ export default function Generalmasters() {
                         {value.generalmaster_name}
                       </TableCell>
                       <TableCell align="right">{value.generalmaster_code}</TableCell>
+                      <TableCell align="right">{value.generalmaster_type}</TableCell>
                       <TableCell align="right">
                         <Box
                           sx={{

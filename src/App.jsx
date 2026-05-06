@@ -137,6 +137,8 @@ import CastecertificatePrint from "./school/components/castecertificates/Castece
 
 import Attendees from "./school/components/Attendees/Attendees";
 import Uploaddata from "./school/components/uploaddata/Uploaddata";
+import Enquiry from "./school/components/enquiry/Enquiry";
+import EnquiryPrint from "./school/components/enquiry/EnquiryPrint";
 
 
 
@@ -149,7 +151,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={themeDark ? darkTheme : lightTheme}>
-        <ThemeToggleButton />
+        {/* <ThemeToggleButton /> */}
         <BrowserRouter>
           <Routes>
 
@@ -182,6 +184,9 @@ function App() {
               <Route path="transfercertificateprint" element={<TransfercertificatePrint />} />
               <Route path="castecertificate" element={<Castecertificates />} />
               <Route path="castecertificateprint" element={<CastecertificatePrint />} />
+              <Route path="enquiry" element={<Enquiry />} />
+              <Route path="enquiryprint" element={<EnquiryPrint />} />
+
 
               <Route path="attendee" element={<Attendees />} />
               

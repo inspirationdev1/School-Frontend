@@ -88,6 +88,7 @@ export default function School() {
                 { label: "Bonafide Cert", link: "/school/bonafidecertificate" },
                 { label: "Transfer Cert", link: "/school/transfercertificate" },
                 { label: "Caste Cert", link: "/school/castecertificate" },
+                { label: "Enquiry form", link: "/school/enquiry" },
                 { label: "Reports", link: "/school/studentreports" },
             ],
         },

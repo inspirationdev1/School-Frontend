@@ -28,13 +28,8 @@ import CustomizedSnackbars from "../../../basic utility components/CustomizedSna
 import { studentSchema } from "../../../yupSchema/studentSchema";
 import StudentCardAdmin from "../../utility components/student card/StudentCard";
 import dayjs from "dayjs";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import IconButton from "@mui/material/IconButton";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 
-export default function Students() {
+export default function Students_Orig() {
   const [studentClass, setStudentClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [section, setSection] = useState([]);
@@ -54,10 +49,6 @@ export default function Students() {
 
   const [previouslyappliedArray, setPreviouslyappliedArray] = useState([]);
   const [selectedpreviouslyapplied, setSelectedpreviouslyapplied] = useState(null);
-
-
-  const [attachmenttypes, setAttachmenttypes] = useState([]);
-  const [attachmentstatuses, setAttachmentstatuses] = useState([]);
 
 
   const [dataError, setDataError] = useState('');
@@ -80,7 +71,6 @@ export default function Students() {
   const [selectedmodeoftransport, setSelectedmodeoftransport] = useState(null);
 
   const [noofstudents, setNoofstudents] = useState(0);
-  const [isDataValid, setIsDataValid] = useState(true);
 
 
   const years = Array.from({ length: 10 }, (_, i) => {
@@ -114,17 +104,6 @@ export default function Students() {
     }
   };
 
-  const handleChange = (index, field, value) => {
-    const updated = [...admissionAttachments];
-    updated[index][field] = value;
-
-    if (field === "attachment_file") {
-        updated[index].attachment_image = value.name||"";
-    }
-
-    setAdmissionAttachments(updated);
-  };
-
   const viewUploadFile = (fileName) => {
     const fileUrl = `${fileName}`;
     window.open(fileUrl, "_blank", "noopener,noreferrer");
@@ -151,43 +130,6 @@ export default function Students() {
     }
 
     setParams(newParam);
-  };
-
-  const [admissionAttachments, setAdmissionAttachments] = useState([
-    {
-      attachmenttype: null,
-      attachmentstatus: null,
-      attachment_image: "",
-      attachment_file:"",
-      isEdit: false
-    },
-  ]);
-
-
-  const clearAdmissionAttachments = () => {
-    setAdmissionAttachments([
-      {
-        attachmenttype: null,
-        attachmentstatus: null,
-        attachment_image: "",
-        attachment_file:"",
-        isEdit: false
-      },
-    ])
-
-  };
-
-  const addRow = () => {
-    setAdmissionAttachments([
-      ...admissionAttachments,
-      {
-        attachmenttype: null,
-        attachmentstatus: null,
-        attachment_image: "",
-        attachment_file:"",
-        isEdit: false
-      },
-    ]);
   };
 
   const handleDelete = (id) => {
@@ -251,9 +193,9 @@ export default function Students() {
           email: data.email,
           name: data.name,
           student_code: data.student_code || "",
-          student_class: data?.student_class?._id,
-          section: data.section?._id,
-          parent: data.parent?._id,
+          student_class: data.student_class._id,
+          section: data.section._id,
+          parent: data.parent._id,
           gender: data.gender,
           age: age,
           guardian: data.guardian,
@@ -298,20 +240,10 @@ export default function Students() {
           password: data.password,
         });
         setImageUrl(data.image); // Assuming response has `image` URL field for preview
-
-        if (resp.data?.admissionAttachments.length > 0) {
-          setAdmissionAttachments(resp.data?.admissionAttachments);
-        } else {
-          clearAdmissionAttachments();
-        }
-
-
-
         setEditId(data._id);
         setTab(0); // open Create Receipt tab
       })
       .catch((e) => {
-        console.log(e.message);
         console.log("Error in fetching edit data.");
       });
     // .catch(() => console.log("Error in fetching edit data."));
@@ -332,10 +264,7 @@ export default function Students() {
     setSelectedmothertongue(null);
     setSelectedmodeoftransport(null);
     setSelectedfirstlanguage(null);
-    clearAdmissionAttachments();
   };
-
-
 
   const [message, setMessage] = useState("");
   const [type, setType] = useState("success");
@@ -438,49 +367,12 @@ export default function Students() {
       values.bloodgroup = selectedbloodgroup?._id;
       values.vaccinated = selectedVaccinated?.fieldId;
       values.nationality = selectednationality?._id;
-
-
-
-
-      const filteredAttachments = admissionAttachments.filter(
-        (item) => item.attachment_image && item.attachment_image.trim()
-      );
-      const formattedAttachments = filteredAttachments.map((row) => ({
-        enquiry_date: values?.enquiry_date,
-        enquiry_time: values?.enquiry_time,
-        attachmenttype: row.attachmenttype?._id,
-        attachmentstatus: row.attachmentstatus?._id,
-        attachment_image: row.attachment_image,
-        year: values.year,
-      }));
-      values.admissionAttachments = formattedAttachments || [];
-
-
-
       if (isEdit) {
         const fd = new FormData();
-        // Object.keys(values).forEach((key) => fd.append(key, values[key]));
-        Object.keys(values).forEach((key) => {
-          if (key === "admissionAttachments") {
-            fd.append(key, JSON.stringify(values[key])); // ✅ IMPORTANT
-          } else {
-            fd.append(key, values[key]);
-          }
-        });
+        Object.keys(values).forEach((key) => fd.append(key, values[key]));
         if (file) {
           fd.append("image", file, file.name);
         }
-
-        // ✅ Append attachment rows
-        // formattedAttachments.forEach((row, index) => {
-        //   // ✅ File
-        //   if (row.attachment_image) {
-        //     fd.append(
-        //       `admissionAttachments[${index}][attachment_image]`,
-        //       row.attachment_image
-        //     );
-        //   }
-        // });
 
         axios
           .patch(`${baseUrl}/student/update/${editId}`, fd)
@@ -488,7 +380,6 @@ export default function Students() {
             setMessage(resp.data.message);
             setType("success");
             handleClearFile();
-
             cancelEdit();
             setParams({});
             setTab(3); // go to View List
@@ -497,7 +388,6 @@ export default function Students() {
             setMessage(e.response.data.message);
             setType("error");
           });
-
       } else {
         if (file) {
           const fd = new FormData();
@@ -511,7 +401,6 @@ export default function Students() {
               setType("success");
               Formik.resetForm();
               handleClearFile();
-
               setParams({});
               cancelEdit();
               setTab(3); // go to View List
@@ -665,36 +554,6 @@ export default function Students() {
   };
 
 
-  const fetchAttachmenttypes = () => {
-    const params = {
-      generalmaster_type: "attachmenttype",
-    };
-    axios
-      .get(`${baseUrl}/generalmaster/fetch-with-query`, { params: params })
-      .then((resp) => {
-        console.log("Fetching data in  generalmaster Calls  admin.", resp);
-        setAttachmenttypes(resp.data.data);
-      })
-      .catch((e) => {
-        console.log("Error in fetching generalmaster calls admin data", e);
-      });
-  };
-
-  const fetchAttachmentstatuses = () => {
-    const params = {
-      generalmaster_type: "attachmentstatus",
-    };
-    axios
-      .get(`${baseUrl}/generalmaster/fetch-with-query`, { params: params })
-      .then((resp) => {
-        console.log("Fetching data in  generalmaster Calls  admin.", resp);
-        setAttachmentstatuses(resp.data.data);
-      })
-      .catch((e) => {
-        console.log("Error in fetching generalmaster calls admin data", e);
-      });
-  };
-
   useEffect(() => {
     fetchSection();
     fetchStudents();
@@ -707,8 +566,6 @@ export default function Students() {
     fetchlanguages();
     fetchmodeoftransports();
     fetchpreviouslyapplied();
-    fetchAttachmenttypes();
-    fetchAttachmentstatuses();
   }, [message, params]);
 
   //   CLEARING IMAGE FILE REFENCE FROM INPUT
@@ -720,13 +577,6 @@ export default function Students() {
     setFile(null); // Reset the file state
     setImageUrl(null); // Clear the image preview
   };
-
-  const removeRow = (index) => {
-    setAdmissionAttachments(admissionAttachments.filter((_, i) => i !== index));
-    console.log(admissionAttachments);
-  };
-
-
   return (
     <>
       {message && (
@@ -1756,172 +1606,7 @@ export default function Students() {
                     )} */}
                   </Grid>
 
-                  {/* Admission Attachments */}
-                  <Box sx={{ mt: 4 }}>
 
-                    {/* Error */}
-                    {!isDataValid && (
-                      <Alert severity="error" sx={{ mb: 2 }}>
-                        {dataError}
-                      </Alert>
-                    )}
-
-                    {/* Section Header */}
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 2,
-                      }}
-                    >
-                      <Typography variant="h6" fontWeight={700}>
-                        Admission Attachments
-                      </Typography>
-
-                      <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={addRow}
-                      >
-                        Add Attachment
-                      </Button>
-                    </Box>
-
-                    {/* Attachment Rows */}
-                    {admissionAttachments.map((row, index) => (
-                      <Paper
-                        key={index}
-                        elevation={2}
-                        sx={{
-                          p: 2,
-                          mb: 2,
-                          borderRadius: 2,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "grid",
-                            gridTemplateColumns: {
-                              xs: "1fr",
-                              sm: "1fr 1fr",
-                              md: "280px 280px 1fr auto"
-                            },
-                            gap: 2,
-                            alignItems: "center",
-                          }}
-                        >
-
-                          {/* Attachment Type */}
-                          <Autocomplete
-                            disabled={row.isEdit}
-                            options={attachmenttypes}
-                            getOptionLabel={(option) =>
-                              option?.generalmaster_name || ""
-                            }
-                            isOptionEqualToValue={(option, value) =>
-                              option._id === value?._id
-                            }
-                            value={row.attachmenttype || null}
-                            onChange={(event, newValue) => {
-                              handleChange(index, "attachmenttype", newValue);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Attachment Type"
-                                size="small"
-                                fullWidth
-                              />
-                            )}
-                          />
-
-                          {/* Attachment Status */}
-                          <Autocomplete
-                            disabled={row.isEdit}
-                            options={attachmentstatuses}
-                            getOptionLabel={(option) =>
-                              option?.generalmaster_name || ""
-                            }
-                            isOptionEqualToValue={(option, value) =>
-                              option._id === value?._id
-                            }
-                            value={row.attachmentstatus || null}
-                            onChange={(event, newValue) => {
-                              handleChange(index, "attachmentstatus", newValue);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Attachment Status"
-                                size="small"
-                                fullWidth
-                              />
-                            )}
-                          />
-
-                          {/* Attachment Image / URL */}
-
-                          <TextField
-                            type="file"
-                            name="attachment_file"
-                            fullWidth
-                            size="small"
-                            onChange={(e) =>
-                              handleChange(
-                                index,
-                                "attachment_file",
-                                e.target.files[0] // ✅ use file object
-                              )
-
-
-                            }
-                            inputRef={fileInputRef}
-                            InputProps={{
-                              startAdornment: (
-                                <AttachFileIcon
-                                  sx={{ mr: 1, color: "text.secondary" }}
-                                />
-                              ),
-                            }}
-                          />
-
-                          
-                          
-
-                          {/* Action Buttons */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: 1,
-                              minWidth: "90px",
-                            }}
-                          >
-                            {/* View */}
-                            <IconButton
-                              color="primary"
-                              onClick={() => {
-                                // view logic
-                              }}
-                            >
-                              <VisibilityIcon />
-                            </IconButton>
-
-                            {/* Delete */}
-                            <IconButton
-                              color="error"
-                              onClick={() => removeRow(index)}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </Box>
-
-                        </Box>
-                      </Paper>
-                    ))}
-                  </Box>
 
                   {/* Buttons Full Row */}
                   <Grid item xs={12}>
@@ -1942,8 +1627,6 @@ export default function Students() {
                   </Grid>
 
                 </Grid>
-
-
 
               </Box>
 

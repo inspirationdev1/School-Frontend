@@ -314,7 +314,7 @@ export default function AttendanceReportPrint() {
                     {rows.map((row, i) => (
                         <View style={styles.tableRow} key={i}>
                             <View style={[styles.tableCell, styles.colExpense]}>
-                                <Text>{row.student.name}</Text>
+                                <Text>{row.student?.name}</Text>
                             </View>
                             <View style={[styles.tableCell, styles.colExpense]}>
                                 <Text>{dayjs(row.date).format("DD-MM-YYYY")}</Text>

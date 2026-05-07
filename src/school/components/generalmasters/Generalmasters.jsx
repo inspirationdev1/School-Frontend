@@ -161,6 +161,9 @@ export default function Generalmasters() {
         { generalmaster_type: "modeoftransport", generalmaster_name: "mode of transport" },
         { generalmaster_type: "board", generalmaster_name: "Board" },
         { generalmaster_type: "previousschool", generalmaster_name: "Previous School" },
+        { generalmaster_type: "attachmenttype", generalmaster_name: "Attachment Type" },
+        { generalmaster_type: "attachmentstatus", generalmaster_name: "Attachment Status" },
+
         
         
 

@@ -127,7 +127,23 @@ export default function SchoolReports() {
         );
       }
 
-    }
+    } else if (selectedReport.reportId === "attendance-report") {
+        const data = {
+        fromDate: fromDate,
+        toDate: toDate,
+      };
+
+      if (selectedClass) {
+        data.class = selectedClass?._id;
+      }
+      if (selectedSection) {
+        data.section = selectedSection?._id;
+      }
+        window.open(
+          `/teacher/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      }
 
     setPrint(false);
 
@@ -189,6 +205,15 @@ export default function SchoolReports() {
         }
       }
 
+      
+      if (values.reportId == "attendance-report") {
+        if (!values.class) {
+          setDataError('Select the Class');
+          setIsDataValid(false);
+          return;
+        }
+      }
+
       if (values.reportId == "questionpaper-report") {
         if (!values.section) {
           setDataError('Select the Section');
@@ -197,7 +222,16 @@ export default function SchoolReports() {
         }
       }
 
-      if (values.reportId == "questionpaper-report") {
+      if (values.reportId == "attendance-report") {
+        if (!values.section) {
+          setDataError('Select the Section');
+          setIsDataValid(false);
+          return;
+        }
+      }
+
+      if (values.reportId == "questionpaper-report" 
+        || values.reportId == "attendance-report") {
         if (!values.fromDate) {
           setDataError('Select From Date');
           setIsDataValid(false);
@@ -231,7 +265,8 @@ export default function SchoolReports() {
   const fetchReportNames = async () => {
     try {
       const reportsData = [{ reportId: "progressCard", reportName: "Progress Card" },
-      { reportId: "questionpaper-report", reportName: "Exam Question Paper" }
+      { reportId: "questionpaper-report", reportName: "Exam Question Paper" },
+      { reportId: "attendance-report", reportName: "Attendance Report" },
       ];
       console.log("Report Names", reportsData)
       setReportNames(reportsData);
@@ -458,7 +493,9 @@ export default function SchoolReports() {
                 {/* (selectedReport && selectedReport.reportId) */}
                 {/* Class */}
                 {selectedReport && (selectedReport.reportId === "progressCard"
-                  || selectedReport?.reportId === "questionpaper-report")
+                  || selectedReport?.reportId === "questionpaper-report"
+                  || selectedReport?.reportId === "attendance-report"
+                )
                   && (
                     <Box>
 
@@ -507,7 +544,8 @@ export default function SchoolReports() {
 
                 {/* Section */}
                 {selectedReport && (selectedReport.reportId === "progressCard"
-                  || selectedReport.reportId === "questionpaper-report")
+                  || selectedReport.reportId === "questionpaper-report"
+                  || selectedReport?.reportId === "attendance-report")
                   && (
                     <Box>
                       <Autocomplete
@@ -541,6 +579,7 @@ export default function SchoolReports() {
                 {/* Teacher */}
                 {selectedReport && (selectedReport.reportId === "otherReport"
                   || selectedReport.reportId === "questionpaper-report")
+                  || selectedReport?.reportId === "attendance-report"
                   && (
                     <Box>
                       <Autocomplete
@@ -740,7 +779,7 @@ export default function SchoolReports() {
 
                 {/* From Date */}
                 {selectedReport && (selectedReport.reportId === "questionpaper-report"
-
+                || selectedReport?.reportId === "attendance-report"
                 ) && (
                     <Box>
                       <TextField
@@ -761,8 +800,7 @@ export default function SchoolReports() {
 
                 {/* To Date */}
                 {selectedReport && (selectedReport.reportId === "questionpaper-report"
-
-
+                || selectedReport?.reportId === "attendance-report"
                 ) && (
                     <Box>
                       <TextField

@@ -294,6 +294,7 @@ function App() {
               <Route path="attendance" element={<AttendanceTeacher />} />
               <Route path="invoice2" element={<Invoice2 />} />
               <Route path="AttendancePrint" element={<AttendancePrint />} />
+              <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
               <Route path="notice" element={<NoticeTeacher />} />
 
               <Route path="marksheet" element={<Marksheet />} />

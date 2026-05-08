@@ -132,6 +132,11 @@ export default function Students() {
     window.open(fileUrl, "_blank", "noopener,noreferrer");
   };
 
+  const view_AdmissionAttachment_File = (fileName) => {
+    const fileUrl = `${fileName}`;
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
+  };
+
   // Handle image file selection
   const addImage = (event) => {
     const selectedFile = event.target.files[0];
@@ -704,6 +709,22 @@ export default function Students() {
       });
   }
 
+  const deleteAdmissionAttachment = async (id, index) => {
+    axios
+      .delete(`${baseUrl}/student/delete-admission-attachment/${id}`)
+      .then((resp) => {
+        removeRow(index)
+        setMessage(resp.data.message);
+        setType("success");
+      })
+      .catch((e) => {
+        setMessage(e.response.data.message);
+        setType("error");
+        console.log("Error, response admin casting calls", e);
+      });
+  }
+
+
   useEffect(() => {
     fetchSection();
     fetchStudents();
@@ -1116,7 +1137,7 @@ export default function Students() {
                     )} */}
                   </Grid>
 
-                  
+
 
 
 
@@ -1928,8 +1949,13 @@ export default function Students() {
                             <IconButton
                               color="primary"
                               onClick={() => {
-                                console.log(row);
-                                saveAdmissionAttachment(row);
+                                if (row?.attachment_file) {
+                                  saveAdmissionAttachment(row);
+                                }else{
+                                  setMessage("Choose the file")
+                                  setType("error");
+                                }
+                                
                               }}
                             >
                               <UploadIcon />
@@ -1941,6 +1967,13 @@ export default function Students() {
                               color="primary"
                               onClick={() => {
                                 // view logic
+                                if (row?.attachment_image) {
+                                  view_AdmissionAttachment_File(row?.attachment_image);
+                                }else{
+                                  setMessage("File is not attached/upload")
+                                  setType("error");
+                                }
+                                
                               }}
                             >
                               <VisibilityIcon />
@@ -1949,7 +1982,13 @@ export default function Students() {
                             {/* Delete */}
                             <IconButton
                               color="error"
-                              onClick={() => removeRow(index)}
+                              onClick={() => {
+                                if (row?._id) {
+                                  deleteAdmissionAttachment(row?._id, index)
+                                } else {
+                                  removeRow(index)
+                                }
+                              }}
                             >
                               <DeleteIcon />
                             </IconButton>

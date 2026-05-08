@@ -58,110 +58,110 @@ export default function School() {
   };
 
   const navArr = [
-        {
-            label: "Dashboard",
-            icon: DashboardIcon,
-            link: "/school",
-        },
-        {
-            label: "Academics",
-            icon: MenuBookIcon,
-            children: [
-                { label: "Class", link: "/school/class" },
-                { label: "Section", link: "/school/section" },
-                { label: "Subjects", link: "/school/subject" },
-                { label: "Departments", link: "/school/department" },
-                { label: "Periods", link: "/school/period" },
-                { label: "Schedule", link: "/school/periods" },
-                { label: "Attendee", link: "/school/attendee" },
-                { label: "Notice", link: "/school/notice" },
-            ],
-        },
-        {
-            label: "Students",
-            icon: GroupIcon,
-            children: [
-                { label: "Students", link: "/school/students" },
-                { label: "Parents", link: "/school/parents" },
-                // { label: "Attendee", link: "/school/attendance" },
+    {
+      label: "Dashboard",
+      icon: DashboardIcon,
+      link: "/school",
+    },
+    {
+      label: "Academics",
+      icon: MenuBookIcon,
+      children: [
+        { label: "Class", link: "/school/class" },
+        { label: "Section", link: "/school/section" },
+        { label: "Subjects", link: "/school/subject" },
+        { label: "Departments", link: "/school/department" },
+        { label: "Periods", link: "/school/period" },
+        { label: "Schedule", link: "/school/periods" },
+        { label: "Attendee", link: "/school/attendee" },
+        { label: "Notice", link: "/school/notice" },
+      ],
+    },
+    {
+      label: "Students",
+      icon: GroupIcon,
+      children: [
+        { label: "Students", link: "/school/students" },
+        { label: "Parents", link: "/school/parents" },
+        // { label: "Attendee", link: "/school/attendance" },
 
-                { label: "Bonafide Cert", link: "/school/bonafidecertificate" },
-                { label: "Transfer Cert", link: "/school/transfercertificate" },
-                { label: "Caste Cert", link: "/school/castecertificate" },
-                { label: "Enquiry form", link: "/school/enquiry" },
-                { label: "Reports", link: "/school/studentreports" },
-            ],
-        },
-        {
-            label: "Fees",
-            icon: FormatListNumberedIcon,
-            children: [
-                { label: "Fee Types", link: "/school/feestype" },
-                { label: "Fee Structure", link: "/school/feestructure" },
-                { label: "Fee Invoice", link: "/school/salesinvoice" },
-                { label: "Receipts", link: "/school/receipt" },
-            ],
-        },
-        {
-            label: "Exam",
-            icon: MenuBookIcon,
-            children: [
-                { label: "Examinations", link: "/school/examinations" },
-                { label: "Questionpapers", link: "/school/questionpapers" },
-                { label: "Marksheets", link: "/school/marksheet" },
-                { label: "Reports", link: "/school/schoolreports" },
-            ],
-        },
-        {
-            label: "Staffs",
-            icon: GroupIcon,
-            children: [
-                { label: "Teachers", link: "/school/teachers" },
-                { label: "Staff", link: "/school/employees" },
-                { label: "Reports", link: "/school/staffreports" },
-            ],
-        },
-        {
-            label: "Finance",
-            icon: MenuBookIcon,
-            children: [
-                { label: "Expense Type", link: "/school/expensetype" },
-                { label: "Expenses", link: "/school/expense" },
-                { label: "Payments", link: "/school/payment" },
-                { label: "Reports", link: "/school/financereports" },
-                { label: "Account Level", link: "/school/accountlevel" },
-                { label: "Account Ledger", link: "/school/accountledger" },
+        { label: "Bonafide Cert", link: "/school/bonafidecertificate" },
+        { label: "Transfer Cert", link: "/school/transfercertificate" },
+        { label: "Caste Cert", link: "/school/castecertificate" },
+        { label: "Enquiry form", link: "/school/enquiry" },
+        { label: "Reports", link: "/school/studentreports" },
+      ],
+    },
+    {
+      label: "Fees",
+      icon: FormatListNumberedIcon,
+      children: [
+        { label: "Fee Types", link: "/school/feestype" },
+        { label: "Fee Structure", link: "/school/feestructure" },
+        { label: "Fee Invoice", link: "/school/salesinvoice" },
+        { label: "Receipts", link: "/school/receipt" },
+      ],
+    },
+    {
+      label: "Exam",
+      icon: MenuBookIcon,
+      children: [
+        { label: "Examinations", link: "/school/examinations" },
+        { label: "Questionpapers", link: "/school/questionpapers" },
+        { label: "Marksheets", link: "/school/marksheet" },
+        { label: "Reports", link: "/school/schoolreports" },
+      ],
+    },
+    {
+      label: "Staffs",
+      icon: GroupIcon,
+      children: [
+        { label: "Teachers", link: "/school/teachers" },
+        { label: "Staff", link: "/school/employees" },
+        { label: "Reports", link: "/school/staffreports" },
+      ],
+    },
+    {
+      label: "Finance",
+      icon: MenuBookIcon,
+      children: [
+        { label: "Expense Type", link: "/school/expensetype" },
+        { label: "Expenses", link: "/school/expense" },
+        { label: "Payments", link: "/school/payment" },
+        { label: "Reports", link: "/school/financereports" },
+        { label: "Account Level", link: "/school/accountlevel" },
+        { label: "Account Ledger", link: "/school/accountledger" },
 
 
-            ],
-        },
-        {
-            label: "Permissions",
-            icon: GroupIcon,
-            children: [
-                { label: "Menu", link: "/school/menu" },
-                { label: "Role", link: "/school/role" },
-                { label: "Screen", link: "/school/screen" },
-                { label: "Users", link: "/school/users" },
-            ],
-        },
-        {
-            label: "Settings",
-            icon: GroupIcon,
-            children: [
-                { label: "Number Seq", link: "/school/numberseq" },
-                { label: "App Settings", link: "/school/appsetting" },
-                { label: "General Master", link: "/school/generalmaster" },
-                { label: "Upload Data", link: "/school/uploaddata" },
-            ],
-        },
+      ],
+    },
+    {
+      label: "Permissions",
+      icon: GroupIcon,
+      children: [
+        { label: "Menu", link: "/school/menu" },
+        { label: "Role", link: "/school/role" },
+        { label: "Screen", link: "/school/screen" },
+        { label: "Users", link: "/school/users" },
+      ],
+    },
+    {
+      label: "Settings",
+      icon: GroupIcon,
+      children: [
+        { label: "Number Seq", link: "/school/numberseq" },
+        { label: "App Settings", link: "/school/appsetting" },
+        { label: "General Master", link: "/school/generalmaster" },
+        { label: "Upload Data", link: "/school/uploaddata" },
+      ],
+    },
 
-        {
-            label: "Logout",
-            icon: LogoutIcon,
-            link: "/logout",
-        },
-    ];
+    {
+      label: "Logout",
+      icon: LogoutIcon,
+      link: "/logout",
+    },
+  ];
 
   // ✅ Drawer Content
   const drawerContent = (
@@ -239,13 +239,14 @@ export default function School() {
       {/* ✅ AppBar */}
       <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
         <Toolbar sx={{ position: "relative" }}>
+          
           {/* LEFT */}
           <IconButton color="inherit" onClick={() => setOpen(!open)}>
             <MenuIcon />
           </IconButton>
 
           {/* CENTER TITLE */}
-          <Typography
+          {/* <Typography
             variant="h6"
             sx={{
               position: "absolute",
@@ -258,7 +259,57 @@ export default function School() {
             }}
           >
             {isMobile ? "SMS" : "School Management System"}
-          </Typography>
+          </Typography> */}
+
+          {/* CENTER LOGO + TITLE */}
+          <Box
+            sx={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              maxWidth: { xs: "70%", md: "80%" },
+            }}
+          >
+            {/* Title */}
+            <Typography
+              variant="h6"
+              sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontSize: { xs: 16, md: 20 },
+              }}
+            >
+              {isMobile ? "SMS" : "School Management System"}
+            </Typography>
+            {/* Logo */}
+            <Box
+              component="img"
+              src={selectedAppsetting?.school?.school_image || "/logo.png"}
+              alt="School Logo"
+              sx={{
+                width: { xs: 100, md: 350 },
+                height: { xs: 100, md: 150 },
+                objectFit: "contain",
+              }}
+            />
+
+            {/* Title */}
+            {/* <Typography
+              variant="h6"
+              sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontSize: { xs: 16, md: 20 },
+              }}
+            >
+              {isMobile ? "SMS" : "School Management System"}
+            </Typography> */}
+          </Box>
 
           {/* RIGHT */}
           <Box

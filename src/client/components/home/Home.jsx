@@ -35,12 +35,12 @@ const Home = () => {
 
       {/* Gallery Section */}
      
-      <Box sx={{ py: 5, textAlign: 'center' }}>
+      {/* <Box sx={{ py: 5, textAlign: 'center' }}>
         <Typography variant="h4" gutterBottom>
            Registerd Schools
         </Typography>
         <Gallery />
-      </Box>
+      </Box> */}
 
       {/* Testimonials Section */}
       {/* <Box sx={{ py: 5, textAlign: 'center', bgcolor: '#f9f9f9' }}>

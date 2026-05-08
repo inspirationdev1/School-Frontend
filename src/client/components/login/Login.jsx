@@ -12,22 +12,21 @@ import { AuthContext } from "../../../context/AuthContext";
 
 export default function Login() {
     let { role } = useParams();
-    console.log(role);
     const [loginType, setLoginType] = useState("school_owner");
     const [isloginType, setIsloginType] = useState(false);
 
     const { authenticated, login } = useContext(AuthContext);
-    
+
     useEffect(() => {
         if (role) {
-            role=role.toLowerCase();
-            if (role!=="school"){
+            role = role.toLowerCase();
+            if (role !== "school") {
                 setIsloginType(true);
                 setLoginType(role);
-            }else{
+            } else {
                 setLoginType("school_owner");
             }
-            
+
         } else {
             setLoginType("school_owner");
             setIsloginType(false);
@@ -109,16 +108,20 @@ export default function Login() {
         }
     })
 
-    return (<Box component={'div'} sx={{ width: "100%", height: "80vh", background: "url(https://cdn.pixabay.com/photo/2017/08/12/21/42/back2school-2635456_1280.png)", backgroundSize: "cover" }}>
 
+    // return (<Box component={'div'} sx={{ width: "100%", height: "80vh", background: "url(https://cdn.pixabay.com/photo/2017/08/12/21/42/back2school-2635456_1280.png)", backgroundSize: "cover" }}>
+    return (<Box component={'div'} sx={{ width: "100%", height: "80vh", background: "url(https://res.cloudinary.com/da3dxqer8/image/upload/v1778222981/SMS-Background_w6w7hn.jpg)", backgroundSize: "cover" }}>
         {message && <CustomizedSnackbars reset={resetMessage} type={type} message={message} />}
 
         <Box component={'div'} sx={{ padding: '40px', maxWidth: "700px", margin: "auto" }} >
-            <Box sx={{ display: 'flex', justifyContent: "center", alignItems: "center", }} component={'div'}>
+            {/* <Box sx={{ display: 'flex', justifyContent: "center", alignItems: "center", }} component={'div'}>
                 <Typography variant="h2">Log In</Typography>
-            </Box>
-            
-            <Paper sx={{ p: 4, mt: 2, maxWidth: 400, mx: "auto" }}>
+            </Box> */}
+
+            <Paper sx={{ p: 4, mt: 2, maxWidth: 300, mx: "auto" }}>
+                <Box sx={{ display: 'flex', justifyContent: "center", alignItems: "center", }} component={'div'}>
+                    <Typography variant="h2">Log In</Typography>
+                </Box>
                 <Box
                     component="form"
                     noValidate

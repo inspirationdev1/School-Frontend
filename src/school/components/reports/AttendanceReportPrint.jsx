@@ -221,7 +221,7 @@ export default function AttendanceReportPrint() {
                 setRows(attendanceData);
                 setCounts(attendance_Print_Response.data.counts);
 
-                if (rows.length > 0) {
+                if (maxLength > 0) {
                     setIsDataFound(true);
                 } else {
                     setIsDataFound(false);

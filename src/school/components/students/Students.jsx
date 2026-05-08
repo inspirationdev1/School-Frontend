@@ -33,6 +33,7 @@ import AddIcon from "@mui/icons-material/Add";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import IconButton from "@mui/material/IconButton";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import UploadIcon from "@mui/icons-material/Upload";
 
 export default function Students() {
   const [studentClass, setStudentClass] = useState([]);
@@ -119,7 +120,8 @@ export default function Students() {
     updated[index][field] = value;
 
     if (field === "attachment_file") {
-        updated[index].attachment_image = value.name||"";
+      addImageAdmission(value);
+      // updated[index].attachment_image = value.name || "";
     }
 
     setAdmissionAttachments(updated);
@@ -133,6 +135,15 @@ export default function Students() {
   // Handle image file selection
   const addImage = (event) => {
     const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setImageUrl(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  // Handle image file selection
+  const addImageAdmission = (event) => {
+    const selectedFile = event;
     if (selectedFile) {
       setFile(selectedFile);
       setImageUrl(URL.createObjectURL(selectedFile));
@@ -158,7 +169,7 @@ export default function Students() {
       attachmenttype: null,
       attachmentstatus: null,
       attachment_image: "",
-      attachment_file:"",
+      attachment_file: "",
       isEdit: false
     },
   ]);
@@ -170,7 +181,7 @@ export default function Students() {
         attachmenttype: null,
         attachmentstatus: null,
         attachment_image: "",
-        attachment_file:"",
+        attachment_file: "",
         isEdit: false
       },
     ])
@@ -184,7 +195,7 @@ export default function Students() {
         attachmenttype: null,
         attachmentstatus: null,
         attachment_image: "",
-        attachment_file:"",
+        attachment_file: "",
         isEdit: false
       },
     ]);
@@ -439,24 +450,6 @@ export default function Students() {
       values.vaccinated = selectedVaccinated?.fieldId;
       values.nationality = selectednationality?._id;
 
-
-
-
-      const filteredAttachments = admissionAttachments.filter(
-        (item) => item.attachment_image && item.attachment_image.trim()
-      );
-      const formattedAttachments = filteredAttachments.map((row) => ({
-        enquiry_date: values?.enquiry_date,
-        enquiry_time: values?.enquiry_time,
-        attachmenttype: row.attachmenttype?._id,
-        attachmentstatus: row.attachmentstatus?._id,
-        attachment_image: row.attachment_image,
-        year: values.year,
-      }));
-      values.admissionAttachments = formattedAttachments || [];
-
-
-
       if (isEdit) {
         const fd = new FormData();
         // Object.keys(values).forEach((key) => fd.append(key, values[key]));
@@ -471,16 +464,7 @@ export default function Students() {
           fd.append("image", file, file.name);
         }
 
-        // ✅ Append attachment rows
-        // formattedAttachments.forEach((row, index) => {
-        //   // ✅ File
-        //   if (row.attachment_image) {
-        //     fd.append(
-        //       `admissionAttachments[${index}][attachment_image]`,
-        //       row.attachment_image
-        //     );
-        //   }
-        // });
+
 
         axios
           .patch(`${baseUrl}/student/update/${editId}`, fd)
@@ -694,6 +678,31 @@ export default function Students() {
         console.log("Error in fetching generalmaster calls admin data", e);
       });
   };
+
+  const saveAdmissionAttachment = async (values) => {
+
+
+    // .post(`${baseUrl}/student/register`, fd)
+    // .patch(`${baseUrl}/student/update/${editId}`, fd)
+    values.attachmenttype = values.attachmenttype?._id;
+    values.attachmentstatus = values.attachmentstatus?._id
+
+    const fd = new FormData();
+    fd.append("image", file, file.name);
+    Object.keys(values).forEach((key) => fd.append(key, values[key]));
+    axios
+      .post(`${baseUrl}/student/admission-attachment/${editId}`, fd)
+      .then((resp) => {
+        console.log("Response after submitting", resp);
+        setMessage(resp.data.message);
+        setType("success");
+      })
+      .catch((e) => {
+        setMessage(e.response.data.message);
+        setType("error");
+        console.log("Error, response admin casting calls", e);
+      });
+  }
 
   useEffect(() => {
     fetchSection();
@@ -1107,21 +1116,7 @@ export default function Students() {
                     )} */}
                   </Grid>
 
-                  {/* admission_no */}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="admission_no"
-                      name="admission_no"
-                      value={Formik.values.admission_no}
-                      onChange={Formik.handleChange}
-                    />
-                    {/* {Formik.touched.admission_no && Formik.errors.admission_no && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.admission_no}
-                      </p>
-                    )} */}
-                  </Grid>
+                  
 
 
 
@@ -1307,8 +1302,8 @@ export default function Students() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Select mothertongue"
-                          placeholder="Search mothertongue..."
+                          label="Select mother tongue"
+                          placeholder="Search mother tongue..."
                           fullWidth
                           error={
                             Formik.touched.mothertongue &&
@@ -1335,8 +1330,8 @@ export default function Students() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Select modeoftransport"
-                          placeholder="Search modeoftransport..."
+                          label="Select mode of transport"
+                          placeholder="Search mode of transport..."
                           fullWidth
                           error={
                             Formik.touched.modeoftransport &&
@@ -1363,8 +1358,8 @@ export default function Students() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Select firstlanguage"
-                          placeholder="Search firstlanguage..."
+                          label="Select first language"
+                          placeholder="Search first language..."
                           fullWidth
                           error={
                             Formik.touched.firstlanguage &&
@@ -1383,7 +1378,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="identificationmark1"
+                      label="identification mark 1"
                       name="identificationmark1"
                       value={Formik.values.identificationmark1}
                       onChange={Formik.handleChange}
@@ -1399,7 +1394,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="identificationmark2"
+                      label="identification mark 2"
                       name="identificationmark2"
                       value={Formik.values.identificationmark2}
                       onChange={Formik.handleChange}
@@ -1415,7 +1410,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="permanentaddress"
+                      label="permanent address"
                       name="permanentaddress"
                       value={Formik.values.permanentaddress}
                       onChange={Formik.handleChange}
@@ -1431,7 +1426,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="permanentpincode"
+                      label="permanent pin code"
                       name="permanentpincode"
                       value={Formik.values.permanentpincode}
                       onChange={Formik.handleChange}
@@ -1447,7 +1442,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="presentaddress"
+                      label="present address"
                       name="presentaddress"
                       value={Formik.values.presentaddress}
                       onChange={Formik.handleChange}
@@ -1463,7 +1458,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="presentpincode"
+                      label="present pin code"
                       name="presentpincode"
                       value={Formik.values.presentpincode}
                       onChange={Formik.handleChange}
@@ -1479,7 +1474,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="nameofpreviousschool"
+                      label="name of previous school"
                       name="nameofpreviousschool"
                       value={Formik.values.nameofpreviousschool}
                       onChange={Formik.handleChange}
@@ -1495,7 +1490,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="classpassed"
+                      label="class passed"
                       name="classpassed"
                       value={Formik.values.classpassed}
                       onChange={Formik.handleChange}
@@ -1511,7 +1506,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="yearofpassing"
+                      label="year of passing"
                       name="yearofpassing"
                       value={Formik.values.yearofpassing}
                       onChange={Formik.handleChange}
@@ -1527,7 +1522,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="reasonforleaving"
+                      label="reason for leaving"
                       name="reasonforleaving"
                       value={Formik.values.reasonforleaving}
                       onChange={Formik.handleChange}
@@ -1543,7 +1538,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="studentexpelled"
+                      label="student expelled"
                       name="studentexpelledleaving"
                       value={Formik.values.studentexpelledleaving}
                       onChange={Formik.handleChange}
@@ -1559,7 +1554,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="mediumofinstructions"
+                      label="medium of instructions"
                       name="mediumofinstructions"
                       value={Formik.values.mediumofinstructions}
                       onChange={Formik.handleChange}
@@ -1612,18 +1607,11 @@ export default function Students() {
                 onSubmit={Formik.handleSubmit}
               >
                 <Grid container spacing={2}>
-
-
-
-
-
-
-
                   {/* siblingstudingname */}
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="siblingstudingname"
+                      label="siblings tuding name"
                       name="siblingstudingname"
                       value={Formik.values.siblingstudingname}
                       onChange={Formik.handleChange}
@@ -1639,7 +1627,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="siblingapplyingname"
+                      label="sibling applying name"
                       name="siblingapplyingname"
                       value={Formik.values.siblingapplyingname}
                       onChange={Formik.handleChange}
@@ -1655,7 +1643,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="siblingstudingclass"
+                      label="sibling studing class"
                       name="siblingstudingclass"
                       value={Formik.values.siblingstudingclass}
                       onChange={Formik.handleChange}
@@ -1671,7 +1659,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="siblingapplyingclass"
+                      label="sibling applying class"
                       name="siblingapplyingclass"
                       value={Formik.values.siblingapplyingclass}
                       onChange={Formik.handleChange}
@@ -1701,7 +1689,7 @@ export default function Students() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Select previouslyapplied"
+                          label="Select previously applied"
                           placeholder="Search previouslyapplied..."
                           fullWidth
                         // error={
@@ -1718,7 +1706,7 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="admissionintoclass"
+                      label="admission into class"
                       name="admissionintoclass"
                       value={Formik.values.admissionintoclass}
                       onChange={Formik.handleChange}
@@ -1756,8 +1744,44 @@ export default function Students() {
                     )} */}
                   </Grid>
 
+                  {/* admission_no */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="admission_no"
+                      name="admission_no"
+                      value={Formik.values.admission_no}
+                      onChange={Formik.handleChange}
+                    />
+                    {/* {Formik.touched.admission_no && Formik.errors.admission_no && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.admission_no}
+                      </p>
+                    )} */}
+                  </Grid>
+
+
+
+                  {/* Buttons Full Row */}
+                  <Grid item xs={12}>
+                    <Button type="submit" fullWidth variant="contained">
+                      {isEdit ? "Update Student" : "Register Student"}
+                    </Button>
+
+                    {isEdit && (
+                      <Button
+                        fullWidth
+                        onClick={cancelEdit}
+                        variant="outlined"
+                        sx={{ mt: 1 }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </Grid>
+
                   {/* Admission Attachments */}
-                  <Box sx={{ mt: 4 }}>
+                  {isEdit && <Box sx={{ mt: 4 }}>
 
                     {/* Error */}
                     {!isDataValid && (
@@ -1766,7 +1790,6 @@ export default function Students() {
                       </Alert>
                     )}
 
-                    {/* Section Header */}
                     <Box
                       sx={{
                         display: "flex",
@@ -1886,8 +1909,8 @@ export default function Students() {
                             }}
                           />
 
-                          
-                          
+
+
 
                           {/* Action Buttons */}
                           <Box
@@ -1899,6 +1922,20 @@ export default function Students() {
                               minWidth: "90px",
                             }}
                           >
+
+
+                            {/* Upload */}
+                            <IconButton
+                              color="primary"
+                              onClick={() => {
+                                console.log(row);
+                                saveAdmissionAttachment(row);
+                              }}
+                            >
+                              <UploadIcon />
+                            </IconButton>
+
+
                             {/* View */}
                             <IconButton
                               color="primary"
@@ -1922,24 +1959,7 @@ export default function Students() {
                       </Paper>
                     ))}
                   </Box>
-
-                  {/* Buttons Full Row */}
-                  <Grid item xs={12}>
-                    <Button type="submit" fullWidth variant="contained">
-                      {isEdit ? "Update Student" : "Register Student"}
-                    </Button>
-
-                    {isEdit && (
-                      <Button
-                        fullWidth
-                        onClick={cancelEdit}
-                        variant="outlined"
-                        sx={{ mt: 1 }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                  </Grid>
+                  }
 
                 </Grid>
 

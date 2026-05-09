@@ -288,7 +288,7 @@ export default function School() {
             {/* Logo */}
             <Box
               component="img"
-              src={selectedAppsetting?.school?.school_image || "/logo.png"}
+              src={selectedAppsetting?.toolbar_image || "/logo.png"}
               alt="School Logo"
               sx={{
                 width: { xs: 100, md: 350 },

@@ -16,18 +16,25 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { appsettingSchema } from "../../../yupSchema/appsettingSchema";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import IconButton from "@mui/material/IconButton";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import UploadIcon from "@mui/icons-material/Upload";
 
 export default function Appsettings() {
     const [appsettings, setAppsettings] = useState([]);
     const [isEdit, setEdit] = useState(false);
     const [editId, setEditId] = useState(null);
     const [tab, setTab] = useState(0);
-
+    const [file, setFile] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null); // Independent state for image preview
 
     const handleDelete = (id) => {
         if (confirm("Are you sure you want to delete?")) {
@@ -78,30 +85,53 @@ export default function Appsettings() {
         appsetting_name: "",
         appsetting_code: "",
         discPerAllowed: 0,
-        udise_no:"",
+        udise_no: "",
     };
     const Formik = useFormik({
         initialValues: initialValues,
         validationSchema: appsettingSchema,
         onSubmit: (values) => {
             if (isEdit) {
-                console.log("edit id", editId);
+                const fd = new FormData();
+                // Object.keys(values).forEach((key) => fd.append(key, values[key]));
+                Object.keys(values).forEach((key) => {
+                    fd.append(key, values[key]);
+                });
+                if (file) {
+                    fd.append("image", file, file.name);
+                }
+
+
+
                 axios
-                    .patch(`${baseUrl}/appsetting/update/${editId}`, {
-                        ...values,
-                    })
+                    .patch(`${baseUrl}/appsetting/update/${editId}`, fd)
                     .then((resp) => {
-                        console.log("Edit submit", resp);
                         setMessage(resp.data.message);
                         setType("success");
+                        handleClearFile();
                         cancelEdit();
                         setTab(1); // go to View List
                     })
                     .catch((e) => {
                         setMessage(e.response.data.message);
                         setType("error");
-                        console.log("Error, edit casting submit", e);
                     });
+                // axios
+                //     .patch(`${baseUrl}/appsetting/update/${editId}`, {
+                //         ...values,
+                //     })
+                //     .then((resp) => {
+                //         console.log("Edit submit", resp);
+                //         setMessage(resp.data.message);
+                //         setType("success");
+                //         cancelEdit();
+                //         setTab(1); // go to View List
+                //     })
+                //     .catch((e) => {
+                //         setMessage(e.response.data.message);
+                //         setType("error");
+                //         console.log("Error, edit casting submit", e);
+                //     });
             } else {
 
                 axios
@@ -137,6 +167,23 @@ export default function Appsettings() {
             .catch((e) => {
                 console.log("Error in fetching casting calls admin data", e);
             });
+    };
+    //   CLEARING IMAGE FILE REFENCE FROM INPUT
+    const fileInputRef = useRef(null);
+    const handleClearFile = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // Clear the file input
+        }
+        setFile(null); // Reset the file state
+        setImageUrl(null); // Clear the image preview
+    };
+    // Handle image file selection
+    const addImage = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            setImageUrl(URL.createObjectURL(selectedFile));
+        }
     };
     useEffect(() => {
         fetchAppsettings();
@@ -256,6 +303,37 @@ export default function Appsettings() {
                                         </Typography>
                                     )}
                                 </Box>
+
+                                {/* Attachment toolbar_image / URL */}
+                                <Box>
+                                    <TextField
+                                        type="file"
+                                        name="toolbar_file"
+                                        fullWidth
+                                        size="small"
+                                        label="Toolbar Image"
+                                        // onChange={(e) =>
+                                        //   handleChange(
+                                        //     index,
+                                        //     "attachment_file",
+                                        //     e.target.files[0] // ✅ use file object
+                                        //   )
+
+
+                                        // }
+                                        onChange={addImage}
+                                        inputRef={fileInputRef}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <AttachFileIcon
+                                                    sx={{ mr: 1, color: "text.secondary" }}
+                                                />
+                                            ),
+                                        }}
+                                    />
+                                </Box>
+
+
 
                                 {/* Buttons */}
                                 <Box sx={{ display: "flex", gap: 2, mt: 1 }}>

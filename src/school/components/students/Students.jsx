@@ -459,11 +459,7 @@ export default function Students() {
         const fd = new FormData();
         // Object.keys(values).forEach((key) => fd.append(key, values[key]));
         Object.keys(values).forEach((key) => {
-          if (key === "admissionAttachments") {
-            fd.append(key, JSON.stringify(values[key])); // ✅ IMPORTANT
-          } else {
-            fd.append(key, values[key]);
-          }
+          fd.append(key, values[key]);
         });
         if (file) {
           fd.append("image", file, file.name);

@@ -32,7 +32,7 @@ import { AuthContext } from "../context/AuthContext";
 const drawerWidth = 240;
 
 export default function Teacher() {
-    const { user } = React.useContext(AuthContext);
+    const { user, selectedAppsetting } = React.useContext(AuthContext);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -102,59 +102,88 @@ export default function Teacher() {
             <CssBaseline />
 
             {/* ✅ AppBar */}
-            <AppBar
-                position="fixed"
-                sx={{
-                    zIndex: theme.zIndex.drawer + 1,
-                }}
+      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
+        <Toolbar sx={{ position: "relative" }}>
+          
+          {/* LEFT */}
+          <IconButton color="inherit" onClick={() => setOpen(!open)}>
+            <MenuIcon />
+          </IconButton>
+
+          
+
+          {/* CENTER LOGO + TITLE */}
+          <Box
+            sx={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              maxWidth: { xs: "70%", md: "80%" },
+            }}
+          >
+            {/* Title */}
+            <Typography
+              variant="h6"
+              sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontSize: { xs: 16, md: 20 },
+              }}
             >
-                <Toolbar>
-                    {/* Menu Button */}
-                    <IconButton
-                        color="inherit"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2 }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
+              {isMobile ? "SMS" : "School Management System"}
+            </Typography>
+            {/* Logo */}
+            <Box
+              component="img"
+              src={selectedAppsetting?.toolbar_image || "/logo.png"}
+              alt="School Logo"
+              sx={{
+                width: { xs: 100, md: 350 },
+                height: { xs: 100, md: 150 },
+                objectFit: "contain",
+              }}
+            />
 
-                    {/* User */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <AccountCircleIcon />
-                        
-                        <Typography
-                            sx={{
-                                maxWidth: { xs: 80, sm: "none" },
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                            }}
-                        >
-                            {user?.name}
-                        </Typography>
+           
+          </Box>
 
-                    </Box>
+          {/* RIGHT */}
+          <Box
+            sx={{
+              marginLeft: "auto",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <AccountCircleIcon />
 
-                    {/* Title */}
-                    
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            flexGrow: 1,
-                            textAlign: { xs: "left", md: "center" },
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                        }}
-                    >
-                        {isMobile ? "SMS" : "School Management System"}
-                    </Typography>
+            <Typography
+              sx={{
+                maxWidth: { xs: 80, sm: 120 },
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {user?.name}
+            </Typography>
 
-
-
-                </Toolbar>
-            </AppBar>
+            <Typography
+              sx={{
+                display: { xs: "none", md: "block" },
+                fontSize: 12,
+              }}
+            >
+              UDISE: {selectedAppsetting?.udise_no}
+            </Typography>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
             {/* ✅ Drawer */}
             <Drawer

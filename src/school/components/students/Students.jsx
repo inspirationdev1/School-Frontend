@@ -53,6 +53,9 @@ export default function Students() {
   const [vaccinatedArray, setVaccinatedArray] = useState([]);
   const [selectedVaccinated, setSelectedVaccinated] = useState(null);
 
+  const [statuses, setStatuses] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+
   const [previouslyappliedArray, setPreviouslyappliedArray] = useState([]);
   const [selectedpreviouslyapplied, setSelectedpreviouslyapplied] = useState(null);
 
@@ -88,6 +91,72 @@ export default function Students() {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
   });
+
+  
+
+const fetchStatuses = async () => {
+    try {
+      
+      const studentStatuses = [
+  {
+    value: "active",
+    label: "Active",
+    meaning: "Currently studying"
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+    meaning: "Temporarily inactive"
+  },
+  {
+    value: "promoted",
+    label: "Promoted",
+    meaning: "Promoted to next class"
+  },
+  {
+    value: "detained",
+    label: "Detained",
+    meaning: "Failed / not promoted"
+  },
+  {
+    value: "graduated",
+    label: "Graduated",
+    meaning: "Completed schooling"
+  },
+  {
+    value: "transferred",
+    label: "Transferred",
+    meaning: "Moved to another school"
+  },
+  {
+    value: "dropout",
+    label: "Dropout",
+    meaning: "Left school without completion"
+  },
+  {
+    value: "suspended",
+    label: "Suspended",
+    meaning: "Temporarily suspended"
+  },
+  {
+    value: "expelled",
+    label: "Expelled",
+    meaning: "Permanently removed"
+  },
+  {
+    value: "alumni",
+    label: "Alumni",
+    meaning: "Former student"
+  }
+];
+
+      setStatuses(studentStatuses);
+
+    } catch (error) {
+      console.error('Error fetching statuses:', error);
+    }
+  };
+
 
   const fetchVaccinated = async () => {
     try {
@@ -247,6 +316,9 @@ export default function Students() {
         const matchedVaccinated = vaccinatedArray.find((s) => s.fieldId === resp.data.data?.vaccinated);
         setSelectedVaccinated(matchedVaccinated || null);
 
+        const matchedStatus = statuses.find((s) => s.value === resp.data.data?.status);
+        setSelectedStatus(matchedStatus || null);
+
         // Auto calculate age
         const age = calculateAge(data.dOBDate?.split("T")[0] || "");
 
@@ -343,6 +415,7 @@ export default function Students() {
     setSelectednationality(null);
     setSelectedYear(null);
     setSelectedVaccinated(null);
+    setSelectedStatus(null);
 
     setSelectedreligion(null);
     setSelectedmothertongue(null);
@@ -373,6 +446,7 @@ export default function Students() {
     admission_no: "",
     password: "",
     year: "",
+    status: "",
     dOBDate: "",
     joinDate: "",
     bloodgroup: "",
@@ -454,6 +528,7 @@ export default function Students() {
       values.bloodgroup = selectedbloodgroup?._id;
       values.vaccinated = selectedVaccinated?.fieldId;
       values.nationality = selectednationality?._id;
+      values.status = selectedStatus?.value;
 
       if (isEdit) {
         const fd = new FormData();
@@ -728,6 +803,7 @@ export default function Students() {
     fetchStudentClass();
     fetchbloodgroups();
     fetchVaccinated();
+    fetchStatuses();
     fetchnationalities();
     fetchreligions();
     fetchlanguages();
@@ -1061,6 +1137,36 @@ export default function Students() {
                             Formik.touched.year && Boolean(Formik.errors.year)
                           }
                           helperText={Formik.touched.year && Formik.errors.year}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                   {/* Status */}
+                  <Grid item xs={12} md={6}>
+                    <Autocomplete
+                      options={statuses}
+                      getOptionLabel={(option) => option.meaning + "(" +option.label + ")"}
+                      value={selectedStatus}
+                      onChange={(event, newValue) => {
+                        setSelectedStatus(newValue);
+
+                        Formik.setFieldValue(
+                          "status",
+                          newValue ? newValue.value : "",
+                        );
+                      }}
+                      onBlur={() => Formik.setFieldTouched("status", true)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select status"
+                          placeholder="Search status..."
+                          fullWidth
+                        error={
+                          Formik.touched.status && Boolean(Formik.errors.status)
+                        }
+                        helperText={Formik.touched.status && Formik.errors.status}
                         />
                       )}
                     />

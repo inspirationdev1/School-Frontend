@@ -52,11 +52,15 @@ export default function Numberseqs() {
         axios.get(`${baseUrl}/numberseq/fetch-single/${id}`)
             .then((resp) => {
                 Formik.setFieldValue("numberseq_name", resp.data.data.numberseq_name);
-                Formik.setFieldValue("screen", resp.data.data?.screen._id);
-                setSelectedScreen(resp.data.data.screen);
+                // Formik.setFieldValue("screen", resp.data.data?.screen._id);
+                // setSelectedScreen(resp.data.data.screen);
                 Formik.setFieldValue("seq", resp.data.data?.seq);
                 Formik.setFieldValue("prefix", resp.data.data?.prefix);
                 Formik.setFieldValue("suffix", resp.data.data?.suffix);
+
+                const matchedScreen = screens.find(s => s.screen_id === resp.data.data.screen);
+                setSelectedScreen(matchedScreen || null);
+                Formik.setFieldValue("screen", matchedScreen?.screen_id);
 
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Receipt tab
@@ -147,14 +151,31 @@ export default function Numberseqs() {
             });
     };
 
+    // const fetchScreens = async () => {
+    //     try {
+    //         const screenData = await axios.get(`${baseUrl}/screen/fetch-all`);
+    //         console.log("screen", screenData)
+    //         setScreens(screenData.data.data);
+
+    //     } catch (error) {
+    //         console.error('Error fetching screens:', error);
+    //     }
+    // };
+
     const fetchScreens = async () => {
         try {
-            const screenData = await axios.get(`${baseUrl}/screen/fetch-all`);
-            console.log("screen", screenData)
-            setScreens(screenData.data.data);
+            const screensData = [
+                { screen_id: "student", screen_name: "Student" },
+                { screen_id: "parent", screen_name: "Parent" },
+                { screen_id: "salesinvoice", screen_name: "Sales Invoice" },
+                { screen_id: "receipt", screen_name: "Receipt" },
+                { screen_id: "expense", screen_name: "Expense" },
+                { screen_id: "payment", screen_name: "Payment" },
+            ];
+            setScreens(screensData);
 
         } catch (error) {
-            console.error('Error fetching screens:', error);
+            console.error('Error fetching Screens:', error);
         }
     };
 
@@ -253,8 +274,8 @@ export default function Numberseqs() {
                                         value={selectedScreen}
                                         onChange={(event, newValue) => {
                                             setSelectedScreen(newValue);
-                                            Formik.setFieldValue("screen", newValue ? newValue._id : "");
-                                            Formik.setFieldValue("numberseq_name", newValue ? newValue.screen_name : "");
+                                            Formik.setFieldValue("screen", newValue ? newValue?.screen_id : "");
+                                            Formik.setFieldValue("numberseq_name", newValue ? newValue?.screen_name : "");
                                         }}
                                         onBlur={() => Formik.setFieldTouched("screen", true)}
                                         renderInput={(params) => (
@@ -363,7 +384,7 @@ export default function Numberseqs() {
                                             <TableCell component="th" scope="row">
                                                 {value.numberseq_name}
                                             </TableCell>
-                                            <TableCell align="right">{value?.screen.screen_name}</TableCell>
+                                            <TableCell align="right">{value?.screen}</TableCell>
                                             <TableCell align="right">{value?.seq}</TableCell>
                                             <TableCell align="right">{value?.prefix}</TableCell>
                                             <TableCell align="right">{value?.suffix}</TableCell>

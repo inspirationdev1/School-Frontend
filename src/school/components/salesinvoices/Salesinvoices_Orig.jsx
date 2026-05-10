@@ -24,7 +24,7 @@ import CustomizedSnackbars from "../../../basic utility components/CustomizedSna
 import { salesinvoiceSchema } from "../../../yupSchema/salesinvoiceSchema";
 import SalesinvoicePrint from "./SalesinvoicePrint";
 
-export default function Salesinvoice() {
+export default function Salesinvoices_Orig() {
   const [isDataValid, setIsDataValid] = useState(true);
   const [dataError, setDataError] = useState('');
   const [studentSalesinvoice, setStudentSalesinvoice] = useState([]);
@@ -51,7 +51,6 @@ export default function Salesinvoice() {
   const [allFeestructure, setAllFeestructure] = useState([])
   const [tab, setTab] = useState(0);
   const [selectedYear, setSelectedYear] = useState(null);
-  const [params, setParams] = useState({});
 
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
@@ -126,7 +125,6 @@ export default function Salesinvoice() {
         Formik.setFieldValue("class", resp.data.data.class);
         Formik.setFieldValue("section", resp.data.data.section);
         Formik.setFieldValue("student", resp.data.data.student);
-        Formik.setFieldValue("student_name", resp.data.data?.student_name);
         // Formik.setFieldValue("paymentStatus", resp.data.data.paymentStatus);
         Formik.setFieldValue("status", resp.data.data.status);
         Formik.setFieldValue("year", resp.data.data.year);
@@ -234,14 +232,10 @@ export default function Salesinvoice() {
     class: "",
     section: "",
     student: "",
-    student_name: "",
+    // paymentStatus: "pending",
     status: "valid",
     remarks: "",
     year: "",
-
-    feestructure: "",
-    feeFrequency: "",
-    feeAmount: 0,
   };
   const Formik = useFormik({
     initialValues: initialValues,
@@ -287,19 +281,19 @@ export default function Salesinvoice() {
         // }
 
         if (item.discountAmount > 0) {
-          console.log("selectedAppsetting", selectedAppsetting);
-          const grossAmount = item.grossAmount || 0;
+          console.log("selectedAppsetting",selectedAppsetting);
+          const grossAmount = item.grossAmount||0;
           const discountAmount = item.discountAmount || 0;
-          const discPer = Math.round(((discountAmount * 100) / grossAmount));
-          const discPerAllowed = selectedAppsetting.discPerAllowed || 0;
-          if (discPer > discPerAllowed) {
-            setDataError('grossPer cannot be greater than discPerAllowed');
-            hasInvalidRow = true;
-            break; // exit loop when condition met
+          const discPer = Math.round(((discountAmount*100)/grossAmount));
+          const discPerAllowed = selectedAppsetting.discPerAllowed||0;
+          if (discPer>discPerAllowed){
+              setDataError('grossPer cannot be greater than discPerAllowed');
+              hasInvalidRow = true;
+              break; // exit loop when condition met
           }
         }
 
-
+        
         console.log(item);
 
       }
@@ -387,9 +381,6 @@ export default function Salesinvoice() {
     },
   });
 
-
-
-
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
   const fetchStudentSalesinvoice = () => {
@@ -406,37 +397,31 @@ export default function Salesinvoice() {
   };
 
   const fetchstudentssalesinvoice = () => {
-    // axios
-    //   .get(`${baseUrl}/salesinvoice/fetch-all`)
-    //   .then((resp) => {
-    //     console.log("Fetching data in  Casting Calls  admin.", resp);
-    //     setStudentSalesinvoice(resp.data.data);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching casting calls admin data", e);
-    //   });
     axios
-          .get(`${baseUrl}/salesinvoice/fetch-with-query`, { params })
-          .then((resp) => {
-            setStudentSalesinvoice(resp.data.data);
-          })
-          .catch(() => console.log("Error in fetching salesinvoices data"));
-  };
-  const fetchAppsettings = () => {
-    axios
-      .get(`${baseUrl}/appsetting/fetch-all`)
+      .get(`${baseUrl}/salesinvoice/fetch-all`)
       .then((resp) => {
         console.log("Fetching data in  Casting Calls  admin.", resp);
-        setAppsettings(resp.data.data);
-        const id = resp.data.data[0]._id;
-        setSelectedAppsetting(resp.data.data[0]);
-        console.log("selectedAppseting", selectedAppsetting);
-
+        setStudentSalesinvoice(resp.data.data);
       })
       .catch((e) => {
         console.log("Error in fetching casting calls admin data", e);
       });
   };
+  const fetchAppsettings = () => {
+        axios
+            .get(`${baseUrl}/appsetting/fetch-all`)
+            .then((resp) => {
+                console.log("Fetching data in  Casting Calls  admin.", resp);
+                setAppsettings(resp.data.data);
+                const id = resp.data.data[0]._id;
+                setSelectedAppsetting(resp.data.data[0]);
+                console.log("selectedAppseting",selectedAppsetting);
+                
+            })
+            .catch((e) => {
+                console.log("Error in fetching casting calls admin data", e);
+            });
+    };
 
   const fetchClass = async () => {
     try {
@@ -507,7 +492,7 @@ export default function Salesinvoice() {
     fetchSection();
     fetchAllFeeStructures();
 
-  }, [message, params]);
+  }, [message]);
 
   useEffect(() => {
     if (selectedClass?._id) {
@@ -538,7 +523,7 @@ export default function Salesinvoice() {
       const updated = [...invoiceDetails];
       updated[index][field] = value;
 
-
+      
 
       if (field === "discountType") {
         updated[index].discountPer = 0;
@@ -593,7 +578,7 @@ export default function Salesinvoice() {
 
       setInvoiceDetails(updated);
     } catch (error) {
-      console.log("Error:handleChange", error.message)
+        console.log("Error:handleChange", error.message)
     }
 
   };
@@ -622,95 +607,6 @@ export default function Salesinvoice() {
   };
 
 
-  const createMultipleInvoice = () => {
-    try {
-
-      const payload = {
-        class: Formik.values.class,
-        section: Formik.values.section,
-        feestructure: Formik.values.feestructure,
-        feeFrequency: Formik.values.feeFrequency,
-        feeAmount: Formik.values.feeAmount,
-        invoiceDate: Formik.values.invoiceDate,
-        year: Formik.values.year,
-        remarks: Formik.values.remarks,
-      };
-
-      if (!payload?.class){
-        setMessage("Select Class");
-        setType("error");
-        return;
-      }
-      if (!payload?.section){
-        setMessage("Select Section");
-        setType("error");
-        return;
-      }
-      if (!payload?.year){
-        setMessage("Select Academic Year");
-        setType("error");
-        return;
-      }
-      if (!payload?.invoiceDate){
-        setMessage("Select Invoice date");
-        setType("error");
-        return;
-      }
-      if (!payload?.feestructure){
-        setMessage("Select Feestructure");
-        setType("error");
-        return;
-      }
-      if (!payload?.feeFrequency){
-        setMessage("Select feeFrequency");
-        setType("error");
-        return;
-      }
-      if (!payload?.feeAmount){
-        setMessage("Select feeAmount");
-        setType("error");
-        return;
-      }
-
-      console.log(payload);
-
-      axios
-        .post(`${baseUrl}/salesinvoice/create-multiple-invoice`, payload)
-        .then((resp) => {
-          console.log("Response after submitting admin casting", resp);
-          setMessage(resp.data.message);
-          setType("success");
-        })
-        .catch((e) => {
-          setMessage(e.response.data.message);
-          setType("error");
-          console.log("Error, response admin casting calls", e);
-        });
-
-
-      setMessage("Monthly Invoice Created for the Students")
-      setType("success");
-    } catch (error) {
-      setMessage("Monthly Invoice Problem", error.message);
-      setType("success");
-    }
-
-  };
-
-  
-  
-    const handleSearch = (e) => {
-      let newParam;
-      if (e.target.value !== "") {
-        newParam = { ...params, search: e.target.value };
-      } else {
-        newParam = { ...params };
-        delete newParam["search"];
-      }
-  
-      setParams(newParam);
-    };
-
   return (
     <>
       {message && (
@@ -731,7 +627,6 @@ export default function Salesinvoice() {
             {/* <Tab label="Create Receipt" /> */}
             <Tab label={isEdit ? "Edit Fees Invoice" : "Create Fees Invoice"} />
             <Tab label="View List" />
-            <Tab label="Create Multiple Invoice" />
           </Tabs>
         </Box>
 
@@ -787,13 +682,13 @@ export default function Salesinvoice() {
                         value={Formik.values.siCode}
                         onChange={Formik.handleChange}
                         onBlur={Formik.handleBlur}
-                        disabled
+                        disabled={isEdit}
                       />
-                      {/* {Formik.touched.siCode && Formik.errors.siCode && (
+                      {Formik.touched.siCode && Formik.errors.siCode && (
                         <Typography color="error" variant="caption">
                           {Formik.errors.siCode}
                         </Typography>
-                      )} */}
+                      )}
                     </Box>
 
                     {/* Invoice Date */}
@@ -927,10 +822,6 @@ export default function Salesinvoice() {
                             Formik.setFieldValue(
                               "student",
                               newValue ? newValue._id : ""
-                            );
-                            Formik.setFieldValue(
-                              "student_name",
-                              newValue ? newValue.name : ""
                             );
                           }}
                           onBlur={() => Formik.setFieldTouched("student", true)}
@@ -1317,41 +1208,14 @@ export default function Salesinvoice() {
 
         {tab === 1 && (
           <Box>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              {/* Search */}
-              <TextField
-                label="Search Name .."
-                size="small"
-                onChange={handleSearch}
-                fullWidth
-                sx={{
-                  flex: 2,
-                  "& .MuiInputBase-root": {
-                    height: 42,
-                    fontSize: "14px",
-                  },
-                }}
-              />
-
-              
-            </Box>
             <Box>
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
                       {/* <TableCell component="th" scope="row"> salesinvoice</TableCell> */}
-                      <TableCell align="right">Invoice Code</TableCell>
+                      <TableCell align="right">siCode</TableCell>
                       <TableCell align="right">Invoice Date</TableCell>
-                      <TableCell align="right">Student</TableCell>
                       <TableCell align="right">Remarks</TableCell>
                       <TableCell align="right">Status</TableCell>
                       {/* <TableCell align="right">Payment Status</TableCell> */}
@@ -1368,7 +1232,6 @@ export default function Salesinvoice() {
                           {value.siCode}
                         </TableCell>
                         <TableCell align="right">{dayjs(value.invoiceDate).format("DD-MM-YYYY")}</TableCell>
-                        <TableCell align="right">{value?.student?.name}</TableCell>
                         <TableCell align="right">{value.remarks}</TableCell>
                         <TableCell align="right">{value.status}</TableCell>
                         {/* <TableCell align="right">{value.paymentStatus}</TableCell> */}
@@ -1424,306 +1287,6 @@ export default function Salesinvoice() {
                 </Table>
               </TableContainer>
 
-            </Box>
-          </Box>
-        )}
-
-        {tab === 2 && (
-          <Box>
-            <Box component={"div"} sx={{}}>
-              <Paper
-                sx={{ padding: '20px', margin: "10px" }}
-              >
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "800", textAlign: "center" }}
-                >
-                  Create Multiple Fee Invoice
-                </Typography>
-
-
-                <Box
-                  component="form"
-                  noValidate
-                  autoComplete="off"
-
-                >
-
-
-
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: {
-                        xs: "1fr",      // mobile
-                        md: "1fr 1fr",  // desktop → 2 columns
-                      },
-                      gap: 2,
-                      mt: 2,
-                    }}
-                  >
-
-
-                    {/* Invoice Date */}
-                    <Box>
-                      <TextField
-                        name="invoiceDate"
-                        label="Date"
-                        type="date"
-                        variant="outlined"
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        value={Formik.values.invoiceDate}
-                        onChange={Formik.handleChange}
-                        //  onChange={(e) =>
-                        //         handleChange(index, "discountPer", e.target.value)
-                        //       }
-                        onBlur={Formik.handleBlur}
-
-
-                      />
-                      {Formik.touched.invoiceDate && Formik.errors.invoiceDate && (
-                        <Typography color="error" variant="caption">
-                          {Formik.errors.invoiceDate}
-                        </Typography>
-                      )}
-                    </Box>
-
-                    {/* Academic Year */}
-                    <Box>
-                      <Autocomplete
-                        options={years}
-                        getOptionLabel={(option) => option.label}
-                        value={selectedYear}
-                        onChange={(event, newValue) => {
-                          setSelectedYear(newValue);
-
-                          Formik.setFieldValue(
-                            "year",
-                            newValue ? newValue.value : ""
-                          );
-                        }}
-                        onBlur={() => Formik.setFieldTouched("year", true)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Select Academic Year"
-                            placeholder="Search year..."
-                            fullWidth
-                            error={Formik.touched.year && Boolean(Formik.errors.year)}
-                            helperText={Formik.touched.year && Formik.errors.year}
-                          />
-                        )}
-                      />
-                    </Box>
-
-                    {/* Class */}
-
-                    <Box>
-
-                      <Autocomplete
-                        options={attendeeClass}
-                        getOptionLabel={(option) => option.class_name}
-                        value={selectedClass}
-                        onChange={(event, newValue) => {
-                          setSelectedClass(newValue);
-
-                          Formik.setFieldValue(
-                            "class",
-                            newValue ? newValue._id : ""
-                          );
-                        }}
-                        onBlur={() => Formik.setFieldTouched("class", true)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Select Class"
-                            placeholder="Search class..."
-                            fullWidth
-                            error={Formik.touched.class && Boolean(Formik.errors.class)}
-                            helperText={Formik.touched.class && Formik.errors.class}
-                          />
-                        )}
-                      />
-
-
-                    </Box>
-
-
-                    {/* Section */}
-
-                    <Box>
-                      <Autocomplete
-                        options={section}
-                        getOptionLabel={(option) => option.section_name}
-                        value={selectedSection}
-                        onChange={(event, newValue) => {
-                          setSelectedSection(newValue);
-                          Formik.setFieldValue(
-                            "section",
-                            newValue ? newValue._id : ""
-                          );
-                        }}
-                        onBlur={() => Formik.setFieldTouched("section", true)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Select Section"
-                            placeholder="Search section..."
-                            fullWidth
-                            error={Formik.touched.section && Boolean(Formik.errors.section)}
-                            helperText={Formik.touched.section && Formik.errors.section}
-                          />
-                        )}
-                      />
-
-
-                    </Box>
-
-
-
-                    {/* feestructure */}
-                    <Box>
-                      <Autocomplete
-                        options={feestructure}
-                        getOptionLabel={(option) => option?.name || ""}
-                        isOptionEqualToValue={(option, value) =>
-                          option._id === value?._id
-                        }
-                        value={Formik.feestructure}
-                        // onChange={Formik.handleChange}
-                        onChange={(event, newValue) => {
-                          Formik.setFieldValue(
-                            "feestructure",
-                            newValue ? newValue._id : ""
-                          );
-                          Formik.setFieldValue(
-                            "feeAmount",
-                            newValue ? newValue?.amount : 0
-                          );
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Select Feestructure"
-                            placeholder="Search feestructure..."
-                            fullWidth
-                          />
-                        )}
-                      />
-
-
-                    </Box>
-
-
-                    {/* feeFrequency */}
-                    <Box>
-
-                      <TextField
-                        select
-                        fullWidth
-                        required
-                        label="feeFrequency"
-                        name="feeFrequency"
-                        // value={Formik.values.feeFrequency}
-                        // onChange={Formik.handleChange}
-                        value={Formik.feeFrequency}
-                        // onChange={Formik.handleChange}
-                        onChange={(event, newValue) => {
-                          Formik.setFieldValue(
-                            "feeFrequency",
-                            newValue ? newValue.props.value : ""
-                          );
-
-                        }}
-                      // onBlur={Formik.handleBlur}
-
-                      >
-                        <MenuItem value="">Select feeFrequency</MenuItem>
-                        <MenuItem value="monthly">Monthly</MenuItem>
-                        <MenuItem value="quaterly">Quaterly</MenuItem>
-                        <MenuItem value="annually">Annually</MenuItem>
-                        <MenuItem value="ontime">One-Time</MenuItem>
-                        <MenuItem value="termwise">Term-wise</MenuItem>
-                      </TextField>
-                      {/* {Formik.touched.feeFrequency && Formik.errors.feeFrequency && (
-                        <p style={{ color: "red", textTransform: "capitalize" }}>
-                          {Formik.errors.feeFrequency}
-                        </p>
-                      )} */}
-                    </Box>
-
-
-
-                    {/* feeAmount */}
-                    <Box>
-                      <TextField
-                        fullWidth
-                        label="feeAmount"
-                        variant="outlined"
-                        name="feeAmount"
-                        type="number"
-                        // value={Formik.values.feeAmount}
-                        // onChange={Formik.handleChange}
-                        // onBlur={Formik.handleBlur}
-                        value={Formik.values.feeAmount}
-                        onChange={Formik.handleChange}
-                        // onChange={(e) =>
-                        //   handleChange(index, "feeAmount", e.target.value)
-                        // }
-                        disabled
-                      />
-                      {/* {Formik.touched.feeAmount && Formik.errors.feeAmount && (
-                        <Typography color="error" variant="caption">
-                          {Formik.errors.feeAmount}
-                        </Typography>
-                      )} */}
-                    </Box>
-
-
-                    {/* Remarks → full width */}
-                    <Box sx={{ gridColumn: "1 / -1" }}>
-                      <TextField
-                        fullWidth
-                        label="Remarks"
-                        variant="outlined"
-                        name="remarks"
-                        value={Formik.values.remarks}
-                        onChange={Formik.handleChange}
-                        onBlur={Formik.handleBlur}
-                        multiline
-                        rows={3}
-                      />
-                      {Formik.touched.remarks && Formik.errors.remarks && (
-                        <Typography color="error" variant="caption">
-                          {Formik.errors.remarks}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-
-
-
-
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 2,
-                      mt: 4,
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <Button variant="outlined" onClick={createMultipleInvoice}>
-                      Submit
-                    </Button>
-
-
-                  </Box>
-
-
-                </Box>
-              </Paper>
             </Box>
           </Box>
         )}

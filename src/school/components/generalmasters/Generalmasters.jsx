@@ -163,6 +163,7 @@ export default function Generalmasters() {
         { generalmaster_type: "previousschool", generalmaster_name: "Previous School" },
         { generalmaster_type: "attachmenttype", generalmaster_name: "Attachment Type" },
         { generalmaster_type: "attachmentstatus", generalmaster_name: "Attachment Status" },
+        { generalmaster_type: "studentstatus", generalmaster_name: "Student Status" },
 
         
         

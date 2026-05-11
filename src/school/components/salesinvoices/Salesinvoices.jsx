@@ -240,6 +240,7 @@ export default function Salesinvoice() {
     year: "",
 
     feestructure: "",
+    feestructure_name: "",
     feeFrequency: "",
     feeAmount: 0,
   };
@@ -332,7 +333,7 @@ export default function Salesinvoice() {
         invoiceDetails: invoiceDetails.map((row) => ({
           feestructure: row.feestructure?._id, // 👈 convert here
           itemId: row.feestructure?._id, // 👈 convert here
-          itemName: row.feestructure?.name, // 👈 convert here
+          itemName: row.feestructure?.feestype?.feestype_name, // 👈 convert here
           quantity: row.quantity,
           salesPrice: row.feeAmount,
           feeFrequency: row.feeFrequency,
@@ -629,6 +630,7 @@ export default function Salesinvoice() {
         class: Formik.values.class,
         section: Formik.values.section,
         feestructure: Formik.values.feestructure,
+        feestructure_name: Formik.values.feestructure_name,
         feeFrequency: Formik.values.feeFrequency,
         feeAmount: Formik.values.feeAmount,
         invoiceDate: Formik.values.invoiceDate,
@@ -688,10 +690,10 @@ export default function Salesinvoice() {
         });
 
 
-      setMessage("Monthly Invoice Created for the Students")
+      setMessage("Multiple Invoice Created for the Students")
       setType("success");
     } catch (error) {
-      setMessage("Monthly Invoice Problem", error.message);
+      setMessage("Multiple Invoice Problem", error.message);
       setType("success");
     }
 
@@ -1601,6 +1603,11 @@ export default function Salesinvoice() {
                             "feeAmount",
                             newValue ? newValue?.amount : 0
                           );
+                          Formik.setFieldValue(
+                            "feestructure_name",
+                            newValue ? newValue?.feestype?.feestype_name : ""
+                          );
+                          
                         }}
                         renderInput={(params) => (
                           <TextField

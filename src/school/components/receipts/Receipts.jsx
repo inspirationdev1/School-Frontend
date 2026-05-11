@@ -23,6 +23,7 @@ import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { receiptSchema } from "../../../yupSchema/receiptSchema";
 import ReceiptPrint from "./ReceiptPrint";
+import ReceiptPrint_MMS from "./ReceiptPrint_MMS"
 
 export default function Receipts() {
     const [isDataValid, setIsDataValid] = useState(true);
@@ -144,21 +145,17 @@ export default function Receipts() {
             });
     };
 
-    // const handlePrint = async (id) => {
-    //     console.log("Handle  Print is called", id);
-    //     setPrint(true);
-
-
-    //     window.open(`/school/ReceiptPrint?id=${id}`,
-    //         '_blank');
-    //     setPrint(false);
-
-
-    // };
     
+    
+    // const handlePrint = (id) => {
+    //     setPrint(true);
+    //     const url = `${window.location.origin}/school/ReceiptPrint?id=${id}`;
+    //     window.open(url, '_blank');
+    //     setPrint(false);
+    // };
     const handlePrint = (id) => {
         setPrint(true);
-        const url = `${window.location.origin}/school/ReceiptPrint?id=${id}`;
+        const url = `${window.location.origin}/school/ReceiptPrint_MMS?id=${id}`;
         window.open(url, '_blank');
         setPrint(false);
     };
@@ -202,6 +199,7 @@ export default function Receipts() {
 
         receiptCode: "",
         receiptDate: "",
+        receiptNumber: "",
         receiptTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         paymentMethod: "",
         status: "valid",
@@ -564,7 +562,7 @@ export default function Receipts() {
                                                 value={Formik.values.receiptCode}
                                                 onChange={Formik.handleChange}
                                                 onBlur={Formik.handleBlur}
-                                                disabled={isEdit}
+                                                disabled
                                             />
                                             {Formik.touched.receiptCode && Formik.errors.receiptCode && (
                                                 <Typography color="error" variant="caption">
@@ -595,6 +593,24 @@ export default function Receipts() {
                                             )}
                                         </Box>
 
+                                            {/* Receipt Number */}
+                                        <Box>
+                                            <TextField
+                                                fullWidth
+                                                label="Receipt Number"
+                                                variant="outlined"
+                                                name="receiptNumber"
+                                                value={Formik.values.receiptNumber}
+                                                onChange={Formik.handleChange}
+                                                onBlur={Formik.handleBlur}
+                                                disabled={isEdit}
+                                            />
+                                            {Formik.touched.receiptNumber && Formik.errors.receiptNumber && (
+                                                <Typography color="error" variant="caption">
+                                                    {Formik.errors.receiptNumber}
+                                                </Typography>
+                                            )}
+                                        </Box>
 
                                         {/* Academic Year */}
                                         <Box>

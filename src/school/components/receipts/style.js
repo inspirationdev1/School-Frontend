@@ -8,6 +8,39 @@ export const styles = StyleSheet.create({
     fontSize: "12px",
     padding: "30px 50px",
   },
+  // 🔷 Header
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10
+  },
+
+  logo: {
+    width: 50,
+    height: 50,
+    marginRight: 10
+  },
+
+  schoolInfo: {
+    flex: 1,
+    textAlign: "center"
+  },
+
+  schoolName: {
+    fontSize: 14,
+    fontWeight: "bold"
+  },
+
+  schoolText: {
+    fontSize: 10
+  },
+
+  reportTitle: {
+    textAlign: "center",
+    fontSize: 14,
+    marginVertical: 10,
+    fontWeight: "bold"
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

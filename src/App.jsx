@@ -32,6 +32,8 @@ import Salesinvoice from "./school/components/salesinvoices/Salesinvoices";
 import SalesinvoicePrint from './school/components/salesinvoices/SalesinvoicePrint';
 import Receipts from "./school/components/receipts/Receipts";
 import ReceiptPrint from './school/components/receipts/ReceiptPrint';
+import ReceiptPrint_MMS from './school/components/receipts/ReceiptPrint_MMS';
+
 import Expensetypes from "./school/components/expensetypes/Expensetypes";
 import Expenses from "./school/components/expenses/Expenses";
 import Generalmasters from "./school/components/generalmasters/Generalmasters";
@@ -169,6 +171,7 @@ function App() {
               <Route path="salesinvoiceprint" element={<SalesinvoicePrint />} />
               <Route path="receipt" element={<Receipts />} />
               <Route path="receiptprint" element={<ReceiptPrint />} />
+              <Route path="receiptprint_mms" element={<ReceiptPrint_MMS />} />
               <Route path="payment" element={<Payments />} />
               <Route path="paymentprint" element={<PaymentPrint />} />                  
               <Route path="expensetype" element={<Expensetypes />} />

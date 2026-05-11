@@ -43,6 +43,9 @@ export default function Teachers() {
   const [tab, setTab] = useState(0);
   const [selectedYear, setSelectedYear] = useState(null);
 
+  const [statuses, setStatuses] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+
   const addImage = (event) => {
     const file = event.target.files[0];
     setImageUrl(URL.createObjectURL(file));
@@ -107,6 +110,9 @@ export default function Teachers() {
         Formik.setFieldValue("age", age);
         Formik.setFieldValue("phoneno", resp.data.data?.phoneno)
 
+        const matchedStatus = statuses.find((s) => s.value === resp.data.data?.status);
+        setSelectedStatus(matchedStatus || null);
+
 
         setEditId(resp.data.data._id);
         setTab(0); // open Create Receipt tab
@@ -140,6 +146,7 @@ export default function Teachers() {
   const cancelEdit = () => {
     setEdit(false);
     setSelectedYear(null);
+    setSelectedStatus(null);
     Formik.resetForm()
   };
 
@@ -205,7 +212,7 @@ export default function Teachers() {
           });
       } else {
         if (file) {
-          
+
           const fd = new FormData();
           fd.append("image", file, file.name);
           Object.keys(values).forEach((key) => fd.append(key, values[key]));
@@ -245,6 +252,30 @@ export default function Teachers() {
     return { label: `${year}-${year + 1}`, value: year };
   });
 
+  const fetchStatuses = async () => {
+    try {
+
+      const studentStatuses = [
+        {
+          value: "active",
+          label: "Active",
+          meaning: "Currently working"
+        },
+        {
+          value: "inactive",
+          label: "Inactive",
+          meaning: "Temporarily inactive"
+        },
+
+      ];
+
+      setStatuses(studentStatuses);
+
+    } catch (error) {
+      console.error('Error fetching statuses:', error);
+    }
+  };
+
   const viewUploadFile = (fileName) => {
 
     const fileUrl = `${fileName}`;
@@ -266,6 +297,7 @@ export default function Teachers() {
   };
   useEffect(() => {
     fetchteachers();
+    fetchStatuses();
 
   }, [message, params]);
   return (
@@ -363,7 +395,7 @@ export default function Teachers() {
                   </Grid>
 
 
-                   {/* teacher_code */}
+                  {/* teacher_code */}
                   <Grid item xs={12} md={6}>
                     <TextField
                       disabled={isEdit}
@@ -518,6 +550,35 @@ export default function Teachers() {
                       )}
                     />
                   </Grid>
+                  {/* Status */}
+                  <Grid item xs={12} md={6}>
+                    <Autocomplete
+                      options={statuses}
+                      getOptionLabel={(option) => option.meaning + "(" + option.label + ")"}
+                      value={selectedStatus}
+                      onChange={(event, newValue) => {
+                        setSelectedStatus(newValue);
+
+                        Formik.setFieldValue(
+                          "status",
+                          newValue ? newValue.value : "",
+                        );
+                      }}
+                      onBlur={() => Formik.setFieldTouched("status", true)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select status"
+                          placeholder="Search status..."
+                          fullWidth
+                          error={
+                            Formik.touched.status && Boolean(Formik.errors.status)
+                          }
+                          helperText={Formik.touched.status && Formik.errors.status}
+                        />
+                      )}
+                    />
+                  </Grid>
 
                   {/* PASSWORD */}
                   {!isEdit && (
@@ -558,7 +619,7 @@ export default function Teachers() {
           </Box>
         )}
 
-        
+
 
         {tab === 1 && (
           <Box>
@@ -572,7 +633,7 @@ export default function Teachers() {
                 marginBottom: "5px",
               }}
             >
-              
+
               <TextField
                 label="Search Name .."
                 size="small"
@@ -597,7 +658,7 @@ export default function Teachers() {
                     <TableCell component="th" scope="row">Name</TableCell>
                     <TableCell align="right">Code</TableCell>
                     <TableCell align="right">Email</TableCell>
-                    <TableCell align="right">dOBDate</TableCell>
+                    {/* <TableCell align="right">dOBDate</TableCell> */}
                     <TableCell align="right">JoinDate</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
@@ -613,7 +674,7 @@ export default function Teachers() {
                       </TableCell>
                       <TableCell align="right">{value?.teacher_code}</TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
-                      <TableCell align="right">{dayjs(value?.dOBDate).format("DD/MM/YYYY")}</TableCell>
+                      {/* <TableCell align="right">{dayjs(value?.dOBDate).format("DD/MM/YYYY")}</TableCell> */}
                       <TableCell align="right">{dayjs(value?.joinDate).format("DD/MM/YYYY")}</TableCell>
                       <TableCell align="right">
 
@@ -658,7 +719,7 @@ export default function Teachers() {
 
           </Box>
         )}
-        
+
       </Box>
     </>
   );

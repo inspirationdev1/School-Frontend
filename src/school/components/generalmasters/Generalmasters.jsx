@@ -33,18 +33,18 @@ export default function Generalmasters() {
   const [tab, setTab] = useState(0);
 
   const [params, setParams] = useState({});
-    
-      const handleSearch = (e) => {
-        let newParam;
-        if (e.target.value !== "") {
-          newParam = { ...params, search: e.target.value };
-        } else {
-          newParam = { ...params };
-          delete newParam["search"];
-        }
-    
-        setParams(newParam);
-      };
+
+  const handleSearch = (e) => {
+    let newParam;
+    if (e.target.value !== "") {
+      newParam = { ...params, search: e.target.value };
+    } else {
+      newParam = { ...params };
+      delete newParam["search"];
+    }
+
+    setParams(newParam);
+  };
 
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
@@ -163,11 +163,7 @@ export default function Generalmasters() {
         { generalmaster_type: "previousschool", generalmaster_name: "Previous School" },
         { generalmaster_type: "attachmenttype", generalmaster_name: "Attachment Type" },
         { generalmaster_type: "attachmentstatus", generalmaster_name: "Attachment Status" },
-        { generalmaster_type: "studentstatus", generalmaster_name: "Student Status" },
-
-        
-        
-
+        { generalmaster_type: "designation", generalmaster_name: "designation" },
       ];
       setGeneralmastertypes(generalmastertypesData);
 
@@ -189,7 +185,7 @@ export default function Generalmasters() {
       .get(`${baseUrl}/generalmaster/fetch-with-query`, { params })
       .then((resp) => {
         setStudentGeneralmaster(resp.data.data);
-        
+
       })
       .catch(() => console.log("Error in fetching students data"));
   };
@@ -303,31 +299,31 @@ export default function Generalmasters() {
         {tab === 1 && (
           <Box>
             <Box
-                          sx={{
-                            display: "flex",
-                            gap: 2,
-                            flexDirection: { xs: "column", sm: "row" },
-                            alignItems: "center",
-                            mb: 2,
-                          }}
-                        >
-                          {/* Search */}
-                          <TextField
-                            label="Search .."
-                            size="small"
-                            onChange={handleSearch}
-                            fullWidth
-                            sx={{
-                              flex: 2,
-                              "& .MuiInputBase-root": {
-                                height: 42,
-                                fontSize: "14px",
-                              },
-                            }}
-                          />
-            
-                          {/* No of Students Card */}
-                          {/* <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              {/* Search */}
+              <TextField
+                label="Search .."
+                size="small"
+                onChange={handleSearch}
+                fullWidth
+                sx={{
+                  flex: 2,
+                  "& .MuiInputBase-root": {
+                    height: 42,
+                    fontSize: "14px",
+                  },
+                }}
+              />
+
+              {/* No of Students Card */}
+              {/* <Box
                             sx={{
                               flex: 1,
                               minWidth: { xs: "100%", sm: 160 },
@@ -345,7 +341,7 @@ export default function Generalmasters() {
                           >
                             Students Count : {noofstudents}
                           </Box> */}
-                        </Box>
+            </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>

@@ -1,20 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
-    Box,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
-    Button,
-    CardMedia,
-    Paper,
-    TextField,
-    Typography,
-    Tabs,
-    Tab,
-    Autocomplete,
-    Grid,
-    TableBody,
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Button,
+  CardMedia,
+  Paper,
+  TextField,
+  Typography,
+  Tabs,
+  Tab,
+  Autocomplete,
+  Grid,
+  TableBody,
   TableCell,
   TableRow,
   TableHead,
@@ -32,23 +32,50 @@ import EmployeeCardAdmin from "../../utility components/employee card/EmployeeCa
 import dayjs from "dayjs";
 
 export default function Employees() {
-    const [employeeClass, setemployeeClass] = useState([]);
-    const [employees, setemployees] = useState([]);
-    const [isEdit, setEdit] = useState(false);
-    const [editId, setEditId] = useState(null);
+  const [employeeClass, setemployeeClass] = useState([]);
+  const [employees, setemployees] = useState([]);
+  const [isEdit, setEdit] = useState(false);
+  const [editId, setEditId] = useState(null);
 
-    const [date, setDate] = useState(null);
-    const [file, setFile] = useState(null);
-    const [imageUrl, setImageUrl] = useState(null);
-    const [tab, setTab] = useState(0);
-    const [selectedYear, setSelectedYear] = useState(null);
+  const [date, setDate] = useState(null);
+  const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [tab, setTab] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(null);
 
-    const years = Array.from({ length: 10 }, (_, i) => {
-        const year = new Date().getFullYear() - i;
-        return { label: `${year}-${year + 1}`, value: year };
-    });
+  const [statuses, setStatuses] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
-    const viewUploadFile = (fileName) => {
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { label: `${year}-${year + 1}`, value: year };
+  });
+
+  const fetchStatuses = async () => {
+    try {
+      
+      const studentStatuses = [
+  {
+    value: "active",
+    label: "Active",
+    meaning: "Currently working"
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+    meaning: "Temporarily inactive"
+  },
+  
+];
+
+      setStatuses(studentStatuses);
+
+    } catch (error) {
+      console.error('Error fetching statuses:', error);
+    }
+  };
+
+  const viewUploadFile = (fileName) => {
 
     const fileUrl = `${fileName}`;
     window.open(fileUrl, "_blank", "noopener,noreferrer");
@@ -56,244 +83,249 @@ export default function Employees() {
 
   };
 
-    const addImage = (event) => {
-        const file = event.target.files[0];
-        setImageUrl(URL.createObjectURL(file));
-        console.log("Image", file, event.target.value);
-        setFile(file);
-    };
+  const addImage = (event) => {
+    const file = event.target.files[0];
+    setImageUrl(URL.createObjectURL(file));
+    console.log("Image", file, event.target.value);
+    setFile(file);
+  };
 
-    const [params, setParams] = useState({});
+  const [params, setParams] = useState({});
 
 
-    const handleSearch = (e) => {
-        let newParam;
-        if (e.target.value !== "") {
-            newParam = { ...params, search: e.target.value };
+  const handleSearch = (e) => {
+    let newParam;
+    if (e.target.value !== "") {
+      newParam = { ...params, search: e.target.value };
+    } else {
+      newParam = { ...params };
+      delete newParam["search"];
+    }
+
+    setParams(newParam);
+  };
+
+  const handleDelete = (id) => {
+    if (confirm("Are you sure you want to delete?")) {
+      axios
+        .delete(`${baseUrl}/employee/delete/${id}`)
+        .then((resp) => {
+          setMessage(resp.data.message);
+          setType("success");
+        })
+        .catch((e) => {
+          setMessage(e.response.data.message);
+          setType("error");
+          console.log("Error, deleting", e);
+        });
+    }
+  };
+  const handleEdit = (id) => {
+    console.log("Handle  Edit is called", id);
+    setEdit(true);
+    axios
+      .get(`${baseUrl}/employee/fetch-single/${id}`)
+      .then((resp) => {
+        Formik.setFieldValue("email", resp.data.data.email);
+        Formik.setFieldValue("employee_name", resp.data.data.employee_name);
+        Formik.setFieldValue("employee_code", resp.data.data.employee_code);
+        Formik.setFieldValue("qualification", resp.data.data.qualification)
+        Formik.setFieldValue("gender", resp.data.data.gender)
+        // Formik.setFieldValue("age", resp.data.data.age);
+        Formik.setFieldValue("password", resp.data.data.password)
+
+
+        Formik.setFieldValue("year", resp.data.data.year)
+        const matchedYear = years.find(s => s.value === resp.data.data.year);
+        setSelectedYear(matchedYear || null);
+
+        Formik.setFieldValue("dOBDate", resp.data.data.dOBDate?.split("T")[0] || "")
+        Formik.setFieldValue("joinDate", resp.data.data.joinDate?.split("T")[0] || "")
+
+
+        // Auto calculate age
+        const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
+        Formik.setFieldValue("age", age);
+
+        Formik.setFieldValue("phoneno", resp.data.data?.phoneno)
+
+        const matchedStatus = statuses.find((s) => s.value === resp.data.data?.status);
+        setSelectedStatus(matchedStatus || null);
+
+        setEditId(resp.data.data._id);
+        setTab(0); // open Create Receipt tab
+      })
+      .catch((e) => {
+        console.log("Error  in fetching edit data.");
+      });
+  };
+
+  const calculateAge = (dob) => {
+    if (!dob) return "";
+
+    const today = new Date();
+    const birthDate = new Date(dob);
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Adjust age if birthday hasn't occurred yet this year
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
+  const cancelEdit = () => {
+    setEdit(false);
+    setSelectedYear(null);
+    setSelectedStatus(null);
+    Formik.resetForm()
+  };
+
+  //   CLEARING IMAGE FILE REFENCE FROM INPUT
+  const fileInputRef = useRef(null);
+  const handleClearFile = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear the file input
+    }
+    setFile(null); // Reset the file state
+    setImageUrl(null); // Clear the image preview
+  };
+
+
+  //   MESSAGE
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("succeess");
+
+  const resetMessage = () => {
+    setMessage("");
+  };
+
+  const initialValues = {
+    email: "",
+    employee_name: "",
+    employee_code: "",
+    qualification: "",
+    gender: "",
+    age: "",
+    password: "",
+    year: "",
+    dOBDate: "",
+    joinDate: "",
+    phoneno: "",
+  };
+
+  const Formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: employeeSchema,
+    onSubmit: (values) => {
+      console.log("employee calls admin Formik values", values);
+      if (isEdit) {
+
+        const fd = new FormData();
+        Object.keys(values).forEach((key) => fd.append(key, values[key]));
+        if (file) {
+          fd.append("image", file, file.name);
+        }
+
+        axios
+          .patch(`${baseUrl}/employee/update/${editId}`, fd)
+          .then((resp) => {
+            setMessage(resp.data.message);
+            setType("success");
+            handleClearFile();
+            cancelEdit();
+            setParams({});
+            setTab(1); // go to View List
+          })
+          .catch((e) => {
+            setMessage(e.response.data.message);
+            setType("error");
+          });
+      } else {
+        if (file) {
+
+          const fd = new FormData();
+          fd.append("image", file, file.name);
+          Object.keys(values).forEach((key) => fd.append(key, values[key]));
+
+          axios
+            .post(`${baseUrl}/employee/register`, fd)
+            .then((resp) => {
+              console.log("Response after submitting admin employee", resp);
+              setMessage(resp.data.message);
+              setType("success");
+              handleClearFile();
+              cancelEdit();
+              setTab(1); // go to View List
+            })
+            .catch((e) => {
+              setMessage(e.response.data.message);
+              setType("error");
+              console.log("Error, response admin employee calls", e);
+            });
+          Formik.resetForm();
+          setFile(null);
         } else {
-            newParam = { ...params };
-            delete newParam["search"];
+          setMessage("Please provide image.");
+          setType("error");
         }
+      }
+    },
+  });
 
-        setParams(newParam);
-    };
-
-    const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete?")) {
-            axios
-                .delete(`${baseUrl}/employee/delete/${id}`)
-                .then((resp) => {
-                    setMessage(resp.data.message);
-                    setType("success");
-                })
-                .catch((e) => {
-                    setMessage(e.response.data.message);
-                    setType("error");
-                    console.log("Error, deleting", e);
-                });
-        }
-    };
-    const handleEdit = (id) => {
-        console.log("Handle  Edit is called", id);
-        setEdit(true);
-        axios
-            .get(`${baseUrl}/employee/fetch-single/${id}`)
-            .then((resp) => {
-                Formik.setFieldValue("email", resp.data.data.email);
-                Formik.setFieldValue("employee_name", resp.data.data.employee_name);
-                Formik.setFieldValue("employee_code", resp.data.data.employee_code);
-                Formik.setFieldValue("qualification", resp.data.data.qualification)
-                Formik.setFieldValue("gender", resp.data.data.gender)
-                // Formik.setFieldValue("age", resp.data.data.age);
-                Formik.setFieldValue("password", resp.data.data.password)
+  const [month, setMonth] = useState([]);
+  const [year, setYear] = useState([]);
 
 
-                Formik.setFieldValue("year", resp.data.data.year)
-                const matchedYear = years.find(s => s.value === resp.data.data.year);
-                setSelectedYear(matchedYear || null);
+  const fetchemployees = () => {
+    axios
+      .get(`${baseUrl}/employee/fetch-with-query`, { params: params })
+      .then((resp) => {
+        console.log("Fetching data in  employee Calls  admin.", resp);
+        setemployees(resp.data.data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching employee calls admin data", e);
+      });
+  };
+  useEffect(() => {
+    fetchemployees();
+     fetchStatuses();
 
-                Formik.setFieldValue("dOBDate", resp.data.data.dOBDate?.split("T")[0] || "")
-                Formik.setFieldValue("joinDate", resp.data.data.joinDate?.split("T")[0] || "")
-
-
-                // Auto calculate age
-                const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
-                Formik.setFieldValue("age", age);
-
-                 Formik.setFieldValue("phoneno", resp.data.data?.phoneno)
-
-                setEditId(resp.data.data._id);
-                setTab(0); // open Create Receipt tab
-            })
-            .catch((e) => {
-                console.log("Error  in fetching edit data.");
-            });
-    };
-
-    const calculateAge = (dob) => {
-        if (!dob) return "";
-
-        const today = new Date();
-        const birthDate = new Date(dob);
-
-        let age = today.getFullYear() - birthDate.getFullYear();
-
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        // Adjust age if birthday hasn't occurred yet this year
-        if (
-            monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < birthDate.getDate())
-        ) {
-            age--;
-        }
-
-        return age;
-    };
-    const cancelEdit = () => {
-        setEdit(false);
-        setSelectedYear(null);
-        Formik.resetForm()
-    };
-
-    //   CLEARING IMAGE FILE REFENCE FROM INPUT
-    const fileInputRef = useRef(null);
-    const handleClearFile = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Clear the file input
-        }
-        setFile(null); // Reset the file state
-        setImageUrl(null); // Clear the image preview
-    };
+  }, [message, params]);
+  return (
+    <>
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
 
 
-    //   MESSAGE
-    const [message, setMessage] = useState("");
-    const [type, setType] = useState("succeess");
+      <Box>
 
-    const resetMessage = () => {
-        setMessage("");
-    };
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            {/* <Tab label="Create Receipt" /> */}
+            <Tab label={isEdit ? "Edit Employee" : "Add New Employee"} />
+            <Tab label="View List" />
+          </Tabs>
+        </Box>
 
-    const initialValues = {
-        email: "",
-        employee_name: "",
-        employee_code: "",
-        qualification: "",
-        gender: "",
-        age: "",
-        password: "",
-        year: "",
-        dOBDate: "",
-        joinDate: "",
-        phoneno: "",
-    };
-
-    const Formik = useFormik({
-        initialValues: initialValues,
-        validationSchema: employeeSchema,
-        onSubmit: (values) => {
-            console.log("employee calls admin Formik values", values);
-            if (isEdit) {
-
-                const fd = new FormData();
-                Object.keys(values).forEach((key) => fd.append(key, values[key]));
-                if (file) {
-                    fd.append("image", file, file.name);
-                }
-
-                axios
-                    .patch(`${baseUrl}/employee/update/${editId}`, fd)
-                    .then((resp) => {
-                        setMessage(resp.data.message);
-                        setType("success");
-                        handleClearFile();
-                        cancelEdit();
-                        setParams({});
-                        setTab(1); // go to View List
-                    })
-                    .catch((e) => {
-                        setMessage(e.response.data.message);
-                        setType("error");
-                    });
-            } else {
-                if (file) {
-
-                    const fd = new FormData();
-                    fd.append("image", file, file.name);
-                    Object.keys(values).forEach((key) => fd.append(key, values[key]));
-
-                    axios
-                        .post(`${baseUrl}/employee/register`, fd)
-                        .then((resp) => {
-                            console.log("Response after submitting admin employee", resp);
-                            setMessage(resp.data.message);
-                            setType("success");
-                            handleClearFile();
-                            cancelEdit();
-                            setTab(1); // go to View List
-                        })
-                        .catch((e) => {
-                            setMessage(e.response.data.message);
-                            setType("error");
-                            console.log("Error, response admin employee calls", e);
-                        });
-                    Formik.resetForm();
-                    setFile(null);
-                } else {
-                    setMessage("Please provide image.");
-                    setType("error");
-                }
-            }
-        },
-    });
-
-    const [month, setMonth] = useState([]);
-    const [year, setYear] = useState([]);
-
-
-    const fetchemployees = () => {
-        axios
-            .get(`${baseUrl}/employee/fetch-with-query`, { params: params })
-            .then((resp) => {
-                console.log("Fetching data in  employee Calls  admin.", resp);
-                setemployees(resp.data.data);
-            })
-            .catch((e) => {
-                console.log("Error in fetching employee calls admin data", e);
-            });
-    };
-    useEffect(() => {
-        fetchemployees();
-
-    }, [message, params]);
-    return (
-        <>
-            {message && (
-                <CustomizedSnackbars
-                    reset={resetMessage}
-                    type={type}
-                    message={message}
-                />
-            )}
-
-
-            <Box>
-
-                <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-                    <Tabs
-                        value={tab}
-                        onChange={(e, newValue) => setTab(newValue)}
-                        textColor="primary"
-                        indicatorColor="primary"
-                    >
-                        {/* <Tab label="Create Receipt" /> */}
-                        <Tab label={isEdit ? "Edit Employee" : "Add New Employee"} />
-                        <Tab label="View List" />
-                    </Tabs>
-                </Box>
-
-                {tab === 0 && (
+        {tab === 0 && (
           <Box component={"div"}>
             <Paper
               sx={{ padding: "20px", margin: "10px" }}
@@ -341,7 +373,7 @@ export default function Employees() {
                     )}
                   </Grid>
 
-                    {/* CODE */}
+                  {/* CODE */}
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -511,6 +543,35 @@ export default function Employees() {
                       )}
                     />
                   </Grid>
+                   {/* Status */}
+                                    <Grid item xs={12} md={6}>
+                                      <Autocomplete
+                                        options={statuses}
+                                        getOptionLabel={(option) => option.meaning + "(" +option.label + ")"}
+                                        value={selectedStatus}
+                                        onChange={(event, newValue) => {
+                                          setSelectedStatus(newValue);
+                  
+                                          Formik.setFieldValue(
+                                            "status",
+                                            newValue ? newValue.value : "",
+                                          );
+                                        }}
+                                        onBlur={() => Formik.setFieldTouched("status", true)}
+                                        renderInput={(params) => (
+                                          <TextField
+                                            {...params}
+                                            label="Select status"
+                                            placeholder="Search status..."
+                                            fullWidth
+                                          error={
+                                            Formik.touched.status && Boolean(Formik.errors.status)
+                                          }
+                                          helperText={Formik.touched.status && Formik.errors.status}
+                                          />
+                                        )}
+                                      />
+                                    </Grid>
 
                   {/* PASSWORD */}
                   {!isEdit && (
@@ -551,7 +612,7 @@ export default function Employees() {
           </Box>
         )}
 
-                {/* {tab === 1 && (
+        {/* {tab === 1 && (
                     <Box>
 
 
@@ -591,7 +652,7 @@ export default function Employees() {
                     </Box>
                 )} */}
 
-                {tab === 1 && (
+        {tab === 1 && (
           <Box>
             <Box
               sx={{
@@ -603,7 +664,7 @@ export default function Employees() {
                 marginBottom: "5px",
               }}
             >
-              
+
               <TextField
                 label="Search Name .."
                 size="small"
@@ -688,7 +749,7 @@ export default function Employees() {
           </Box>
         )}
 
-            </Box>
-        </>
-    );
+      </Box>
+    </>
+  );
 }

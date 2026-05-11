@@ -2168,6 +2168,8 @@ const fetchStatuses = async () => {
                     <TableCell component="th" scope="row">
                       Name
                     </TableCell>
+                    <TableCell align="right">Status</TableCell>
+                    <TableCell align="right">Class</TableCell>
                     <TableCell align="right">Email</TableCell>
                     <TableCell align="right">dOBDate</TableCell>
                     <TableCell align="right">JoinDate</TableCell>
@@ -2183,6 +2185,9 @@ const fetchStatuses = async () => {
                       <TableCell component="th" scope="row">
                         {value.name}
                       </TableCell>
+                      
+                      <TableCell align="right">{value?.status}</TableCell>
+                      <TableCell align="right">{value?.student_class?.class_name}</TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
                       <TableCell align="right">
                         {dayjs(value?.dOBDate).format("DD/MM/YYYY")}

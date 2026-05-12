@@ -141,6 +141,8 @@ import Attendees from "./school/components/Attendees/Attendees";
 import Uploaddata from "./school/components/uploaddata/Uploaddata";
 import Enquiry from "./school/components/enquiry/Enquiry";
 import EnquiryPrint from "./school/components/enquiry/EnquiryPrint";
+import StudentMarksSubjectwisePrint from "./school/components/reports/StudentMarksSubjectwisePrint";
+import StudentListMarksSubjectwisePrint from "./school/components/reports/StudentListMarksSubjectwisePrint";
 
 
 
@@ -157,7 +159,7 @@ function App() {
         <BrowserRouter>
           <Routes>
 
-            <Route path="school" element={<ProtectedRoute allowedRoles={['SCHOOL','USER']}><School /></ProtectedRoute>}>
+            <Route path="school" element={<ProtectedRoute allowedRoles={['SCHOOL', 'USER']}><School /></ProtectedRoute>}>
               <Route index element={<SchoolDashboard />} />
               <Route path="class" element={<Class />} />
               <Route path="class-details" element={<ClassDetails />} />
@@ -165,7 +167,7 @@ function App() {
               <Route path="section" element={<Section />} />
               <Route path="department" element={<Department />} />
               <Route path="feestype" element={<Feestype />} />
-               {/* <Route path="examtype" element={<Examtype />} /> */}
+              {/* <Route path="examtype" element={<Examtype />} /> */}
               <Route path="feestructure" element={<Feestructure />} />
               <Route path="salesinvoice" element={<Salesinvoice />} />
               <Route path="salesinvoiceprint" element={<SalesinvoicePrint />} />
@@ -173,10 +175,10 @@ function App() {
               <Route path="receiptprint" element={<ReceiptPrint />} />
               <Route path="receiptprint_mms" element={<ReceiptPrint_MMS />} />
               <Route path="payment" element={<Payments />} />
-              <Route path="paymentprint" element={<PaymentPrint />} />                  
+              <Route path="paymentprint" element={<PaymentPrint />} />
               <Route path="expensetype" element={<Expensetypes />} />
               <Route path="expense" element={<Expenses />} />
-              <Route path="expenseprint" element={<ExpensePrint />} />  
+              <Route path="expenseprint" element={<ExpensePrint />} />
 
               <Route path="accountlevel" element={<Accountlevels />} />
               <Route path="accountledger" element={<Accountledgers />} />
@@ -192,7 +194,7 @@ function App() {
 
 
               <Route path="attendee" element={<Attendees />} />
-              
+
 
               <Route path="students" element={<Students />} />
               <Route path="teachers" element={<Teachers />} />
@@ -207,23 +209,23 @@ function App() {
               <Route path="numberseq" element={<Numberseqs />} />
               <Route path="appsetting" element={<Appsettings />} />
               <Route path="generalmaster" element={<Generalmasters />} />
-              
+
               <Route path="uploaddata" element={<Uploaddata />} />
-              
-              
+
+
 
               <Route path="assign-period" element={<AssignPeriod2 />} />
               <Route path="periods" element={<Schedule />} />
               <Route path="period" element={<Periods />} />
               <Route path="schedulereportprint" element={<ScheduleReportPrint />} />
-              
-              
+
+
               <Route path="attendance" element={<StudentAttendanceList />} />
               <Route path="attendance-student/:studentId" element={<AttendanceDetails />} />
               <Route path="examinations" element={<Examinations />} />
               <Route path="questionpapers" element={<Questionpapers />} />
-              
-              
+
+
               <Route path="marksheet" element={<Marksheet />} />
               <Route path="marksheetprint" element={<MarksheetPrint />} />
               <Route path="schoolreports" element={<SchoolReports />} />
@@ -243,7 +245,7 @@ function App() {
 
               <Route path="statementofaccountstudentreportprint" element={<StatementOfAccountStudentReportPrint />} />
               <Route path="statementofaccountledgerreportprint" element={<StatementOfAccountLedgerReportPrint />} />
-              
+
               <Route path="staffreports" element={<StaffReports />} />
               <Route path="studentlistreportprint" element={<StudentListReportPrint />} />
               <Route path="parentlistreportprint" element={<ParentListReportPrint />} />
@@ -255,12 +257,14 @@ function App() {
 
               <Route path="pendingexpensesreportprint" element={<PendingExpensesReportPrint />} />
               <Route path="paidexpensesreportprint" element={<PaidExpensesReportPrint />} />
-              
-              <Route path="progressCardPDF" element={<ProgressCardPDF />} />
 
+              <Route path="progressCardPDF" element={<ProgressCardPDF />} />
               
-              
-              
+              <Route path="studentlistmarkssubjectwiseprint" element={<StudentListMarksSubjectwisePrint />} />
+              <Route path="studentmarkssubjectwiseprint" element={<StudentMarksSubjectwisePrint />} />
+
+
+
               <Route path="notice" element={<NoticeSchool />} />
             </Route>
 
@@ -273,7 +277,7 @@ function App() {
 
               <Route path="periodschedule" element={<Schedule />} />
               <Route path="schedulereportprint" element={<ScheduleReportPrint />} />
-              
+
               <Route path="studentreports" element={<StudentReports />} />
               <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
 
@@ -290,7 +294,7 @@ function App() {
               <Route path="teacherreports" element={<SchoolReports />} />
               <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
               <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
-              
+
               <Route path="periods" element={<TeacherSchedule />} />
               <Route path="teacherschedulereportprint" element={<TeacherScheduleReportPrint />} />
               {/* <Route path='sub-teach' element={<StudentSubjectTeacher/>} /> */}
@@ -326,13 +330,13 @@ function App() {
 
               <Route path="periodschedule" element={<Schedule />} />
               <Route path="schedulereportprint" element={<ScheduleReportPrint />} />
-              
+
               <Route path="studentreports" element={<StudentReports />} />
               <Route path="attendancereportprint" element={<AttendanceReportPrint />} />
 
               <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
               <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
-              <Route path="notice" element={<NoticeParent/>} />
+              <Route path="notice" element={<NoticeParent />} />
             </Route>
 
             <Route path="user" element={<ProtectedRoute allowedRoles={['USER']}><User /></ProtectedRoute>}>

@@ -61,6 +61,7 @@ export default function Receipts() {
             class: null,
             section: null,
             student: null,
+            parent:null,
             siId: null,
             invAmount: 0,
             paidAmount: 0,
@@ -77,6 +78,7 @@ export default function Receipts() {
                 class: null,
                 section: null,
                 student: null,
+                parent:null,
                 siId: null,
                 invAmount: 0,
                 paidAmount: 0,
@@ -118,6 +120,7 @@ export default function Receipts() {
                 Formik.setFieldValue("receiptCode", resp.data.data.receiptCode);
                 Formik.setFieldValue("paymentMethod", resp.data.data.paymentMethod);
                 Formik.setFieldValue("status", resp.data.data.status);
+                Formik.setFieldValue("receiptNumber", resp.data.data?.receiptNumber);
 
 
                 Formik.setFieldValue("remarks", resp.data.data.remarks);
@@ -205,6 +208,7 @@ export default function Receipts() {
         status: "valid",
         remarks: "",
         year: "",
+        academicyear:""
     };
 
     const hasDuplicateInvoice = (receiptDetails) => {
@@ -273,6 +277,7 @@ export default function Receipts() {
                     class: row.class,
                     section: row.section,
                     student: row.student._id,
+                    parent: row.parent,
                     siId: row.siId._id,
                     siCode: row.siId.siCode,
                     invAmount: row.invAmount,
@@ -439,6 +444,7 @@ export default function Receipts() {
             updated[index].siId = null;       // 👈 clears invoice
             updated[index].invAmount = 0;
             updated[index].paidAmount = 0;
+            updated[index].parent = value?.parent?._id;
             setSalesinvoices([]);             // 👈 clear old invoices
             setSelectedSalesinvoice(null);    // 👈 clear Autocomplete text
         }
@@ -472,6 +478,7 @@ export default function Receipts() {
                 class: null,
                 section: null,
                 student: null,
+                parent: null,
                 siId: null,
                 invAmount: 0,
                 paidAmount: 0,
@@ -625,6 +632,10 @@ export default function Receipts() {
                                                     Formik.setFieldValue(
                                                         "year",
                                                         newValue ? newValue.value : ""
+                                                    );
+                                                    Formik.setFieldValue(
+                                                        "academicyear",
+                                                        newValue ? newValue.label : ""
                                                     );
                                                 }}
                                                 onBlur={() => Formik.setFieldTouched("year", true)}

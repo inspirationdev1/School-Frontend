@@ -5,6 +5,7 @@ import {
     Document,
     PDFViewer,
     PDFDownloadLink,
+    Image,
 } from "@react-pdf/renderer";
 import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
@@ -23,10 +24,32 @@ import dayjs from "dayjs";
 export default function ExpensePrint() {
     const [loading, setLoading] = useState(true);
     const [printExpense, setPrintExpense] = useState({});
-    
+
     const [searchParams] = useSearchParams();
+    const [logo, setLogo] = useState("");
+    const [reportHeader, setReportHeader] = useState({});
 
     const id = searchParams.get("id");
+
+    useEffect(() => {
+        if (reportHeader?.school_image) {
+            getBase64Image(
+                `${reportHeader.school_image}`
+            ).then(setLogo);
+        }
+    }, [reportHeader]);
+
+
+    const getBase64Image = async (url) => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    };
 
     useEffect(() => {
         const fetchPrintExpense = async () => {
@@ -36,7 +59,18 @@ export default function ExpensePrint() {
                 setPrintExpense(expensePrintResponse.data.data);
                 console.log("printExpense", printExpense);
 
-                
+                const rptHeader = {
+                    school_name: expensePrintResponse.data.data?.school.school_name,
+                    address: expensePrintResponse.data.data?.school.address,
+                    city: expensePrintResponse.data.data?.school.city,
+                    state: expensePrintResponse.data.data?.school.state,
+                    country: expensePrintResponse.data.data?.school.country,
+                    school_image: expensePrintResponse.data.data?.school.school_image
+                }
+
+                setReportHeader(rptHeader);
+
+
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching expense for print:', error);
@@ -52,7 +86,32 @@ export default function ExpensePrint() {
     const PrintPDF = () => (
         <Document>
             <Page size="A4" style={styles.page}>
-                <View style={styles.header}>
+
+                {/* 🔷 Header */}
+                <View style={styles.headerContainer}>
+                    {/* If you have logo, uncomment */}
+                    <Image src={logo} style={styles.logo} />
+
+                    <View style={styles.schoolInfo}>
+                        <Text style={styles.schoolName}>
+                            {reportHeader?.school_name}
+                        </Text>
+
+                        <Text style={styles.schoolText}>
+                            {reportHeader?.address}, {reportHeader?.city}
+                        </Text>
+
+                        <Text style={styles.schoolText}>
+                            {reportHeader?.state}, {reportHeader?.country}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* 🔷 Title */}
+                <Text style={styles.reportTitle}>
+                    EXPENSE
+                </Text>
+                {/* <View style={styles.header}>
                     <View>
                         <Text style={[styles.title, styles.textBold]}>Expense</Text>
 
@@ -63,9 +122,9 @@ export default function ExpensePrint() {
                         <Text style={styles.textBold}>{printExpense.school.state} - {printExpense.school.country}</Text>
 
                     </View>
-                </View>
+                </View> */}
 
-                
+
                 <View>
 
                     {/* Row 1 */}
@@ -79,9 +138,9 @@ export default function ExpensePrint() {
                         </Text>
                     </View>
 
-                     {/* Row 2 */}
+                    {/* Row 2 */}
                     <View style={styles.rowStyle}>
-                       
+
                         <Text style={styles.labelStyle}>Employee :</Text>
                         <Text style={styles.valueStyle}>
                             {printExpense?.employee.employee_name}
@@ -95,14 +154,14 @@ export default function ExpensePrint() {
 
                     {/* Row 3 */}
                     <View style={styles.rowStyle}>
-                       <Text style={styles.labelStyle}>Status :</Text>
+                        <Text style={styles.labelStyle}>Status :</Text>
                         <Text style={styles.valueStyle}>
                             {printExpense.status}
                         </Text>
-                        
+
                     </View>
 
-                    
+
 
                 </View>
 
@@ -111,11 +170,11 @@ export default function ExpensePrint() {
 
                     <TH style={[styles.tableHeader, styles.textBold]}>
                         <TD style={styles.td}>S.No</TD>
-                       <TD style={styles.td}>Expensetype</TD>
+                        <TD style={styles.td}>Expensetype</TD>
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>Exp Amount</Text>
                         </TD>
-                         
+
                     </TH>
 
 
@@ -132,29 +191,29 @@ export default function ExpensePrint() {
 
                     <TR key={100}>
                         <TD style={styles.td}></TD>
-                        
+
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>Total</Text>
                         </TD>
 
-                        
+
 
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>{formatAmount(printExpense.totalexpenseAmount)}</Text>
                         </TD>
 
-                        
+
                     </TR>
                 </Table>
 
-                
+
 
             </Page>
         </Document>
     );
 
     const downloadExpenseExcel = () => {
-        
+
         // 1️⃣ Prepare row data
         const rows = printExpense.expenseDetails.map((item, index) => ({
             "S.No": index + 1,
@@ -167,10 +226,10 @@ export default function ExpensePrint() {
             "S.No": "",
             expensetype: "Total",
             expenseAmount: printExpense.totalexpenseAmount,
-           
+
         });
 
-        
+
 
         // 3️⃣ Create worksheet
         const worksheet = XLSX.utils.json_to_sheet(rows);

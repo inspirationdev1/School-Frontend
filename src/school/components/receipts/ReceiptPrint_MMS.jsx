@@ -138,6 +138,16 @@ export default function ReceiptPrint_MMS() {
                         </Text>
                     </View>
 
+                    {/* Row 2 */}
+                    <View style={styles.rowStyle}>
+                        <Text style={styles.labelStyle}>Father Name  :</Text>
+                        <Text style={styles.valueStyle}>{printReceipt.receiptDetails[0]?.parent?.name}</Text>
+
+                        <Text style={styles.labelStyle}>Academic year :</Text>
+                        <Text style={styles.valueStyle}>
+                            {printReceipt.academicyear}
+                        </Text>
+                    </View>
                     
 
                     {/* Row 3 */}
@@ -147,9 +157,9 @@ export default function ReceiptPrint_MMS() {
                             {printReceipt.status}
                         </Text>
 
-                        <Text style={styles.labelStyle}>Remarks :</Text>
+                        <Text style={styles.labelStyle}>Mode of Pay :</Text>
                         <Text style={styles.valueStyle}>
-                            {printReceipt.remarks}
+                            {printReceipt?.paymentMethod}
                         </Text>
                     </View>
 

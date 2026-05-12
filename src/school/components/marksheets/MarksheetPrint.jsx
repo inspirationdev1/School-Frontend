@@ -5,6 +5,7 @@ import {
     Document,
     PDFViewer,
     PDFDownloadLink,
+    Image,
 } from "@react-pdf/renderer";
 import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
@@ -23,10 +24,34 @@ import dayjs from "dayjs";
 export default function MarksheetPrint() {
     const [loading, setLoading] = useState(true);
     const [printMarksheet, setPrintMarksheet] = useState({});
-    
+    const [logo, setLogo] = useState("");
+    const [reportHeader, setReportHeader] = useState({});
+
     const [searchParams] = useSearchParams();
 
     const id = searchParams.get("id");
+
+
+
+    useEffect(() => {
+        if (reportHeader?.school_image) {
+            getBase64Image(
+                `${reportHeader.school_image}`
+            ).then(setLogo);
+        }
+    }, [reportHeader]);
+
+
+    const getBase64Image = async (url) => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    };
 
     useEffect(() => {
         const fetchPrintMarksheet = async () => {
@@ -35,6 +60,17 @@ export default function MarksheetPrint() {
                 console.log("marksheetPrintResponse", marksheetPrintResponse.data.data);
                 setPrintMarksheet(marksheetPrintResponse.data.data);
                 console.log("printMarksheet", printMarksheet);
+
+                const rptHeader = {
+                    school_name: marksheetPrintResponse.data.data?.school.school_name,
+                    address: marksheetPrintResponse.data.data?.school.address,
+                    city: marksheetPrintResponse.data.data?.school.city,
+                    state: marksheetPrintResponse.data.data?.school.state,
+                    country: marksheetPrintResponse.data.data?.school.country,
+                    school_image: marksheetPrintResponse.data.data?.school.school_image
+                }
+
+                setReportHeader(rptHeader);
 
                 
                 setLoading(false);
@@ -52,7 +88,32 @@ export default function MarksheetPrint() {
     const PrintPDF = () => (
         <Document>
             <Page size="A4" style={styles.page}>
-                <View style={styles.header}>
+
+                {/* 🔷 Header */}
+                                <View style={styles.headerContainer}>
+                                    {/* If you have logo, uncomment */}
+                                    <Image src={logo} style={styles.logo} />
+                
+                                    <View style={styles.schoolInfo}>
+                                        <Text style={styles.schoolName}>
+                                            {reportHeader?.school_name}
+                                        </Text>
+                
+                                        <Text style={styles.schoolText}>
+                                            {reportHeader?.address}, {reportHeader?.city}
+                                        </Text>
+                
+                                        <Text style={styles.schoolText}>
+                                            {reportHeader?.state}, {reportHeader?.country}
+                                        </Text>
+                                    </View>
+                                </View>
+                
+                                {/* 🔷 Title */}
+                                <Text style={styles.reportTitle}>
+                                    MARKSHEET
+                                </Text>
+                {/* <View style={styles.header}>
                     <View>
                         <Text style={[styles.title, styles.textBold]}>Marksheet</Text>
 
@@ -63,7 +124,7 @@ export default function MarksheetPrint() {
                         <Text style={styles.textBold}>{printMarksheet.school.state} - {printMarksheet.school.country}</Text>
 
                     </View>
-                </View>
+                </View> */}
 
                 
                 <View>

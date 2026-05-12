@@ -5,6 +5,7 @@ import {
     Document,
     PDFViewer,
     PDFDownloadLink,
+    Image,
 } from "@react-pdf/renderer";
 import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
@@ -23,10 +24,32 @@ import dayjs from "dayjs";
 export default function SalesinvoicePrint() {
     const [loading, setLoading] = useState(true);
     const [printSalesinvoice, setPrintSalesinvoice] = useState({});
-    
-    const [searchParams] = useSearchParams();
 
+    const [logo, setLogo] = useState("");
+    const [reportHeader, setReportHeader] = useState({});
+
+    const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
+
+    useEffect(() => {
+        if (reportHeader?.school_image) {
+            getBase64Image(
+                `${reportHeader.school_image}`
+            ).then(setLogo);
+        }
+    }, [reportHeader]);
+
+
+    const getBase64Image = async (url) => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    };
 
     useEffect(() => {
         const fetchPrintSalesinvoice = async () => {
@@ -36,7 +59,18 @@ export default function SalesinvoicePrint() {
                 setPrintSalesinvoice(salesinvoicePrintResponse.data.data);
                 console.log("printSalesinvoice", printSalesinvoice);
 
-                
+                const rptHeader = {
+                    school_name: salesinvoicePrintResponse.data.data?.school.school_name,
+                    address: salesinvoicePrintResponse.data.data?.school.address,
+                    city: salesinvoicePrintResponse.data.data?.school.city,
+                    state: salesinvoicePrintResponse.data.data?.school.state,
+                    country: salesinvoicePrintResponse.data.data?.school.country,
+                    school_image: salesinvoicePrintResponse.data.data?.school.school_image
+                }
+
+                setReportHeader(rptHeader);
+
+
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching salesinvoice for print:', error);
@@ -52,7 +86,35 @@ export default function SalesinvoicePrint() {
     const PrintPDF = () => (
         <Document>
             <Page size="A4" style={styles.page}>
-                <View style={styles.header}>
+
+                {/* 🔷 Header */}
+                <View style={styles.headerContainer}>
+                    {/* If you have logo, uncomment */}
+                    <Image src={logo} style={styles.logo} />
+
+                    <View style={styles.schoolInfo}>
+                        <Text style={styles.schoolName}>
+                            {reportHeader?.school_name}
+                        </Text>
+
+                        <Text style={styles.schoolText}>
+                            {reportHeader?.address}, {reportHeader?.city}
+                        </Text>
+
+                        <Text style={styles.schoolText}>
+                            {reportHeader?.state}, {reportHeader?.country}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* 🔷 Title */}
+                <Text style={styles.reportTitle}>
+                    FEE INVOICE
+                </Text>
+
+
+                
+                {/* <View style={styles.header}>
                     <View>
                         <Text style={[styles.title, styles.textBold]}>Fees Invoice</Text>
 
@@ -63,9 +125,9 @@ export default function SalesinvoicePrint() {
                         <Text style={styles.textBold}>{printSalesinvoice.school.state} - {printSalesinvoice.school.country}</Text>
 
                     </View>
-                </View>
+                </View> */}
 
-                
+
                 <View>
 
                     {/* Row 1 */}
@@ -185,7 +247,7 @@ export default function SalesinvoicePrint() {
                     </TR>
                 </Table>
 
-                
+
 
             </Page>
         </Document>
@@ -214,7 +276,7 @@ export default function SalesinvoicePrint() {
             netAmount: printSalesinvoice.totalNetAmount,
         });
 
-        
+
 
         // 3️⃣ Create worksheet
         const worksheet = XLSX.utils.json_to_sheet(rows);

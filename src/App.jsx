@@ -309,6 +309,9 @@ function App() {
 
               <Route path="questionpapers" element={<Questionpapers />} />
 
+               <Route path="studentlistmarkssubjectwiseprint" element={<StudentListMarksSubjectwisePrint />} />
+              <Route path="studentmarkssubjectwiseprint" element={<StudentMarksSubjectwisePrint />} />
+
             </Route>
 
             <Route path="/" element={<Client />}>

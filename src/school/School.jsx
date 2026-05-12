@@ -1,4 +1,7 @@
-import * as React from "react";
+// import * as React from "react";
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import { baseUrl } from "../environment";
 import {
   Box,
   CssBaseline,
@@ -34,8 +37,11 @@ import { AuthContext } from "../context/AuthContext";
 const drawerWidth = 240;
 
 export default function School() {
-  const { user, selectedAppsetting } = React.useContext(AuthContext);
-
+  const { user } = React.useContext(AuthContext);
+  const [appsettings,setAppsettings] = useState([]);
+    const [selectedAppsetting,setSelectedAppsetting] = useState(null)
+  
+  
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -162,6 +168,27 @@ export default function School() {
       link: "/logout",
     },
   ];
+
+  useEffect(() => {
+    fetchAppsettings();
+
+  }, []);
+
+  const fetchAppsettings = () => {
+        axios
+            .get(`${baseUrl}/appsetting/fetch-all`)
+            .then((resp) => {
+                console.log("Fetching data in  Casting Calls  admin.", resp);
+                setAppsettings(resp.data.data);
+                const id = resp.data.data[0]._id;
+                setSelectedAppsetting(resp.data.data[0]);
+                console.log("selectedAppseting",selectedAppsetting);
+                
+            })
+            .catch((e) => {
+                console.log("Error in fetching casting calls admin data", e);
+            });
+    };
 
   // ✅ Drawer Content
   const drawerContent = (

@@ -254,15 +254,27 @@ export default function Castecertificates() {
     };
 
     const fetchcastecategories = () => {
-        axios
-            .get(`${baseUrl}/generalmaster/fetch-all`)
-            .then((resp) => {
-                console.log("Fetching data in  Casting Calls  admin.", resp);
+        const params = {
+              generalmaster_type: "castecategory",
+            };
+            axios
+              .get(`${baseUrl}/generalmaster/fetch-with-query`, { params: params })
+              .then((resp) => {
+                console.log("Fetching data in  generalmaster Calls  admin.", resp);
                 setCastecategories(resp.data.data);
-            })
-            .catch((e) => {
-                console.log("Error in fetching casting calls admin data", e);
-            });
+              })
+              .catch((e) => {
+                console.log("Error in fetching generalmaster calls admin data", e);
+              });
+        // axios
+        //     .get(`${baseUrl}/generalmaster/fetch-all`)
+        //     .then((resp) => {
+        //         console.log("Fetching data in  Casting Calls  admin.", resp);
+        //         setCastecategories(resp.data.data);
+        //     })
+        //     .catch((e) => {
+        //         console.log("Error in fetching casting calls admin data", e);
+        //     });
     };
 
     useEffect(() => {

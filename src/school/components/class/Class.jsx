@@ -23,6 +23,7 @@ import CustomizedSnackbars from "../../../basic utility components/CustomizedSna
 import { classSchema } from "../../../yupSchema/classSchema";
 
 export default function Class() {
+    const [params, setParams] = useState({});
     const [classes, setClasses] = useState([]);
     const [isEdit, setEdit] = useState(false);
     const [editId, setEditId] = useState(null);
@@ -90,6 +91,7 @@ export default function Class() {
                         setMessage(resp.data.message);
                         setType("success");
                         cancelEdit();
+                        setParams({});
                         setTab(1); // go to View List
                     })
                     .catch((e) => {
@@ -105,6 +107,7 @@ export default function Class() {
                         console.log("Response after submitting admin casting", resp);
                         setMessage(resp.data.message);
                         setType("success");
+                        setParams({});
                         setTab(1); // go to View List
                     })
                     .catch((e) => {
@@ -121,22 +124,42 @@ export default function Class() {
     const [month, setMonth] = useState([]);
     const [year, setYear] = useState([]);
 
-
+const [noofclasses, setNoofclasses] = useState(0);
     const fetchClasses = () => {
-        axios
-            .get(`${baseUrl}/class/fetch-all`)
-            .then((resp) => {
-                console.log("Fetching data in  Casting Calls  admin.", resp);
-                setClasses(resp.data.data);
-            })
-            .catch((e) => {
-                console.log("Error in fetching casting calls admin data", e);
-            });
+         axios
+      .get(`${baseUrl}/class/fetch-with-query`, { params })
+      .then((resp) => {
+        setClasses(resp.data.data);
+        setNoofclasses(resp.data.data.length);
+      })
+      .catch(() => console.log("Error in fetching classes data"));
+        // axios
+        //     .get(`${baseUrl}/class/fetch-all`)
+        //     .then((resp) => {
+        //         console.log("Fetching data in  Casting Calls  admin.", resp);
+        //         setClasses(resp.data.data);
+        //     })
+        //     .catch((e) => {
+        //         console.log("Error in fetching casting calls admin data", e);
+        //     });
+
     };
     useEffect(() => {
         fetchClasses();
 
-    }, [message]);
+    }, [message, params]);
+
+    const handleSearch = (e) => {
+        let newParam;
+        if (e.target.value !== "") {
+            newParam = { ...params, search: e.target.value };
+        } else {
+            newParam = { ...params };
+            delete newParam["search"];
+        }
+
+        setParams(newParam);
+    };
     return (
         <>
             {message && (
@@ -161,142 +184,186 @@ export default function Class() {
                 </Box>
 
                 {tab === 0 && (
-                <Box component={"div"} sx={{}}>
-                    <Paper
-                        sx={{ padding: '20px', margin: "10px" }}
-                    >
-                        
-                        <Box
-                            component="form"
-                            noValidate
-                            autoComplete="off"
-                            onSubmit={Formik.handleSubmit}
+                    <Box component={"div"} sx={{}}>
+                        <Paper
+                            sx={{ padding: '20px', margin: "10px" }}
                         >
 
-
-                            <TextField
-                                fullWidth
-                                sx={{ marginTop: "10px" }}
-                                id="filled-basic"
-                                label="Class Name "
-                                variant="outlined"
-                                name="class_name"
-                                value={Formik.values.class_name}
-                                onChange={Formik.handleChange}
-                                onBlur={Formik.handleBlur}
-                            />
-                            {Formik.touched.class_name && Formik.errors.class_name && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.class_name}
-                                </p>
-                            )}
+                            <Box
+                                component="form"
+                                noValidate
+                                autoComplete="off"
+                                onSubmit={Formik.handleSubmit}
+                            >
 
 
-                            <TextField
-                                disabled={isEdit}
-                                fullWidth
-                                sx={{ marginTop: "10px" }}
-                                id="filled-basic"
-                                label="Class Code "
-                                variant="outlined"
-                                name="class_code"
-                                value={Formik.values.class_code}
-                                onChange={Formik.handleChange}
-                                onBlur={Formik.handleBlur}
-                            />
-                            {Formik.touched.class_code && Formik.errors.class_code && (
-                                <p style={{ color: "red", textTransform: "capitalize" }}>
-                                    {Formik.errors.class_code}
-                                </p>
-                            )}
-
-
-
-
-
-
-
-
-                            <Box sx={{ marginTop: "10px" }} component={"div"}>
-                                <Button
-                                    type="submit"
-                                    sx={{ marginRight: "10px" }}
-                                    variant="contained"
-                                >
-                                    Submit
-                                </Button>
-                                {isEdit && (
-                                    <Button
-                                        sx={{ marginRight: "10px" }}
-                                        variant="outlined"
-                                        onClick={cancelEdit}
-                                    >
-                                        Cancel Edit
-                                    </Button>
+                                <TextField
+                                    fullWidth
+                                    sx={{ marginTop: "10px" }}
+                                    id="filled-basic"
+                                    label="Class Name "
+                                    variant="outlined"
+                                    name="class_name"
+                                    value={Formik.values.class_name}
+                                    onChange={Formik.handleChange}
+                                    onBlur={Formik.handleBlur}
+                                />
+                                {Formik.touched.class_name && Formik.errors.class_name && (
+                                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                                        {Formik.errors.class_name}
+                                    </p>
                                 )}
+
+
+                                <TextField
+                                    disabled={isEdit}
+                                    fullWidth
+                                    sx={{ marginTop: "10px" }}
+                                    id="filled-basic"
+                                    label="Class Code "
+                                    variant="outlined"
+                                    name="class_code"
+                                    value={Formik.values.class_code}
+                                    onChange={Formik.handleChange}
+                                    onBlur={Formik.handleBlur}
+                                />
+                                {Formik.touched.class_code && Formik.errors.class_code && (
+                                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                                        {Formik.errors.class_code}
+                                    </p>
+                                )}
+
+
+
+
+
+
+
+
+                                <Box sx={{ marginTop: "10px" }} component={"div"}>
+                                    <Button
+                                        type="submit"
+                                        sx={{ marginRight: "10px" }}
+                                        variant="contained"
+                                    >
+                                        Submit
+                                    </Button>
+                                    {isEdit && (
+                                        <Button
+                                            sx={{ marginRight: "10px" }}
+                                            variant="outlined"
+                                            onClick={cancelEdit}
+                                        >
+                                            Cancel Edit
+                                        </Button>
+                                    )}
+                                </Box>
                             </Box>
-                        </Box>
-                    </Paper>
-                </Box>
+                        </Paper>
+                    </Box>
                 )}
 
 
                 {tab === 1 && (
-                <Box>
-                    
-                    <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell component="th" scope="row"> class Name</TableCell>
-                                    <TableCell align="right">Code</TableCell>
-                                    <TableCell align="right">Action</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {classes.map((value, i) => (
-                                    <TableRow
-                                        key={i}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    <Box>
+                        <Box
+                                      sx={{
+                                        display: "flex",
+                                        gap: 2,
+                                        flexDirection: { xs: "column", sm: "row" },
+                                        alignItems: "center",
+                                        mb: 2,
+                                      }}
                                     >
-                                        <TableCell component="th" scope="row">
-                                            {value.class_name}
-                                        </TableCell>
-                                        <TableCell align="right">{value.class_code}</TableCell>
-                                        <TableCell align="right">
+                                      {/* Search */}
+                                      <TextField
+                                        label="Search Name .."
+                                        size="small"
+                                        onChange={handleSearch}
+                                        fullWidth
+                                        sx={{
+                                          flex: 2,
+                                          "& .MuiInputBase-root": {
+                                            height: 42,
+                                            fontSize: "14px",
+                                          },
+                                        }}
+                                      />
+                        
+                                      {/* No of Classes */}
+                                      <Box
+                                        sx={{
+                                          flex: 1,
+                                          minWidth: { xs: "100%", sm: 160 },
+                                          height: 42,
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          borderRadius: 2,
+                                          bgcolor: "primary.main",
+                                          color: "white",
+                                          fontWeight: 600,
+                                          fontSize: "14px",
+                                          boxShadow: 2,
+                                        }}
+                                      >
+                                        Classes Count : {noofclasses}
+                                      </Box>
+                                    </Box>
 
-                                            <Box
-                                                sx={{
-                                                    display: "flex",
-                                                    justifyContent: "flex-end",
-                                                    gap: 1.5, // 👈 space between buttons
-                                                }}
-                                            >
-                                                <Button
-                                                    variant="contained"
-                                                    sx={{ background: "red", color: "#fff" }}
-                                                    onClick={() => handleDelete(value._id)}
-                                                >
-                                                    Delete
-                                                </Button>
-
-                                                <Button
-                                                    variant="contained"
-                                                    sx={{ background: "gold", color: "#222222" }}
-                                                    onClick={() => handleEdit(value._id)}
-                                                >
-                                                    Edit
-                                                </Button>
-                                            </Box>
-                                        </TableCell>
-
+                        <TableContainer component={Paper}>
+                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell component="th" scope="row"> class Name</TableCell>
+                                        <TableCell align="right">Code</TableCell>
+                                        <TableCell align="right">Action</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                </TableHead>
+                                <TableBody>
+                                    {classes.map((value, i) => (
+                                        <TableRow
+                                            key={i}
+                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        >
+                                            <TableCell component="th" scope="row">
+                                                {value.class_name}
+                                            </TableCell>
+                                            <TableCell align="right">{value.class_code}</TableCell>
+                                            <TableCell align="right">
 
-                </Box>
+                                                <Box
+                                                    sx={{
+                                                        display: "flex",
+                                                        justifyContent: "flex-end",
+                                                        gap: 1.5, // 👈 space between buttons
+                                                    }}
+                                                >
+                                                    <Button
+                                                        variant="contained"
+                                                        sx={{ background: "red", color: "#fff" }}
+                                                        onClick={() => handleDelete(value._id)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+
+                                                    <Button
+                                                        variant="contained"
+                                                        sx={{ background: "gold", color: "#222222" }}
+                                                        onClick={() => handleEdit(value._id)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                </Box>
+                                            </TableCell>
+
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+
+                    </Box>
                 )}
             </Box>
         </>

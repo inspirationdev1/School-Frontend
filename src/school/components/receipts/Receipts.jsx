@@ -67,6 +67,8 @@ export default function Receipts() {
             paidAmount: 0,
             remarks: "",
             year: "",
+            month: "",
+            monthname:"",
             isEdit: false
         },
     ]);
@@ -84,6 +86,8 @@ export default function Receipts() {
                 paidAmount: 0,
                 remarks: "",
                 year: "",
+                month: "",
+                monthname:"",
                 isEdit: false
             },
         ])
@@ -284,6 +288,8 @@ export default function Receipts() {
                     paidAmount: row.paidAmount,
                     remarks: "",
                     year: values.year,
+                    month: row?.month,
+                    monthname: row?.monthname,
                 })),
             };
             if (isEdit) {
@@ -442,6 +448,9 @@ export default function Receipts() {
 
         if (field === "student") {
             updated[index].siId = null;       // 👈 clears invoice
+            updated[index].siCode = "";       // 👈 clears invoice
+            updated[index].month = "";       // 👈 clears invoice
+            updated[index].monthname = "";       // 👈 clears invoice
             updated[index].invAmount = 0;
             updated[index].paidAmount = 0;
             updated[index].parent = value?.parent?._id;
@@ -452,6 +461,8 @@ export default function Receipts() {
         if (field === "siId") {
             updated[index].class = updated[index].siId.class || null;
             updated[index].section = updated[index].siId.section || null;
+            updated[index].month = updated[index].siId?.month || "";
+            updated[index].monthname = updated[index].siId?.monthname || "";
             const invBal = ((updated[index].siId.totalNetAmount || 0) - (updated[index].siId.totalPaidAmount || 0))
             updated[index].invAmount = invBal;
             updated[index].paidAmount = 0;
@@ -484,6 +495,8 @@ export default function Receipts() {
                 paidAmount: 0,
                 remarks: "",
                 year: "",
+                month: "",
+                monthname:"",
             },
         ]);
     };

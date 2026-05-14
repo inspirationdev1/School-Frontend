@@ -177,6 +177,7 @@ export default function ReceiptPrint_MMS() {
                         <TD style={styles.td}>Section</TD> */}
                         <TD style={styles.td}>Invoice #</TD>
                         <TD style={styles.td}>Particulars</TD>
+                        <TD style={styles.td}>For Month of</TD>
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>Amount</Text>
                         </TD>
@@ -196,7 +197,7 @@ export default function ReceiptPrint_MMS() {
                             <TD style={styles.td}>{item.section.section_name}</TD> */}
                             <TD style={styles.td}>{item.siCode}</TD>
                             <TD style={styles.td}>{item?.siId?.itemName}</TD>
-                           
+                            <TD style={styles.td}>{item?.monthname}</TD>
                             <TD style={styles.td}>
                                 <Text style={styles.rightText}>{formatAmount(item?.siId?.netAmount)}</Text>
                             </TD>
@@ -215,7 +216,7 @@ export default function ReceiptPrint_MMS() {
                         <TD style={styles.td}></TD>
                         <TD style={styles.td}></TD>
                         <TD style={styles.td}></TD>
-                        {/* <TD style={styles.td}></TD> */}
+                        <TD style={styles.td}></TD>
 
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>Total</Text>

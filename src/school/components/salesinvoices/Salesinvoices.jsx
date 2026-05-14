@@ -51,12 +51,24 @@ export default function Salesinvoice() {
   const [allFeestructure, setAllFeestructure] = useState([])
   const [tab, setTab] = useState(0);
   const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null);
   const [params, setParams] = useState({});
 
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
   });
+
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const monthName = new Date(2025, i).toLocaleString('default', {
+        month: 'long'
+    });
+
+    return {
+        label: monthName,
+        value: i + 1
+    };
+});
 
   const [invoiceDetails, setInvoiceDetails] = useState([
     {
@@ -134,6 +146,11 @@ export default function Salesinvoice() {
         const matchedYear = years.find(s => s.value === resp.data.data.year);
         setSelectedYear(matchedYear || null);
 
+        Formik.setFieldValue("month", resp.data.data.month);
+        Formik.setFieldValue("monthname", resp.data.data?.monthname);
+        const matchedMonth = months.find(s => s.value === resp.data.data.month);
+        setSelectedMonth(matchedMonth || null);
+
         Formik.setFieldValue("remarks", resp.data.data.remarks);
         const classId = resp.data.data?.class || resp.data.class;
         const sectionId = resp.data.data?.section || resp.data.section;
@@ -198,6 +215,7 @@ export default function Salesinvoice() {
     setSelectedSection(null);
     setSelectedStudent(null);
     setSelectedYear(null);
+    setSelectedMonth(null);
     setIsDataValid(true);
     // 🔥 reset Autocomplete values
     clearInvoiceDetails();
@@ -212,6 +230,7 @@ export default function Salesinvoice() {
     setSelectedSection(null);
     setSelectedStudent(null);
     setSelectedYear(null);
+    setSelectedMonth(null);
     clearInvoiceDetails();
 
   };
@@ -237,6 +256,8 @@ export default function Salesinvoice() {
     student_name: "",
     status: "valid",
     remarks: "",
+    month: "",
+    monthname: "",
     year: "",
 
     feestructure: "",
@@ -393,29 +414,10 @@ export default function Salesinvoice() {
 
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
-  const fetchStudentSalesinvoice = () => {
-    // axios
-    //   .get(`${baseUrl}/casting/get-month-year`)
-    //   .then((resp) => {
-    //     console.log("Fetching month and year.", resp);
-    //     setMonth(resp.data.month);
-    //     setYear(resp.data.year);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching month and year", e);
-    //   });
-  };
+  
 
   const fetchstudentssalesinvoice = () => {
-    // axios
-    //   .get(`${baseUrl}/salesinvoice/fetch-all`)
-    //   .then((resp) => {
-    //     console.log("Fetching data in  Casting Calls  admin.", resp);
-    //     setStudentSalesinvoice(resp.data.data);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching casting calls admin data", e);
-    //   });
+    
     axios
           .get(`${baseUrl}/salesinvoice/fetch-with-query`, { params })
           .then((resp) => {
@@ -503,7 +505,7 @@ export default function Salesinvoice() {
   useEffect(() => {
     fetchAppsettings();
     fetchstudentssalesinvoice();
-    fetchStudentSalesinvoice();
+   
     fetchClass();
     fetchSection();
     fetchAllFeeStructures();
@@ -635,6 +637,8 @@ export default function Salesinvoice() {
         feeAmount: Formik.values.feeAmount,
         invoiceDate: Formik.values.invoiceDate,
         year: Formik.values.year,
+         month: Formik.values.month,
+         monthname: Formik.values.monthname,
         remarks: Formik.values.remarks,
       };
 
@@ -650,6 +654,11 @@ export default function Salesinvoice() {
       }
       if (!payload?.year){
         setMessage("Select Academic Year");
+        setType("error");
+        return;
+      }
+      if (!payload?.month){
+        setMessage("Select For Month of");
         setType("error");
         return;
       }
@@ -844,6 +853,39 @@ export default function Salesinvoice() {
                             fullWidth
                             error={Formik.touched.year && Boolean(Formik.errors.year)}
                             helperText={Formik.touched.year && Formik.errors.year}
+                          />
+                        )}
+                      />
+                    </Box>
+
+                    {/* For Month Of */}
+                    <Box>
+                      <Autocomplete
+                        disabled={isEdit}
+                        options={months}
+                        getOptionLabel={(option) => option.label}
+                        value={selectedMonth}
+                        onChange={(event, newValue) => {
+                          setSelectedMonth(newValue);
+
+                          Formik.setFieldValue(
+                            "month",
+                            newValue ? newValue.value : ""
+                          );
+                          Formik.setFieldValue(
+                            "monthname",
+                            newValue ? newValue.label : ""
+                          );
+                        }}
+                        onBlur={() => Formik.setFieldTouched("month", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select For Month Of"
+                            placeholder="Search For Month Of..."
+                            fullWidth
+                            error={Formik.touched.month && Boolean(Formik.errors.month)}
+                            helperText={Formik.touched.month && Formik.errors.month}
                           />
                         )}
                       />
@@ -1514,6 +1556,35 @@ export default function Salesinvoice() {
                             fullWidth
                             error={Formik.touched.year && Boolean(Formik.errors.year)}
                             helperText={Formik.touched.year && Formik.errors.year}
+                          />
+                        )}
+                      />
+                    </Box>
+
+                    {/* For Month Of */}
+                    <Box>
+                      <Autocomplete
+                        disabled={isEdit}
+                        options={months}
+                        getOptionLabel={(option) => option.label}
+                        value={selectedMonth}
+                        onChange={(event, newValue) => {
+                          setSelectedMonth(newValue);
+
+                          Formik.setFieldValue(
+                            "month",
+                            newValue ? newValue.value : ""
+                          );
+                        }}
+                        onBlur={() => Formik.setFieldTouched("month", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select For Month Of"
+                            placeholder="Search For Month Of..."
+                            fullWidth
+                            error={Formik.touched.month && Boolean(Formik.errors.month)}
+                            helperText={Formik.touched.month && Formik.errors.month}
                           />
                         )}
                       />

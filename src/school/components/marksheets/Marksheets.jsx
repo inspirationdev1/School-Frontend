@@ -659,13 +659,13 @@ export default function Marksheet() {
                                                 value={Formik.values.msCode}
                                                 onChange={Formik.handleChange}
                                                 onBlur={Formik.handleBlur}
-                                                disabled={isEdit}
+                                                disabled
                                             />
-                                            {Formik.touched.msCode && Formik.errors.msCode && (
+                                            {/* {Formik.touched.msCode && Formik.errors.msCode && (
                                                 <Typography color="error" variant="caption">
                                                     {Formik.errors.msCode}
                                                 </Typography>
-                                            )}
+                                            )} */}
                                         </Box>
 
                                         {/* Marksheet Name */}

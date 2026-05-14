@@ -159,6 +159,7 @@ export default function School() {
         { label: "App Settings", link: "/school/appsetting" },
         { label: "General Master", link: "/school/generalmaster" },
         { label: "Upload Data", link: "/school/uploaddata" },
+        { label: "Send Whatsapp", link: "/school/sendwhatsapp" },
       ],
     },
 

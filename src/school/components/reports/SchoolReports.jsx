@@ -85,14 +85,25 @@ export default function SchoolReports() {
         year: selectedYear.value
       };
 
+      // if (user?.role === 'TEACHER') {
+      //   window.open(
+      //     `/teacher/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+      //     "_blank"
+      //   );
+      // } else {
+      //   window.open(
+      //     `/school/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+      //     "_blank"
+      //   );
+      // }
       if (user?.role === 'TEACHER') {
         window.open(
-          `/teacher/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          `/teacher/ProgressCardPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
           "_blank"
         );
       } else {
         window.open(
-          `/school/SchoolReportsPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          `/school/ProgressCardPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
           "_blank"
         );
       }

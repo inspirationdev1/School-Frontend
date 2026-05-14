@@ -33,6 +33,7 @@ export default function StudentMarksSubjectwisePrint() {
 
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedExamination, setSelectedExamination] = useState(null);
 
   const [selectedYear, setSelectedYear] = useState(null)
 
@@ -68,7 +69,7 @@ export default function StudentMarksSubjectwisePrint() {
           paramsRpt.section = data?.section;
         }
 
-        setSelectedSection(data?.examination);
+        setSelectedExamination(data?.examination);
         if (data?.examination) {
           paramsRpt.examination = data?.examination;
         }

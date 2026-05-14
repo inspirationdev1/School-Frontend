@@ -10,5 +10,6 @@ export const salesinvoiceSchema = yup.object({
     status: yup.string().min(1, "Must Contain 3 Character.").required("status is  required."),
     remarks: yup.string().min(3, "Must Contain 3 Character."),
     year: yup.string().required("Year is required"),
+    month: yup.string().required("Month is required"),
 
 })

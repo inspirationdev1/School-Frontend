@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 export const marksheetSchema = yup.object({
-    msCode: yup.string().min(3, "Must contain 3 character.").required("MS Code is  required."),
+    // msCode: yup.string().min(3, "Must contain 3 character.").required("MS Code is  required."),
     name: yup.string().min(3, "Must contain 3 character.").required("MS Name is  required."),
     msDate: yup.string().min(3, "Must Contain 3 Character.").required("MS Date is  required."),
     class: yup.string().min(3, "Must Contain 3 Character.").required("Class is  required."),

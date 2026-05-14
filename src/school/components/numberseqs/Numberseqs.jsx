@@ -167,10 +167,13 @@ export default function Numberseqs() {
             const screensData = [
                 { screen_id: "student", screen_name: "Student" },
                 { screen_id: "parent", screen_name: "Parent" },
+                { screen_id: "teacher", screen_name: "Teacher" },
+                { screen_id: "user", screen_name: "User" },
                 { screen_id: "salesinvoice", screen_name: "Sales Invoice" },
                 { screen_id: "receipt", screen_name: "Receipt" },
                 { screen_id: "expense", screen_name: "Expense" },
                 { screen_id: "payment", screen_name: "Payment" },
+                { screen_id: "marksheet", screen_name: "Marksheet" },
             ];
             setScreens(screensData);
 

@@ -143,6 +143,8 @@ import Enquiry from "./school/components/enquiry/Enquiry";
 import EnquiryPrint from "./school/components/enquiry/EnquiryPrint";
 import StudentMarksSubjectwisePrint from "./school/components/reports/StudentMarksSubjectwisePrint";
 import StudentListMarksSubjectwisePrint from "./school/components/reports/StudentListMarksSubjectwisePrint";
+import Sendwhatsapp from "./school/components/sendwhatsapp/Sendwhatsapp";
+import ProgressCardPrint from "./school/components/reports/ProgressCardPrint";
 
 
 
@@ -211,7 +213,8 @@ function App() {
               <Route path="generalmaster" element={<Generalmasters />} />
 
               <Route path="uploaddata" element={<Uploaddata />} />
-
+              <Route path="sendwhatsapp" element={<Sendwhatsapp />} />
+    
 
 
               <Route path="assign-period" element={<AssignPeriod2 />} />
@@ -259,6 +262,8 @@ function App() {
               <Route path="paidexpensesreportprint" element={<PaidExpensesReportPrint />} />
 
               <Route path="progressCardPDF" element={<ProgressCardPDF />} />
+              <Route path="progresscardprint" element={<ProgressCardPrint />} />
+              
               
               <Route path="studentlistmarkssubjectwiseprint" element={<StudentListMarksSubjectwisePrint />} />
               <Route path="studentmarkssubjectwiseprint" element={<StudentMarksSubjectwisePrint />} />
@@ -283,6 +288,7 @@ function App() {
 
               <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
               <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
+              <Route path="progresscardprint" element={<ProgressCardPrint />} />
 
               <Route path="notice" element={<NoticeStudent />} />
             </Route>
@@ -311,6 +317,7 @@ function App() {
 
                <Route path="studentlistmarkssubjectwiseprint" element={<StudentListMarksSubjectwisePrint />} />
               <Route path="studentmarkssubjectwiseprint" element={<StudentMarksSubjectwisePrint />} />
+              <Route path="progresscardprint" element={<ProgressCardPrint />} />
 
             </Route>
 
@@ -339,6 +346,7 @@ function App() {
 
               <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
               <Route path="questionpaperreportprint" element={<QuestionpaperReportPrint />} />
+              <Route path="progresscardprint" element={<ProgressCardPrint />} />
               <Route path="notice" element={<NoticeParent />} />
             </Route>
 

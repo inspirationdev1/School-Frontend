@@ -20,7 +20,7 @@ import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 
-export default function StudentListMarksSubjectwisePrint() {
+export default function ProgressCardPrint() {
   const [loading, setLoading] = useState(true);
   const [printData, setPrintData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -33,7 +33,9 @@ export default function StudentListMarksSubjectwisePrint() {
 
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedExamination, setSelectedExamination] = useState(null);
+  
 
   const [selectedYear, setSelectedYear] = useState(null)
 
@@ -60,13 +62,18 @@ export default function StudentListMarksSubjectwisePrint() {
         const data = JSON.parse(decodeURIComponent(dataParam));
 
         let paramsRpt = {};
-        setSelectedClass(data?.class);
-        if (data?.class) {
-          paramsRpt.class = data?.class;
-        }
-        setSelectedSection(data?.section);
-        if (data?.section) {
-          paramsRpt.section = data?.section;
+        // setSelectedClass(data?.class);
+        // if (data?.class) {
+        //   paramsRpt.class = data?.class;
+        // }
+        // setSelectedSection(data?.section);
+        // if (data?.section) {
+        //   paramsRpt.section = data?.section;
+        // }
+
+        setSelectedStudent(data?.student);
+        if (data?.student) {
+          paramsRpt.student = data?.student;
         }
 
         setSelectedExamination(data?.examination);
@@ -74,13 +81,15 @@ export default function StudentListMarksSubjectwisePrint() {
           paramsRpt.examination = data?.examination;
         }
 
+
+
         console.log("Year:", data?.year);
         setSelectedYear(data.year);
 
         paramsRpt.requesttype = "PDF";
 
         const response = await axios.post(
-          `${baseUrl}/schoolreports/studentlist-marks-subjectwise-print`,
+          `${baseUrl}/schoolreports/progresscard-print`,
           {}, // body (empty or your params)
           {
             params: paramsRpt, // ✅ query params

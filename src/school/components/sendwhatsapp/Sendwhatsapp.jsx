@@ -84,7 +84,7 @@ export default function Sendwhatsapp() {
         try {
             // if (selectedScreen?.screenId == "teacher") {
                 await axios
-                    .post(`${baseUrl}/whatsapp/send_whatsapp`, formData)
+                    .post(`${baseUrl}/whatsapp/send_bulk_whatsapp`, formData)
                     .then((resp) => {
                         setMessage(resp.data.message);
                         setType("success");

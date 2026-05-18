@@ -115,6 +115,7 @@ export default function School() {
         { label: "Examinations", link: "/school/examinations" },
         { label: "Questionpapers", link: "/school/questionpapers" },
         { label: "Marksheets", link: "/school/marksheet" },
+        { label: "Grades", link: "/school/grades" },
         { label: "Reports", link: "/school/schoolreports" },
       ],
     },

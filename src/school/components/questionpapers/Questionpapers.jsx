@@ -531,11 +531,20 @@ export default function Questionpapers() {
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
                                         label="Date"
-                                        value={dayjs(questionpaperFormik.values.date)}
+                                        format="DD/MM/YYYY"
+                                        value={
+                                            questionpaperFormik.values.date
+                                                ? dayjs(questionpaperFormik.values.date)
+                                                : null
+                                        }
                                         onChange={(e) => {
-                                            questionpaperFormik.setFieldValue("date", dayjs(e));
+                                            questionpaperFormik.setFieldValue("date", e ? dayjs(e) : null);
                                         }}
-                                        slotProps={{ textField: { fullWidth: true } }}
+                                        slotProps={{
+                                            textField: {
+                                                fullWidth: true,
+                                            },
+                                        }}
                                     />
                                 </LocalizationProvider>
 

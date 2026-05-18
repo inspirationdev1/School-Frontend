@@ -203,6 +203,7 @@ export default function Marksheet() {
         setSelectedSubject(null);
         setSelectedExamination(null);
         setSelectedQuestionpaper(null);
+        setSelectedYear(null);
         clearMarksheetDetails();
 
     };

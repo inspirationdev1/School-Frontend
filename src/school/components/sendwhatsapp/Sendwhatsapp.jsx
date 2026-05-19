@@ -74,11 +74,14 @@ export default function Sendwhatsapp() {
     };
 
     const handleWhatsapp = async (values) => {
-        // if (!file) return alert("Select file");
 
-        // const fd = new FormData();
+        let whatsappUrl = `${baseUrl}/whatsapp/send_whatsapp`;
+        if (values.messagetype==="bulk"){
+            whatsappUrl = `${baseUrl}/whatsapp/send_bulk_whatsapp`;
+        }
+        
         const formData = new FormData();
-        // Object.keys(values).forEach((key) => fd.append(key, values[key]));
+        
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
         });
@@ -88,7 +91,7 @@ export default function Sendwhatsapp() {
         try {
             // if (selectedScreen?.screenId == "teacher") {
             await axios
-                .post(`${baseUrl}/whatsapp/send_bulk_whatsapp`, formData)
+                .post(whatsappUrl, formData)
                 .then((resp) => {
                     setMessage(resp.data.message);
                     setType("success");
@@ -158,6 +161,8 @@ export default function Sendwhatsapp() {
 
             setIsDataValid(true);
             handleWhatsapp(values);
+            
+            
         },
     });
 
@@ -403,7 +408,7 @@ export default function Sendwhatsapp() {
                                 </Box>
 
                                 {/* Class */}
-                                {selectedScreen &&
+                                {(selectedScreen && selectedmessagetype)  &&
                                     (selectedScreen.screenId === "class") && (
                                         <Box>
                                             <Autocomplete
@@ -444,7 +449,7 @@ export default function Sendwhatsapp() {
                                     )}
 
                                 {/* Section */}
-                                {selectedScreen &&
+                                {(selectedScreen && selectedmessagetype)  &&
                                     (selectedScreen.screenId === "section") && (
                                         <Box>
                                             <Autocomplete
@@ -483,7 +488,7 @@ export default function Sendwhatsapp() {
                                     )}
 
                                 {/* Teacher */}
-                                {selectedScreen &&
+                                {(selectedScreen && selectedmessagetype)  &&
                                     (selectedScreen.screenId === "teacher" && selectedmessagetype?.value ==="single")  && (
                                         <Box>
                                             <Autocomplete
@@ -525,7 +530,7 @@ export default function Sendwhatsapp() {
 
 
                                 {/* Students */}
-                                {selectedScreen &&
+                                {(selectedScreen && selectedmessagetype)  &&
                                     (selectedScreen.screenId === "student" && selectedmessagetype?.value ==="single") && (
                                         <Box>
                                             <Autocomplete
@@ -565,7 +570,7 @@ export default function Sendwhatsapp() {
                                     )}
 
                                 {/* Parents */}
-                                {selectedScreen &&
+                                {(selectedScreen && selectedmessagetype)  &&
                                     (selectedScreen.screenId === "parent" && selectedmessagetype?.value ==="single") && (
                                         <Box>
                                             <Autocomplete
@@ -600,7 +605,7 @@ export default function Sendwhatsapp() {
                                         </Box>
                                     )}
 
-                                {selectedScreen &&
+                                {(selectedScreen && selectedmessagetype)  &&
                                     ((selectedScreen.screenId === "parent"
                                         || selectedScreen.screenId === "student"
                                         || selectedScreen.screenId === "teacher"
@@ -608,7 +613,6 @@ export default function Sendwhatsapp() {
                                         <Box>
                                             <TextField
                                                 fullWidth
-                                                sx={{ marginTop: "10px" }}
                                                 id="filled-basic"
                                                 label="Phone No"
                                                 variant="outlined"

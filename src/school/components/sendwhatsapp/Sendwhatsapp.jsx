@@ -33,6 +33,10 @@ export default function Sendwhatsapp() {
 
     const [screenNames, setScreenNames] = useState([]);
     const [selectedScreen, setSelectedScreen] = useState(null);
+
+    const [messagetypes, setMessagetypes] = useState([]);
+    const [selectedmessagetype, setSelectedmessagetype] = useState(null);
+
     const [students, setStudents] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [parents, setParents] = useState([]);
@@ -76,28 +80,28 @@ export default function Sendwhatsapp() {
         const formData = new FormData();
         // Object.keys(values).forEach((key) => fd.append(key, values[key]));
         Object.keys(values).forEach((key) => {
-          formData.append(key, values[key]);
+            formData.append(key, values[key]);
         });
-        
+
         formData.append("file", file);
-        
+
         try {
             // if (selectedScreen?.screenId == "teacher") {
-                await axios
-                    .post(`${baseUrl}/whatsapp/send_bulk_whatsapp`, formData)
-                    .then((resp) => {
-                        setMessage(resp.data.message);
-                        setType("success");
-                        handleClearFile();
-                    })
-                    .catch((e) => {
-                        setMessage(e.response.data.message);
-                        setType("error");
-                        console.log("Error, response whatsapp", e);
-                    });
+            await axios
+                .post(`${baseUrl}/whatsapp/send_bulk_whatsapp`, formData)
+                .then((resp) => {
+                    setMessage(resp.data.message);
+                    setType("success");
+                    handleClearFile();
+                })
+                .catch((e) => {
+                    setMessage(e.response.data.message);
+                    setType("error");
+                    console.log("Error, response whatsapp", e);
+                });
             // } 
 
-            
+
         } catch (err) {
             console.error(err);
             setMessage(err.response.data.message);
@@ -120,6 +124,7 @@ export default function Sendwhatsapp() {
 
     const initialValues = {
         screenId: "",
+        messagetype: "",
         class: "",
         parent: "",
         student: "",
@@ -132,6 +137,12 @@ export default function Sendwhatsapp() {
         onSubmit: (values) => {
             if (!values.screenId) {
                 setDataError("Select the Screen Name");
+                setIsDataValid(false);
+                return;
+            }
+
+            if (!values.messagetype) {
+                setDataError("Select the Message type");
                 setIsDataValid(false);
                 return;
             }
@@ -165,6 +176,30 @@ export default function Sendwhatsapp() {
             setScreenNames(screensData);
         } catch (error) {
             console.error("Error fetching Screen Names:", error);
+        }
+    };
+
+    const fetchMessagetype = async () => {
+        try {
+
+            const msgtypes = [
+                {
+                    value: "single",
+                    label: "Single",
+                    meaning: "Single message"
+                },
+                {
+                    value: "bulk",
+                    label: "Bulk",
+                    meaning: "Bulk message"
+                },
+
+            ];
+
+            setMessagetypes(msgtypes);
+
+        } catch (error) {
+            console.error('Error fetching statuses:', error);
         }
     };
 
@@ -235,6 +270,7 @@ export default function Sendwhatsapp() {
 
     useEffect(() => {
         fetchScreenNames();
+        fetchMessagetype();
         fetchTeacher();
         fetchClass();
         fetchSection();
@@ -325,6 +361,47 @@ export default function Sendwhatsapp() {
                                     />
                                 </Box>
 
+                                {/* Messagetype */}
+                                <Box>
+                                    <Autocomplete
+                                        options={messagetypes}
+                                        getOptionLabel={(option) => option.meaning}
+                                        value={selectedmessagetype}
+                                        onChange={(event, newValue) => {
+                                            setSelectedmessagetype(newValue);
+                                            setSelectedClass(null);
+                                            setSelectedParent(null);
+                                            setSelectedStudent(null);
+                                            setSelectedTeacher(null);
+                                            Formik.setFieldValue(
+                                                "phone_no",
+                                                newValue ? "" : "",
+                                            );
+
+                                            Formik.setFieldValue(
+                                                "messagetype",
+                                                newValue ? newValue.value : "",
+                                            );
+                                        }}
+                                        onBlur={() => Formik.setFieldTouched("messagetype", true)}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Select Message type"
+                                                placeholder="Search message type..."
+                                                fullWidth
+                                                error={
+                                                    Formik.touched.messagetype &&
+                                                    Boolean(Formik.errors.messagetype)
+                                                }
+                                                helperText={
+                                                    Formik.touched.messagetype && Formik.errors.messagetype
+                                                }
+                                            />
+                                        )}
+                                    />
+                                </Box>
+
                                 {/* Class */}
                                 {selectedScreen &&
                                     (selectedScreen.screenId === "class") && (
@@ -341,7 +418,7 @@ export default function Sendwhatsapp() {
                                                         newValue ? newValue._id : "",
                                                     );
 
-                                                     Formik.setFieldValue(
+                                                    Formik.setFieldValue(
                                                         "phone_no",
                                                         newValue ? "" : "",
                                                     );
@@ -407,7 +484,7 @@ export default function Sendwhatsapp() {
 
                                 {/* Teacher */}
                                 {selectedScreen &&
-                                    selectedScreen.screenId === "teacher" && (
+                                    (selectedScreen.screenId === "teacher" && selectedmessagetype?.value ==="single")  && (
                                         <Box>
                                             <Autocomplete
                                                 options={teachers}
@@ -449,7 +526,7 @@ export default function Sendwhatsapp() {
 
                                 {/* Students */}
                                 {selectedScreen &&
-                                    selectedScreen.screenId === "student" && (
+                                    (selectedScreen.screenId === "student" && selectedmessagetype?.value ==="single") && (
                                         <Box>
                                             <Autocomplete
                                                 options={students}
@@ -489,7 +566,7 @@ export default function Sendwhatsapp() {
 
                                 {/* Parents */}
                                 {selectedScreen &&
-                                    selectedScreen.screenId === "parent" && (
+                                    (selectedScreen.screenId === "parent" && selectedmessagetype?.value ==="single") && (
                                         <Box>
                                             <Autocomplete
                                                 options={parents}
@@ -524,10 +601,10 @@ export default function Sendwhatsapp() {
                                     )}
 
                                 {selectedScreen &&
-                                    (selectedScreen.screenId === "parent"
+                                    ((selectedScreen.screenId === "parent"
                                         || selectedScreen.screenId === "student"
                                         || selectedScreen.screenId === "teacher"
-                                    ) && (
+                                    ) && selectedmessagetype.value ==="single") && (
                                         <Box>
                                             <TextField
                                                 fullWidth

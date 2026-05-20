@@ -146,6 +146,7 @@ import StudentListMarksSubjectwisePrint from "./school/components/reports/Studen
 import Sendwhatsapp from "./school/components/sendwhatsapp/Sendwhatsapp";
 import ProgressCardPrint from "./school/components/reports/ProgressCardPrint";
 import Grades from "./school/components/grades/Grades";
+import GradeListReportPrint from "./school/components/reports/GradeListReportPrint";
 
 
 
@@ -269,6 +270,8 @@ function App() {
               
               <Route path="studentlistmarkssubjectwiseprint" element={<StudentListMarksSubjectwisePrint />} />
               <Route path="studentmarkssubjectwiseprint" element={<StudentMarksSubjectwisePrint />} />
+
+              <Route path="gradelistreportprint" element={<GradeListReportPrint />} />
 
 
 

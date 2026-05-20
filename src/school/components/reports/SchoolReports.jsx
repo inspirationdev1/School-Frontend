@@ -218,6 +218,17 @@ export default function SchoolReports() {
           "_blank"
         );
       }
+    } else if (selectedReport.reportId === "grade-list-print") {
+      const data = {
+      };
+
+     
+      
+        window.open(
+          `/school/GradeListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      
     }
 
     
@@ -343,7 +354,9 @@ export default function SchoolReports() {
 
   const fetchReportNames = async () => {
     try {
-      const reportsData = [{ reportId: "progressCard", reportName: "Progress Card" },
+      const reportsData = [
+      { reportId: "grade-list-print", reportName: "Grade List" },
+      { reportId: "progressCard", reportName: "Progress Card" },
       { reportId: "questionpaper-report", reportName: "Exam Question Paper" },
       { reportId: "studentlist-marks-subjectwise-report", reportName: "Student-List-Marks-Subjectwise" },
       { reportId: "student-marks-subjectwise-report", reportName: "Student-Marks-Subjectwise" },
@@ -574,6 +587,8 @@ export default function SchoolReports() {
                   || selectedReport?.reportId === "attendance-report"
                   || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
                   || selectedReport?.reportId === "student-marks-subjectwise-report"
+                  
+                  
                 )
                   && (
                     <Box>

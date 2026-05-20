@@ -2,10 +2,21 @@ import * as yup from 'yup';
 
 export const gradeSchema = yup.object({
     grade_code: yup.string().required("grade Code is  required."),
-    grade_name: yup.string().required("grade Name is  required."),
-    grade_percentage: yup
-                        .number()
-                        .typeError("Seq must be a number")
-                        .moreThan(0, "Seq must be greater than zero")
-                        .required("Seq is required"),
+    gpa: yup.string().required("GPA is  required."),
+    marks_limit: yup
+        .number()
+        .typeError("Markslimit must be a number")
+        .moreThan(0, "Markslimit must be greater than zero")
+        .required("Markslimit is required"),
+    // marks_min: yup
+    //     .number()
+    //     .typeError("Marks(Min) must be a number")
+    //     .moreThan(0, "Marks(Min) must be greater than zero")
+    //     .required("Marks(Min) is required"),
+    marks_max: yup
+        .number()
+        .typeError("Marks(Max) be a number")
+        .moreThan(0, "Marks(Max) must be greater than zero")
+        .required("Marks(Max) is required"),
+
 })

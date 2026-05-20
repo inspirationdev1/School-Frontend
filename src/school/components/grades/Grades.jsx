@@ -49,9 +49,13 @@ export default function Grades() {
         setEdit(true);
         axios.get(`${baseUrl}/grade/fetch-single/${id}`)
             .then((resp) => {
-                Formik.setFieldValue("grade_name", resp.data.data.grade_name);
-                Formik.setFieldValue("grade_code", resp.data.data.grade_code);
-                Formik.setFieldValue("grade_percentage", resp.data.data.grade_percentage);
+
+                Formik.setFieldValue("grade_code", resp.data.data?.grade_code);
+                Formik.setFieldValue("gpa", resp.data.data?.gpa);
+                Formik.setFieldValue("marks_limit", resp.data.data?.marks_limit);
+                Formik.setFieldValue("marks_max", resp.data.data?.marks_max);
+                Formik.setFieldValue("marks_min", resp.data.data?.marks_min);
+
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Grade tab
             })
@@ -74,9 +78,12 @@ export default function Grades() {
     };
 
     const initialValues = {
-        grade_name: "",
+
         grade_code: "",
-        grade_percentage: 0,
+        gpa: "",
+        marks_limit: 0,
+        marks_max: 0,
+        marks_min: 0,
     };
     const Formik = useFormik({
         initialValues: initialValues,
@@ -199,29 +206,77 @@ export default function Grades() {
                                     gap: 2, // ✅ equal spacing between all items
                                 }}
                             >
+
+
+
+
+
+
                                 <Box>
                                     <TextField
+                                        type="number"
                                         fullWidth
-                                        label="Grade Name"
-                                        variant="outlined"
-                                        name="grade_name"
-                                        value={Formik.values.grade_name}
+                                        label="Marks Limit"
+                                        name="marks_limit"
+                                        value={Formik.values.marks_limit}
                                         onChange={Formik.handleChange}
                                         onBlur={Formik.handleBlur}
                                     />
 
-                                    {Formik.touched.grade_name && Formik.errors.grade_name && (
-                                        <p style={{ color: "red", textTransform: "capitalize" }}>
-                                            {Formik.errors.grade_name}
-                                        </p>
-                                    )}
+                                    {Formik.touched.marks_limit &&
+                                        Formik.errors.marks_limit && (
+                                            <p style={{ color: "red" }}>
+                                                {Formik.errors.marks_limit}
+                                            </p>
+                                        )}
                                 </Box>
+
+                                
+
+                                <Box>
+                                    <TextField
+                                        type="number"
+                                        fullWidth
+                                        label="Marks(Min)"
+                                        name="marks_min"
+                                        value={Formik.values.marks_min}
+                                        onChange={Formik.handleChange}
+                                        onBlur={Formik.handleBlur}
+                                    />
+
+                                    {Formik.touched.marks_min &&
+                                        Formik.errors.marks_min && (
+                                            <p style={{ color: "red" }}>
+                                                {Formik.errors.marks_min}
+                                            </p>
+                                        )}
+                                </Box>
+
+                                <Box>
+                                    <TextField
+                                        type="number"
+                                        fullWidth
+                                        label="Marks(Max)"
+                                        name="marks_max"
+                                        value={Formik.values.marks_max}
+                                        onChange={Formik.handleChange}
+                                        onBlur={Formik.handleBlur}
+                                    />
+
+                                    {Formik.touched.marks_max &&
+                                        Formik.errors.marks_max && (
+                                            <p style={{ color: "red" }}>
+                                                {Formik.errors.marks_max}
+                                            </p>
+                                        )}
+                                </Box>
+
 
                                 <Box>
                                     <TextField
                                         disabled={isEdit}
                                         fullWidth
-                                        label="Grade Code"
+                                        label="Grade"
                                         variant="outlined"
                                         name="grade_code"
                                         value={Formik.values.grade_code}
@@ -238,21 +293,21 @@ export default function Grades() {
 
                                 <Box>
                                     <TextField
-                                        type="number"
+                                        disabled={isEdit}
                                         fullWidth
-                                        label="Grade Percentage"
-                                        name="grade_percentage"
-                                        value={Formik.values.grade_percentage}
+                                        label="GPA"
+                                        variant="outlined"
+                                        name="gpa"
+                                        value={Formik.values.gpa}
                                         onChange={Formik.handleChange}
                                         onBlur={Formik.handleBlur}
                                     />
 
-                                    {Formik.touched.grade_percentage &&
-                                        Formik.errors.grade_percentage && (
-                                            <p style={{ color: "red" }}>
-                                                {Formik.errors.grade_percentage}
-                                            </p>
-                                        )}
+                                    {Formik.touched.gpa && Formik.errors.gpa && (
+                                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                                            {Formik.errors.gpa}
+                                        </p>
+                                    )}
                                 </Box>
 
                                 <Box>
@@ -292,7 +347,7 @@ export default function Grades() {
                         >
                             {/* Search */}
                             <TextField
-                                label="Search Name .."
+                                label="Search Grade .."
                                 size="small"
                                 onChange={handleSearch}
                                 fullWidth
@@ -330,9 +385,11 @@ export default function Grades() {
                             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell component="th" scope="row"> grade Name</TableCell>
-                                        <TableCell align="right">Code</TableCell>
-                                        <TableCell align="right">Percentage</TableCell>
+                                        <TableCell align="right">Marks Limit</TableCell>
+                                        <TableCell align="right">Marks (Min)</TableCell>
+                                        <TableCell align="right">Marks (Max)</TableCell>
+                                        <TableCell align="right">Grade</TableCell>
+                                        <TableCell align="right">GPA</TableCell>
                                         <TableCell align="right">Action</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -342,11 +399,13 @@ export default function Grades() {
                                             key={i}
                                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
-                                            <TableCell component="th" scope="row">
-                                                {value.grade_name}
-                                            </TableCell>
-                                            <TableCell align="right">{value.grade_code}</TableCell>
-                                            <TableCell align="right">{value.grade_percentage}</TableCell>
+
+
+                                            <TableCell align="right">{value?.marks_limit}</TableCell>
+                                            <TableCell align="right">{value?.marks_min}</TableCell>
+                                            <TableCell align="right">{value?.marks_max}</TableCell>
+                                            <TableCell align="right">{value?.grade_code}</TableCell>
+                                            <TableCell align="right">{value?.gpa}</TableCell>
                                             <TableCell align="right">
 
                                                 <Box

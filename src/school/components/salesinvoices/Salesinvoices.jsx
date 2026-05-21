@@ -379,6 +379,7 @@ export default function Salesinvoice() {
             console.log("Edit submit", resp);
             setMessage(resp.data.message);
             setType("success");
+            setParams({});
             // cancelEdit();
             clearForm();
             setTab(1); // go to View List
@@ -396,6 +397,7 @@ export default function Salesinvoice() {
             console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
             setType("success");
+            setParams({});
           })
           .catch((e) => {
             setMessage(e.response.data.message);

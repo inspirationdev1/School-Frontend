@@ -17,7 +17,7 @@ import {
 // import { Container, Button, Table, TableBody, TableCell, TableHead, TableRow, Typography, Select, MenuItem, Alert, FormControl, InputLabel, Autocomplete, TextField, Box } from '@mui/material';
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState,useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
@@ -42,6 +42,7 @@ export default function Marksheet() {
     const [allStudents, setAllStudents] = useState([]);
 
     const [periods, setPeriods] = useState([])
+    const [params, setParams] = useState({});
 
 
     const [loading, setLoading] = useState(true);
@@ -159,14 +160,14 @@ export default function Marksheet() {
         console.log("Handle  Print is called", id);
         setPrint(true);
 
-        if (user?.role === 'TEACHER'){
+        if (user?.role === 'TEACHER') {
             window.open(`/teacher/MarksheetPrint?id=${id}`,
-            '_blank');
-        }else{
+                '_blank');
+        } else {
             window.open(`/school/MarksheetPrint?id=${id}`,
-            '_blank');
+                '_blank');
         }
-        
+
 
 
         setPrint(false);
@@ -273,10 +274,10 @@ export default function Marksheet() {
             }
 
 
-        //    const isValidTeacher =  validateTeacher();
-        //     if (!isValidTeacher){
-        //         return;
-        //     }
+            //    const isValidTeacher =  validateTeacher();
+            //     if (!isValidTeacher){
+            //         return;
+            //     }
             setIsDataValid(true);
 
             const payload = {
@@ -307,6 +308,7 @@ export default function Marksheet() {
                         console.log("Edit submit", resp);
                         setMessage(resp.data.message);
                         setType("success");
+                        setParams({});
                         // cancelEdit();
                         clearForm();
                         setTab(1); // go to View List
@@ -324,6 +326,7 @@ export default function Marksheet() {
                         console.log("Response after submitting admin casting", resp);
                         setMessage(resp.data.message);
                         setType("success");
+                        setParams({});
                     })
                     .catch((e) => {
                         setMessage(e.response.data.message);
@@ -340,17 +343,22 @@ export default function Marksheet() {
     const [month, setMonth] = useState([]);
     const [year, setYear] = useState([]);
 
-
     const fetchstudentsmarksheet = () => {
+        // axios
+        //     .get(`${baseUrl}/marksheet/fetch-all`)
+        //     .then((resp) => {
+        //         console.log("Fetching data in  Casting Calls  admin.", resp);
+        //         setStudentMarksheet(resp.data.data);
+        //     })
+        //     .catch((e) => {
+        //         console.log("Error in fetching casting calls admin data", e);
+        //     });
         axios
-            .get(`${baseUrl}/marksheet/fetch-all`)
+            .get(`${baseUrl}/marksheet/fetch-with-query`, { params })
             .then((resp) => {
-                console.log("Fetching data in  Casting Calls  admin.", resp);
                 setStudentMarksheet(resp.data.data);
             })
-            .catch((e) => {
-                console.log("Error in fetching casting calls admin data", e);
-            });
+            .catch(() => console.log("Error in fetching salesinvoices data"));
     };
     const fetchClass = async () => {
         try {
@@ -479,7 +487,7 @@ export default function Marksheet() {
         if (selectedClass) {
             isExists = periods.some(classData => classData._id === selectedClass?._id);
             console.log(isExists); // true
-            if (!isExists){
+            if (!isExists) {
                 setDataError('Class-Period is not assigned to this teacher');
                 setSelectedClass(null);
             }
@@ -490,7 +498,7 @@ export default function Marksheet() {
         if (selectedSection) {
             isExists = periods.some(sectionData => sectionData._id === selectedSection?._id);
             console.log(isExists); // true
-            if (!isExists){
+            if (!isExists) {
                 setDataError('Class-Period is not assigned to this teacher');
             }
             setIsDataValid(isExists);
@@ -500,7 +508,7 @@ export default function Marksheet() {
         if (selectedSubject) {
             isExists = periods.some(subjectData => subjectData._id === selectedSubject?._id);
             console.log(isExists); // true
-            if (!isExists){
+            if (!isExists) {
                 setDataError('Class-Period is not assigned to this teacher');
             }
             setIsDataValid(isExists);
@@ -523,7 +531,7 @@ export default function Marksheet() {
 
         fetchAllStudents();
 
-    }, [message]);
+    }, [message, params]);
 
 
 
@@ -584,6 +592,17 @@ export default function Marksheet() {
         console.log(marksheetDetails);
     };
 
+    const handleSearch = (e) => {
+        let newParam;
+        if (e.target.value !== "") {
+            newParam = { ...params, search: e.target.value };
+        } else {
+            newParam = { ...params };
+            delete newParam["search"];
+        }
+
+        setParams(newParam);
+    };
 
     return (
         <>
@@ -783,7 +802,7 @@ export default function Marksheet() {
                                                 value={selectedClass}
                                                 onChange={(event, newValue) => {
 
-                                                    
+
                                                     setSelectedClass(newValue);
 
                                                     Formik.setFieldValue(
@@ -807,7 +826,7 @@ export default function Marksheet() {
                                                         0
                                                     );
 
-                                                    
+
 
                                                 }}
                                                 onBlur={() => Formik.setFieldTouched("class", true)}
@@ -1173,6 +1192,32 @@ export default function Marksheet() {
 
                 {tab === 1 && (
                     <Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                gap: 2,
+                                flexDirection: { xs: "column", sm: "row" },
+                                alignItems: "center",
+                                mb: 2,
+                            }}
+                        >
+                            {/* Search */}
+                            <TextField
+                                label="Search  .."
+                                size="small"
+                                onChange={handleSearch}
+                                fullWidth
+                                sx={{
+                                    flex: 2,
+                                    "& .MuiInputBase-root": {
+                                        height: 42,
+                                        fontSize: "14px",
+                                    },
+                                }}
+                            />
+
+
+                        </Box>
                         <Box>
                             <TableContainer component={Paper}>
                                 <Table sx={{ minWidth: 650 }} aria-label="simple table">

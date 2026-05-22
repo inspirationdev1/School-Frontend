@@ -156,6 +156,8 @@ export default function Questionpapers() {
                 questionpaperFormik.setFieldValue("teacher", resp?.data?.data?.teacher?._id) || "";
                 questionpaperFormik.setFieldValue("examination", resp?.data?.data?.examination?._id || "");
                 questionpaperFormik.setFieldValue("marksLimit", resp?.data?.data?.marksLimit || 0);
+                questionpaperFormik.setFieldValue("avg_marks_limit", resp?.data?.data?.avg_marks_limit || 0);
+
                 questionpaperFormik.setFieldValue("fileName", resp?.data?.data?.fileName || "");
 
                 questionpaperFormik.setFieldValue("year", resp.data.data.year);
@@ -222,7 +224,7 @@ export default function Questionpapers() {
     const questionpaperFormik = useFormik({
         initialValues: {
             name: "", description: "", date: "", class: "", section: "", subject: "", teacher: "", examination: ""
-            , marksLimit: 0, fileType: "", fileName: "", year: ""
+            , marksLimit: 0, avg_marks_limit: 0, fileType: "", fileName: "", year: ""
         },
         validationSchema: questionpaperSchema,
         onSubmit: (values) => {
@@ -684,6 +686,30 @@ export default function Questionpapers() {
 
                                 </Box>
 
+                                {/* avg_marks_limit */}
+                                <Box>
+                                    <TextField
+                                        fullWidth
+                                        label="avg_marks_limit"
+                                        variant="outlined"
+                                        name="avg_marks_limit"
+                                        type="number"
+                                        value={questionpaperFormik.values.avg_marks_limit}
+                                        onChange={questionpaperFormik.handleChange}
+                                        onBlur={questionpaperFormik.handleBlur}
+
+                                    />
+
+                                    {questionpaperFormik.touched.avg_marks_limit && questionpaperFormik.errors.avg_marks_limit && (
+                                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                                            {questionpaperFormik.errors.avg_marks_limit}
+                                        </p>
+                                    )}
+
+                                </Box>
+
+
+
 
 
 
@@ -785,6 +811,9 @@ export default function Questionpapers() {
                                                 Marks Limit
                                             </TableCell>
 
+                                            <TableCell sx={{ fontWeight: "700" }} align="left">
+                                                Marks Limit (Avg)
+                                            </TableCell>
                                             <TableCell sx={{ fontWeight: "700" }} align="center">
                                                 Actions
                                             </TableCell>
@@ -813,6 +842,9 @@ export default function Questionpapers() {
 
                                                         <TableCell align="right">
                                                             {questionpaper.marksLimit ? questionpaper.marksLimit : 0}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {questionpaper.avg_marks_limit ? questionpaper.avg_marks_limit : 0}
                                                         </TableCell>
 
                                                         <TableCell sx={{ fontWeight: "700" }} align="center">

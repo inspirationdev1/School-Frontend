@@ -20,7 +20,7 @@ import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 
-export default function ProgressCardPrint() {
+export default function AttendanceSummaryPrint() {
   const [loading, setLoading] = useState(true);
   const [printData, setPrintData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -62,14 +62,7 @@ export default function ProgressCardPrint() {
         const data = JSON.parse(decodeURIComponent(dataParam));
 
         let paramsRpt = {};
-        // setSelectedClass(data?.class);
-        // if (data?.class) {
-        //   paramsRpt.class = data?.class;
-        // }
-        // setSelectedSection(data?.section);
-        // if (data?.section) {
-        //   paramsRpt.section = data?.section;
-        // }
+        
 
         setSelectedStudent(data?.student);
         if (data?.student) {
@@ -85,14 +78,11 @@ export default function ProgressCardPrint() {
 
         console.log("Year:", data?.year);
         setSelectedYear(data.year);
-        if (data?.year) {
-          paramsRpt.year = data?.year;
-        }
 
         paramsRpt.requesttype = "PDF";
 
         const response = await axios.post(
-          `${baseUrl}/schoolreports/progresscard-print`,
+          `${baseUrl}/schoolreports/attendance-summary-print`,
           {}, // body (empty or your params)
           {
             params: paramsRpt, // ✅ query params
@@ -117,7 +107,70 @@ export default function ProgressCardPrint() {
     }
   };
 
-  
+  const downloadReportExcel = async () => {
+
+
+    let paramsRpt = {};
+
+    if (selectedClass) {
+      paramsRpt.class = selectedClass;
+    }
+    if (selectedSection) {
+      paramsRpt.section = selectedSection;
+    }
+
+    paramsRpt.requesttype = "EXL";
+    const reportResponse = await axios.post(
+      `${baseUrl}/schoolreports/teacher-list-print`,
+      {}, // ✅ empty body
+      {
+        params: paramsRpt, // ✅ goes to req.query
+      },
+    );
+    console.log("reportResponse", reportResponse.data.data);
+
+    if (reportResponse.data.data.length === 0) {
+      setMessage("No Data Found");
+      setType("error");
+      setLoading(false);
+      return;
+    }
+    // 1️⃣ Prepare Header
+
+    const sheetData = [];
+    sheetData.push([
+      "Teacher Name",
+      "Gender",
+      "Email",
+      "DOB Date",
+      "Join Date",
+      "Phone #",
+    ]);
+
+    // 📥 Data Rows
+    reportResponse.data.data.forEach((row) => {
+      sheetData.push([
+        row?.name,
+        row?.gender,
+        row?.email,
+        dayjs(row.dOBDate).format("DD-MM-YYYY"),
+        dayjs(row.joinDate).format("DD-MM-YYYY"),
+        row?.phoneno
+      ]);
+    });
+
+    // 3️⃣ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
+
+    // 4️⃣ Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Teacherlist");
+
+    const date = new Date();
+    // 5️⃣ Download
+    XLSX.writeFile(workbook, `Teacherlist_${date}.xlsx`);
+
+  };
 
 
 
@@ -153,7 +206,7 @@ export default function ProgressCardPrint() {
               onClick={() => {
                 const link = document.createElement("a");
                 link.href = pdfUrl;
-                link.download = "Progress-Card.pdf";
+                link.download = "Teacherlist.pdf";
                 link.click();
               }}
               className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
@@ -161,7 +214,12 @@ export default function ProgressCardPrint() {
               Download PDF
             </button>
 
-            
+            <button
+              className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+              onClick={downloadReportExcel}
+            >
+              Download Excel
+            </button>
           </div>
         )}
       </div>

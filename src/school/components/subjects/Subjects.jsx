@@ -54,6 +54,7 @@ export default function Subject() {
       .then((resp) => {
         Formik.setFieldValue("subject_name", resp.data.data.subject_name);
         Formik.setFieldValue("subject_code", resp.data.data.subject_code);
+        Formik.setFieldValue("seq", resp.data.data?.seq);
         setEditId(resp.data.data._id);
         setTab(0); // open Create tab
       })
@@ -77,7 +78,8 @@ export default function Subject() {
 
   const initialValues = {
     subject_name: "",
-    subject_code: ""
+    subject_code: "",
+    seq:0,
   };
   const Formik = useFormik({
     initialValues: initialValues,
@@ -209,7 +211,7 @@ export default function Subject() {
 
 
                 <TextField
-                disabled={isEdit}
+                  disabled={isEdit}
                   fullWidth
                   sx={{ marginTop: "10px" }}
                   id="filled-basic"
@@ -225,6 +227,29 @@ export default function Subject() {
                     {Formik.errors.subject_code}
                   </p>
                 )}
+
+                {/* seq */}
+                <Box>
+                  <TextField
+                    fullWidth
+                    sx={{ marginTop: "10px" }}
+                    label="seq"
+                    variant="outlined"
+                    name="seq"
+                    type="number"
+                    value={Formik.values.seq}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+
+                  />
+
+                  {Formik.touched.seq && Formik.errors.seq && (
+                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                      {Formik.errors.seq}
+                    </p>
+                  )}
+
+                </Box>
 
 
 
@@ -264,6 +289,7 @@ export default function Subject() {
                   <TableRow>
                     <TableCell component="th" scope="row"> subject Name</TableCell>
                     <TableCell align="right">Code</TableCell>
+                    <TableCell align="right">Seq</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -277,6 +303,7 @@ export default function Subject() {
                         {value.subject_name}
                       </TableCell>
                       <TableCell align="right">{value.subject_code}</TableCell>
+                      <TableCell align="right">{value?.seq}</TableCell>
                       <TableCell align="right">
 
                         <Box

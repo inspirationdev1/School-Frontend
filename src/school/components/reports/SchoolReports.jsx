@@ -107,6 +107,24 @@ export default function SchoolReports() {
           "_blank"
         );
       }
+    } else if (selectedReport.reportId == "attendance-summary-print") {
+      const data = {
+        student: selectedStudent._id,
+        year: selectedYear.value
+      };
+
+      
+      if (user?.role === 'TEACHER') {
+        window.open(
+          `/teacher/AttendanceSummaryPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      } else {
+        window.open(
+          `/school/AttendanceSummaryPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      }
     } else if (selectedReport.reportId == "questionpaper-report") {
       const data = {
         fromDate: fromDate,
@@ -268,7 +286,7 @@ export default function SchoolReports() {
         return;
       }
 
-      if (values.reportId == "progressCard") {
+      if (values.reportId == "progressCard" || values?.reportId === "attendance-summary-print") {
         if (!values.student) {
           setDataError('Select the Student');
           setIsDataValid(false);
@@ -333,6 +351,7 @@ export default function SchoolReports() {
       if (values.reportId == "progressCard"
         || values.reportId == "studentlist-marks-subjectwise-report"
         || values.reportId == "student-marks-subjectwise-report"
+        || selectedReport?.reportId === "attendance-summary-print"
       ) {
         if (!values.year) {
           setDataError('Select the Year');
@@ -357,6 +376,7 @@ export default function SchoolReports() {
       const reportsData = [
       { reportId: "grade-list-print", reportName: "Grade List" },
       { reportId: "progressCard", reportName: "Progress Card" },
+      { reportId: "attendance-summary-print", reportName: "Attendance Summary" },
       { reportId: "questionpaper-report", reportName: "Exam Question Paper" },
       { reportId: "studentlist-marks-subjectwise-report", reportName: "Student-List-Marks-Subjectwise" },
       { reportId: "student-marks-subjectwise-report", reportName: "Student-Marks-Subjectwise" },
@@ -583,6 +603,7 @@ export default function SchoolReports() {
                 {/* (selectedReport && selectedReport.reportId) */}
                 {/* Class */}
                 {selectedReport && (selectedReport.reportId === "progressCard"
+                  || selectedReport?.reportId === "attendance-summary-print"
                   || selectedReport?.reportId === "questionpaper-report"
                   || selectedReport?.reportId === "attendance-report"
                   || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
@@ -638,6 +659,7 @@ export default function SchoolReports() {
 
                 {/* Section */}
                 {selectedReport && (selectedReport.reportId === "progressCard"
+                || selectedReport?.reportId === "attendance-summary-print"
                   || selectedReport.reportId === "questionpaper-report"
                   || selectedReport?.reportId === "attendance-report"
                   || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
@@ -816,7 +838,7 @@ export default function SchoolReports() {
                 )}
 
                 {/* Students */}
-                {selectedReport && selectedReport.reportId === "progressCard" && (
+                {selectedReport && (selectedReport.reportId === "progressCard" || selectedReport?.reportId === "attendance-summary-print") && (
                   <Box>
                     <Autocomplete
                       options={students}
@@ -850,6 +872,8 @@ export default function SchoolReports() {
                 {/* Academic Year */}
                 {selectedReport && (
                   selectedReport?.reportId === "progressCard"
+                  || selectedReport?.reportId === "attendance-summary-print"
+                  || selectedReport?.reportId === "attendance-summary-print"
                   || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
                   || selectedReport?.reportId === "student-marks-subjectwise-report"
                 ) && (

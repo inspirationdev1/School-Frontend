@@ -161,6 +161,7 @@ export default function School() {
         { label: "General Master", link: "/school/generalmaster" },
         { label: "Upload Data", link: "/school/uploaddata" },
         { label: "Send Whatsapp", link: "/school/sendwhatsapp" },
+        { label: "Working Days", link: "/school/workingdays" },
       ],
     },
 

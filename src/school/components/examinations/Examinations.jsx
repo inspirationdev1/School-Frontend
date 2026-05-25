@@ -50,6 +50,7 @@ export default function Examinations() {
             .then((resp) => {
                 Formik.setFieldValue("examination_name", resp.data.data.examination_name);
                 Formik.setFieldValue("examination_code", resp.data.data.examination_code);
+                Formik.setFieldValue("seq", resp.data.data?.seq);
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Examination tab
             })
@@ -73,7 +74,8 @@ export default function Examinations() {
 
     const initialValues = {
         examination_name: "",
-        examination_code: ""
+        examination_code: "",
+        seq:0,
     };
     const Formik = useFormik({
         initialValues: initialValues,
@@ -210,6 +212,29 @@ export default function Examinations() {
                                 </p>
                             )}
 
+                            {/* seq */}
+                <Box>
+                  <TextField
+                    fullWidth
+                    sx={{ marginTop: "10px" }}
+                    label="seq"
+                    variant="outlined"
+                    name="seq"
+                    type="number"
+                    value={Formik.values.seq}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+
+                  />
+
+                  {Formik.touched.seq && Formik.errors.seq && (
+                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                      {Formik.errors.seq}
+                    </p>
+                  )}
+
+                </Box>
+
 
 
 
@@ -249,6 +274,7 @@ export default function Examinations() {
                                 <TableRow>
                                     <TableCell component="th" scope="row"> Exam Name</TableCell>
                                     <TableCell align="right">Code</TableCell>
+                                    <TableCell align="right">Seq</TableCell>
                                     <TableCell align="right">Action</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -262,6 +288,7 @@ export default function Examinations() {
                                             {value.examination_name}
                                         </TableCell>
                                         <TableCell align="right">{value.examination_code}</TableCell>
+                                        <TableCell align="right">{value?.seq}</TableCell>
                                         <TableCell align="right">
 
                                             <Box

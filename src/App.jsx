@@ -147,6 +147,8 @@ import Sendwhatsapp from "./school/components/sendwhatsapp/Sendwhatsapp";
 import ProgressCardPrint from "./school/components/reports/ProgressCardPrint";
 import Grades from "./school/components/grades/Grades";
 import GradeListReportPrint from "./school/components/reports/GradeListReportPrint";
+import AttendanceSummaryPrint from "./school/components/reports/AttendanceSummaryPrint";
+import Workingdays from "./school/components/workingdays/Workingdays";
 
 
 
@@ -213,6 +215,7 @@ function App() {
               <Route path="numberseq" element={<Numberseqs />} />
               <Route path="appsetting" element={<Appsettings />} />
               <Route path="generalmaster" element={<Generalmasters />} />
+              <Route path="workingdays" element={<Workingdays />} />
 
               <Route path="uploaddata" element={<Uploaddata />} />
               <Route path="sendwhatsapp" element={<Sendwhatsapp />} />
@@ -272,6 +275,7 @@ function App() {
               <Route path="studentmarkssubjectwiseprint" element={<StudentMarksSubjectwisePrint />} />
 
               <Route path="gradelistreportprint" element={<GradeListReportPrint />} />
+              <Route path="attendancesummaryprint" element={<AttendanceSummaryPrint />} />
 
 
 

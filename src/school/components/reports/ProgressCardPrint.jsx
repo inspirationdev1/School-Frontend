@@ -81,6 +81,9 @@ export default function ProgressCardPrint() {
           paramsRpt.examination = data?.examination;
         }
 
+        if (data?.class) {
+          paramsRpt.class = data?.class;
+        }
 
 
         console.log("Year:", data?.year);

@@ -149,6 +149,7 @@ import Grades from "./school/components/grades/Grades";
 import GradeListReportPrint from "./school/components/reports/GradeListReportPrint";
 import AttendanceSummaryPrint from "./school/components/reports/AttendanceSummaryPrint";
 import Workingdays from "./school/components/workingdays/Workingdays";
+import Classsubject from "./school/components/classsubject/Classsubject";
 
 
 
@@ -216,6 +217,7 @@ function App() {
               <Route path="appsetting" element={<Appsettings />} />
               <Route path="generalmaster" element={<Generalmasters />} />
               <Route path="workingdays" element={<Workingdays />} />
+              <Route path="classsubject" element={<Classsubject />} />
 
               <Route path="uploaddata" element={<Uploaddata />} />
               <Route path="sendwhatsapp" element={<Sendwhatsapp />} />

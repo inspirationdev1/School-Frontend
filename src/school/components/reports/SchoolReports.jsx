@@ -82,6 +82,7 @@ export default function SchoolReports() {
     if (selectedReport.reportId == "progressCard") {
       const data = {
         student: selectedStudent._id,
+        class: selectedClass?._id,
         year: selectedYear.value
       };
 

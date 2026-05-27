@@ -94,7 +94,7 @@ export default function StudentResultGraphPrint() {
         paramsRpt.requesttype = "PDF";
 
         const response = await axios.post(
-          `${baseUrl}/schoolreports/student-graph-print`,
+          `${baseUrl}/schoolreports/student-result-graph-print`,
           {}, // body (empty or your params)
           {
             params: paramsRpt, // ✅ query params
@@ -218,7 +218,7 @@ export default function StudentResultGraphPrint() {
               onClick={() => {
                 const link = document.createElement("a");
                 link.href = pdfUrl;
-                link.download = "StudentPercentage.pdf";
+                link.download = "StudentResultPercentage.pdf";
                 link.click();
               }}
               className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"

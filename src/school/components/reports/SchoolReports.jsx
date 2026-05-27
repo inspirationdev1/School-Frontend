@@ -126,6 +126,36 @@ export default function SchoolReports() {
           "_blank"
         );
       }
+    } else if (selectedReport.reportId == "student-graph-print") {
+
+
+      const data = {
+        year: selectedYear.value,
+        year_name: selectedYear.label
+      };
+
+      if (selectedClass){
+        data.class = selectedClass._id
+      }
+      if (selectedSection){
+        data.section = selectedSection._id
+      }
+      if (selectedStudent){
+        data.student = selectedStudent._id
+      }
+
+      
+      if (user?.role === 'TEACHER') {
+        window.open(
+          `/teacher/StudentGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      } else {
+        window.open(
+          `/school/StudentGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank"
+        );
+      }
     } else if (selectedReport.reportId == "questionpaper-report") {
       const data = {
         fromDate: fromDate,
@@ -287,7 +317,8 @@ export default function SchoolReports() {
         return;
       }
 
-      if (values.reportId == "progressCard" || values?.reportId === "attendance-summary-print") {
+      if (values.reportId == "progressCard" || values?.reportId === "attendance-summary-print" 
+        ) {
         if (!values.student) {
           setDataError('Select the Student');
           setIsDataValid(false);
@@ -353,6 +384,7 @@ export default function SchoolReports() {
         || values.reportId == "studentlist-marks-subjectwise-report"
         || values.reportId == "student-marks-subjectwise-report"
         || selectedReport?.reportId === "attendance-summary-print"
+        || selectedReport?.reportId === "student-graph-print"
       ) {
         if (!values.year) {
           setDataError('Select the Year');
@@ -378,6 +410,7 @@ export default function SchoolReports() {
       { reportId: "grade-list-print", reportName: "Grade List" },
       { reportId: "progressCard", reportName: "Progress Card" },
       { reportId: "attendance-summary-print", reportName: "Attendance Summary" },
+      { reportId: "student-graph-print", reportName: "Student Graph Summary" },
       { reportId: "questionpaper-report", reportName: "Exam Question Paper" },
       { reportId: "studentlist-marks-subjectwise-report", reportName: "Student-List-Marks-Subjectwise" },
       { reportId: "student-marks-subjectwise-report", reportName: "Student-Marks-Subjectwise" },
@@ -605,6 +638,7 @@ export default function SchoolReports() {
                 {/* Class */}
                 {selectedReport && (selectedReport.reportId === "progressCard"
                   || selectedReport?.reportId === "attendance-summary-print"
+                  || selectedReport?.reportId === "student-graph-print"
                   || selectedReport?.reportId === "questionpaper-report"
                   || selectedReport?.reportId === "attendance-report"
                   || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
@@ -661,6 +695,7 @@ export default function SchoolReports() {
                 {/* Section */}
                 {selectedReport && (selectedReport.reportId === "progressCard"
                 || selectedReport?.reportId === "attendance-summary-print"
+                || selectedReport?.reportId === "student-graph-print"
                   || selectedReport.reportId === "questionpaper-report"
                   || selectedReport?.reportId === "attendance-report"
                   || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
@@ -839,7 +874,9 @@ export default function SchoolReports() {
                 )}
 
                 {/* Students */}
-                {selectedReport && (selectedReport.reportId === "progressCard" || selectedReport?.reportId === "attendance-summary-print") && (
+                {selectedReport && (selectedReport.reportId === "progressCard" || selectedReport?.reportId === "attendance-summary-print"
+                  || selectedReport?.reportId === "student-graph-print"
+                ) && (
                   <Box>
                     <Autocomplete
                       options={students}
@@ -874,7 +911,7 @@ export default function SchoolReports() {
                 {selectedReport && (
                   selectedReport?.reportId === "progressCard"
                   || selectedReport?.reportId === "attendance-summary-print"
-                  || selectedReport?.reportId === "attendance-summary-print"
+                  || selectedReport?.reportId === "student-graph-print"
                   || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
                   || selectedReport?.reportId === "student-marks-subjectwise-report"
                 ) && (

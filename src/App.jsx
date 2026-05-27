@@ -150,6 +150,7 @@ import GradeListReportPrint from "./school/components/reports/GradeListReportPri
 import AttendanceSummaryPrint from "./school/components/reports/AttendanceSummaryPrint";
 import Workingdays from "./school/components/workingdays/Workingdays";
 import Classsubject from "./school/components/classsubject/Classsubject";
+import StudentGraphPrint from "./school/components/reports/StudentGraphPrint";
 
 
 
@@ -278,6 +279,7 @@ function App() {
 
               <Route path="gradelistreportprint" element={<GradeListReportPrint />} />
               <Route path="attendancesummaryprint" element={<AttendanceSummaryPrint />} />
+              <Route path="studentgraphprint" element={<StudentGraphPrint />} />
 
 
 

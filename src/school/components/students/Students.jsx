@@ -92,63 +92,63 @@ export default function Students() {
     return { label: `${year}-${year + 1}`, value: year };
   });
 
-  
 
-const fetchStatuses = async () => {
+
+  const fetchStatuses = async () => {
     try {
-      
+
       const studentStatuses = [
-  {
-    value: "active",
-    label: "Active",
-    meaning: "Currently studying"
-  },
-  {
-    value: "inactive",
-    label: "Inactive",
-    meaning: "Temporarily inactive"
-  },
-  {
-    value: "promoted",
-    label: "Promoted",
-    meaning: "Promoted to next class"
-  },
-  {
-    value: "detained",
-    label: "Detained",
-    meaning: "Failed / not promoted"
-  },
-  {
-    value: "graduated",
-    label: "Graduated",
-    meaning: "Completed schooling"
-  },
-  {
-    value: "transferred",
-    label: "Transferred",
-    meaning: "Moved to another school"
-  },
-  {
-    value: "dropout",
-    label: "Dropout",
-    meaning: "Left school without completion"
-  },
-  {
-    value: "suspended",
-    label: "Suspended",
-    meaning: "Temporarily suspended"
-  },
-  {
-    value: "expelled",
-    label: "Expelled",
-    meaning: "Permanently removed"
-  },
-  {
-    value: "alumni",
-    label: "Alumni",
-    meaning: "Former student"
-  }
-];
+        {
+          value: "active",
+          label: "Active",
+          meaning: "Currently studying"
+        },
+        {
+          value: "inactive",
+          label: "Inactive",
+          meaning: "Temporarily inactive"
+        },
+        {
+          value: "promoted",
+          label: "Promoted",
+          meaning: "Promoted to next class"
+        },
+        {
+          value: "detained",
+          label: "Detained",
+          meaning: "Failed / not promoted"
+        },
+        {
+          value: "graduated",
+          label: "Graduated",
+          meaning: "Completed schooling"
+        },
+        {
+          value: "transferred",
+          label: "Transferred",
+          meaning: "Moved to another school"
+        },
+        {
+          value: "dropout",
+          label: "Dropout",
+          meaning: "Left school without completion"
+        },
+        {
+          value: "suspended",
+          label: "Suspended",
+          meaning: "Temporarily suspended"
+        },
+        {
+          value: "expelled",
+          label: "Expelled",
+          meaning: "Permanently removed"
+        },
+        {
+          value: "alumni",
+          label: "Alumni",
+          meaning: "Former student"
+        }
+      ];
 
       setStatuses(studentStatuses);
 
@@ -348,6 +348,7 @@ const fetchStatuses = async () => {
           guardian_phone: data.guardian_phone,
           pen_no: data?.pen_no,
           aadhar_no: data?.aadhar_no,
+          roll_no: data?.roll_no,
           admission_no: data?.admission_no,
           password: data.password,
           year: data.year,
@@ -443,6 +444,7 @@ const fetchStatuses = async () => {
     guardian_phone: "",
     pen_no: "",
     aadhar_no: "",
+    roll_no: 0,
     admission_no: "",
     password: "",
     year: "",
@@ -1142,11 +1144,11 @@ const fetchStatuses = async () => {
                     />
                   </Grid>
 
-                   {/* Status */}
+                  {/* Status */}
                   <Grid item xs={12} md={6}>
                     <Autocomplete
                       options={statuses}
-                      getOptionLabel={(option) => option.meaning + "(" +option.label + ")"}
+                      getOptionLabel={(option) => option.meaning + "(" + option.label + ")"}
                       value={selectedStatus}
                       onChange={(event, newValue) => {
                         setSelectedStatus(newValue);
@@ -1163,10 +1165,10 @@ const fetchStatuses = async () => {
                           label="Select status"
                           placeholder="Search status..."
                           fullWidth
-                        error={
-                          Formik.touched.status && Boolean(Formik.errors.status)
-                        }
-                        helperText={Formik.touched.status && Formik.errors.status}
+                          error={
+                            Formik.touched.status && Boolean(Formik.errors.status)
+                          }
+                          helperText={Formik.touched.status && Formik.errors.status}
                         />
                       )}
                     />
@@ -1883,6 +1885,28 @@ const fetchStatuses = async () => {
                     )} */}
                   </Grid>
 
+                  {/* roll_no */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      sx={{ marginTop: "10px" }}
+                      label="roll_no"
+                      variant="outlined"
+                      name="roll_no"
+                      type="number"
+                      value={Formik.values.roll_no}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+
+                    />
+                    
+                    {/* {Formik.touched.admission_no && Formik.errors.admission_no && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.admission_no}
+                      </p>
+                    )} */}
+                  </Grid>
+
 
 
                   {/* Buttons Full Row */}
@@ -2053,11 +2077,11 @@ const fetchStatuses = async () => {
                               onClick={() => {
                                 if (row?.attachment_file) {
                                   saveAdmissionAttachment(row);
-                                }else{
+                                } else {
                                   setMessage("Choose the file")
                                   setType("error");
                                 }
-                                
+
                               }}
                             >
                               <UploadIcon />
@@ -2071,11 +2095,11 @@ const fetchStatuses = async () => {
                                 // view logic
                                 if (row?.attachment_image) {
                                   view_AdmissionAttachment_File(row?.attachment_image);
-                                }else{
+                                } else {
                                   setMessage("File is not attached/upload")
                                   setType("error");
                                 }
-                                
+
                               }}
                             >
                               <VisibilityIcon />
@@ -2185,7 +2209,7 @@ const fetchStatuses = async () => {
                       <TableCell component="th" scope="row">
                         {value.name}
                       </TableCell>
-                      
+
                       <TableCell align="right">{value?.status}</TableCell>
                       <TableCell align="right">{value?.student_class?.class_name}</TableCell>
                       <TableCell align="right">{value?.email}</TableCell>

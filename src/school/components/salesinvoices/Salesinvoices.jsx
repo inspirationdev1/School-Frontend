@@ -61,14 +61,14 @@ export default function Salesinvoice() {
 
   const months = Array.from({ length: 12 }, (_, i) => {
     const monthName = new Date(2025, i).toLocaleString('default', {
-        month: 'long'
+      month: 'long'
     });
 
     return {
-        label: monthName,
-        value: i + 1
+      label: monthName,
+      value: i + 1
     };
-});
+  });
 
   const [invoiceDetails, setInvoiceDetails] = useState([
     {
@@ -82,6 +82,11 @@ export default function Salesinvoice() {
       discountPer: 0,
       discountAmount: 0,
       netAmount: 0,
+      taxrate:null,
+      taxtype: "",
+      tax_percent: 0,
+      tax_amount: 0,
+      taxable_amount: 0,
       remarks: "",
       isEdit: false
     },
@@ -101,6 +106,11 @@ export default function Salesinvoice() {
         discountPer: 0,
         discountAmount: 0,
         netAmount: 0,
+        taxrate:null,
+        taxtype: "",
+        tax_percent: 0,
+        tax_amount: 0,
+        taxable_amount: 0,
         remarks: "",
         year: "",
       },
@@ -146,9 +156,9 @@ export default function Salesinvoice() {
         const matchedYear = years.find(s => s.value === resp.data.data.year);
         setSelectedYear(matchedYear || null);
 
-        Formik.setFieldValue("month", resp.data.data.month);
-        Formik.setFieldValue("monthname", resp.data.data?.monthname);
-        const matchedMonth = months.find(s => s.value === resp.data.data.month);
+        Formik.setFieldValue("month", resp.data.data?.month || 1);
+        Formik.setFieldValue("monthname", resp.data.data?.monthname || "January");
+        const matchedMonth = months.find(s => s.value === resp.data.data?.month || 1);
         setSelectedMonth(matchedMonth || null);
 
         Formik.setFieldValue("remarks", resp.data.data.remarks);
@@ -188,8 +198,17 @@ export default function Salesinvoice() {
     setPrint(true);
 
 
-    window.open(`/school/SalesinvoicePrint?id=${id}`,
-      '_blank');
+    const data = {
+      id: id
+    };
+
+    window.open(
+      `/school/SalesinvoicePrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+      "_blank"
+    );
+
+    // window.open(`/school/SalesinvoicePrint?id=${id}`,
+    //   '_blank');
     setPrint(false);
 
 
@@ -302,11 +321,7 @@ export default function Salesinvoice() {
           hasInvalidRow = true;
           break; // exit loop when condition met
         }
-        // if (item.netAmount === 0) {
-        //   setDataError('netAmount must be greater than 0');
-        //   hasInvalidRow = true;
-        //   break; // exit loop when condition met
-        // }
+
 
         if (item.discountAmount > 0) {
           console.log("selectedAppsetting", selectedAppsetting);
@@ -320,6 +335,13 @@ export default function Salesinvoice() {
             break; // exit loop when condition met
           }
         }
+
+        const netAmount = item?.netAmount || 0;
+        const tax_percent = item?.tax_percent || 0;
+        const taxable_amount = Number((netAmount / (1 + tax_percent / 100)).toFixed(0));
+        const tax_amount = Number((netAmount - taxable_amount).toFixed(0));
+        item.tax_amount = tax_amount;
+        item.taxable_amount = taxable_amount;
 
 
         console.log(item);
@@ -353,9 +375,10 @@ export default function Salesinvoice() {
         ...values,
         invoiceDetails: invoiceDetails.map((row) => ({
           feestructure: row.feestructure?._id, // 👈 convert here
+          feestype: row.feestructure?.feestype?._id, // 👈 convert here
           itemId: row.feestructure?._id, // 👈 convert here
           itemName: row.feestructure?.feestype?.feestype_name, // 👈 convert here
-          quantity: row.quantity,
+          quantity: row?.quantity || 1,
           salesPrice: row.feeAmount,
           feeFrequency: row.feeFrequency,
           feeAmount: row.feeAmount,
@@ -365,9 +388,16 @@ export default function Salesinvoice() {
           discountPer: row.discountPer,
           discountAmount: row.discountAmount,
           netAmount: row.netAmount,
+          taxtype: row?.taxtype || "inclusive",
+          tax_percent: row?.tax_percent || 0,
+          tax_amount: row?.tax_amount || 0,
+          taxable_amount: row?.taxable_amount || 0,
+          taxrate: row?.taxrate || null,
           remarks: '',
           student: values.student,
           year: values.year,
+          month: values?.month || 1,
+          monthname: values?.monthname || "January",
         })),
       };
       if (isEdit) {
@@ -416,16 +446,16 @@ export default function Salesinvoice() {
 
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
-  
+
 
   const fetchstudentssalesinvoice = () => {
-    
+
     axios
-          .get(`${baseUrl}/salesinvoice/fetch-with-query`, { params })
-          .then((resp) => {
-            setStudentSalesinvoice(resp.data.data);
-          })
-          .catch(() => console.log("Error in fetching salesinvoices data"));
+      .get(`${baseUrl}/salesinvoice/fetch-with-query`, { params })
+      .then((resp) => {
+        setStudentSalesinvoice(resp.data.data);
+      })
+      .catch(() => console.log("Error in fetching salesinvoices data"));
   };
   const fetchAppsettings = () => {
     axios
@@ -507,7 +537,7 @@ export default function Salesinvoice() {
   useEffect(() => {
     fetchAppsettings();
     fetchstudentssalesinvoice();
-   
+
     fetchClass();
     fetchSection();
     fetchAllFeeStructures();
@@ -560,6 +590,9 @@ export default function Salesinvoice() {
         updated[index].discountAmount = 0;
         updated[index].discountMonth = 0;
         updated[index].feeFrequency = "";
+        updated[index].taxrate = updated[index]?.feestructure?.taxrate;
+        updated[index].taxtype = updated[index]?.feestructure?.taxtype;
+        updated[index].tax_percent = updated[index]?.feestructure?.tax_percent;
       }
 
       if (field === "feeFrequency") {
@@ -596,6 +629,24 @@ export default function Salesinvoice() {
 
       updated[index].netAmount = updated[index].grossAmount - updated[index].discountAmount;
 
+      const netAmount = updated[index]?.netAmount || 0;
+      const tax_percent = updated[index]?.tax_percent || 0;
+      const taxtype = updated[index]?.taxtype || "inclusive";
+      let taxable_amount = netAmount;
+      let tax_amount = 0;
+      if (taxtype === "inclusive") {
+        taxable_amount = Number((netAmount / (1 + tax_percent / 100)).toFixed(0));
+        tax_amount = Number((netAmount - taxable_amount).toFixed(0));
+      } else if (taxtype === "exlusive") {
+        taxable_amount = netAmount;
+        tax_amount = Number(((taxable_amount * tax_percent)/100).toFixed(0));
+        updated[index].netAmount = taxable_amount + tax_amount;
+      }
+
+      updated[index].tax_amount = tax_amount;
+      updated[index].taxable_amount = taxable_amount;
+
+
       setInvoiceDetails(updated);
     } catch (error) {
       console.log("Error:handleChange", error.message)
@@ -616,6 +667,11 @@ export default function Salesinvoice() {
         discountPer: 0,
         discountAmount: 0,
         netAmount: 0,
+        taxrate:null,
+        taxtype: "",
+        tax_percent: 0,
+        tax_amount: 0,
+        taxable_amount: 0,
         remarks: ""
       },
     ]);
@@ -635,51 +691,56 @@ export default function Salesinvoice() {
         section: Formik.values.section,
         feestructure: Formik.values.feestructure,
         feestructure_name: Formik.values.feestructure_name,
+        feestype: selectedFeestructure?.feestype?._id,
         feeFrequency: Formik.values.feeFrequency,
         feeAmount: Formik.values.feeAmount,
+        taxrate: selectedFeestructure?.taxrate?._id || null,
+        tax_percent: selectedFeestructure?.tax_percent || 0,
+        taxtype: selectedFeestructure?.taxrate?.taxtype || "inclusive",
+        feestructure_name: Formik.values.feestructure_name,
         invoiceDate: Formik.values.invoiceDate,
         year: Formik.values.year,
-         month: Formik.values.month,
-         monthname: Formik.values.monthname,
+        month: Formik.values.month,
+        monthname: Formik.values.monthname,
         remarks: Formik.values.remarks,
       };
 
-      if (!payload?.class){
+      if (!payload?.class) {
         setMessage("Select Class");
         setType("error");
         return;
       }
-      if (!payload?.section){
+      if (!payload?.section) {
         setMessage("Select Section");
         setType("error");
         return;
       }
-      if (!payload?.year){
+      if (!payload?.year) {
         setMessage("Select Academic Year");
         setType("error");
         return;
       }
-      if (!payload?.month){
+      if (!payload?.month) {
         setMessage("Select For Month of");
         setType("error");
         return;
       }
-      if (!payload?.invoiceDate){
+      if (!payload?.invoiceDate) {
         setMessage("Select Invoice date");
         setType("error");
         return;
       }
-      if (!payload?.feestructure){
+      if (!payload?.feestructure) {
         setMessage("Select Feestructure");
         setType("error");
         return;
       }
-      if (!payload?.feeFrequency){
+      if (!payload?.feeFrequency) {
         setMessage("Select feeFrequency");
         setType("error");
         return;
       }
-      if (!payload?.feeAmount){
+      if (!payload?.feeAmount) {
         setMessage("Select feeAmount");
         setType("error");
         return;
@@ -710,19 +771,19 @@ export default function Salesinvoice() {
 
   };
 
-  
-  
-    const handleSearch = (e) => {
-      let newParam;
-      if (e.target.value !== "") {
-        newParam = { ...params, search: e.target.value };
-      } else {
-        newParam = { ...params };
-        delete newParam["search"];
-      }
-  
-      setParams(newParam);
-    };
+
+
+  const handleSearch = (e) => {
+    let newParam;
+    if (e.target.value !== "") {
+      newParam = { ...params, search: e.target.value };
+    } else {
+      newParam = { ...params };
+      delete newParam["search"];
+    }
+
+    setParams(newParam);
+  };
 
   return (
     <>
@@ -1387,7 +1448,7 @@ export default function Salesinvoice() {
                 }}
               />
 
-              
+
             </Box>
             <Box>
               <TableContainer component={Paper}>
@@ -1566,7 +1627,7 @@ export default function Salesinvoice() {
                     {/* For Month Of */}
                     <Box>
                       <Autocomplete
-                        disabled={isEdit}
+                        // disabled={isEdit}
                         options={months}
                         getOptionLabel={(option) => option.label}
                         value={selectedMonth}
@@ -1576,6 +1637,10 @@ export default function Salesinvoice() {
                           Formik.setFieldValue(
                             "month",
                             newValue ? newValue.value : ""
+                          );
+                          Formik.setFieldValue(
+                            "monthname",
+                            newValue ? newValue.label : ""
                           );
                         }}
                         onBlur={() => Formik.setFieldTouched("month", true)}
@@ -1680,7 +1745,8 @@ export default function Salesinvoice() {
                             "feestructure_name",
                             newValue ? newValue?.feestype?.feestype_name : ""
                           );
-                          
+                          setSelectedFeestructure(newValue);
+
                         }}
                         renderInput={(params) => (
                           <TextField

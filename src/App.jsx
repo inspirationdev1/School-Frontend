@@ -146,6 +146,7 @@ import StudentListMarksSubjectwisePrint from "./school/components/reports/Studen
 import Sendwhatsapp from "./school/components/sendwhatsapp/Sendwhatsapp";
 import ProgressCardPrint from "./school/components/reports/ProgressCardPrint";
 import Grades from "./school/components/grades/Grades";
+import Taxrates from "./school/components/taxrates/Taxrates";
 import GradeListReportPrint from "./school/components/reports/GradeListReportPrint";
 import AttendanceSummaryPrint from "./school/components/reports/AttendanceSummaryPrint";
 import Workingdays from "./school/components/workingdays/Workingdays";
@@ -241,6 +242,7 @@ function App() {
               <Route path="marksheet" element={<Marksheet />} />
               <Route path="marksheetprint" element={<MarksheetPrint />} />
               <Route path="grades" element={<Grades />} />
+              <Route path="taxrates" element={<Taxrates />} />
               <Route path="schoolreports" element={<SchoolReports />} />
               <Route path="schoolreportsprint" element={<SchoolReportsPrint />} />
               <Route path="financereports" element={<FinanceReports />} />

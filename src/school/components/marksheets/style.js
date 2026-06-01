@@ -18,6 +18,7 @@ export const styles = StyleSheet.create({
   logo: {
     width: 50,
     height: 50,
+    objectFit: "contain", // maintain aspect ratio
     marginRight: 10
   },
 

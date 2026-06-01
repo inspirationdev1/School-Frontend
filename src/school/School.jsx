@@ -133,6 +133,7 @@ export default function School() {
       label: "Finance",
       icon: MenuBookIcon,
       children: [
+        { label: "Tax Rates", link: "/school/taxrates" },
         { label: "Expense Type", link: "/school/expensetype" },
         { label: "Expenses", link: "/school/expense" },
         { label: "Payments", link: "/school/payment" },

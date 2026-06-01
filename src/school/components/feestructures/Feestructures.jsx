@@ -33,6 +33,8 @@ export default function Feestructures() {
 
   const [feestype, setFeestype] = useState([])
   const [selectedFeestype, setSelectedFeestype] = useState(null);
+  const [selectedTaxrate, setSelectedTaxrate] = useState(null);
+  
   const [tab, setTab] = useState(0);
 
   const handleDelete = (id) => {
@@ -60,14 +62,18 @@ export default function Feestructures() {
         Formik.setFieldValue("code", resp.data.data.code);
         Formik.setFieldValue("class", resp.data.data?.class?._id);
         Formik.setFieldValue("feestype", resp?.data?.data?.feestype?._id);
+        Formik.setFieldValue("taxrate", resp?.data?.data?.taxrate?._id);
+        Formik.setFieldValue("tax_percent", resp?.data?.data?.taxrate?.tax_percent);
+        Formik.setFieldValue("taxtype", resp?.data?.data?.taxrate?.taxtype);
         Formik.setFieldValue("amount", resp.data.data.amount);
-        const classId = resp.data.data?.class?._id;
-        const matchedClass = attendeeClass.find(c => c._id === classId);
-        setSelectedClass(matchedClass || null);
+        // const classId = resp.data.data?.class?._id;
+        // const matchedClass = attendeeClass.find(c => c._id === classId);
+        setSelectedClass(resp.data.data?.class);
 
-        const feestypeId = resp.data?.data?.feestype?._id || "";
-        const matchedFeestype = feestype.find(c => c._id === feestypeId);
-        setSelectedFeestype(matchedFeestype || null);
+        // const feestypeId = resp.data?.data?.feestype?._id || "";
+        // const matchedFeestype = feestype.find(c => c._id === feestypeId);
+        setSelectedFeestype(resp.data.data?.feestype);
+        setSelectedTaxrate(resp.data.data?.taxrate);
 
         setEditId(resp.data.data._id);
         setTab(0); // open Create Class tab
@@ -90,6 +96,7 @@ export default function Feestructures() {
     // 🔥 reset Autocomplete values
     setSelectedClass(null);
     setSelectedFeestype(null);
+    setSelectedTaxrate(null);
 
   };
 
@@ -106,12 +113,20 @@ export default function Feestructures() {
     code: "",
     class: "",
     feestype: "",
+    taxrate:"",
+    tax_percent:0,
+    taxtype:"",
     amount: 0
   };
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: feestructureSchema,
     onSubmit: (values) => {
+
+      values.taxrate = selectedFeestype?.taxrate;
+      values.tax_percent = selectedFeestype?.tax_percent;
+      values.taxtype = selectedFeestype?.taxtype||"inclusive";
+
       if (isEdit) {
         console.log("edit id", editId);
         axios
@@ -327,10 +342,23 @@ export default function Feestructures() {
                         value={selectedFeestype}
                         onChange={(event, newValue) => {
                           setSelectedFeestype(newValue);
+                          setSelectedTaxrate(newValue?.taxrate)
 
                           Formik.setFieldValue(
                             "feestype",
                             newValue ? newValue._id : ""
+                          );
+                          Formik.setFieldValue(
+                            "taxrate",
+                            newValue ? newValue?.taxrate?._id : ""
+                          );
+                          Formik.setFieldValue(
+                            "tax_percent",
+                            newValue ? newValue?.tax_percent : 0
+                          );
+                          Formik.setFieldValue(
+                            "taxtype",
+                            newValue ? newValue?.taxtype : 0
                           );
                           
                         }}

@@ -9,7 +9,6 @@ import {
 } from "@react-pdf/renderer";
 import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
-// import { tableData, totalData } from "./data";
 import { useSearchParams } from "react-router-dom";
 import { Typography } from '@mui/material';
 import axios from 'axios';
@@ -87,18 +86,7 @@ export default function ReceiptPrint_MMS() {
     const PrintPDF = () => (
         <Document>
             <Page size="A4" style={styles.page}>
-                {/* <View style={styles.header}>
-                    <View>
-                        <Text style={[styles.title, styles.textBold]}>Receipt</Text>
-
-                    </View>
-                    <View style={styles.spaceY}>
-                        <Text style={styles.textBold}>{printReceipt.school.school_name}</Text>
-                        <Text style={styles.textBold}>{printReceipt.school.address} - {printReceipt.school.city}</Text>
-                        <Text style={styles.textBold}>{printReceipt.school.state} - {printReceipt.school.country}</Text>
-
-                    </View>
-                </View> */}
+                
                 {/* 🔷 Header */}
                                 <View style={styles.headerContainer}>
                                     {/* If you have logo, uncomment */}
@@ -173,17 +161,13 @@ export default function ReceiptPrint_MMS() {
                     <TH style={[styles.tableHeader, styles.textBold]}>
                         <TD style={styles.td}>S.No</TD>
                         <TD style={styles.td}>Student</TD>
-                        {/* <TD style={styles.td}>Class</TD>
-                        <TD style={styles.td}>Section</TD> */}
                         <TD style={styles.td}>Invoice #</TD>
                         <TD style={styles.td}>Particulars</TD>
                         <TD style={styles.td}>For Month of</TD>
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>Amount</Text>
                         </TD>
-                        {/* <TD style={styles.td}>
-                            <Text style={styles.rightText}>Paid Amount</Text>
-                        </TD> */}
+                       
                         
                     </TH>
 
@@ -193,8 +177,6 @@ export default function ReceiptPrint_MMS() {
                         <TR key={index}>
                             <TD style={styles.td}>{index + 1}</TD>
                             <TD style={styles.td}>{item.student.name + "-" + item?.class?.class_name}</TD>
-                            {/* <TD style={styles.td}>{item.class.class_name}</TD>
-                            <TD style={styles.td}>{item.section.section_name}</TD> */}
                             <TD style={styles.td}>{item.siCode}</TD>
                             <TD style={styles.td}>{item?.siId?.itemName}</TD>
                             <TD style={styles.td}>{item?.monthname}</TD>
@@ -202,9 +184,7 @@ export default function ReceiptPrint_MMS() {
                                 <Text style={styles.rightText}>{formatAmount(item?.siId?.netAmount)}</Text>
                             </TD>
 
-                            {/* <TD style={styles.td}>
-                                <Text style={styles.rightText}>{formatAmount(item.paidAmount)}</Text>
-                            </TD> */}
+                           
 
                            
                         </TR>
@@ -222,9 +202,7 @@ export default function ReceiptPrint_MMS() {
                             <Text style={styles.rightText}>Total</Text>
                         </TD>
 
-                        {/* <TD style={styles.td}>
-                            <Text style={styles.rightText}>{formatAmount(printReceipt.totalinvAmount)}</Text>
-                        </TD> */}
+                        
 
                         <TD style={styles.td}>
                             <Text style={styles.rightText}>{formatAmount(printReceipt.totalpaidAmount)}</Text>

@@ -13,6 +13,8 @@ import {
     TableContainer,
     Tabs,
     Tab,
+    Checkbox,
+    FormControlLabel,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
@@ -60,6 +62,8 @@ export default function Appsettings() {
                 Formik.setFieldValue("appsetting_code", resp.data.data.appsetting_code);
                 Formik.setFieldValue("udise_no", resp.data.data?.udise_no);
                 Formik.setFieldValue("discPerAllowed", resp.data.data.discPerAllowed);
+                Formik.setFieldValue("print_tax", resp.data.data?.print_tax || false);
+                Formik.setFieldValue("print_tax", resp.data.data?.print_tax || false);
                 setEditId(resp.data.data._id);
                 setTab(0); // open Create Class tab
             })
@@ -86,6 +90,7 @@ export default function Appsettings() {
         appsetting_code: "",
         discPerAllowed: 0,
         udise_no: "",
+        print_tax: false,
     };
     const Formik = useFormik({
         initialValues: initialValues,
@@ -285,6 +290,8 @@ export default function Appsettings() {
                                     )} */}
                                 </Box>
 
+                                
+
                                 {/* Discount % */}
                                 <Box>
                                     <TextField
@@ -330,6 +337,21 @@ export default function Appsettings() {
                                                 />
                                             ),
                                         }}
+                                    />
+                                </Box>
+
+                                {/* Print Tax */}
+                                <Box>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                name="print_tax"
+                                                checked={Formik.values.print_tax}
+                                                onChange={Formik.handleChange}
+                                                color="primary"
+                                            />
+                                        }
+                                        label="Print Tax"
                                     />
                                 </Box>
 

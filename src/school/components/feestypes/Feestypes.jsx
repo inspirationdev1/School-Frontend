@@ -13,6 +13,7 @@ import {
   TableContainer,
   Tabs,
   Tab,
+  Autocomplete,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
@@ -27,6 +28,9 @@ export default function Feestype() {
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [tab, setTab] = useState(0);
+
+  const [taxrates, setTaxrates] = useState([]);
+  const [selectedTaxrate, setSelectedTaxrate] = useState(null);
 
 
   const handleDelete = (id) => {
@@ -51,6 +55,10 @@ export default function Feestype() {
       .then((resp) => {
         Formik.setFieldValue("feestype_name", resp.data.data.feestype_name);
         Formik.setFieldValue("feestype_code", resp.data.data.feestype_code);
+        Formik.setFieldValue("taxrate", resp.data.data?.taxrate?._id);
+        Formik.setFieldValue("tax_percent", resp.data.data?.tax_percent);
+        Formik.setFieldValue("taxtype", resp.data.data?.taxtype);
+        setSelectedTaxrate(resp.data.data?.taxrate);
         setEditId(resp.data.data._id);
         setTab(0); // open Create Class tab
       })
@@ -61,6 +69,7 @@ export default function Feestype() {
 
   const cancelEdit = () => {
     setEdit(false);
+    setSelectedTaxrate(null);
     Formik.resetForm()
   };
 
@@ -74,12 +83,18 @@ export default function Feestype() {
 
   const initialValues = {
     feestype_name: "",
-    feestype_code: ""
+    feestype_code: "",
+    taxrate: "",
+    tax_percent: 0,
+    taxtype:"",
   };
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: feestypeSchema,
     onSubmit: (values) => {
+
+      values.tax_percent = selectedTaxrate?.tax_percent;
+      values.taxtype = selectedTaxrate?.taxtype;
       if (isEdit) {
         console.log("edit id", editId);
         axios
@@ -106,6 +121,7 @@ export default function Feestype() {
             console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
             setType("success");
+            cancelEdit();
             setTab(1); // go to View List
           })
           .catch((e) => {
@@ -134,7 +150,18 @@ export default function Feestype() {
         console.log("Error in fetching casting calls admin data", e);
       });
   };
+
+  const fetchTaxrates = async () => {
+    try {
+      const taxratesResponse = await axios.get(`${baseUrl}/taxrate/fetch-with-query`); // Fetch based on class
+      setTaxrates(taxratesResponse.data.data);
+
+    } catch (error) {
+      console.error('Error fetching taxrates:', error);
+    }
+  };
   useEffect(() => {
+    fetchTaxrates();
     fetchstudentsfeestype();
 
   }, [message]);
@@ -197,7 +224,7 @@ export default function Feestype() {
 
 
                 <TextField
-                  disabled={isEdit}
+                  // disabled={isEdit}
                   fullWidth
                   sx={{ marginTop: "10px" }}
                   id="filled-basic"
@@ -213,6 +240,46 @@ export default function Feestype() {
                     {Formik.errors.feestype_code}
                   </p>
                 )}
+
+                <Box>
+
+                  <Autocomplete
+                    sx={{ marginTop: "10px" }}
+                    // disabled={isEdit}
+                    options={taxrates}
+                    getOptionLabel={(option) => option?.tax_name}
+                    value={selectedTaxrate}
+                    onChange={(event, newValue) => {
+                      setSelectedTaxrate(newValue);
+
+                      Formik.setFieldValue(
+                        "taxrate",
+                        newValue ? newValue._id : ""
+                      );
+                      Formik.setFieldValue(
+                        "tax_percent",
+                        newValue ? newValue.tax_percent : 0
+                      );
+                      Formik.setFieldValue(
+                        "taxtype",
+                        newValue ? newValue?.taxtype : "inclusive"
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("taxrate", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select taxrate"
+                        placeholder="Search taxrate..."
+                        fullWidth
+                        error={Formik.touched.taxrate && Boolean(Formik.errors.taxrate)}
+                        helperText={Formik.touched.taxrate && Formik.errors.taxrate}
+                      />
+                    )}
+                  />
+
+
+                </Box>
 
 
 
@@ -250,8 +317,10 @@ export default function Feestype() {
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row"> feestype Name</TableCell>
+                    <TableCell component="th" scope="row">  Name</TableCell>
                     <TableCell align="right">Code</TableCell>
+                    <TableCell align="right">Taxrate</TableCell>
+                    <TableCell align="right">Taxtype</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -265,6 +334,8 @@ export default function Feestype() {
                         {value.feestype_name}
                       </TableCell>
                       <TableCell align="right">{value.feestype_code}</TableCell>
+                      <TableCell align="right">{(value?.taxrate?.tax_percent || "0") + " %"}</TableCell>
+                      <TableCell align="right">{(value?.taxrate?.taxtype || "inclusive") + " %"}</TableCell>
                       <TableCell align="right">
                         <Box
                           sx={{

@@ -62,6 +62,11 @@ export default function Expenses() {
         {
             expensetype: null,
             expenseAmount: 0,
+            taxrate: null,
+            taxtype: "",
+            tax_percent: 0,
+            tax_amount: 0,
+            taxable_amount: 0,
             remarks: "",
             isEdit: false
         },
@@ -71,11 +76,14 @@ export default function Expenses() {
     const clearExpenseDetails = () => {
         setExpenseDetails([
             {
-                class: null,
-                section: null,
                 expensetype: null,
                 invAmount: 0,
                 expenseAmount: 0,
+                taxrate: null,
+                taxtype: "",
+                tax_percent: 0,
+                tax_amount: 0,
+                taxable_amount: 0,
                 remarks: "",
             },
         ])
@@ -119,7 +127,7 @@ export default function Expenses() {
                 const matchedYear = years.find(s => s.value === resp.data.data.year);
                 setSelectedYear(matchedYear || null);
 
-                Formik.setFieldValue("expenseAmount", resp.data.data?.expenseAmount||0)
+                Formik.setFieldValue("expenseAmount", resp.data.data?.expenseAmount || 0)
 
                 setEditId(resp.data.data._id);
 
@@ -147,9 +155,17 @@ export default function Expenses() {
         console.log("Handle  Print is called", id);
         setPrint(true);
 
+        const data = {
+            id: id
+        };
 
-        window.open(`/school/ExpensePrint?id=${id}`,
-            '_blank');
+        window.open(
+            `/school/ExpensePrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+            "_blank"
+        );
+
+        // window.open(`/school/ExpensePrint?id=${id}`,
+        //     '_blank');
         setPrint(false);
 
 
@@ -254,6 +270,11 @@ export default function Expenses() {
                     expensetype_code: row.expensetype.expensetype_code,
                     invAmount: row.invAmount,
                     expenseAmount: row.expenseAmount,
+                    taxrate: row?.taxrate,
+                    taxtype: row?.taxtype,
+                    tax_percent: row?.tax_percent,
+                    tax_amount: row?.tax_amount,
+                    taxable_amount: row?.taxable_amount,
                     remarks: "",
                     employee: values.employee,
                     year: values.year
@@ -374,17 +395,32 @@ export default function Expenses() {
         const updated = [...expenseDetails];
         updated[index][field] = value;
 
-        // if (field === "expensetype") {
-        //      const invBal = ((updated[index].expensetype.totalNetAmount || 0) - (updated[index].expensetype.totalPaidAmount || 0))
-        //     updated[index].invAmount = invBal;
-        //     updated[index].expenseAmount = 0;
-
-        // }
+        if (field === "expensetype") {
+            updated[index].taxrate = updated[index]?.expensetype?.taxrate;
+            updated[index].taxtype = updated[index]?.expensetype?.taxrate?.taxtype;
+            updated[index].tax_percent = updated[index]?.expensetype?.taxrate?.tax_percent;
+        }
 
         // if (field === "expenseAmount") {
 
         // }
 
+        const netAmount = updated[index]?.expenseAmount || 0;
+        const tax_percent = updated[index]?.tax_percent || 0;
+        const taxtype = updated[index]?.taxtype || "inclusive";
+        let taxable_amount = netAmount;
+        let tax_amount = 0;
+        if (taxtype === "inclusive") {
+            taxable_amount = Number((netAmount / (1 + tax_percent / 100)).toFixed(0));
+            tax_amount = Number((netAmount - taxable_amount).toFixed(0));
+        } else if (taxtype === "exlusive") {
+            taxable_amount = netAmount;
+            tax_amount = Number(((taxable_amount * tax_percent) / 100).toFixed(0));
+            updated[index].expenseAmount = taxable_amount + tax_amount;
+        }
+
+        updated[index].tax_amount = tax_amount;
+        updated[index].taxable_amount = taxable_amount;
 
 
         setExpenseDetails(updated);
@@ -396,6 +432,11 @@ export default function Expenses() {
             {
                 expensetype: null,
                 expenseAmount: 0,
+                taxrate: null,
+                taxtype: "",
+                tax_percent: 0,
+                tax_amount: 0,
+                taxable_amount: 0,
                 remarks: "",
             },
         ]);
@@ -475,6 +516,7 @@ export default function Expenses() {
                                         {/* Expense Code */}
                                         <Box>
                                             <TextField
+                                                disabled
                                                 fullWidth
                                                 label="Expense Code"
                                                 variant="outlined"
@@ -482,7 +524,7 @@ export default function Expenses() {
                                                 value={Formik.values.expenseCode}
                                                 onChange={Formik.handleChange}
                                                 onBlur={Formik.handleBlur}
-                                                disabled={isEdit}
+
                                             />
                                             {Formik.touched.expenseCode && Formik.errors.expenseCode && (
                                                 <Typography color="error" variant="caption">

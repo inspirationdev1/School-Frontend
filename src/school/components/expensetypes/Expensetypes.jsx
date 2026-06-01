@@ -13,6 +13,7 @@ import {
   TableContainer,
   Tabs,
   Tab,
+  Autocomplete,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
@@ -27,7 +28,8 @@ export default function Expensetypes() {
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [tab, setTab] = useState(0);
-
+  const [taxrates, setTaxrates] = useState([]);
+  const [selectedTaxrate, setSelectedTaxrate] = useState(null);
 
 
 
@@ -65,6 +67,7 @@ export default function Expensetypes() {
 
   const cancelEdit = () => {
     setEdit(false);
+    setSelectedTaxrate(null);
     Formik.resetForm()
   };
 
@@ -78,7 +81,8 @@ export default function Expensetypes() {
 
   const initialValues = {
     expensetype_name: "",
-    expensetype_code: ""
+    expensetype_code: "",
+    taxrate: "",
   };
   const Formik = useFormik({
     initialValues: initialValues,
@@ -110,6 +114,7 @@ export default function Expensetypes() {
             console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
             setType("success");
+            cancelEdit();
             setTab(1); // go to View List
           })
           .catch((e) => {
@@ -138,7 +143,19 @@ export default function Expensetypes() {
         console.log("Error in fetching casting calls admin data", e);
       });
   };
+
+  const fetchTaxrates = async () => {
+    try {
+      const taxratesResponse = await axios.get(`${baseUrl}/taxrate/fetch-with-query`); // Fetch based on class
+      setTaxrates(taxratesResponse.data.data);
+
+    } catch (error) {
+      console.error('Error fetching taxrates:', error);
+    }
+  };
+
   useEffect(() => {
+    fetchTaxrates();
     fetchstudentsexpensetype();
 
   }, [message]);
@@ -166,141 +183,174 @@ export default function Expensetypes() {
         </Box>
 
         {tab === 0 && (
-        <Box component={"div"} sx={{}}>
-          <Paper
-            sx={{ padding: '20px', margin: "10px" }}
-          >
-
-            <Box
-              component="form"
-              noValidate
-              autoComplete="off"
-              onSubmit={Formik.handleSubmit}
+          <Box component={"div"} sx={{}}>
+            <Paper
+              sx={{ padding: '20px', margin: "10px" }}
             >
 
-
-              <TextField
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="Expensetype Name "
-                variant="outlined"
-                name="expensetype_name"
-                value={Formik.values.expensetype_name}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.expensetype_name && Formik.errors.expensetype_name && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.expensetype_name}
-                </p>
-              )}
+              <Box
+                component="form"
+                noValidate
+                autoComplete="off"
+                onSubmit={Formik.handleSubmit}
+              >
 
 
-              <TextField
-                disabled={isEdit}
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="Expensetype Code "
-                variant="outlined"
-                name="expensetype_code"
-                value={Formik.values.expensetype_code}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.expensetype_code && Formik.errors.expensetype_code && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.expensetype_code}
-                </p>
-              )}
-
-
-
-
-
-
-
-
-              <Box sx={{ marginTop: "10px" }} component={"div"}>
-                <Button
-                  type="submit"
-                  sx={{ marginRight: "10px" }}
-                  variant="contained"
-                >
-                  Submit
-                </Button>
-                {isEdit && (
-                  <Button
-                    sx={{ marginRight: "10px" }}
-                    variant="outlined"
-                    onClick={cancelEdit}
-                  >
-                    Cancel Edit
-                  </Button>
+                <TextField
+                  fullWidth
+                  sx={{ marginTop: "10px" }}
+                  id="filled-basic"
+                  label="Expensetype Name "
+                  variant="outlined"
+                  name="expensetype_name"
+                  value={Formik.values.expensetype_name}
+                  onChange={Formik.handleChange}
+                  onBlur={Formik.handleBlur}
+                />
+                {Formik.touched.expensetype_name && Formik.errors.expensetype_name && (
+                  <p style={{ color: "red", textTransform: "capitalize" }}>
+                    {Formik.errors.expensetype_name}
+                  </p>
                 )}
+
+
+                <TextField
+                  // disabled={isEdit}
+                  fullWidth
+                  sx={{ marginTop: "10px" }}
+                  id="filled-basic"
+                  label="Expensetype Code "
+                  variant="outlined"
+                  name="expensetype_code"
+                  value={Formik.values.expensetype_code}
+                  onChange={Formik.handleChange}
+                  onBlur={Formik.handleBlur}
+                />
+                {Formik.touched.expensetype_code && Formik.errors.expensetype_code && (
+                  <p style={{ color: "red", textTransform: "capitalize" }}>
+                    {Formik.errors.expensetype_code}
+                  </p>
+                )}
+
+                <Box>
+
+                  <Autocomplete
+                    sx={{ marginTop: "10px" }}
+                    // disabled={isEdit}
+                    options={taxrates}
+                    getOptionLabel={(option) => option?.tax_name}
+                    value={selectedTaxrate}
+                    onChange={(event, newValue) => {
+                      setSelectedTaxrate(newValue);
+
+                      Formik.setFieldValue(
+                        "taxrate",
+                        newValue ? newValue._id : ""
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("taxrate", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select taxrate"
+                        placeholder="Search taxrate..."
+                        fullWidth
+                        error={Formik.touched.taxrate && Boolean(Formik.errors.taxrate)}
+                        helperText={Formik.touched.taxrate && Formik.errors.taxrate}
+                      />
+                    )}
+                  />
+
+
+                </Box>
+
+
+
+
+
+
+
+                <Box sx={{ marginTop: "10px" }} component={"div"}>
+                  <Button
+                    type="submit"
+                    sx={{ marginRight: "10px" }}
+                    variant="contained"
+                  >
+                    Submit
+                  </Button>
+                  {isEdit && (
+                    <Button
+                      sx={{ marginRight: "10px" }}
+                      variant="outlined"
+                      onClick={cancelEdit}
+                    >
+                      Cancel Edit
+                    </Button>
+                  )}
+                </Box>
               </Box>
-            </Box>
-          </Paper>
-        </Box>
+            </Paper>
+          </Box>
         )}
 
 
         {tab === 1 && (
-        <Box>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell component="th" scope="row"> expensetype Name</TableCell>
-                  <TableCell align="right">Code</TableCell>
-                  <TableCell align="right">Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {studentExpensetype.map((value, i) => (
-                  <TableRow
-                    key={i}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {value.expensetype_name}
-                    </TableCell>
-                    <TableCell align="right">{value.expensetype_code}</TableCell>
-                    <TableCell align="right">
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          gap: 1.5, // 👈 space between buttons
-                        }}
-                      >
-                        <Button
-                          variant="contained"
-                          sx={{ background: "red", color: "#fff" }}
-                          onClick={() => handleDelete(value._id)}
-                        >
-                          Delete
-                        </Button>
-
-                        <Button
-                          variant="contained"
-                          sx={{ background: "gold", color: "#222222" }}
-                          onClick={() => handleEdit(value._id)}
-                        >
-                          Edit
-                        </Button>
-                      </Box>
-                    </TableCell>
-
+          <Box>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell component="th" scope="row"> expensetype Name</TableCell>
+                    <TableCell align="right">Code</TableCell>
+                    <TableCell align="right">Taxrate</TableCell>
+                    <TableCell align="right">Action</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {studentExpensetype.map((value, i) => (
+                    <TableRow
+                      key={i}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {value.expensetype_name}
+                      </TableCell>
+                      <TableCell align="right">{value.expensetype_code}</TableCell>
+                      <TableCell align="right">{(value?.taxrate?.tax_percent || "0") + " %"}</TableCell>
+                      <TableCell align="right">
 
-        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: 1.5, // 👈 space between buttons
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            sx={{ background: "red", color: "#fff" }}
+                            onClick={() => handleDelete(value._id)}
+                          >
+                            Delete
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{ background: "gold", color: "#222222" }}
+                            onClick={() => handleEdit(value._id)}
+                          >
+                            Edit
+                          </Button>
+                        </Box>
+                      </TableCell>
+
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+          </Box>
         )}
       </Box>
     </>

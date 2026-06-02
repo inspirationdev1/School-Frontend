@@ -153,7 +153,7 @@ import Workingdays from "./school/components/workingdays/Workingdays";
 import Classsubject from "./school/components/classsubject/Classsubject";
 import StudentGraphPrint from "./school/components/reports/StudentGraphPrint";
 import StudentResultGraphPrint from "./school/components/reports/StudentResultGraphPrint";
-
+import StudentSubjectGraphPrint from "./school/components/reports/StudentSubjectGraphPrint";
 
 
 
@@ -284,7 +284,8 @@ function App() {
               <Route path="attendancesummaryprint" element={<AttendanceSummaryPrint />} />
               <Route path="studentgraphprint" element={<StudentGraphPrint />} />
               <Route path="studentresultgraphprint" element={<StudentResultGraphPrint />} />
-
+              <Route path="studentsubjectgraphprint" element={<StudentSubjectGraphPrint />} />
+              
 
 
               <Route path="notice" element={<NoticeSchool />} />

@@ -174,6 +174,7 @@ export default function Numberseqs() {
                 { screen_id: "expense", screen_name: "Expense" },
                 { screen_id: "payment", screen_name: "Payment" },
                 { screen_id: "marksheet", screen_name: "Marksheet" },
+                { screen_id: "journalvoucher", screen_name: "Journal Voucher" },
             ];
             setScreens(screensData);
 

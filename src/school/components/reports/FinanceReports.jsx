@@ -956,6 +956,7 @@ export default function FinanceReports() {
                                                 value={selectedAccountlevel}
                                                 onChange={(event, newValue) => {
                                                     setSelectedAccountlevel(newValue);
+                                                     setSelectedAccountledger(null);
 
                                                     Formik.setFieldValue(
                                                         "accountlevel",

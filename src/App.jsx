@@ -38,6 +38,9 @@ import Expensetypes from "./school/components/expensetypes/Expensetypes";
 import Expenses from "./school/components/expenses/Expenses";
 import Generalmasters from "./school/components/generalmasters/Generalmasters";
 
+
+import Journalvouchers from "./school/components/journalvouchers/Journalvouchers";
+
 import Accountlevels from "./school/components/accountlevels/Accountlevels";
 import Accountledgers from "./school/components/acountledgers/Accountledgers";
 
@@ -154,6 +157,7 @@ import Classsubject from "./school/components/classsubject/Classsubject";
 import StudentGraphPrint from "./school/components/reports/StudentGraphPrint";
 import StudentResultGraphPrint from "./school/components/reports/StudentResultGraphPrint";
 import StudentSubjectGraphPrint from "./school/components/reports/StudentSubjectGraphPrint";
+import JournalvoucherPrint from "./school/components/journalvouchers/JournalvoucherPrint";
 
 
 
@@ -189,6 +193,10 @@ function App() {
               <Route path="expensetype" element={<Expensetypes />} />
               <Route path="expense" element={<Expenses />} />
               <Route path="expenseprint" element={<ExpensePrint />} />
+
+              
+              <Route path="journalvoucher" element={<Journalvouchers />} />
+              <Route path="journalvoucherprint" element={<JournalvoucherPrint />} />
 
               <Route path="accountlevel" element={<Accountlevels />} />
               <Route path="accountledger" element={<Accountledgers />} />

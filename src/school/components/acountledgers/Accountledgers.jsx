@@ -308,6 +308,7 @@ export default function Accountledgers() {
                                         <TableCell component="th" scope="row"> accountledger Name</TableCell>
                                         <TableCell align="right">Code</TableCell>
                                         <TableCell align="right">Account Level</TableCell>
+                                        <TableCell align="right">Account Type</TableCell>
                                         <TableCell align="right">Action</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -322,6 +323,7 @@ export default function Accountledgers() {
                                             </TableCell>
                                             <TableCell align="right">{value.accountledger_code}</TableCell>
                                             <TableCell align="right">{value.groupId?.accountlevel_name}</TableCell>
+                                            <TableCell align="right">{value?.account_type}</TableCell>
                                             <TableCell align="right">
                                                 <Box
                                                     sx={{

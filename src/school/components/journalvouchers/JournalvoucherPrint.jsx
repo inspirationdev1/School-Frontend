@@ -20,7 +20,7 @@ import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 
-export default function TrialBalanceReportPrint() {
+export default function JournalvoucherPrint() {
   const [loading, setLoading] = useState(true);
   const [printData, setPrintData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -57,17 +57,23 @@ export default function TrialBalanceReportPrint() {
         const data = JSON.parse(decodeURIComponent(dataParam));
 
         let paramsRpt = {};
-        if (data?.accountlevel) {
-          paramsRpt.accountlevel = data?.accountlevel;
+
+        if (data?.id){
+            paramsRpt.id = data?.id;
         }
-        if (data?.accountledger) {
-          paramsRpt.accountledger = data?.accountledger;
-        }
+        // setSelectedClass(data?.class);
+        // if (data?.class) {
+        //   paramsRpt.class = data?.class;
+        // }
+        // setSelectedSection(data?.section);
+        // if (data?.section) {
+        //   paramsRpt.section = data?.section;
+        // }
 
         paramsRpt.requesttype = "PDF";
 
         const response = await axios.post(
-          `${baseUrl}/financereports/print-trialbalance`,
+          `${baseUrl}/printreports/print-feeinvoice`,
           {}, // body (empty or your params)
           {
             params: paramsRpt, // ✅ query params
@@ -157,7 +163,7 @@ export default function TrialBalanceReportPrint() {
 
       // 4️⃣ Create workbook
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Studentlist");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Fee-Invoice");
 
       const date = new Date();
       // 5️⃣ Download
@@ -199,7 +205,7 @@ export default function TrialBalanceReportPrint() {
             onClick={() => {
               const link = document.createElement("a");
               link.href = pdfUrl;
-              link.download = "Chart-Of-Account.pdf";
+              link.download = "Fee-Invoice.pdf";
               link.click();
             }}
             className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
@@ -207,12 +213,12 @@ export default function TrialBalanceReportPrint() {
             Download PDF
           </button>
 
-          <button
+          {/* <button
             className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
             onClick={downloadReportExcel}
           >
             Download Excel
-          </button>
+          </button> */}
         </div>
       )}
     </div>

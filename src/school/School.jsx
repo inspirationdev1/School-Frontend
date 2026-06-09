@@ -137,6 +137,7 @@ export default function School() {
         { label: "Expense Type", link: "/school/expensetype" },
         { label: "Expenses", link: "/school/expense" },
         { label: "Payments", link: "/school/payment" },
+        { label: "Journal Voucher", link: "/school/journalvoucher" },
         { label: "Reports", link: "/school/financereports" },
         { label: "Account Level", link: "/school/accountlevel" },
         { label: "Account Ledger", link: "/school/accountledger" },

@@ -58,8 +58,8 @@ export default function JournalvoucherPrint() {
 
         let paramsRpt = {};
 
-        if (data?.id){
-            paramsRpt.id = data?.id;
+        if (data?.id) {
+          paramsRpt.id = data?.id;
         }
         // setSelectedClass(data?.class);
         // if (data?.class) {
@@ -73,7 +73,7 @@ export default function JournalvoucherPrint() {
         paramsRpt.requesttype = "PDF";
 
         const response = await axios.post(
-          `${baseUrl}/printreports/print-feeinvoice`,
+          `${baseUrl}/printreports/print-journalvoucher`,
           {}, // body (empty or your params)
           {
             params: paramsRpt, // ✅ query params
@@ -99,129 +99,124 @@ export default function JournalvoucherPrint() {
   };
 
   const downloadReportExcel = async () => {
-    
+    let paramsRpt = {};
 
-      let paramsRpt = {};
+    if (selectedClass) {
+      paramsRpt.class = selectedClass;
+    }
+    if (selectedSection) {
+      paramsRpt.section = selectedSection;
+    }
 
-      if (selectedClass) {
-        paramsRpt.class = selectedClass;
-      }
-      if (selectedSection) {
-        paramsRpt.section = selectedSection;
-      }
+    paramsRpt.requesttype = "EXL";
+    const reportResponse = await axios.post(
+      `${baseUrl}/schoolreports/student-list-print`,
+      {}, // ✅ empty body
+      {
+        params: paramsRpt, // ✅ goes to req.query
+      },
+    );
+    console.log("reportResponse", reportResponse.data.data);
 
-      paramsRpt.requesttype = "EXL";
-      const reportResponse = await axios.post(
-        `${baseUrl}/schoolreports/student-list-print`,
-        {}, // ✅ empty body
-        {
-          params: paramsRpt, // ✅ goes to req.query
-        },
-      );
-      console.log("reportResponse", reportResponse.data.data);
-      
-      if (reportResponse.data.data.length===0){
-            setMessage("No Data Found");
-            setType("error");
-            setLoading(false);
-            return;
-      }
-      // 1️⃣ Prepare Header
+    if (reportResponse.data.data.length === 0) {
+      setMessage("No Data Found");
+      setType("error");
+      setLoading(false);
+      return;
+    }
+    // 1️⃣ Prepare Header
 
-      const sheetData = [];
+    const sheetData = [];
+    sheetData.push([
+      "Student Name",
+      "Gender",
+      "Parent Name",
+      "DOB Date",
+      "Admission Date",
+      "Class",
+      "Section",
+      "Phone #",
+      "Pen #",
+      "Aadhar #",
+    ]);
+
+    // 📥 Data Rows
+    reportResponse.data.data.forEach((row) => {
       sheetData.push([
-        "Student Name",
-        "Gender",
-        "Parent Name",
-        "DOB Date",
-        "Admission Date",
-        "Class",
-        "Section",
-        "Phone #",
-        "Pen #",
-        "Aadhar #",
+        row?.name,
+        row?.gender,
+        row?.parent?.name,
+        dayjs(row.dOBDate).format("DD-MM-YYYY"),
+        dayjs(row.joinDate).format("DD-MM-YYYY"),
+        row?.student_class?.class_name,
+        row?.section?.section_name,
+        row?.guardian_phone,
+        row?.pen_no,
+        row?.aadhar_no,
       ]);
+    });
 
-      // 📥 Data Rows
-      reportResponse.data.data.forEach((row) => {
-        sheetData.push([
-          row?.name,
-          row?.gender,
-          row?.parent?.name,
-          dayjs(row.dOBDate).format("DD-MM-YYYY"),
-          dayjs(row.joinDate).format("DD-MM-YYYY"),
-          row?.student_class?.class_name,
-          row?.section?.section_name,
-          row?.guardian_phone,
-          row?.pen_no,
-          row?.aadhar_no
-        ]);
-      });
+    // 3️⃣ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
 
-      // 3️⃣ Create worksheet
-      const worksheet = XLSX.utils.json_to_sheet(sheetData);
+    // 4️⃣ Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Journalvoucher");
 
-      // 4️⃣ Create workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Fee-Invoice");
-
-      const date = new Date();
-      // 5️⃣ Download
-      XLSX.writeFile(workbook, `Studenttlist_${date}.xlsx`);
-    
+    const date = new Date();
+    // 5️⃣ Download
+    XLSX.writeFile(workbook, `Studenttlist_${date}.xlsx`);
   };
 
-  
- 
   if (loading) {
     return <Typography>Loading...</Typography>;
   }
   return (
     <>
-    {message && (
-            <CustomizedSnackbars
-              reset={resetMessage}
-              type={type}
-              message={message}
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
+      <div className="max-w-2xl mx-auto my-10">
+        <div className="w-full h-[600px]">
+          {pdfUrl ? (
+            <iframe
+              src={`${pdfUrl}#zoom=page-width`}
+              width="100%"
+              height="100%"
+              style={{ border: "none" }}
             />
+          ) : (
+            <Typography>Loading PDF...</Typography>
           )}
-    <div className="max-w-2xl mx-auto my-10">
-      <div className="w-full h-[600px]">
-        {pdfUrl ? (
-          <iframe
-            src={`${pdfUrl}#zoom=page-width`}
-            width="100%"
-            height="100%"
-            style={{ border: "none" }}
-          />
-        ) : (
-          <Typography>Loading PDF...</Typography>
-        )}
-      </div>
+        </div>
 
-      {pdfUrl && (
-        <div className="mt-6 flex justify-center gap-3">
-          <button
-            onClick={() => {
-              const link = document.createElement("a");
-              link.href = pdfUrl;
-              link.download = "Fee-Invoice.pdf";
-              link.click();
-            }}
-            className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
-          >
-            Download PDF
-          </button>
+        {pdfUrl && (
+          <div className="mt-6 flex justify-center gap-3">
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = "Journalvoucher.pdf";
+                link.click();
+              }}
+              className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+            >
+              Download PDF
+            </button>
 
-          {/* <button
+            {/* <button
             className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
             onClick={downloadReportExcel}
           >
             Download Excel
           </button> */}
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
     </>
   );
 }

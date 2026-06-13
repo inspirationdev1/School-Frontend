@@ -74,6 +74,7 @@ export default function Journalvouchers() {
     {
       amount_type: "",
       accountledger: null,
+      account_type: "",
       jv_amount: 0,
       remarks: "",
       isEdit: false,
@@ -85,6 +86,7 @@ export default function Journalvouchers() {
       {
         amount_type: "",
         accountledger: null,
+        account_type: "",
         jv_amount: 0,
         remarks: "",
         isEdit: false,
@@ -187,6 +189,7 @@ export default function Journalvouchers() {
     // 🔥 reset Autocomplete values
     setSelectedAccountledger(null);
     setSelectedAmounttype(null);
+    setSelectedYear(null);
     setIsDataValid(true);
     // 🔥 reset Autocomplete values
     clearJournalvoucherDetails();
@@ -263,7 +266,8 @@ export default function Journalvouchers() {
         ...values,
         journalvoucherDetails: journalvoucherDetails.map((row) => ({
           accountledger: row.accountledger._id,
-          amount_type: row?.amount_type?.value,
+          amount_type: row?.amount_type?.value || row?.amount_type,
+          account_type: row?.account_type?.value || row?.account_type,
           jv_amount: row?.jv_amount || 0,
           remarks: "",
           // employee: values.employee,
@@ -421,31 +425,11 @@ export default function Journalvouchers() {
     updated[index][field] = value;
 
     if (field === "accountledger") {
-      // updated[index].taxrate = updated[index]?.journalvouchertype?.taxrate;
-      // updated[index].taxtype = updated[index]?.journalvouchertype?.taxrate?.taxtype;
-      // updated[index].tax_percent = updated[index]?.journalvouchertype?.taxrate?.tax_percent;
+      updated[index].account_type = updated[index]?.accountledger?.account_type;
+      
     }
 
-    // if (field === "jv_amount") {
-
-    // }
-
-    // const netAmount = updated[index]?.journalvoucherAmount || 0;
-    // const tax_percent = updated[index]?.tax_percent || 0;
-    // const taxtype = updated[index]?.taxtype || "inclusive";
-    // let taxable_amount = netAmount;
-    // let tax_amount = 0;
-    // if (taxtype === "inclusive") {
-    //     taxable_amount = Number((netAmount / (1 + tax_percent / 100)).toFixed(0));
-    //     tax_amount = Number((netAmount - taxable_amount).toFixed(0));
-    // } else if (taxtype === "exlusive") {
-    //     taxable_amount = netAmount;
-    //     tax_amount = Number(((taxable_amount * tax_percent) / 100).toFixed(0));
-    //     updated[index].journalvoucherAmount = taxable_amount + tax_amount;
-    // }
-
-    // updated[index].tax_amount = tax_amount;
-    // updated[index].taxable_amount = taxable_amount;
+   
 
     setJournalvoucherDetails(updated);
   };
@@ -456,6 +440,7 @@ export default function Journalvouchers() {
       {
         amount_type: "",
         accountledger: null,
+        account_type: "",
         jv_amount: 0,
         remarks: "",
         isEdit: false,
@@ -739,13 +724,14 @@ export default function Journalvouchers() {
                         }}
                       >
                         {/* Amounttype */}
+                        {/* amountTypeInfo */}
                         <Autocomplete
                           disabled={row.isEdit}
                           options={
                             Array.isArray(amounttypes) ? amounttypes : []
                           }
                           getOptionLabel={(option) => option?.label || ""}
-                          value={row.amountype}
+                          value={row?.amountTypeInfo}
                           isOptionEqualToValue={(option, value) =>
                             option?._id === value?._id
                           }

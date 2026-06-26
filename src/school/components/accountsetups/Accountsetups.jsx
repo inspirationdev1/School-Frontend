@@ -22,14 +22,24 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
-import { numberseqSchema } from "../../../yupSchema/numberseqSchema";
+import { accountsetupsSchema } from "../../../yupSchema/accountsetupsSchema";
 
-export default function Numberseqs() {
-  const [numberseqs, setNumberseqs] = useState([]);
+export default function Accountsetups() {
+  const [accountsetups, setAccountsetups] = useState([]);
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [screens, setScreens] = useState([]);
   const [selectedScreen, setSelectedScreen] = useState(null);
+
+  const [accountledgers, setAccountledgers] = useState([]);
+  const [selectedAccountledger, setSelectedAccountledger] = useState(null);
+
+  const [amounttypes, setAmounttypes] = useState([]);
+  const [selectedAmounttype, setSelectedAmounttype] = useState(null);
+
+  const [mappingtypes, setMappingtypes] = useState([]);
+  const [selectedMappingtype, setSelectedMappingtype] = useState(null);
+
   const [tab, setTab] = useState(0);
 
   const [params, setParams] = useState({});
@@ -47,7 +57,7 @@ export default function Numberseqs() {
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
       axios
-        .delete(`${baseUrl}/numberseq/delete/${id}`)
+        .delete(`${baseUrl}/accountsetup/delete/${id}`)
         .then((resp) => {
           setMessage(resp.data.message);
           setType("success");
@@ -63,20 +73,38 @@ export default function Numberseqs() {
     console.log("Handle  Edit is called", id);
     setEdit(true);
     axios
-      .get(`${baseUrl}/numberseq/fetch-single/${id}`)
+      .get(`${baseUrl}/accountsetup/fetch-single/${id}`)
       .then((resp) => {
-        Formik.setFieldValue("numberseq_name", resp.data.data.numberseq_name);
-        // Formik.setFieldValue("screen", resp.data.data?.screen._id);
-        // setSelectedScreen(resp.data.data.screen);
-        Formik.setFieldValue("seq", resp.data.data?.seq);
-        Formik.setFieldValue("prefix", resp.data.data?.prefix);
-        Formik.setFieldValue("suffix", resp.data.data?.suffix);
-
+        Formik.setFieldValue("screen_name", resp.data.data.screen_name);
         const matchedScreen = screens.find(
           (s) => s.screen_id === resp.data.data.screen,
         );
         setSelectedScreen(matchedScreen || null);
         Formik.setFieldValue("screen", matchedScreen?.screen_id);
+
+        Formik.setFieldValue(
+          "accountledger",
+          resp.data.data?.accountledger?._id,
+        );
+        setSelectedAccountledger(resp.data.data.accountledger);
+        Formik.setFieldValue(
+          "accountledger_name",
+          resp.data.data?.accountledger_name,
+        );
+
+        const matchedAmounttype = amounttypes.find(
+          (s) => s.value === resp.data.data?.amount_type,
+        );
+        setSelectedAmounttype(matchedAmounttype || null);
+        Formik.setFieldValue("amount_type", resp.data.data?.amount_type);
+
+        const matchedMappingtype = mappingtypes.find(
+          (s) => s.value === resp.data.data?.mapping_type,
+        );
+        setSelectedMappingtype(matchedMappingtype || null);
+        Formik.setFieldValue("mapping_type", resp.data.data?.mapping_type);
+
+        Formik.setFieldValue("seq", resp.data.data?.seq);
 
         setEditId(resp.data.data._id);
         setTab(0); // open Create Receipt tab
@@ -90,6 +118,9 @@ export default function Numberseqs() {
     setEdit(false);
     Formik.resetForm();
     setSelectedScreen(null);
+    setSelectedAccountledger(null);
+    setSelectedAmounttype(null);
+    setSelectedMappingtype(null);
     setParams({});
   };
 
@@ -102,20 +133,23 @@ export default function Numberseqs() {
   };
 
   const initialValues = {
-    numberseq_name: "",
     screen: "",
+    screen_name: "",
+    accountledger: null,
+    accountledger_name: "",
+    amount_type: "",
+    account_type: "",
+    mapping_type: "",
     seq: 0,
-    prefix: "",
-    suffix: "",
   };
   const Formik = useFormik({
     initialValues: initialValues,
-    validationSchema: numberseqSchema,
+    validationSchema: accountsetupsSchema,
     onSubmit: (values) => {
       if (isEdit) {
         console.log("edit id", editId);
         axios
-          .patch(`${baseUrl}/numberseq/update/${editId}`, {
+          .patch(`${baseUrl}/accountsetup/update/${editId}`, {
             ...values,
           })
           .then((resp) => {
@@ -132,7 +166,7 @@ export default function Numberseqs() {
           });
       } else {
         axios
-          .post(`${baseUrl}/numberseq/create`, { ...values })
+          .post(`${baseUrl}/accountsetup/create`, { ...values })
           .then((resp) => {
             console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
@@ -153,20 +187,11 @@ export default function Numberseqs() {
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
 
-  const fetchNumberseqs = () => {
-    // axios
-    //   .get(`${baseUrl}/numberseq/fetch-all`)
-    //   .then((resp) => {
-    //     console.log("Fetching data in  Casting Calls  admin.", resp);
-    //     setNumberseqs(resp.data.data);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching casting calls admin data", e);
-    //   });
+  const fetchAccountsetups = () => {
     axios
-      .get(`${baseUrl}/numberseq/fetch-with-query`, { params })
+      .get(`${baseUrl}/accountsetup/fetch-with-query`, { params })
       .then((resp) => {
-        setNumberseqs(resp.data.data);
+        setAccountsetups(resp.data.data);
       })
       .catch(() => console.log("Error in fetching students data"));
   };
@@ -174,16 +199,10 @@ export default function Numberseqs() {
   const fetchScreens = async () => {
     try {
       const screensData = [
-        { screen_id: "student", screen_name: "Student" },
-        { screen_id: "parent", screen_name: "Parent" },
-        { screen_id: "teacher", screen_name: "Teacher" },
-        { screen_id: "user", screen_name: "User" },
         { screen_id: "salesinvoice", screen_name: "Sales Invoice" },
         { screen_id: "receipt", screen_name: "Receipt" },
         { screen_id: "expense", screen_name: "Expense" },
         { screen_id: "payment", screen_name: "Payment" },
-        { screen_id: "marksheet", screen_name: "Marksheet" },
-        { screen_id: "journalvoucher", screen_name: "Journal Voucher" },
       ];
       setScreens(screensData);
     } catch (error) {
@@ -191,9 +210,80 @@ export default function Numberseqs() {
     }
   };
 
+  const fetchAccountledgers = async () => {
+    try {
+      let params = {};
+
+      const accountledgersResponse = await axios.get(
+        `${baseUrl}/accountledger/fetch-with-query`,
+        {
+          params: params,
+        },
+      );
+      setAccountledgers(accountledgersResponse.data.data);
+    } catch (error) {
+      console.error("Error fetching accountledgers:", error);
+    }
+  };
+
+  const fetchAmountTypes = async () => {
+    try {
+      const amountTypesData = [
+        {
+          value: "dr",
+          label: "Dr",
+          meaning: "Debit",
+        },
+        {
+          value: "cr",
+          label: "Cr",
+          meaning: "Credit",
+        },
+      ];
+
+      setAmounttypes(amountTypesData);
+    } catch (error) {
+      console.error("Error fetching amount types:", error);
+    }
+  };
+
+  const fetchMappingTypes = async () => {
+    try {
+      const mappingTypesData = [
+        {
+          value: "net_amount",
+          label: "Net Amount",
+          meaning: "Net Amount",
+        },
+        {
+          value: "taxable_amount",
+          label: "Taxable Amount",
+          meaning: "Taxable Amount",
+        },
+        {
+          value: "tax_amount",
+          label: "Tax Amount",
+          meaning: "Tax Amount",
+        },
+        {
+          value: "discount_amount",
+          label: "Discount Amount",
+          meaning: "Discount Amount",
+        },
+      ];
+
+      setMappingtypes(mappingTypesData);
+    } catch (error) {
+      console.error("Error fetching amount types:", error);
+    }
+  };
+
   useEffect(() => {
     fetchScreens();
-    fetchNumberseqs();
+    fetchAccountledgers();
+    fetchAmountTypes();
+    fetchMappingTypes();
+    fetchAccountsetups();
   }, [message, params]);
   return (
     <>
@@ -226,14 +316,14 @@ export default function Numberseqs() {
                   variant="h4"
                   sx={{ fontWeight: "800", textAlign: "center" }}
                 >
-                  Edit numberseq
+                  Edit accountsetup
                 </Typography>
               ) : (
                 <Typography
                   variant="h4"
                   sx={{ fontWeight: "800", textAlign: "center" }}
                 >
-                  Add New numberseq
+                  Add New accountsetup
                 </Typography>
               )}{" "}
               <Box
@@ -250,24 +340,6 @@ export default function Numberseqs() {
                   gap: 2,
                 }}
               >
-                <Box>
-                  <TextField
-                    disabled
-                    fullWidth
-                    label="Numberseq Name"
-                    name="numberseq_name"
-                    value={Formik.values.numberseq_name}
-                    onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                  />
-                  {Formik.touched.numberseq_name &&
-                    Formik.errors.numberseq_name && (
-                      <p style={{ color: "red" }}>
-                        {Formik.errors.numberseq_name}
-                      </p>
-                    )}
-                </Box>
-
                 {/* Screen */}
 
                 <Box>
@@ -283,7 +355,7 @@ export default function Numberseqs() {
                         newValue ? newValue?.screen_id : "",
                       );
                       Formik.setFieldValue(
-                        "numberseq_name",
+                        "screen_name",
                         newValue ? newValue?.screen_name : "",
                       );
                     }}
@@ -304,6 +376,117 @@ export default function Numberseqs() {
                   />
                 </Box>
 
+                {/* AccountLedger */}
+                <Box>
+                  <Autocomplete
+                    options={accountledgers}
+                    getOptionLabel={(option) =>
+                      option.accountledger_name +
+                      "-" +
+                      option.accountledger_code
+                    }
+                    value={selectedAccountledger}
+                    onChange={(event, newValue) => {
+                      setSelectedAccountledger(newValue);
+
+                      Formik.setFieldValue(
+                        "accountledger",
+                        newValue ? newValue._id : "",
+                      );
+                      Formik.setFieldValue(
+                        "accountledger_name",
+                        newValue ? newValue?.accountledger_name : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("accountledger", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select accountledger"
+                        placeholder="Search accountledger..."
+                        fullWidth
+                        error={
+                          Formik.touched.accountledger &&
+                          Boolean(Formik.errors.accountledger)
+                        }
+                        helperText={
+                          Formik.touched.accountledger &&
+                          Formik.errors.accountledger
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+
+                {/* amount_type */}
+                <Box>
+                  <Autocomplete
+                    options={Array.isArray(amounttypes) ? amounttypes : []}
+                    getOptionLabel={(option) => option?.label || ""}
+                    value={selectedAmounttype}
+                    onChange={(event, newValue) => {
+                      setSelectedAmounttype(newValue);
+
+                      Formik.setFieldValue(
+                        "amount_type",
+                        newValue ? newValue.value : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("amount_type", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select amount_type"
+                        placeholder="Search amount_type..."
+                        fullWidth
+                        error={
+                          Formik.touched.amount_type &&
+                          Boolean(Formik.errors.amount_type)
+                        }
+                        helperText={
+                          Formik.touched.amount_type &&
+                          Formik.errors.amount_type
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+
+                {/* mapping_type */}
+                <Box>
+                  <Autocomplete
+                    options={Array.isArray(mappingtypes) ? mappingtypes : []}
+                    getOptionLabel={(option) => option?.label || ""}
+                    value={selectedMappingtype}
+                    onChange={(event, newValue) => {
+                      setSelectedMappingtype(newValue);
+
+                      Formik.setFieldValue(
+                        "mapping_type",
+                        newValue ? newValue.value : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("mapping_type", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select mapping_type"
+                        placeholder="Search mapping_type..."
+                        fullWidth
+                        error={
+                          Formik.touched.mapping_type &&
+                          Boolean(Formik.errors.mapping_type)
+                        }
+                        helperText={
+                          Formik.touched.mapping_type &&
+                          Formik.errors.mapping_type
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+
+                {/* Seq */}
                 <Box>
                   <TextField
                     type="number"
@@ -316,34 +499,6 @@ export default function Numberseqs() {
                   />
                   {Formik.touched.seq && Formik.errors.seq && (
                     <p style={{ color: "red" }}>{Formik.errors.seq}</p>
-                  )}
-                </Box>
-
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Prefix"
-                    name="prefix"
-                    value={Formik.values.prefix}
-                    onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                  />
-                  {Formik.touched.prefix && Formik.errors.prefix && (
-                    <p style={{ color: "red" }}>{Formik.errors.prefix}</p>
-                  )}
-                </Box>
-
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Suffix"
-                    name="suffix"
-                    value={Formik.values.suffix}
-                    onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                  />
-                  {Formik.touched.suffix && Formik.errors.suffix && (
-                    <p style={{ color: "red" }}>{Formik.errors.suffix}</p>
                   )}
                 </Box>
 
@@ -395,28 +550,38 @@ export default function Numberseqs() {
                   <TableRow>
                     <TableCell component="th" scope="row">
                       {" "}
-                      numberseq Name
+                      Screen Name
                     </TableCell>
                     <TableCell align="right">Screen</TableCell>
+
+                    <TableCell align="right">Accountledger</TableCell>
+                    <TableCell align="right">Amount Type</TableCell>
+                    <TableCell align="right">Mapping Type</TableCell>
                     <TableCell align="right">Seq</TableCell>
-                    <TableCell align="right">Prefix</TableCell>
-                    <TableCell align="right">Suffix</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {numberseqs.map((value, i) => (
+                  {accountsetups.map((value, i) => (
                     <TableRow
                       key={i}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
-                        {value.numberseq_name}
+                        {value.screen_name}
                       </TableCell>
                       <TableCell align="right">{value?.screen}</TableCell>
+
+                      <TableCell align="right">
+                        {value?.accountledger_name}
+                      </TableCell>
+                      <TableCell align="right">
+                        {" "}
+                        {value?.amount_type?.charAt(0).toUpperCase() +
+                          value?.amount_type?.slice(1).toLowerCase()}
+                      </TableCell>
+                      <TableCell align="right">{value?.mapping_type}</TableCell>
                       <TableCell align="right">{value?.seq}</TableCell>
-                      <TableCell align="right">{value?.prefix}</TableCell>
-                      <TableCell align="right">{value?.suffix}</TableCell>
                       <TableCell align="right">
                         <Box
                           sx={{

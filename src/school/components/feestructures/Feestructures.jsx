@@ -28,13 +28,16 @@ export default function Feestructures() {
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  const [attendeeClass, setAttendeeClass] = useState([])
+  const [attendeeClass, setAttendeeClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
 
-  const [feestype, setFeestype] = useState([])
+  const [feestype, setFeestype] = useState([]);
   const [selectedFeestype, setSelectedFeestype] = useState(null);
   const [selectedTaxrate, setSelectedTaxrate] = useState(null);
-  
+
+  const [accountledgers, setAccountledgers] = useState([]);
+  const [selectedAccountledger, setSelectedAccountledger] = useState(null);
+
   const [tab, setTab] = useState(0);
 
   const handleDelete = (id) => {
@@ -56,14 +59,18 @@ export default function Feestructures() {
   const handleEdit = (id) => {
     console.log("Handle  Edit is called", id);
     setEdit(true);
-    axios.get(`${baseUrl}/feestructure/fetch-single/${id}`)
+    axios
+      .get(`${baseUrl}/feestructure/fetch-single/${id}`)
       .then((resp) => {
         Formik.setFieldValue("name", resp.data.data.name);
         Formik.setFieldValue("code", resp.data.data.code);
         Formik.setFieldValue("class", resp.data.data?.class?._id);
         Formik.setFieldValue("feestype", resp?.data?.data?.feestype?._id);
         Formik.setFieldValue("taxrate", resp?.data?.data?.taxrate?._id);
-        Formik.setFieldValue("tax_percent", resp?.data?.data?.taxrate?.tax_percent);
+        Formik.setFieldValue(
+          "tax_percent",
+          resp?.data?.data?.taxrate?.tax_percent,
+        );
         Formik.setFieldValue("taxtype", resp?.data?.data?.taxrate?.taxtype);
         Formik.setFieldValue("amount", resp.data.data.amount);
         // const classId = resp.data.data?.class?._id;
@@ -92,12 +99,12 @@ export default function Feestructures() {
   const clearForm = () => {
     setEdit(false);
     setEditId(null);
-    Formik.resetForm()
+    Formik.resetForm();
     // 🔥 reset Autocomplete values
     setSelectedClass(null);
+    setSelectedAccountledger(null);
     setSelectedFeestype(null);
     setSelectedTaxrate(null);
-
   };
 
   //   MESSAGE
@@ -113,19 +120,18 @@ export default function Feestructures() {
     code: "",
     class: "",
     feestype: "",
-    taxrate:"",
-    tax_percent:0,
-    taxtype:"",
-    amount: 0
+    taxrate: "",
+    tax_percent: 0,
+    taxtype: "",
+    amount: 0,
   };
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: feestructureSchema,
     onSubmit: (values) => {
-
       values.taxrate = selectedFeestype?.taxrate;
       values.tax_percent = selectedFeestype?.tax_percent;
-      values.taxtype = selectedFeestype?.taxtype||"inclusive";
+      values.taxtype = selectedFeestype?.taxtype || "inclusive";
 
       if (isEdit) {
         console.log("edit id", editId);
@@ -146,7 +152,6 @@ export default function Feestructures() {
             console.log("Error, edit casting submit", e);
           });
       } else {
-
         axios
           .post(`${baseUrl}/feestructure/create`, { ...values })
           .then((resp) => {
@@ -162,14 +167,12 @@ export default function Feestructures() {
           });
         // Formik.resetForm();
         clearForm();
-
       }
     },
   });
 
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
-
 
   const fetchstudentsfeestructure = () => {
     axios
@@ -186,30 +189,28 @@ export default function Feestructures() {
   const fetchClass = async () => {
     try {
       const attendee = await axios.get(`${baseUrl}/class/fetch-all`);
-      console.log("attendee", attendee)
+      console.log("attendee", attendee);
       setAttendeeClass(attendee.data.data);
-
     } catch (error) {
-      console.error('Error fetching Class:', error);
+      console.error("Error fetching Class:", error);
     }
   };
 
   const fetchFeestype = async () => {
     try {
       const feestypes = await axios.get(`${baseUrl}/feestype/fetch-all`);
-      console.log("feestypes", feestypes)
+      console.log("feestypes", feestypes);
       setFeestype(feestypes.data.data);
-
     } catch (error) {
-      console.error('Error fetching Class:', error);
+      console.error("Error fetching Class:", error);
     }
   };
 
   useEffect(() => {
     fetchClass();
     fetchFeestype();
-    fetchstudentsfeestructure();
 
+    fetchstudentsfeestructure();
   }, [message]);
   return (
     <>
@@ -221,7 +222,6 @@ export default function Feestructures() {
         />
       )}
       <Box>
-
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs
             value={tab}
@@ -230,37 +230,33 @@ export default function Feestructures() {
             indicatorColor="primary"
           >
             {/* <Tab label="Create Receipt" /> */}
-            <Tab label={isEdit ? "Edit Feesstructure" : "Add New Feesstructure"} />
+            <Tab
+              label={isEdit ? "Edit Feesstructure" : "Add New Feesstructure"}
+            />
             <Tab label="View List" />
           </Tabs>
         </Box>
 
         {tab === 0 && (
           <Box component={"div"} sx={{}}>
-            <Paper
-              sx={{ padding: '20px', margin: "10px" }}
-            >
-
+            <Paper sx={{ padding: "20px", margin: "10px" }}>
               <Box
                 component="form"
                 noValidate
                 autoComplete="off"
                 onSubmit={Formik.handleSubmit}
               >
-
-
                 <Box
                   sx={{
                     display: "grid",
                     gridTemplateColumns: {
-                      xs: "1fr",        // mobile
-                      md: "1fr 1fr",    // desktop
+                      xs: "1fr", // mobile
+                      md: "1fr 1fr", // desktop
                     },
                     gap: 2.5,
                     mt: 3,
                   }}
                 >
-
                   <TextField
                     fullWidth
                     sx={{ marginTop: "10px" }}
@@ -277,7 +273,6 @@ export default function Feestructures() {
                       {Formik.errors.name}
                     </p>
                   )}
-
 
                   <TextField
                     disabled={isEdit}
@@ -300,7 +295,6 @@ export default function Feestructures() {
                   {/* Class */}
                   {attendeeClass.length > 0 && (
                     <Box>
-
                       <Autocomplete
                         disabled={isEdit}
                         options={attendeeClass}
@@ -311,7 +305,7 @@ export default function Feestructures() {
 
                           Formik.setFieldValue(
                             "class",
-                            newValue ? newValue._id : ""
+                            newValue ? newValue._id : "",
                           );
                         }}
                         onBlur={() => Formik.setFieldTouched("class", true)}
@@ -321,63 +315,66 @@ export default function Feestructures() {
                             label="Select Class"
                             placeholder="Search class..."
                             fullWidth
-                            error={Formik.touched.class && Boolean(Formik.errors.class)}
-                            helperText={Formik.touched.class && Formik.errors.class}
+                            error={
+                              Formik.touched.class &&
+                              Boolean(Formik.errors.class)
+                            }
+                            helperText={
+                              Formik.touched.class && Formik.errors.class
+                            }
                           />
                         )}
                       />
-
-
                     </Box>
                   )}
 
                   {/* Feestype */}
-                  
-                    <Box>
 
-                      <Autocomplete
-                        // disabled={isEdit}
-                        options={feestype}
-                        getOptionLabel={(option) => option.feestype_name}
-                        value={selectedFeestype}
-                        onChange={(event, newValue) => {
-                          setSelectedFeestype(newValue);
-                          setSelectedTaxrate(newValue?.taxrate)
+                  <Box>
+                    <Autocomplete
+                      // disabled={isEdit}
+                      options={feestype}
+                      getOptionLabel={(option) => option.feestype_name}
+                      value={selectedFeestype}
+                      onChange={(event, newValue) => {
+                        setSelectedFeestype(newValue);
+                        setSelectedTaxrate(newValue?.taxrate);
 
-                          Formik.setFieldValue(
-                            "feestype",
-                            newValue ? newValue._id : ""
-                          );
-                          Formik.setFieldValue(
-                            "taxrate",
-                            newValue ? newValue?.taxrate?._id : ""
-                          );
-                          Formik.setFieldValue(
-                            "tax_percent",
-                            newValue ? newValue?.tax_percent : 0
-                          );
-                          Formik.setFieldValue(
-                            "taxtype",
-                            newValue ? newValue?.taxtype : 0
-                          );
-                          
-                        }}
-                        onBlur={() => Formik.setFieldTouched("feestype", true)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Select Feestype"
-                            placeholder="Search feestype..."
-                            fullWidth
-                            error={Formik.touched.feestype && Boolean(Formik.errors.feestype)}
-                            helperText={Formik.touched.feestype && Formik.errors.feestype}
-                          />
-                        )}
-                      />
-
-
-                    </Box>
-                  
+                        Formik.setFieldValue(
+                          "feestype",
+                          newValue ? newValue._id : "",
+                        );
+                        Formik.setFieldValue(
+                          "taxrate",
+                          newValue ? newValue?.taxrate?._id : "",
+                        );
+                        Formik.setFieldValue(
+                          "tax_percent",
+                          newValue ? newValue?.tax_percent : 0,
+                        );
+                        Formik.setFieldValue(
+                          "taxtype",
+                          newValue ? newValue?.taxtype : 0,
+                        );
+                      }}
+                      onBlur={() => Formik.setFieldTouched("feestype", true)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Feestype"
+                          placeholder="Search feestype..."
+                          fullWidth
+                          error={
+                            Formik.touched.feestype &&
+                            Boolean(Formik.errors.feestype)
+                          }
+                          helperText={
+                            Formik.touched.feestype && Formik.errors.feestype
+                          }
+                        />
+                      )}
+                    />
+                  </Box>
 
                   {/* amount */}
                   <Box>
@@ -398,13 +395,7 @@ export default function Feestructures() {
                       </Typography>
                     )}
                   </Box>
-
-
                 </Box>
-
-
-
-
 
                 <Box sx={{ marginTop: "10px" }} component={"div"}>
                   <Button
@@ -425,8 +416,6 @@ export default function Feestructures() {
                   )}
                 </Box>
               </Box>
-
-
             </Paper>
           </Box>
         )}
@@ -437,7 +426,10 @@ export default function Feestructures() {
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row">  Name</TableCell>
+                    <TableCell component="th" scope="row">
+                      {" "}
+                      Name
+                    </TableCell>
                     <TableCell align="right">Code</TableCell>
                     <TableCell align="right">Class</TableCell>
                     <TableCell align="right">Feestype</TableCell>
@@ -449,17 +441,20 @@ export default function Feestructures() {
                   {studentFeestructure.map((value, i) => (
                     <TableRow
                       key={i}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
                         {value.name}
                       </TableCell>
                       <TableCell align="right">{value.code}</TableCell>
-                      <TableCell align="right">{value?.class?.class_name}</TableCell>
-                      <TableCell align="right">{value?.feestype?.feestype_name||""}</TableCell>
+                      <TableCell align="right">
+                        {value?.class?.class_name}
+                      </TableCell>
+                      <TableCell align="right">
+                        {value?.feestype?.feestype_name || ""}
+                      </TableCell>
                       <TableCell align="right">{value.amount}</TableCell>
                       <TableCell align="right">
-
                         <Box
                           sx={{
                             display: "flex",
@@ -483,18 +478,14 @@ export default function Feestructures() {
                             Edit
                           </Button>
                         </Box>
-
                       </TableCell>
-
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
         )}
-
       </Box>
     </>
   );

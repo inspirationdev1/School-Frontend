@@ -724,7 +724,6 @@ export default function Journalvouchers() {
                         }}
                       >
                         {/* Amounttype */}
-                        {/* amountTypeInfo */}
                         <Autocomplete
                           disabled={row.isEdit}
                           options={

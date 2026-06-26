@@ -57,14 +57,13 @@ export default function Students() {
   const [selectedStatus, setSelectedStatus] = useState(null);
 
   const [previouslyappliedArray, setPreviouslyappliedArray] = useState([]);
-  const [selectedpreviouslyapplied, setSelectedpreviouslyapplied] = useState(null);
-
+  const [selectedpreviouslyapplied, setSelectedpreviouslyapplied] =
+    useState(null);
 
   const [attachmenttypes, setAttachmenttypes] = useState([]);
   const [attachmentstatuses, setAttachmentstatuses] = useState([]);
 
-
-  const [dataError, setDataError] = useState('');
+  const [dataError, setDataError] = useState("");
 
   const [tab, setTab] = useState(0);
   const [bloodgroups, setBloodgroups] = useState([]);
@@ -86,101 +85,98 @@ export default function Students() {
   const [noofstudents, setNoofstudents] = useState(0);
   const [isDataValid, setIsDataValid] = useState(true);
 
+  const [accountledgers, setAccountledgers] = useState([]);
+  const [selectedAccountledger, setSelectedAccountledger] = useState(null);
 
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
   });
 
-
-
   const fetchStatuses = async () => {
     try {
-
       const studentStatuses = [
         {
           value: "active",
           label: "Active",
-          meaning: "Currently studying"
+          meaning: "Currently studying",
         },
         {
           value: "inactive",
           label: "Inactive",
-          meaning: "Temporarily inactive"
+          meaning: "Temporarily inactive",
         },
         {
           value: "promoted",
           label: "Promoted",
-          meaning: "Promoted to next class"
+          meaning: "Promoted to next class",
         },
         {
           value: "detained",
           label: "Detained",
-          meaning: "Failed / not promoted"
+          meaning: "Failed / not promoted",
         },
         {
           value: "graduated",
           label: "Graduated",
-          meaning: "Completed schooling"
+          meaning: "Completed schooling",
         },
         {
           value: "transferred",
           label: "Transferred",
-          meaning: "Moved to another school"
+          meaning: "Moved to another school",
         },
         {
           value: "dropout",
           label: "Dropout",
-          meaning: "Left school without completion"
+          meaning: "Left school without completion",
         },
         {
           value: "suspended",
           label: "Suspended",
-          meaning: "Temporarily suspended"
+          meaning: "Temporarily suspended",
         },
         {
           value: "expelled",
           label: "Expelled",
-          meaning: "Permanently removed"
+          meaning: "Permanently removed",
         },
         {
           value: "alumni",
           label: "Alumni",
-          meaning: "Former student"
-        }
+          meaning: "Former student",
+        },
       ];
 
       setStatuses(studentStatuses);
-
     } catch (error) {
-      console.error('Error fetching statuses:', error);
+      console.error("Error fetching statuses:", error);
     }
   };
 
-
   const fetchVaccinated = async () => {
     try {
-      const fieldData = [{ fieldId: "yes", fieldValue: "Yes" },
-      { fieldId: "no", fieldValue: "No" },
+      const fieldData = [
+        { fieldId: "yes", fieldValue: "Yes" },
+        { fieldId: "no", fieldValue: "No" },
       ];
 
       setVaccinatedArray(fieldData);
-
     } catch (error) {
-      console.error('Error fetching vaccinated:', error);
+      console.error("Error fetching vaccinated:", error);
     }
   };
 
   const fetchpreviouslyapplied = async () => {
     try {
-      const fieldData = [{ fieldId: "yes", fieldValue: "Yes" },
-      { fieldId: "no", fieldValue: "No" },
+      const fieldData = [
+        { fieldId: "yes", fieldValue: "Yes" },
+        { fieldId: "no", fieldValue: "No" },
       ];
 
       setPreviouslyappliedArray(fieldData);
-
     } catch (error) {
-      console.error('Error fetching vaccinated:', error);
+      console.error("Error fetching vaccinated:", error);
     }
   };
 
@@ -244,10 +240,9 @@ export default function Students() {
       attachmentstatus: null,
       attachment_image: "",
       attachment_file: "",
-      isEdit: false
+      isEdit: false,
     },
   ]);
-
 
   const clearAdmissionAttachments = () => {
     setAdmissionAttachments([
@@ -256,10 +251,9 @@ export default function Students() {
         attachmentstatus: null,
         attachment_image: "",
         attachment_file: "",
-        isEdit: false
+        isEdit: false,
       },
-    ])
-
+    ]);
   };
 
   const addRow = () => {
@@ -270,7 +264,7 @@ export default function Students() {
         attachmentstatus: null,
         attachment_image: "",
         attachment_file: "",
-        isEdit: false
+        isEdit: false,
       },
     ]);
   };
@@ -313,10 +307,14 @@ export default function Students() {
         const matchedYear = years.find((s) => s.value === resp.data.data.year);
         setSelectedYear(matchedYear || null);
 
-        const matchedVaccinated = vaccinatedArray.find((s) => s.fieldId === resp.data.data?.vaccinated);
+        const matchedVaccinated = vaccinatedArray.find(
+          (s) => s.fieldId === resp.data.data?.vaccinated,
+        );
         setSelectedVaccinated(matchedVaccinated || null);
 
-        const matchedStatus = statuses.find((s) => s.value === resp.data.data?.status);
+        const matchedStatus = statuses.find(
+          (s) => s.value === resp.data.data?.status,
+        );
         setSelectedStatus(matchedStatus || null);
 
         // Auto calculate age
@@ -330,10 +328,14 @@ export default function Students() {
         setSelectedmodeoftransport(data?.modeoftransport || null);
         setSelectedfirstlanguage(data?.firstlanguage || null);
 
+        
 
-        const matchedPreviouslyapplied = previouslyappliedArray.find((s) => s.fieldValue === resp.data.data?.previouslyapplied);
+        const matchedPreviouslyapplied = previouslyappliedArray.find(
+          (s) => s.fieldValue === resp.data.data?.previouslyapplied,
+        );
         setSelectedpreviouslyapplied(matchedPreviouslyapplied || null);
 
+        
 
         Formik.setValues({
           email: data.email,
@@ -359,6 +361,7 @@ export default function Students() {
           mothertongue: data?.mothertongue?._id || "",
           modeoftransport: data?.modeoftransport?._id || "",
           firstlanguage: data?.firstlanguage?._id || "",
+          
 
           identificationmark1: data?.identificationmark1 || "",
           identificationmark2: data?.identificationmark2 || "",
@@ -380,8 +383,6 @@ export default function Students() {
           previouslyapplied: data?.previouslyapplied || "",
           admissionintoclass: data?.admissionintoclass || "",
           dateofaddmission: data.dateofaddmission?.split("T")[0] || "",
-
-
           dOBDate: data.dOBDate?.split("T")[0] || "",
           joinDate: data.joinDate?.split("T")[0] || "",
           password: data.password,
@@ -393,8 +394,6 @@ export default function Students() {
         } else {
           clearAdmissionAttachments();
         }
-
-
 
         setEditId(data._id);
         setTab(0); // open Create Receipt tab
@@ -422,10 +421,10 @@ export default function Students() {
     setSelectedmothertongue(null);
     setSelectedmodeoftransport(null);
     setSelectedfirstlanguage(null);
+    setSelectedAccountledger(null);
+
     clearAdmissionAttachments();
   };
-
-
 
   const [message, setMessage] = useState("");
   const [type, setType] = useState("success");
@@ -477,15 +476,12 @@ export default function Students() {
     previouslyapplied: "",
     admissionintoclass: "",
     dateofaddmission: "",
-
   };
 
   const Formik = useFormik({
     initialValues,
     validationSchema: studentSchema,
     onSubmit: (values) => {
-
-
       if (!selectedbloodgroup) {
         setMessage("Select Bloodgroup on Tab-2");
         setType("error");
@@ -522,8 +518,6 @@ export default function Students() {
         return;
       }
 
-
-
       values.student_class = selectedClass?._id;
       values.section = selectedSection?._id;
       values.parent = selectedParent?._id;
@@ -542,8 +536,6 @@ export default function Students() {
           fd.append("image", file, file.name);
         }
 
-
-
         axios
           .patch(`${baseUrl}/student/update/${editId}`, fd)
           .then((resp) => {
@@ -559,7 +551,6 @@ export default function Students() {
             setMessage(e.response.data.message);
             setType("error");
           });
-
       } else {
         if (file) {
           const fd = new FormData();
@@ -680,7 +671,6 @@ export default function Students() {
       });
   };
 
-
   const fetchreligions = () => {
     const params = {
       generalmaster_type: "religion",
@@ -726,7 +716,6 @@ export default function Students() {
       });
   };
 
-
   const fetchAttachmenttypes = () => {
     const params = {
       generalmaster_type: "attachmenttype",
@@ -757,13 +746,13 @@ export default function Students() {
       });
   };
 
+ 
+
   const saveAdmissionAttachment = async (values) => {
-
-
     // .post(`${baseUrl}/student/register`, fd)
     // .patch(`${baseUrl}/student/update/${editId}`, fd)
     values.attachmenttype = values.attachmenttype?._id;
-    values.attachmentstatus = values.attachmentstatus?._id
+    values.attachmentstatus = values.attachmentstatus?._id;
 
     const fd = new FormData();
     fd.append("image", file, file.name);
@@ -780,13 +769,13 @@ export default function Students() {
         setType("error");
         console.log("Error, response admin casting calls", e);
       });
-  }
+  };
 
   const deleteAdmissionAttachment = async (id, index) => {
     axios
       .delete(`${baseUrl}/student/delete-admission-attachment/${id}`)
       .then((resp) => {
-        removeRow(index)
+        removeRow(index);
         setMessage(resp.data.message);
         setType("success");
       })
@@ -795,8 +784,7 @@ export default function Students() {
         setType("error");
         console.log("Error, response admin casting calls", e);
       });
-  }
-
+  };
 
   useEffect(() => {
     fetchSection();
@@ -812,6 +800,7 @@ export default function Students() {
     fetchmodeoftransports();
     fetchpreviouslyapplied();
     fetchAttachmenttypes();
+    
     fetchAttachmentstatuses();
   }, [message, params]);
 
@@ -829,7 +818,6 @@ export default function Students() {
     setAdmissionAttachments(admissionAttachments.filter((_, i) => i !== index));
     console.log(admissionAttachments);
   };
-
 
   return (
     <>
@@ -1148,7 +1136,9 @@ export default function Students() {
                   <Grid item xs={12} md={6}>
                     <Autocomplete
                       options={statuses}
-                      getOptionLabel={(option) => option.meaning + "(" + option.label + ")"}
+                      getOptionLabel={(option) =>
+                        option.meaning + "(" + option.label + ")"
+                      }
                       value={selectedStatus}
                       onChange={(event, newValue) => {
                         setSelectedStatus(newValue);
@@ -1166,9 +1156,12 @@ export default function Students() {
                           placeholder="Search status..."
                           fullWidth
                           error={
-                            Formik.touched.status && Boolean(Formik.errors.status)
+                            Formik.touched.status &&
+                            Boolean(Formik.errors.status)
                           }
-                          helperText={Formik.touched.status && Formik.errors.status}
+                          helperText={
+                            Formik.touched.status && Formik.errors.status
+                          }
                         />
                       )}
                     />
@@ -1241,10 +1234,6 @@ export default function Students() {
                     )} */}
                   </Grid>
 
-
-
-
-
                   {/* Password */}
                   {!isEdit && (
                     <Grid item xs={12} md={6}>
@@ -1288,7 +1277,6 @@ export default function Students() {
           </Box>
         )}
 
-
         {tab === 1 && (
           <Box>
             <Paper sx={{ padding: "20px", margin: "10px" }}>
@@ -1320,7 +1308,8 @@ export default function Students() {
                             Boolean(Formik.errors.bloodgroup)
                           }
                           helperText={
-                            Formik.touched.bloodgroup && Formik.errors.bloodgroup
+                            Formik.touched.bloodgroup &&
+                            Formik.errors.bloodgroup
                           }
                         />
                       )}
@@ -1348,10 +1337,10 @@ export default function Students() {
                           label="Select vaccinated"
                           placeholder="Search vaccinated..."
                           fullWidth
-                        // error={
-                        //   Formik.touched.vaccinated && Boolean(Formik.errors.vaccinated)
-                        // }
-                        // helperText={Formik.touched.vaccinated && Formik.errors.vaccinated}
+                          // error={
+                          //   Formik.touched.vaccinated && Boolean(Formik.errors.vaccinated)
+                          // }
+                          // helperText={Formik.touched.vaccinated && Formik.errors.vaccinated}
                         />
                       )}
                     />
@@ -1365,7 +1354,10 @@ export default function Students() {
                       value={selectednationality}
                       onChange={(e, newValue) => {
                         setSelectednationality(newValue);
-                        Formik.setFieldValue("nationality", newValue?._id || "");
+                        Formik.setFieldValue(
+                          "nationality",
+                          newValue?._id || "",
+                        );
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -1378,13 +1370,13 @@ export default function Students() {
                             Boolean(Formik.errors.nationality)
                           }
                           helperText={
-                            Formik.touched.nationality && Formik.errors.nationality
+                            Formik.touched.nationality &&
+                            Formik.errors.nationality
                           }
                         />
                       )}
                     />
                   </Grid>
-
 
                   {/* religion */}
                   <Grid item xs={12} md={6}>
@@ -1422,7 +1414,10 @@ export default function Students() {
                       value={selectedmothertongue}
                       onChange={(e, newValue) => {
                         setSelectedmothertongue(newValue);
-                        Formik.setFieldValue("mothertongue", newValue?._id || "");
+                        Formik.setFieldValue(
+                          "mothertongue",
+                          newValue?._id || "",
+                        );
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -1435,7 +1430,8 @@ export default function Students() {
                             Boolean(Formik.errors.mothertongue)
                           }
                           helperText={
-                            Formik.touched.mothertongue && Formik.errors.mothertongue
+                            Formik.touched.mothertongue &&
+                            Formik.errors.mothertongue
                           }
                         />
                       )}
@@ -1450,7 +1446,10 @@ export default function Students() {
                       value={selectedmodeoftransport}
                       onChange={(e, newValue) => {
                         setSelectedmodeoftransport(newValue);
-                        Formik.setFieldValue("modeoftransport", newValue?._id || "");
+                        Formik.setFieldValue(
+                          "modeoftransport",
+                          newValue?._id || "",
+                        );
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -1463,7 +1462,8 @@ export default function Students() {
                             Boolean(Formik.errors.modeoftransport)
                           }
                           helperText={
-                            Formik.touched.modeoftransport && Formik.errors.modeoftransport
+                            Formik.touched.modeoftransport &&
+                            Formik.errors.modeoftransport
                           }
                         />
                       )}
@@ -1478,7 +1478,10 @@ export default function Students() {
                       value={selectedfirstlanguage}
                       onChange={(e, newValue) => {
                         setSelectedfirstlanguage(newValue);
-                        Formik.setFieldValue("firstlanguage", newValue?._id || "");
+                        Formik.setFieldValue(
+                          "firstlanguage",
+                          newValue?._id || "",
+                        );
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -1491,13 +1494,13 @@ export default function Students() {
                             Boolean(Formik.errors.firstlanguage)
                           }
                           helperText={
-                            Formik.touched.firstlanguage && Formik.errors.firstlanguage
+                            Formik.touched.firstlanguage &&
+                            Formik.errors.firstlanguage
                           }
                         />
                       )}
                     />
                   </Grid>
-
 
                   {/* identificationmark1 */}
                   <Grid item xs={12} md={6}>
@@ -1691,11 +1694,6 @@ export default function Students() {
                     )} */}
                   </Grid>
 
-
-
-
-
-
                   {/* Buttons Full Row */}
                   <Grid item xs={12}>
                     <Button type="submit" fullWidth variant="contained">
@@ -1713,11 +1711,8 @@ export default function Students() {
                       </Button>
                     )}
                   </Grid>
-
                 </Grid>
-
               </Box>
-
             </Paper>
           </Box>
         )}
@@ -1810,22 +1805,23 @@ export default function Students() {
                           newValue ? newValue.fieldValue : "",
                         );
                       }}
-                      onBlur={() => Formik.setFieldTouched("previouslyapplied", true)}
+                      onBlur={() =>
+                        Formik.setFieldTouched("previouslyapplied", true)
+                      }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           label="Select previously applied"
                           placeholder="Search previouslyapplied..."
                           fullWidth
-                        // error={
-                        //   Formik.touched.previouslyapplied && Boolean(Formik.errors.previouslyapplied)
-                        // }
-                        // helperText={Formik.touched.previouslyapplied && Formik.errors.previouslyapplied}
+                          // error={
+                          //   Formik.touched.previouslyapplied && Boolean(Formik.errors.previouslyapplied)
+                          // }
+                          // helperText={Formik.touched.previouslyapplied && Formik.errors.previouslyapplied}
                         />
                       )}
                     />
                   </Grid>
-
 
                   {/*   admissionintoclass */}
                   <Grid item xs={12} md={6}>
@@ -1857,8 +1853,6 @@ export default function Students() {
                         const doa = e.target.value;
 
                         Formik.setFieldValue("dateofaddmission", doa);
-
-
                       }}
                       onBlur={Formik.handleBlur}
                     />
@@ -1897,9 +1891,8 @@ export default function Students() {
                       value={Formik.values.roll_no}
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
-
                     />
-                    
+
                     {/* {Formik.touched.admission_no && Formik.errors.admission_no && (
                       <p style={{ color: "red", textTransform: "capitalize" }}>
                         {Formik.errors.admission_no}
@@ -1907,7 +1900,7 @@ export default function Students() {
                     )} */}
                   </Grid>
 
-
+                  
 
                   {/* Buttons Full Row */}
                   <Grid item xs={12}>
@@ -1928,210 +1921,199 @@ export default function Students() {
                   </Grid>
 
                   {/* Admission Attachments */}
-                  {isEdit && <Box sx={{ mt: 4 }}>
+                  {isEdit && (
+                    <Box sx={{ mt: 4 }}>
+                      {/* Error */}
+                      {!isDataValid && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                          {dataError}
+                        </Alert>
+                      )}
 
-                    {/* Error */}
-                    {!isDataValid && (
-                      <Alert severity="error" sx={{ mb: 2 }}>
-                        {dataError}
-                      </Alert>
-                    )}
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 2,
-                      }}
-                    >
-                      <Typography variant="h6" fontWeight={700}>
-                        Admission Attachments
-                      </Typography>
-
-                      <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={addRow}
-                      >
-                        Add Attachment
-                      </Button>
-                    </Box>
-
-                    {/* Attachment Rows */}
-                    {admissionAttachments.map((row, index) => (
-                      <Paper
-                        key={index}
-                        elevation={2}
+                      <Box
                         sx={{
-                          p: 2,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
                           mb: 2,
-                          borderRadius: 2,
                         }}
                       >
-                        <Box
+                        <Typography variant="h6" fontWeight={700}>
+                          Admission Attachments
+                        </Typography>
+
+                        <Button
+                          variant="contained"
+                          startIcon={<AddIcon />}
+                          onClick={addRow}
+                        >
+                          Add Attachment
+                        </Button>
+                      </Box>
+
+                      {/* Attachment Rows */}
+                      {admissionAttachments.map((row, index) => (
+                        <Paper
+                          key={index}
+                          elevation={2}
                           sx={{
-                            display: "grid",
-                            gridTemplateColumns: {
-                              xs: "1fr",
-                              sm: "1fr 1fr",
-                              md: "280px 280px 1fr auto"
-                            },
-                            gap: 2,
-                            alignItems: "center",
+                            p: 2,
+                            mb: 2,
+                            borderRadius: 2,
                           }}
                         >
-
-                          {/* Attachment Type */}
-                          <Autocomplete
-                            disabled={row.isEdit}
-                            options={attachmenttypes}
-                            getOptionLabel={(option) =>
-                              option?.generalmaster_name || ""
-                            }
-                            isOptionEqualToValue={(option, value) =>
-                              option._id === value?._id
-                            }
-                            value={row.attachmenttype || null}
-                            onChange={(event, newValue) => {
-                              handleChange(index, "attachmenttype", newValue);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Attachment Type"
-                                size="small"
-                                fullWidth
-                              />
-                            )}
-                          />
-
-                          {/* Attachment Status */}
-                          <Autocomplete
-                            disabled={row.isEdit}
-                            options={attachmentstatuses}
-                            getOptionLabel={(option) =>
-                              option?.generalmaster_name || ""
-                            }
-                            isOptionEqualToValue={(option, value) =>
-                              option._id === value?._id
-                            }
-                            value={row.attachmentstatus || null}
-                            onChange={(event, newValue) => {
-                              handleChange(index, "attachmentstatus", newValue);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Attachment Status"
-                                size="small"
-                                fullWidth
-                              />
-                            )}
-                          />
-
-                          {/* Attachment Image / URL */}
-
-                          <TextField
-                            type="file"
-                            name="attachment_file"
-                            fullWidth
-                            size="small"
-                            onChange={(e) =>
-                              handleChange(
-                                index,
-                                "attachment_file",
-                                e.target.files[0] // ✅ use file object
-                              )
-
-
-                            }
-                            inputRef={fileInputRef}
-                            InputProps={{
-                              startAdornment: (
-                                <AttachFileIcon
-                                  sx={{ mr: 1, color: "text.secondary" }}
-                                />
-                              ),
-                            }}
-                          />
-
-
-
-
-                          {/* Action Buttons */}
                           <Box
                             sx={{
-                              display: "flex",
+                              display: "grid",
+                              gridTemplateColumns: {
+                                xs: "1fr",
+                                sm: "1fr 1fr",
+                                md: "280px 280px 1fr auto",
+                              },
+                              gap: 2,
                               alignItems: "center",
-                              justifyContent: "center",
-                              gap: 1,
-                              minWidth: "90px",
                             }}
                           >
+                            {/* Attachment Type */}
+                            <Autocomplete
+                              disabled={row.isEdit}
+                              options={attachmenttypes}
+                              getOptionLabel={(option) =>
+                                option?.generalmaster_name || ""
+                              }
+                              isOptionEqualToValue={(option, value) =>
+                                option._id === value?._id
+                              }
+                              value={row.attachmenttype || null}
+                              onChange={(event, newValue) => {
+                                handleChange(index, "attachmenttype", newValue);
+                              }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Attachment Type"
+                                  size="small"
+                                  fullWidth
+                                />
+                              )}
+                            />
 
+                            {/* Attachment Status */}
+                            <Autocomplete
+                              disabled={row.isEdit}
+                              options={attachmentstatuses}
+                              getOptionLabel={(option) =>
+                                option?.generalmaster_name || ""
+                              }
+                              isOptionEqualToValue={(option, value) =>
+                                option._id === value?._id
+                              }
+                              value={row.attachmentstatus || null}
+                              onChange={(event, newValue) => {
+                                handleChange(
+                                  index,
+                                  "attachmentstatus",
+                                  newValue,
+                                );
+                              }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Attachment Status"
+                                  size="small"
+                                  fullWidth
+                                />
+                              )}
+                            />
 
-                            {/* Upload */}
-                            <IconButton
-                              color="primary"
-                              onClick={() => {
-                                if (row?.attachment_file) {
-                                  saveAdmissionAttachment(row);
-                                } else {
-                                  setMessage("Choose the file")
-                                  setType("error");
-                                }
+                            {/* Attachment Image / URL */}
 
+                            <TextField
+                              type="file"
+                              name="attachment_file"
+                              fullWidth
+                              size="small"
+                              onChange={(e) =>
+                                handleChange(
+                                  index,
+                                  "attachment_file",
+                                  e.target.files[0], // ✅ use file object
+                                )
+                              }
+                              inputRef={fileInputRef}
+                              InputProps={{
+                                startAdornment: (
+                                  <AttachFileIcon
+                                    sx={{ mr: 1, color: "text.secondary" }}
+                                  />
+                                ),
+                              }}
+                            />
+
+                            {/* Action Buttons */}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 1,
+                                minWidth: "90px",
                               }}
                             >
-                              <UploadIcon />
-                            </IconButton>
+                              {/* Upload */}
+                              <IconButton
+                                color="primary"
+                                onClick={() => {
+                                  if (row?.attachment_file) {
+                                    saveAdmissionAttachment(row);
+                                  } else {
+                                    setMessage("Choose the file");
+                                    setType("error");
+                                  }
+                                }}
+                              >
+                                <UploadIcon />
+                              </IconButton>
 
+                              {/* View */}
+                              <IconButton
+                                color="primary"
+                                onClick={() => {
+                                  // view logic
+                                  if (row?.attachment_image) {
+                                    view_AdmissionAttachment_File(
+                                      row?.attachment_image,
+                                    );
+                                  } else {
+                                    setMessage("File is not attached/upload");
+                                    setType("error");
+                                  }
+                                }}
+                              >
+                                <VisibilityIcon />
+                              </IconButton>
 
-                            {/* View */}
-                            <IconButton
-                              color="primary"
-                              onClick={() => {
-                                // view logic
-                                if (row?.attachment_image) {
-                                  view_AdmissionAttachment_File(row?.attachment_image);
-                                } else {
-                                  setMessage("File is not attached/upload")
-                                  setType("error");
-                                }
-
-                              }}
-                            >
-                              <VisibilityIcon />
-                            </IconButton>
-
-                            {/* Delete */}
-                            <IconButton
-                              color="error"
-                              onClick={() => {
-                                if (row?._id) {
-                                  deleteAdmissionAttachment(row?._id, index)
-                                } else {
-                                  removeRow(index)
-                                }
-                              }}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+                              {/* Delete */}
+                              <IconButton
+                                color="error"
+                                onClick={() => {
+                                  if (row?._id) {
+                                    deleteAdmissionAttachment(row?._id, index);
+                                  } else {
+                                    removeRow(index);
+                                  }
+                                }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Box>
                           </Box>
-
-                        </Box>
-                      </Paper>
-                    ))}
-                  </Box>
-                  }
-
+                        </Paper>
+                      ))}
+                    </Box>
+                  )}
                 </Grid>
-
-
-
               </Box>
-
             </Paper>
           </Box>
         )}
@@ -2183,8 +2165,6 @@ export default function Students() {
               </Box>
             </Box>
 
-
-
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -2211,7 +2191,9 @@ export default function Students() {
                       </TableCell>
 
                       <TableCell align="right">{value?.status}</TableCell>
-                      <TableCell align="right">{value?.student_class?.class_name}</TableCell>
+                      <TableCell align="right">
+                        {value?.student_class?.class_name}
+                      </TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
                       <TableCell align="right">
                         {dayjs(value?.dOBDate).format("DD/MM/YYYY")}

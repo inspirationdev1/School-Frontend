@@ -46,6 +46,9 @@ export default function Teachers() {
   const [statuses, setStatuses] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(null);
 
+  const [accountledgers, setAccountledgers] = useState([]);
+  const [selectedAccountledger, setSelectedAccountledger] = useState(null);
+
   const addImage = (event) => {
     const file = event.target.files[0];
     setImageUrl(URL.createObjectURL(file));
@@ -54,7 +57,6 @@ export default function Teachers() {
   };
 
   const [params, setParams] = useState({});
-
 
   const handleSearch = (e) => {
     let newParam;
@@ -92,27 +94,34 @@ export default function Teachers() {
         Formik.setFieldValue("email", resp.data.data.email);
         Formik.setFieldValue("name", resp.data.data.name);
         Formik.setFieldValue("teacher_code", resp.data.data?.teacher_code);
-        Formik.setFieldValue("qualification", resp.data.data.qualification)
-        Formik.setFieldValue("gender", resp.data.data.gender)
+        Formik.setFieldValue("qualification", resp.data.data.qualification);
+        Formik.setFieldValue("gender", resp.data.data.gender);
         // Formik.setFieldValue("age", resp.data.data.age);
-        Formik.setFieldValue("password", resp.data.data.password)
+        Formik.setFieldValue("password", resp.data.data.password);
 
-        Formik.setFieldValue("year", resp.data.data.year)
-        const matchedYear = years.find(s => s.value === resp.data.data.year);
+        Formik.setFieldValue("year", resp.data.data.year);
+        const matchedYear = years.find((s) => s.value === resp.data.data.year);
         setSelectedYear(matchedYear || null);
 
-        Formik.setFieldValue("dOBDate", resp.data.data.dOBDate?.split("T")[0] || "")
-        Formik.setFieldValue("joinDate", resp.data.data.joinDate?.split("T")[0] || "")
-
+        
+        Formik.setFieldValue(
+          "dOBDate",
+          resp.data.data.dOBDate?.split("T")[0] || "",
+        );
+        Formik.setFieldValue(
+          "joinDate",
+          resp.data.data.joinDate?.split("T")[0] || "",
+        );
 
         // Auto calculate age
         const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
         Formik.setFieldValue("age", age);
-        Formik.setFieldValue("phoneno", resp.data.data?.phoneno)
+        Formik.setFieldValue("phoneno", resp.data.data?.phoneno);
 
-        const matchedStatus = statuses.find((s) => s.value === resp.data.data?.status);
+        const matchedStatus = statuses.find(
+          (s) => s.value === resp.data.data?.status,
+        );
         setSelectedStatus(matchedStatus || null);
-
 
         setEditId(resp.data.data._id);
         setTab(0); // open Create Receipt tab
@@ -147,7 +156,7 @@ export default function Teachers() {
     setEdit(false);
     setSelectedYear(null);
     setSelectedStatus(null);
-    Formik.resetForm()
+    Formik.resetForm();
   };
 
   //   CLEARING IMAGE FILE REFENCE FROM INPUT
@@ -159,7 +168,6 @@ export default function Teachers() {
     setFile(null); // Reset the file state
     setImageUrl(null); // Clear the image preview
   };
-
 
   //   MESSAGE
   const [message, setMessage] = useState("");
@@ -189,7 +197,6 @@ export default function Teachers() {
     onSubmit: (values) => {
       console.log("teacher calls admin Formik values", values);
       if (isEdit) {
-
         const fd = new FormData();
         Object.keys(values).forEach((key) => fd.append(key, values[key]));
         if (file) {
@@ -212,7 +219,6 @@ export default function Teachers() {
           });
       } else {
         if (file) {
-
           const fd = new FormData();
           fd.append("image", file, file.name);
           Object.keys(values).forEach((key) => fd.append(key, values[key]));
@@ -223,7 +229,7 @@ export default function Teachers() {
               console.log("Response after submitting admin teacher", resp);
               setMessage(resp.data.message);
               setType("success");
-              handleClearFile()
+              handleClearFile();
               cancelEdit();
               setTab(1); // go to View List
             })
@@ -245,8 +251,6 @@ export default function Teachers() {
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
 
-
-
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
@@ -254,34 +258,28 @@ export default function Teachers() {
 
   const fetchStatuses = async () => {
     try {
-
       const studentStatuses = [
         {
           value: "active",
           label: "Active",
-          meaning: "Currently working"
+          meaning: "Currently working",
         },
         {
           value: "inactive",
           label: "Inactive",
-          meaning: "Temporarily inactive"
+          meaning: "Temporarily inactive",
         },
-
       ];
 
       setStatuses(studentStatuses);
-
     } catch (error) {
-      console.error('Error fetching statuses:', error);
+      console.error("Error fetching statuses:", error);
     }
   };
 
   const viewUploadFile = (fileName) => {
-
     const fileUrl = `${fileName}`;
     window.open(fileUrl, "_blank", "noopener,noreferrer");
-
-
   };
 
   const fetchteachers = () => {
@@ -295,10 +293,12 @@ export default function Teachers() {
         console.log("Error in fetching teacher calls admin data", e);
       });
   };
+
+  
   useEffect(() => {
+    
     fetchteachers();
     fetchStatuses();
-
   }, [message, params]);
   return (
     <>
@@ -310,10 +310,7 @@ export default function Teachers() {
         />
       )}
 
-      <Box
-
-      >
-
+      <Box>
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs
             value={tab}
@@ -327,16 +324,11 @@ export default function Teachers() {
           </Tabs>
         </Box>
 
-
         {tab === 0 && (
           <Box component={"div"}>
-            <Paper
-              sx={{ padding: "20px", margin: "10px" }}
-            >
-
+            <Paper sx={{ padding: "20px", margin: "10px" }}>
               <Box component="form" onSubmit={Formik.handleSubmit}>
                 <Grid container spacing={2}>
-
                   {/* IMAGE FULL WIDTH */}
                   <Grid item xs={12}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -394,7 +386,6 @@ export default function Teachers() {
                     )}
                   </Grid>
 
-
                   {/* teacher_code */}
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -406,11 +397,14 @@ export default function Teachers() {
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
                     />
-                    {Formik.touched.teacher_code && Formik.errors.teacher_code && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.teacher_code}
-                      </p>
-                    )}
+                    {Formik.touched.teacher_code &&
+                      Formik.errors.teacher_code && (
+                        <p
+                          style={{ color: "red", textTransform: "capitalize" }}
+                        >
+                          {Formik.errors.teacher_code}
+                        </p>
+                      )}
                   </Grid>
 
                   {/* QUALIFICATION */}
@@ -422,11 +416,14 @@ export default function Teachers() {
                       value={Formik.values.qualification}
                       onChange={Formik.handleChange}
                     />
-                    {Formik.touched.qualification && Formik.errors.qualification && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.qualification}
-                      </p>
-                    )}
+                    {Formik.touched.qualification &&
+                      Formik.errors.qualification && (
+                        <p
+                          style={{ color: "red", textTransform: "capitalize" }}
+                        >
+                          {Formik.errors.qualification}
+                        </p>
+                      )}
                   </Grid>
 
                   {/* GENDER */}
@@ -544,7 +541,9 @@ export default function Teachers() {
                           label="Select Academic Year"
                           placeholder="Search year..."
                           fullWidth
-                          error={Formik.touched.year && Boolean(Formik.errors.year)}
+                          error={
+                            Formik.touched.year && Boolean(Formik.errors.year)
+                          }
                           helperText={Formik.touched.year && Formik.errors.year}
                         />
                       )}
@@ -554,7 +553,9 @@ export default function Teachers() {
                   <Grid item xs={12} md={6}>
                     <Autocomplete
                       options={statuses}
-                      getOptionLabel={(option) => option.meaning + "(" + option.label + ")"}
+                      getOptionLabel={(option) =>
+                        option.meaning + "(" + option.label + ")"
+                      }
                       value={selectedStatus}
                       onChange={(event, newValue) => {
                         setSelectedStatus(newValue);
@@ -572,13 +573,18 @@ export default function Teachers() {
                           placeholder="Search status..."
                           fullWidth
                           error={
-                            Formik.touched.status && Boolean(Formik.errors.status)
+                            Formik.touched.status &&
+                            Boolean(Formik.errors.status)
                           }
-                          helperText={Formik.touched.status && Formik.errors.status}
+                          helperText={
+                            Formik.touched.status && Formik.errors.status
+                          }
                         />
                       )}
                     />
                   </Grid>
+
+                  
 
                   {/* PASSWORD */}
                   {!isEdit && (
@@ -592,7 +598,9 @@ export default function Teachers() {
                         onChange={Formik.handleChange}
                       />
                       {Formik.touched.password && Formik.errors.password && (
-                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                        <p
+                          style={{ color: "red", textTransform: "capitalize" }}
+                        >
                           {Formik.errors.password}
                         </p>
                       )}
@@ -611,15 +619,11 @@ export default function Teachers() {
                       </Button>
                     )}
                   </Grid>
-
                 </Grid>
               </Box>
-
             </Paper>
           </Box>
         )}
-
-
 
         {tab === 1 && (
           <Box>
@@ -633,7 +637,6 @@ export default function Teachers() {
                 marginBottom: "5px",
               }}
             >
-
               <TextField
                 label="Search Name .."
                 size="small"
@@ -649,13 +652,14 @@ export default function Teachers() {
                   },
                 }}
               />
-
             </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row">Name</TableCell>
+                    <TableCell component="th" scope="row">
+                      Name
+                    </TableCell>
                     <TableCell align="right">Code</TableCell>
                     <TableCell align="right">Email</TableCell>
                     {/* <TableCell align="right">dOBDate</TableCell> */}
@@ -667,7 +671,7 @@ export default function Teachers() {
                   {teachers.map((value, i) => (
                     <TableRow
                       key={i}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
                         {value.name}
@@ -675,9 +679,10 @@ export default function Teachers() {
                       <TableCell align="right">{value?.teacher_code}</TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
                       {/* <TableCell align="right">{dayjs(value?.dOBDate).format("DD/MM/YYYY")}</TableCell> */}
-                      <TableCell align="right">{dayjs(value?.joinDate).format("DD/MM/YYYY")}</TableCell>
                       <TableCell align="right">
-
+                        {dayjs(value?.joinDate).format("DD/MM/YYYY")}
+                      </TableCell>
+                      <TableCell align="right">
                         <Box
                           sx={{
                             display: "flex",
@@ -710,16 +715,13 @@ export default function Teachers() {
                           </Button>
                         </Box>
                       </TableCell>
-
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
         )}
-
       </Box>
     </>
   );

@@ -172,15 +172,7 @@ export default function Generalmasters() {
     }
   };
   const fetchgeneralmaster = () => {
-    // axios
-    //   .get(`${baseUrl}/generalmaster/fetch-all`)
-    //   .then((resp) => {
-    //     console.log("Fetching data in  Casting Calls  admin.", resp);
-    //     setStudentGeneralmaster(resp.data.data);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching casting calls admin data", e);
-    //   });
+    
     axios
       .get(`${baseUrl}/generalmaster/fetch-with-query`, { params })
       .then((resp) => {
@@ -322,25 +314,7 @@ export default function Generalmasters() {
                 }}
               />
 
-              {/* No of Students Card */}
-              {/* <Box
-                            sx={{
-                              flex: 1,
-                              minWidth: { xs: "100%", sm: 160 },
-                              height: 42,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              borderRadius: 2,
-                              bgcolor: "primary.main",
-                              color: "white",
-                              fontWeight: 600,
-                              fontSize: "14px",
-                              boxShadow: 2,
-                            }}
-                          >
-                            Students Count : {noofstudents}
-                          </Box> */}
+              
             </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">

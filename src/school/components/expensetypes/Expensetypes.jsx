@@ -31,8 +31,8 @@ export default function Expensetypes() {
   const [taxrates, setTaxrates] = useState([]);
   const [selectedTaxrate, setSelectedTaxrate] = useState(null);
 
-
-
+  const [accountledgers, setAccountledgers] = useState([]);
+  const [selectedAccountledger, setSelectedAccountledger] = useState(null);
 
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
@@ -52,11 +52,24 @@ export default function Expensetypes() {
   const handleEdit = (id) => {
     console.log("Handle  Edit is called", id);
     setEdit(true);
-    axios.get(`${baseUrl}/expensetype/fetch-single/${id}`)
+    axios
+      .get(`${baseUrl}/expensetype/fetch-single/${id}`)
       .then((resp) => {
-        Formik.setFieldValue("expensetype_name", resp.data.data.expensetype_name);
-        Formik.setFieldValue("expensetype_code", resp.data.data.expensetype_code);
+        Formik.setFieldValue(
+          "expensetype_name",
+          resp.data.data.expensetype_name,
+        );
+        Formik.setFieldValue(
+          "expensetype_code",
+          resp.data.data.expensetype_code,
+        );
 
+        Formik.setFieldValue("taxrate", resp.data.data?.taxrate?._id);
+        Formik.setFieldValue("tax_percent", resp.data.data?.tax_percent);
+        Formik.setFieldValue("taxtype", resp.data.data?.taxtype);
+        setSelectedTaxrate(resp.data.data?.taxrate);
+
+       
         setEditId(resp.data.data._id);
         setTab(0); // open Create Expensetype tab
       })
@@ -68,7 +81,8 @@ export default function Expensetypes() {
   const cancelEdit = () => {
     setEdit(false);
     setSelectedTaxrate(null);
-    Formik.resetForm()
+    setSelectedAccountledger(null);
+    Formik.resetForm();
   };
 
   //   MESSAGE
@@ -107,7 +121,6 @@ export default function Expensetypes() {
             console.log("Error, edit casting submit", e);
           });
       } else {
-
         axios
           .post(`${baseUrl}/expensetype/create`, { ...values })
           .then((resp) => {
@@ -123,14 +136,12 @@ export default function Expensetypes() {
             console.log("Error, response admin casting calls", e);
           });
         Formik.resetForm();
-
       }
     },
   });
 
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
-
 
   const fetchstudentsexpensetype = () => {
     axios
@@ -146,18 +157,21 @@ export default function Expensetypes() {
 
   const fetchTaxrates = async () => {
     try {
-      const taxratesResponse = await axios.get(`${baseUrl}/taxrate/fetch-with-query`); // Fetch based on class
+      const taxratesResponse = await axios.get(
+        `${baseUrl}/taxrate/fetch-with-query`,
+      ); // Fetch based on class
       setTaxrates(taxratesResponse.data.data);
-
     } catch (error) {
-      console.error('Error fetching taxrates:', error);
+      console.error("Error fetching taxrates:", error);
     }
   };
 
+  
+
   useEffect(() => {
     fetchTaxrates();
+    
     fetchstudentsexpensetype();
-
   }, [message]);
   return (
     <>
@@ -184,18 +198,13 @@ export default function Expensetypes() {
 
         {tab === 0 && (
           <Box component={"div"} sx={{}}>
-            <Paper
-              sx={{ padding: '20px', margin: "10px" }}
-            >
-
+            <Paper sx={{ padding: "20px", margin: "10px" }}>
               <Box
                 component="form"
                 noValidate
                 autoComplete="off"
                 onSubmit={Formik.handleSubmit}
               >
-
-
                 <TextField
                   fullWidth
                   sx={{ marginTop: "10px" }}
@@ -207,12 +216,12 @@ export default function Expensetypes() {
                   onChange={Formik.handleChange}
                   onBlur={Formik.handleBlur}
                 />
-                {Formik.touched.expensetype_name && Formik.errors.expensetype_name && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.expensetype_name}
-                  </p>
-                )}
-
+                {Formik.touched.expensetype_name &&
+                  Formik.errors.expensetype_name && (
+                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                      {Formik.errors.expensetype_name}
+                    </p>
+                  )}
 
                 <TextField
                   // disabled={isEdit}
@@ -226,14 +235,14 @@ export default function Expensetypes() {
                   onChange={Formik.handleChange}
                   onBlur={Formik.handleBlur}
                 />
-                {Formik.touched.expensetype_code && Formik.errors.expensetype_code && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.expensetype_code}
-                  </p>
-                )}
+                {Formik.touched.expensetype_code &&
+                  Formik.errors.expensetype_code && (
+                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                      {Formik.errors.expensetype_code}
+                    </p>
+                  )}
 
                 <Box>
-
                   <Autocomplete
                     sx={{ marginTop: "10px" }}
                     // disabled={isEdit}
@@ -245,7 +254,7 @@ export default function Expensetypes() {
 
                       Formik.setFieldValue(
                         "taxrate",
-                        newValue ? newValue._id : ""
+                        newValue ? newValue._id : "",
                       );
                     }}
                     onBlur={() => Formik.setFieldTouched("taxrate", true)}
@@ -255,20 +264,19 @@ export default function Expensetypes() {
                         label="Select taxrate"
                         placeholder="Search taxrate..."
                         fullWidth
-                        error={Formik.touched.taxrate && Boolean(Formik.errors.taxrate)}
-                        helperText={Formik.touched.taxrate && Formik.errors.taxrate}
+                        error={
+                          Formik.touched.taxrate &&
+                          Boolean(Formik.errors.taxrate)
+                        }
+                        helperText={
+                          Formik.touched.taxrate && Formik.errors.taxrate
+                        }
                       />
                     )}
                   />
-
-
                 </Box>
 
-
-
-
-
-
+                
 
                 <Box sx={{ marginTop: "10px" }} component={"div"}>
                   <Button
@@ -293,14 +301,16 @@ export default function Expensetypes() {
           </Box>
         )}
 
-
         {tab === 1 && (
           <Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row"> expensetype Name</TableCell>
+                    <TableCell component="th" scope="row">
+                      {" "}
+                      expensetype Name
+                    </TableCell>
                     <TableCell align="right">Code</TableCell>
                     <TableCell align="right">Taxrate</TableCell>
                     <TableCell align="right">Action</TableCell>
@@ -310,15 +320,18 @@ export default function Expensetypes() {
                   {studentExpensetype.map((value, i) => (
                     <TableRow
                       key={i}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
                         {value.expensetype_name}
                       </TableCell>
-                      <TableCell align="right">{value.expensetype_code}</TableCell>
-                      <TableCell align="right">{(value?.taxrate?.tax_percent || "0") + " %"}</TableCell>
                       <TableCell align="right">
-
+                        {value.expensetype_code}
+                      </TableCell>
+                      <TableCell align="right">
+                        {(value?.taxrate?.tax_percent || "0") + " %"}
+                      </TableCell>
+                      <TableCell align="right">
                         <Box
                           sx={{
                             display: "flex",
@@ -343,13 +356,11 @@ export default function Expensetypes() {
                           </Button>
                         </Box>
                       </TableCell>
-
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
         )}
       </Box>

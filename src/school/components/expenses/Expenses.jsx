@@ -221,7 +221,7 @@ export default function Expenses() {
         status: "valid",
         remarks: "",
         year: "",
-        expenseAmount: 0
+        expenseAmount: 0,
     };
 
 

@@ -91,6 +91,7 @@ export default function Accountsetups() {
           "accountledger_name",
           resp.data.data?.accountledger_name,
         );
+        Formik.setFieldValue("account_type", resp.data.data?.account_type);
 
         const matchedAmounttype = amounttypes.find(
           (s) => s.value === resp.data.data?.amount_type,
@@ -146,6 +147,7 @@ export default function Accountsetups() {
     initialValues: initialValues,
     validationSchema: accountsetupsSchema,
     onSubmit: (values) => {
+      // values.account_type = selectedAccountledger?.account_type || "";
       if (isEdit) {
         console.log("edit id", editId);
         axios
@@ -397,6 +399,10 @@ export default function Accountsetups() {
                         "accountledger_name",
                         newValue ? newValue?.accountledger_name : "",
                       );
+                      Formik.setFieldValue(
+                        "account_type",
+                        newValue ? newValue?.account_type : "",
+                      );
                     }}
                     onBlur={() => Formik.setFieldTouched("accountledger", true)}
                     renderInput={(params) => (
@@ -557,6 +563,7 @@ export default function Accountsetups() {
                     <TableCell align="right">Accountledger</TableCell>
                     <TableCell align="right">Amount Type</TableCell>
                     <TableCell align="right">Mapping Type</TableCell>
+                    <TableCell align="right">Account Type</TableCell>
                     <TableCell align="right">Seq</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
@@ -581,6 +588,7 @@ export default function Accountsetups() {
                           value?.amount_type?.slice(1).toLowerCase()}
                       </TableCell>
                       <TableCell align="right">{value?.mapping_type}</TableCell>
+                      <TableCell align="right">{value?.account_type}</TableCell>
                       <TableCell align="right">{value?.seq}</TableCell>
                       <TableCell align="right">
                         <Box

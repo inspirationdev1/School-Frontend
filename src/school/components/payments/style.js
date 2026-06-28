@@ -12,35 +12,35 @@ export const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10
+    marginBottom: 10,
   },
 
   logo: {
     width: 50,
     height: 50,
     objectFit: "contain", // maintain aspect ratio
-    marginRight: 10
+    marginRight: 10,
   },
 
   schoolInfo: {
     flex: 1,
-    textAlign: "center"
+    textAlign: "center",
   },
 
   schoolName: {
     fontSize: 14,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
 
   schoolText: {
-    fontSize: 10
+    fontSize: 10,
   },
 
   reportTitle: {
     textAlign: "center",
     fontSize: 14,
     marginVertical: 10,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   header: {
     flexDirection: "row",
@@ -90,7 +90,7 @@ export const styles = StyleSheet.create({
     width: "30%",
   },
   rightText: {
-    width: "100%",       // 🔥 REQUIRED
-    textAlign: "right",  // 🔥 NOW it works
+    width: "100%", // 🔥 REQUIRED
+    textAlign: "right", // 🔥 NOW it works
   },
 });

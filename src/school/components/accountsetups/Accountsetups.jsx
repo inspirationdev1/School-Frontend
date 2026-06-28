@@ -15,6 +15,7 @@ import {
   Grid,
   Tabs,
   Tab,
+  Alert,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
@@ -25,6 +26,8 @@ import CustomizedSnackbars from "../../../basic utility components/CustomizedSna
 import { accountsetupsSchema } from "../../../yupSchema/accountsetupsSchema";
 
 export default function Accountsetups() {
+  const [isDataValid, setIsDataValid] = useState(true);
+  const [dataError, setDataError] = useState("");
   const [accountsetups, setAccountsetups] = useState([]);
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -39,6 +42,9 @@ export default function Accountsetups() {
 
   const [mappingtypes, setMappingtypes] = useState([]);
   const [selectedMappingtype, setSelectedMappingtype] = useState(null);
+
+  const [paymentmethods, setPaymentmethods] = useState([]);
+  const [selectedPaymentmethod, setSelectedPaymentmethod] = useState(null);
 
   const [tab, setTab] = useState(0);
 
@@ -105,6 +111,12 @@ export default function Accountsetups() {
         setSelectedMappingtype(matchedMappingtype || null);
         Formik.setFieldValue("mapping_type", resp.data.data?.mapping_type);
 
+        const matchedPaymentmethod = paymentmethods.find(
+          (s) => s.value === resp.data.data?.paymentMethod,
+        );
+        setSelectedPaymentmethod(matchedPaymentmethod || null);
+        Formik.setFieldValue("paymentMethod", resp.data.data?.paymentMethod);
+
         Formik.setFieldValue("seq", resp.data.data?.seq);
 
         setEditId(resp.data.data._id);
@@ -122,6 +134,8 @@ export default function Accountsetups() {
     setSelectedAccountledger(null);
     setSelectedAmounttype(null);
     setSelectedMappingtype(null);
+    setSelectedPaymentmethod(null);
+    setIsDataValid(true);
     setParams({});
   };
 
@@ -141,6 +155,7 @@ export default function Accountsetups() {
     amount_type: "",
     account_type: "",
     mapping_type: "",
+    paymentMethod: "",
     seq: 0,
   };
   const Formik = useFormik({
@@ -148,6 +163,15 @@ export default function Accountsetups() {
     validationSchema: accountsetupsSchema,
     onSubmit: (values) => {
       // values.account_type = selectedAccountledger?.account_type || "";
+      if (
+        values?.screen === "receipt" &&
+        (values?.paymentMethod === "" || values?.paymentMethod === null)
+      ) {
+        setDataError("Select payment method");
+        setIsDataValid(false);
+        return;
+      }
+
       if (isEdit) {
         console.log("edit id", editId);
         axios
@@ -280,13 +304,41 @@ export default function Accountsetups() {
     }
   };
 
+  const fetchPaymentMethods = async () => {
+    try {
+      const paymentMethodsData = [
+        {
+          value: "cash",
+          label: "Cash",
+          meaning: "Cash",
+        },
+        {
+          value: "bank",
+          label: "Bank",
+          meaning: "Bank",
+        },
+        {
+          value: "upi",
+          label: "UPI",
+          meaning: "UPI",
+        },
+      ];
+
+      setPaymentmethods(paymentMethodsData);
+    } catch (error) {
+      console.error("Error fetching Payment methods:", error);
+    }
+  };
+
   useEffect(() => {
     fetchScreens();
     fetchAccountledgers();
     fetchAmountTypes();
     fetchMappingTypes();
+    fetchPaymentMethods();
     fetchAccountsetups();
   }, [message, params]);
+
   return (
     <>
       {message && (
@@ -305,7 +357,7 @@ export default function Accountsetups() {
             indicatorColor="primary"
           >
             {/* <Tab label="Create Receipt" /> */}
-            <Tab label={isEdit ? "Edit Number Seq" : "Add New Number Seq"} />
+            <Tab label={isEdit ? "Edit Number Seq" : "Add New Accountsetup"} />
             <Tab label="View List" />
           </Tabs>
         </Box>
@@ -342,6 +394,11 @@ export default function Accountsetups() {
                   gap: 2,
                 }}
               >
+                {!isDataValid && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    {dataError}
+                  </Alert>
+                )}
                 {/* Screen */}
 
                 <Box>
@@ -492,6 +549,42 @@ export default function Accountsetups() {
                   />
                 </Box>
 
+                {/* paymentMethod */}
+                <Box>
+                  <Autocomplete
+                    options={
+                      Array.isArray(paymentmethods) ? paymentmethods : []
+                    }
+                    getOptionLabel={(option) => option?.label || ""}
+                    value={selectedPaymentmethod}
+                    onChange={(event, newValue) => {
+                      setSelectedPaymentmethod(newValue);
+
+                      Formik.setFieldValue(
+                        "paymentMethod",
+                        newValue ? newValue.value : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("paymentMethod", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select paymentMethod"
+                        placeholder="Search paymentMethod..."
+                        fullWidth
+                        error={
+                          Formik.touched.paymentMethod &&
+                          Boolean(Formik.errors.paymentMethod)
+                        }
+                        helperText={
+                          Formik.touched.paymentMethod &&
+                          Formik.errors.paymentMethod
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+
                 {/* Seq */}
                 <Box>
                   <TextField
@@ -564,6 +657,7 @@ export default function Accountsetups() {
                     <TableCell align="right">Amount Type</TableCell>
                     <TableCell align="right">Mapping Type</TableCell>
                     <TableCell align="right">Account Type</TableCell>
+                    <TableCell align="right">Payment Method</TableCell>
                     <TableCell align="right">Seq</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
@@ -589,6 +683,10 @@ export default function Accountsetups() {
                       </TableCell>
                       <TableCell align="right">{value?.mapping_type}</TableCell>
                       <TableCell align="right">{value?.account_type}</TableCell>
+                      <TableCell align="right">
+                        {value?.paymentMethod}
+                      </TableCell>
+
                       <TableCell align="right">{value?.seq}</TableCell>
                       <TableCell align="right">
                         <Box

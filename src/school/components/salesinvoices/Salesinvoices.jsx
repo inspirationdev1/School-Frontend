@@ -639,7 +639,7 @@ export default function Salesinvoice() {
           (netAmount / (1 + tax_percent / 100)).toFixed(0),
         );
         tax_amount = Number((netAmount - taxable_amount).toFixed(0));
-      } else if (taxtype === "exlusive") {
+      } else if (taxtype === "exclusive") {
         taxable_amount = netAmount;
         tax_amount = Number(((taxable_amount * tax_percent) / 100).toFixed(0));
         updated[index].netAmount = taxable_amount + tax_amount;

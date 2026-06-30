@@ -267,7 +267,8 @@ export default function Payments() {
             console.log("Edit submit", resp);
             setMessage(resp.data.message);
             setType("success");
-            clearForm();
+            // clearForm();
+            cancelEdit();
             setTab(1); // go to View List
           })
           .catch((e) => {
@@ -282,6 +283,7 @@ export default function Payments() {
             console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
             setType("success");
+            cancelEdit();
           })
           .catch((e) => {
             setMessage(e.response.data.message);
@@ -488,7 +490,7 @@ export default function Payments() {
                         value={Formik.values.paymentCode}
                         onChange={Formik.handleChange}
                         onBlur={Formik.handleBlur}
-                        disabled={isEdit}
+                        disabled
                       />
                       {Formik.touched.paymentCode &&
                         Formik.errors.paymentCode && (

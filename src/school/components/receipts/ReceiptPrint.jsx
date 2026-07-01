@@ -1,233 +1,214 @@
 import {
-    Page,
-    Text,
-    View,
-    Document,
-    PDFViewer,
-    PDFDownloadLink,
+  Page,
+  Text,
+  View,
+  Document,
+  PDFViewer,
+  PDFDownloadLink,
+  Image,
+  StyleSheet,
 } from "@react-pdf/renderer";
-import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
-// import { tableData, totalData } from "./data";
 import { useSearchParams } from "react-router-dom";
-import { Typography } from '@mui/material';
-import axios from 'axios';
-import moment from 'moment';
-import { baseUrl, frontendUrl, formatAmount } from '../../../environment';
-import { useState, useEffect } from 'react';
+import { Typography } from "@mui/material";
+import axios from "axios";
+import moment from "moment";
+import { baseUrl, frontendUrl, formatAmount } from "../../../environment";
+import { useState, useEffect, Fragment } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import dayjs from "dayjs";
-
+import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 
 export default function ReceiptPrint() {
-    const [loading, setLoading] = useState(true);
-    const [printReceipt, setPrintReceipt] = useState({});
-    
-    const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [printData, setPrintData] = useState([]);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
-    const id = searchParams.get("id");
+  const [reportHeader, setReportHeader] = useState({});
+  const [rows, setRows] = useState([]);
+  const [date, setDate] = useState(new dayjs(Date()).format("YYYY-MM-DD"));
 
-    useEffect(() => {
-        const fetchPrintReceipt = async () => {
-            try {
-                const receiptPrintResponse = await axios.get(`${baseUrl}/receipt/fetch-print/${id}`, { params: { id: id } });
-                console.log("receiptPrintResponse", receiptPrintResponse.data.data);
-                setPrintReceipt(receiptPrintResponse.data.data);
-                console.log("printReceipt", printReceipt);
+  const [searchParams] = useSearchParams();
 
-                
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching receipt for print:', error);
-            }
-        };
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null);
 
-        fetchPrintReceipt();
+  const [isDataFound, setIsDataFound] = useState(false);
 
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("succeess");
 
+  const resetMessage = () => {
+    setMessage("");
+  };
 
-    }, []);
+  useEffect(() => {
+    fetchReportData();
+  }, []);
 
-    const PrintPDF = () => (
-        <Document>
-            <Page size="A4" style={styles.page}>
-                <View style={styles.header}>
-                    <View>
-                        <Text style={[styles.title, styles.textBold]}>Fees Receipt</Text>
+  const fetchReportData = async () => {
+    try {
+      const params = new URLSearchParams(window.location.search);
 
-                    </View>
-                    <View style={styles.spaceY}>
-                        <Text style={styles.textBold}>{printReceipt.school.school_name}</Text>
-                        <Text style={styles.textBold}>{printReceipt.school.address} - {printReceipt.school.city}</Text>
-                        <Text style={styles.textBold}>{printReceipt.school.state} - {printReceipt.school.country}</Text>
+      const dataParam = params.get("data");
 
-                    </View>
-                </View>
+      if (dataParam) {
+        const data = JSON.parse(decodeURIComponent(dataParam));
 
-                
-                <View>
+        let paramsRpt = {};
 
-                    {/* Row 1 */}
-                    <View style={styles.rowStyle}>
-                        <Text style={styles.labelStyle}>Receipt # :</Text>
-                        <Text style={styles.valueStyle}>{printReceipt.receiptCode}</Text>
+        if (data?.id) {
+          paramsRpt.id = data?.id;
+        }
 
-                        <Text style={styles.labelStyle}>Receipt Date :</Text>
-                        <Text style={styles.valueStyle}>
-                            {dayjs(printReceipt.receiptDate).format("DD/MM/YYYY")}
-                        </Text>
-                    </View>
+        paramsRpt.requesttype = "PDF";
 
-                    
+        const response = await axios.post(
+          `${baseUrl}/printreports/print-receipt`,
+          {}, // body (empty or your params)
+          {
+            params: paramsRpt, // ✅ query params
+            responseType: "blob", // ✅ CORRECT PLACE
+          },
+        );
 
-                    {/* Row 3 */}
-                    <View style={styles.rowStyle}>
-                       <Text style={styles.labelStyle}>Status :</Text>
-                        <Text style={styles.valueStyle}>
-                            {printReceipt.status}
-                        </Text>
-
-                        <Text style={styles.labelStyle}>Remarks :</Text>
-                        <Text style={styles.valueStyle}>
-                            {printReceipt.remarks}
-                        </Text>
-                    </View>
-
-                    
-
-                </View>
-
-
-                <Table style={styles.table}>
-
-                    <TH style={[styles.tableHeader, styles.textBold]}>
-                        <TD style={styles.td}>S.No</TD>
-                        <TD style={styles.td}>Student</TD>
-                        <TD style={styles.td}>Class</TD>
-                        <TD style={styles.td}>Section</TD>
-                        <TD style={styles.td}>Invoice #</TD>
-                        <TD style={styles.td}>
-                            <Text style={styles.rightText}>Inv Amount</Text>
-                        </TD>
-                        <TD style={styles.td}>
-                            <Text style={styles.rightText}>Paid Amount</Text>
-                        </TD>
-                        
-                    </TH>
-
-
-
-                    {printReceipt.receiptDetails.map((item, index) => (
-                        <TR key={index}>
-                            <TD style={styles.td}>{index + 1}</TD>
-                            <TD style={styles.td}>{item.student.name}</TD>
-                            <TD style={styles.td}>{item.class.class_name}</TD>
-                            <TD style={styles.td}>{item.section.section_name}</TD>
-                            <TD style={styles.td}>{item.siCode}</TD>
-                           
-                            <TD style={styles.td}>
-                                <Text style={styles.rightText}>{formatAmount(item.invAmount)}</Text>
-                            </TD>
-
-                            <TD style={styles.td}>
-                                <Text style={styles.rightText}>{formatAmount(item.paidAmount)}</Text>
-                            </TD>
-
-                           
-                        </TR>
-                    ))}
-
-                    <TR key={100}>
-                        <TD style={styles.td}></TD>
-                        <TD style={styles.td}></TD>
-                        <TD style={styles.td}></TD>
-                        <TD style={styles.td}></TD>
-
-                        <TD style={styles.td}>
-                            <Text style={styles.rightText}>Total</Text>
-                        </TD>
-
-                        <TD style={styles.td}>
-                            <Text style={styles.rightText}>{formatAmount(printReceipt.totalinvAmount)}</Text>
-                        </TD>
-
-                        <TD style={styles.td}>
-                            <Text style={styles.rightText}>{formatAmount(printReceipt.totalpaidAmount)}</Text>
-                        </TD>
-
-                        
-                    </TR>
-                </Table>
-
-                
-
-            </Page>
-        </Document>
-    );
-
-    const downloadReceiptExcel = () => {
-        
-        // 1️⃣ Prepare row data
-        const rows = printReceipt.receiptDetails.map((item, index) => ({
-            "S.No": index + 1,
-            "Description": item.student.name,
-            class: item.class.class_name,
-            section: item.section.section_name,
-            siCode: item.siCode,
-            invAmount: item.invAmount,
-            paidAmount: item.paidAmount,
-        }));
-
-        // 2️⃣ Add totals at bottom
-        rows.push({
-            "S.No": "",
-            "Description": "",
-            class: "",
-            section: "",
-            siCode: "Total",
-            invAmount: printReceipt.totalinvAmount,
-            paidAmount: printReceipt.totalpaidAmount,
+        const blob = new Blob([response.data], {
+          type: "application/pdf",
         });
 
-        
+        setIsDataFound(true);
+        const url = URL.createObjectURL(blob);
 
-        // 3️⃣ Create worksheet
-        const worksheet = XLSX.utils.json_to_sheet(rows);
-
-        // 4️⃣ Create workbook
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Receipt");
-
-        // 5️⃣ Download
-        XLSX.writeFile(workbook, `Receipt_${printReceipt.receiptDate}.xlsx`);
-    };
-
-    if (loading) {
-        return <Typography>Loading...</Typography>;
+        setPdfUrl(url); // ✅ show in page
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      setIsDataFound(false);
     }
-    return (
-        <div className="max-w-2xl mx-auto my-10">
-            <div className="w-full h-[500px]">
-                <PDFViewer width="100%" height="100%">
-                    <PrintPDF />
-                </PDFViewer>
-            </div>
-            <div className="mt-6 flex justify-center gap-3">
+  };
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="receipt.pdf">
-                    <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
-                        Download PDF
-                    </button>
-                </PDFDownloadLink>
+  const downloadReportExcel = async () => {
+    let paramsRpt = {};
 
+    if (selectedClass) {
+      paramsRpt.class = selectedClass;
+    }
+    if (selectedSection) {
+      paramsRpt.section = selectedSection;
+    }
 
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadReceiptExcel}>
-                    Download Excel
-                </button>
-
-
-            </div>
-        </div>
+    paramsRpt.requesttype = "EXL";
+    const reportResponse = await axios.post(
+      `${baseUrl}/schoolreports/student-list-print`,
+      {}, // ✅ empty body
+      {
+        params: paramsRpt, // ✅ goes to req.query
+      },
     );
+    console.log("reportResponse", reportResponse.data.data);
+
+    if (reportResponse.data.data.length === 0) {
+      setMessage("No Data Found");
+      setType("error");
+      setLoading(false);
+      return;
+    }
+    // 1️⃣ Prepare Header
+
+    const sheetData = [];
+    sheetData.push([
+      "Student Name",
+      "Gender",
+      "Parent Name",
+      "DOB Date",
+      "Admission Date",
+      "Class",
+      "Section",
+      "Phone #",
+      "Pen #",
+      "Aadhar #",
+    ]);
+
+    // 📥 Data Rows
+    reportResponse.data.data.forEach((row) => {
+      sheetData.push([
+        row?.name,
+        row?.gender,
+        row?.parent?.name,
+        dayjs(row.dOBDate).format("DD-MM-YYYY"),
+        dayjs(row.joinDate).format("DD-MM-YYYY"),
+        row?.student_class?.class_name,
+        row?.section?.section_name,
+        row?.guardian_phone,
+        row?.pen_no,
+        row?.aadhar_no,
+      ]);
+    });
+
+    // 3️⃣ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
+
+    // 4️⃣ Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Fee-Invoice");
+
+    const date = new Date();
+    // 5️⃣ Download
+    XLSX.writeFile(workbook, `Studenttlist_${date}.xlsx`);
+  };
+
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
+  return (
+    <>
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
+      <div className="max-w-2xl mx-auto my-10">
+        <div className="w-full h-[600px]">
+          {pdfUrl ? (
+            <iframe
+              src={`${pdfUrl}#zoom=page-width`}
+              width="100%"
+              height="100%"
+              style={{ border: "none" }}
+            />
+          ) : (
+            <Typography>Loading PDF...</Typography>
+          )}
+        </div>
+
+        {pdfUrl && (
+          <div className="mt-6 flex justify-center gap-3">
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = "Fee-Receipt.pdf";
+                link.click();
+              }}
+              className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+            >
+              Download PDF
+            </button>
+
+            {/* <button
+            className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+            onClick={downloadReportExcel}
+          >
+            Download Excel
+          </button> */}
+          </div>
+        )}
+      </div>
+    </>
+  );
 }

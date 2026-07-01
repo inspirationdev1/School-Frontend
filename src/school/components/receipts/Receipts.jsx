@@ -155,19 +155,28 @@ export default function Receipts() {
         console.log("Error  in fetching edit data.");
       });
   };
-
-  // const handlePrint = (id) => {
-  //     setPrint(true);
-  //     const url = `${window.location.origin}/school/ReceiptPrint?id=${id}`;
-  //     window.open(url, '_blank');
-  //     setPrint(false);
-  // };
-  const handlePrint = (id) => {
+  const handlePrint = async (id) => {
+    console.log("Handle  Print is called", id);
     setPrint(true);
-    const url = `${window.location.origin}/school/ReceiptPrint_MMS?id=${id}`;
-    window.open(url, "_blank");
+
+    const data = {
+      id: id,
+    };
+
+    window.open(
+      `/school/ReceiptPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+      "_blank",
+    );
+
     setPrint(false);
   };
+
+  // const handlePrint = (id) => {
+  //   setPrint(true);
+  //   const url = `${window.location.origin}/school/ReceiptPrint_MMS?id=${id}`;
+  //   window.open(url, "_blank");
+  //   setPrint(false);
+  // };
 
   const cancelEdit = () => {
     setEdit(false);

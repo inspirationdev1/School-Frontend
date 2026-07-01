@@ -337,10 +337,10 @@ export default function Salesinvoice() {
 
         if (item.discountAmount > 0) {
           console.log("selectedAppsetting", selectedAppsetting);
-          const grossAmount = item.grossAmount || 0;
-          const discountAmount = item.discountAmount || 0;
+          const grossAmount = item?.grossAmount || 0;
+          const discountAmount = item?.discountAmount || 0;
           const discPer = Math.round((discountAmount * 100) / grossAmount);
-          const discPerAllowed = selectedAppsetting.discPerAllowed || 0;
+          const discPerAllowed = selectedAppsetting?.discPerAllowed || 100;
           if (discPer > discPerAllowed) {
             setDataError("grossPer cannot be greater than discPerAllowed");
             hasInvalidRow = true;

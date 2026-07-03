@@ -53,7 +53,6 @@ export default function Questionpapers() {
   const [questionpaperEditId, setQuestionpaperEditId] = useState(null);
   const [tab, setTab] = useState(0);
   const [isEdit, setEdit] = useState(false);
-  const [params, setParams] = useState({});
 
   const [allClasses, setAllClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -154,15 +153,9 @@ export default function Questionpapers() {
           "description",
           resp.data.data.description,
         );
-        // questionpaperFormik.setFieldValue(
-        //   "date",
-        //   dayjs(resp.data.data.questionpaperDate),
-        // );
         questionpaperFormik.setFieldValue(
           "date",
-          resp.data.data.date
-            ? dayjs(resp.data.data.date).format("YYYY-MM-DD")
-            : "",
+          dayjs(resp.data.data.questionpaperDate),
         );
         questionpaperFormik.setFieldValue("class", resp.data.data?.class._id);
         questionpaperFormik.setFieldValue(
@@ -283,7 +276,6 @@ export default function Questionpapers() {
           .then((resp) => {
             handleMessage("success", resp.data.message);
             handleClearFile();
-            setParams({});
             setTab(1); // go to View List
           })
           .catch((e) => {
@@ -304,7 +296,6 @@ export default function Questionpapers() {
               handleMessage("success", resp.data.message);
               console.log("success", resp);
               handleClearFile();
-              setParams({});
               setTab(1); // go to View List
             })
             .catch((e) => {
@@ -320,25 +311,19 @@ export default function Questionpapers() {
 
   const fetchAllQuestionpapers = () => {
     axios
-      .get(`${baseUrl}/questionpaper/fetch-with-query`, { params })
+      .get(`${baseUrl}/questionpaper/all`)
       .then((resp) => {
+        console.log("ALL Questionpaper", resp);
         setQuestionpapers(resp.data.data);
       })
-      .catch(() => console.log("Error in fetching Questionpapers data"));
-    // axios
-    //   .get(`${baseUrl}/questionpaper/all`)
-    //   .then((resp) => {
-    //     console.log("ALL Questionpaper", resp);
-    //     setQuestionpapers(resp.data.data);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching  Questionpaperinstions.");
-    //   });
+      .catch((e) => {
+        console.log("Error in fetching  Questionpaperinstions.");
+      });
   };
 
   useEffect(() => {
     fetchAllQuestionpapers();
-  }, [message, params]);
+  }, [message]);
 
   const fetchClasses = () => {
     axios
@@ -408,17 +393,6 @@ export default function Questionpapers() {
     fetchAllExaminations();
   }, []);
 
-  const handleSearch = (e) => {
-    let newParam;
-    if (e.target.value !== "") {
-      newParam = { ...params, search: e.target.value };
-    } else {
-      newParam = { ...params };
-      delete newParam["search"];
-    }
-
-    setParams(newParam);
-  };
   return (
     <>
       {message && (
@@ -585,27 +559,7 @@ export default function Questionpapers() {
                 </Box>
 
                 {/* Date */}
-                <Box>
-                  <TextField
-                    name="date"
-                    label="Date"
-                    type="date"
-                    variant="outlined"
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    value={questionpaperFormik.values.date}
-                    onChange={questionpaperFormik.handleChange}
-                    onBlur={questionpaperFormik.handleBlur}
-                    disabled={isEdit}
-                  />
-                  {questionpaperFormik.touched.date &&
-                    questionpaperFormik.errors.date && (
-                      <Typography color="error" variant="caption">
-                        {questionpaperFormik.errors.date}
-                      </Typography>
-                    )}
-                </Box>
-                {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Date"
                     format="DD/MM/YYYY"
@@ -627,7 +581,7 @@ export default function Questionpapers() {
                       },
                     }}
                   />
-                </LocalizationProvider> */}
+                </LocalizationProvider>
 
                 {/* Academic Year */}
                 <Box>
@@ -870,34 +824,8 @@ export default function Questionpapers() {
 
         {tab === 1 && (
           <Box>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              {/* Search */}
-              <TextField
-                label="Search  .."
-                size="small"
-                value={params.search || ""}
-                onChange={handleSearch}
-                fullWidth
-                sx={{
-                  flex: 2,
-                  "& .MuiInputBase-root": {
-                    height: 42,
-                    fontSize: "14px",
-                  },
-                }}
-              />
-            </Box>
-            <Box>
-              <Paper sx={{ padding: "20px", margin: "10px" }}>
-                {/* <Typography
+            <Paper sx={{ padding: "20px", margin: "10px" }}>
+              {/* <Typography
           sx={{ textAlign: "center" }}
           className="text-beautify2"
           variant="h5"
@@ -905,136 +833,125 @@ export default function Questionpapers() {
           Questionpapers
         </Typography> */}
 
-                <TableContainer component={Paper}>
-                  <Table sx={{ minWidth: 250 }} aria-label="simple table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: "700" }} align="left">
-                          Paper Name
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: "700" }} align="left">
-                          Date
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: "700" }} align="left">
-                          Subject
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: "700" }} align="left">
-                          Teacher
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: "700" }} align="left">
-                          Examination
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: "700" }} align="left">
-                          Marks Limit
-                        </TableCell>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 250 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: "700" }} align="left">
+                        Paper Name
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "700" }} align="left">
+                        Date
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "700" }} align="left">
+                        Subject
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "700" }} align="left">
+                        Teacher
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "700" }} align="left">
+                        Examination
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "700" }} align="left">
+                        Marks Limit
+                      </TableCell>
 
-                        <TableCell sx={{ fontWeight: "700" }} align="left">
-                          Marks Limit (Avg)
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: "700" }} align="center">
-                          Actions
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {questionpapers &&
-                        questionpapers.map((questionpaper, i) => {
-                          return (
-                            <TableRow key={i}>
-                              <TableCell align="left">
-                                {questionpaper.name ? questionpaper.name : ""}
-                              </TableCell>
-                              <TableCell component="th" scope="row">
-                                {convertDate(questionpaper.date)}
-                              </TableCell>
-                              <TableCell align="left">
-                                {questionpaper.subject
-                                  ? questionpaper.subject.subject_name
-                                  : "Add One"}
-                              </TableCell>
-                              <TableCell align="left">
-                                {questionpaper.teacher
-                                  ? questionpaper.teacher.name
-                                  : "Add One"}
-                              </TableCell>
-                              <TableCell align="left">
-                                {questionpaper.examination
-                                  ? questionpaper.examination.examination_name
-                                  : "Add One"}
-                              </TableCell>
+                      <TableCell sx={{ fontWeight: "700" }} align="left">
+                        Marks Limit (Avg)
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "700" }} align="center">
+                        Actions
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {questionpapers &&
+                      questionpapers.map((questionpaper, i) => {
+                        return (
+                          <TableRow key={i}>
+                            <TableCell align="left">
+                              {questionpaper.name ? questionpaper.name : ""}
+                            </TableCell>
+                            <TableCell component="th" scope="row">
+                              {convertDate(questionpaper.date)}
+                            </TableCell>
+                            <TableCell align="left">
+                              {questionpaper.subject
+                                ? questionpaper.subject.subject_name
+                                : "Add One"}
+                            </TableCell>
+                            <TableCell align="left">
+                              {questionpaper.teacher
+                                ? questionpaper.teacher.name
+                                : "Add One"}
+                            </TableCell>
+                            <TableCell align="left">
+                              {questionpaper.examination
+                                ? questionpaper.examination.examination_name
+                                : "Add One"}
+                            </TableCell>
 
-                              <TableCell align="right">
-                                {questionpaper.marksLimit
-                                  ? questionpaper.marksLimit
-                                  : 0}
-                              </TableCell>
-                              <TableCell align="right">
-                                {questionpaper.avg_marks_limit
-                                  ? questionpaper.avg_marks_limit
-                                  : 0}
-                              </TableCell>
+                            <TableCell align="right">
+                              {questionpaper.marksLimit
+                                ? questionpaper.marksLimit
+                                : 0}
+                            </TableCell>
+                            <TableCell align="right">
+                              {questionpaper.avg_marks_limit
+                                ? questionpaper.avg_marks_limit
+                                : 0}
+                            </TableCell>
 
-                              <TableCell
-                                sx={{ fontWeight: "700" }}
-                                align="center"
+                            <TableCell
+                              sx={{ fontWeight: "700" }}
+                              align="center"
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                  gap: 1.5, // 👈 space between buttons
+                                }}
                               >
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                    gap: 1.5, // 👈 space between buttons
-                                  }}
+                                {user?.role !== "TEACHER" && (
+                                  <>
+                                    <Button
+                                      variant="contained"
+                                      sx={{ background: "red", color: "#fff" }}
+                                      onClick={() =>
+                                        handleDelete(questionpaper._id)
+                                      }
+                                    >
+                                      Delete
+                                    </Button>
+                                  </>
+                                )}
+                                <Button
+                                  variant="contained"
+                                  sx={{ background: "gold", color: "#222222" }}
+                                  onClick={() => handleEdit(questionpaper._id)}
                                 >
-                                  {user?.role !== "TEACHER" && (
-                                    <>
-                                      <Button
-                                        variant="contained"
-                                        sx={{
-                                          background: "red",
-                                          color: "#fff",
-                                        }}
-                                        onClick={() =>
-                                          handleDelete(questionpaper._id)
-                                        }
-                                      >
-                                        Delete
-                                      </Button>
-                                    </>
-                                  )}
-                                  <Button
-                                    variant="contained"
-                                    sx={{
-                                      background: "gold",
-                                      color: "#222222",
-                                    }}
-                                    onClick={() =>
-                                      handleEdit(questionpaper._id)
-                                    }
-                                  >
-                                    Edit
-                                  </Button>
+                                  Edit
+                                </Button>
 
-                                  <Button
-                                    variant="contained"
-                                    sx={{
-                                      background: "skyblue",
-                                      color: "#000",
-                                    }}
-                                    onClick={() =>
-                                      viewUploadFile(questionpaper.fileName)
-                                    }
-                                  >
-                                    View Upload File
-                                  </Button>
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                {/* <Box
+                                <Button
+                                  variant="contained"
+                                  sx={{ background: "skyblue", color: "#000" }}
+                                  onClick={() =>
+                                    viewUploadFile(questionpaper.fileName)
+                                  }
+                                >
+                                  View Upload File
+                                </Button>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {/* <Box
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -1045,8 +962,7 @@ export default function Questionpapers() {
             Add Questionpaper
           </Button>
         </Box> */}
-              </Paper>
-            </Box>
+            </Paper>
           </Box>
         )}
       </Box>

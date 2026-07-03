@@ -87,6 +87,8 @@ import NoticeStudent from "./student/components/notice/NoticeStudent";
 import ProtectedRoute from "./guards/ProtectedRoute";
 import { AuthContext, AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "@emotion/react";
+import { createTheme } from "@mui/material/styles";
+const theme = createTheme();
 import darkTheme from "./basic utility components/darkTheme";
 import lightTheme from "./basic utility components/lightTheme";
 import ThemeToggleButton from "./basic utility components/ThemeToggleButton";
@@ -165,6 +167,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={themeDark ? darkTheme : lightTheme}>
+        {/* <ThemeProvider theme={theme}> */}
         {/* <ThemeToggleButton /> */}
         <BrowserRouter>
           <Routes>

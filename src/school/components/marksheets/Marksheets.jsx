@@ -128,7 +128,10 @@ export default function Marksheet() {
         Formik.setFieldValue("teacher", resp.data.data.teacher._id);
         Formik.setFieldValue("subject", resp.data.data.subject._id);
         Formik.setFieldValue("examination", resp.data.data.examination._id);
-        Formik.setFieldValue("questionpaper", resp.data.data.questionpaper._id);
+        Formik.setFieldValue(
+          "questionpaper",
+          resp.data.data?.questionpaper?._id,
+        );
         Formik.setFieldValue("marksLimit", resp.data.data.marksLimit);
         Formik.setFieldValue("status", resp.data.data.status);
         Formik.setFieldValue("remarks", resp.data.data.remarks);

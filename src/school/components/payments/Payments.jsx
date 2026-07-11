@@ -383,6 +383,7 @@ export default function Payments() {
       updated[index].paidAmount = 0;
       setExpenses([]); // 👈 clear old expenses
       setSelectedExpense(null); // 👈 clear Autocomplete text
+      setSelectedEmployee(value);
     }
 
     if (field === "expenseId") {
@@ -402,6 +403,7 @@ export default function Payments() {
   };
 
   const addRow = () => {
+    setSelectedEmployee(null);
     setPaymentDetails([
       ...paymentDetails,
       {
@@ -668,7 +670,7 @@ export default function Payments() {
                             getOptionLabel={(option) => option.employee_name}
                             value={row.employee}
                             onChange={(event, newValue) => {
-                              setSelectedEmployee(newValue);
+                              // setSelectedEmployee(newValue);
                               handleChange(index, "employee", newValue);
                             }}
                             renderInput={(params) => (
@@ -759,7 +761,7 @@ export default function Payments() {
 
                     {/* Add Row */}
                     <Button variant="outlined" onClick={addRow}>
-                      + Add Invoice
+                      + Add Expense
                     </Button>
                   </Box>
 

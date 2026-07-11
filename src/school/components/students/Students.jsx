@@ -328,14 +328,10 @@ export default function Students() {
         setSelectedmodeoftransport(data?.modeoftransport || null);
         setSelectedfirstlanguage(data?.firstlanguage || null);
 
-        
-
         const matchedPreviouslyapplied = previouslyappliedArray.find(
           (s) => s.fieldValue === resp.data.data?.previouslyapplied,
         );
         setSelectedpreviouslyapplied(matchedPreviouslyapplied || null);
-
-        
 
         Formik.setValues({
           email: data.email,
@@ -361,7 +357,6 @@ export default function Students() {
           mothertongue: data?.mothertongue?._id || "",
           modeoftransport: data?.modeoftransport?._id || "",
           firstlanguage: data?.firstlanguage?._id || "",
-          
 
           identificationmark1: data?.identificationmark1 || "",
           identificationmark2: data?.identificationmark2 || "",
@@ -746,8 +741,6 @@ export default function Students() {
       });
   };
 
- 
-
   const saveAdmissionAttachment = async (values) => {
     // .post(`${baseUrl}/student/register`, fd)
     // .patch(`${baseUrl}/student/update/${editId}`, fd)
@@ -800,7 +793,7 @@ export default function Students() {
     fetchmodeoftransports();
     fetchpreviouslyapplied();
     fetchAttachmenttypes();
-    
+
     fetchAttachmentstatuses();
   }, [message, params]);
 
@@ -1899,8 +1892,6 @@ export default function Students() {
                       </p>
                     )} */}
                   </Grid>
-
-                  
 
                   {/* Buttons Full Row */}
                   <Grid item xs={12}>

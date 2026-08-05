@@ -11,7 +11,8 @@ import {
   TextField,
   Typography,
   Grid,
-  Tabs, Tab,
+  Tabs,
+  Tab,
   TableBody,
   TableCell,
   TableRow,
@@ -48,11 +49,8 @@ export default function Parents() {
   });
 
   const viewUploadFile = (fileName) => {
-
     const fileUrl = `${fileName}`;
     window.open(fileUrl, "_blank", "noopener,noreferrer");
-
-
   };
 
   const addImage = (event) => {
@@ -63,7 +61,6 @@ export default function Parents() {
   };
 
   const [params, setParams] = useState({});
-
 
   const handleSearch = (e) => {
     let newParam;
@@ -100,25 +97,34 @@ export default function Parents() {
       .then((resp) => {
         Formik.setFieldValue("email", resp.data.data.email);
         Formik.setFieldValue("name", resp.data.data.name);
+
+        Formik.setFieldValue("father_name", resp.data.data.name);
+        Formik.setFieldValue("mother_name", resp.data.data?.mother_name);
+
         Formik.setFieldValue("parent_code", resp.data.data?.parent_code);
 
-        Formik.setFieldValue("qualification", resp.data.data.qualification)
-        Formik.setFieldValue("gender", resp.data.data.gender)
+        Formik.setFieldValue("qualification", resp.data.data.qualification);
+        Formik.setFieldValue("gender", resp.data.data.gender);
 
-        Formik.setFieldValue("password", resp.data.data.password)
+        Formik.setFieldValue("password", resp.data.data.password);
 
-        Formik.setFieldValue("year", resp.data.data.year)
-        const matchedYear = years.find(s => s.value === resp.data.data.year);
+        Formik.setFieldValue("year", resp.data.data.year);
+        const matchedYear = years.find((s) => s.value === resp.data.data.year);
         setSelectedYear(matchedYear || null);
 
-        Formik.setFieldValue("dOBDate", resp.data.data.dOBDate?.split("T")[0] || "")
-        Formik.setFieldValue("joinDate", resp.data.data.joinDate?.split("T")[0] || "")
-
+        Formik.setFieldValue(
+          "dOBDate",
+          resp.data.data.dOBDate?.split("T")[0] || "",
+        );
+        Formik.setFieldValue(
+          "joinDate",
+          resp.data.data.joinDate?.split("T")[0] || "",
+        );
 
         // Auto calculate age
         const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
         Formik.setFieldValue("age", age);
-        Formik.setFieldValue("phoneno", resp.data.data?.phoneno)
+        Formik.setFieldValue("phoneno", resp.data.data?.phoneno);
 
         setEditId(resp.data.data._id);
         setTab(0); // open Create Receipt tab
@@ -151,9 +157,8 @@ export default function Parents() {
 
   const cancelEdit = () => {
     setEdit(false);
-    Formik.resetForm()
+    Formik.resetForm();
     setSelectedYear(null);
-
   };
 
   //   CLEARING IMAGE FILE REFENCE FROM INPUT
@@ -166,7 +171,6 @@ export default function Parents() {
     setImageUrl(null); // Clear the image preview
   };
 
-
   //   MESSAGE
   const [message, setMessage] = useState("");
   const [type, setType] = useState("succeess");
@@ -178,6 +182,8 @@ export default function Parents() {
   const initialValues = {
     email: "",
     name: "",
+    father_name: "",
+    mother_name: "",
     parent_code: "",
     qualification: "",
     gender: "",
@@ -195,7 +201,6 @@ export default function Parents() {
     onSubmit: (values) => {
       console.log("parent calls admin Formik values", values);
       if (isEdit) {
-
         const fd = new FormData();
         Object.keys(values).forEach((key) => fd.append(key, values[key]));
         if (file) {
@@ -218,7 +223,6 @@ export default function Parents() {
           });
       } else {
         if (file) {
-
           const fd = new FormData();
           fd.append("image", file, file.name);
           Object.keys(values).forEach((key) => fd.append(key, values[key]));
@@ -265,7 +269,6 @@ export default function Parents() {
   };
   useEffect(() => {
     fetchparents();
-
   }, [message, params]);
   return (
     <>
@@ -278,8 +281,6 @@ export default function Parents() {
       )}
 
       <Box>
-
-
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs
             value={tab}
@@ -295,13 +296,9 @@ export default function Parents() {
 
         {tab === 0 && (
           <Box component={"div"}>
-            <Paper
-              sx={{ padding: "20px", margin: "10px" }}
-            >
-
+            <Paper sx={{ padding: "20px", margin: "10px" }}>
               <Box component="form" onSubmit={Formik.handleSubmit}>
                 <Grid container spacing={2}>
-
                   {/* IMAGE FULL WIDTH */}
                   <Grid item xs={12}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -345,7 +342,7 @@ export default function Parents() {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Name"
+                      label="Father Name"
                       name="name"
                       value={Formik.values.name}
                       onChange={Formik.handleChange}
@@ -358,6 +355,23 @@ export default function Parents() {
                     )}
                   </Grid>
 
+                  {/* NAME */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Mother Name"
+                      name="mother_name"
+                      value={Formik.values.mother_name}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                    />
+                    {/* {Formik.touched.name && Formik.errors.name && (
+                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                        {Formik.errors.name}
+                      </p>
+                    )} */}
+                  </Grid>
+
                   {/* parent_code */}
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -368,11 +382,14 @@ export default function Parents() {
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
                     />
-                    {Formik.touched.parent_code && Formik.errors.parent_code && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.parent_code}
-                      </p>
-                    )}
+                    {Formik.touched.parent_code &&
+                      Formik.errors.parent_code && (
+                        <p
+                          style={{ color: "red", textTransform: "capitalize" }}
+                        >
+                          {Formik.errors.parent_code}
+                        </p>
+                      )}
                   </Grid>
 
                   {/* QUALIFICATION */}
@@ -384,11 +401,14 @@ export default function Parents() {
                       value={Formik.values.qualification}
                       onChange={Formik.handleChange}
                     />
-                    {Formik.touched.qualification && Formik.errors.qualification && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.qualification}
-                      </p>
-                    )}
+                    {Formik.touched.qualification &&
+                      Formik.errors.qualification && (
+                        <p
+                          style={{ color: "red", textTransform: "capitalize" }}
+                        >
+                          {Formik.errors.qualification}
+                        </p>
+                      )}
                   </Grid>
 
                   {/* GENDER */}
@@ -489,7 +509,6 @@ export default function Parents() {
                     )} */}
                   </Grid>
 
-
                   {/* ACADEMIC YEAR */}
                   <Grid item xs={12} md={6}>
                     <Autocomplete
@@ -507,7 +526,9 @@ export default function Parents() {
                           label="Select Academic Year"
                           placeholder="Search year..."
                           fullWidth
-                          error={Formik.touched.year && Boolean(Formik.errors.year)}
+                          error={
+                            Formik.touched.year && Boolean(Formik.errors.year)
+                          }
                           helperText={Formik.touched.year && Formik.errors.year}
                         />
                       )}
@@ -526,7 +547,9 @@ export default function Parents() {
                         onChange={Formik.handleChange}
                       />
                       {Formik.touched.password && Formik.errors.password && (
-                        <p style={{ color: "red", textTransform: "capitalize" }}>
+                        <p
+                          style={{ color: "red", textTransform: "capitalize" }}
+                        >
                           {Formik.errors.password}
                         </p>
                       )}
@@ -545,15 +568,11 @@ export default function Parents() {
                       </Button>
                     )}
                   </Grid>
-
                 </Grid>
               </Box>
-
             </Paper>
           </Box>
         )}
-
-
 
         {tab === 1 && (
           <Box>
@@ -567,7 +586,6 @@ export default function Parents() {
                 marginBottom: "5px",
               }}
             >
-              
               <TextField
                 label="Search Name .."
                 size="small"
@@ -583,13 +601,14 @@ export default function Parents() {
                   },
                 }}
               />
-
             </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row">Name</TableCell>
+                    <TableCell component="th" scope="row">
+                      Name
+                    </TableCell>
                     <TableCell align="right">Email</TableCell>
                     <TableCell align="right">dOBDate</TableCell>
                     <TableCell align="right">JoinDate</TableCell>
@@ -600,16 +619,19 @@ export default function Parents() {
                   {parents.map((value, i) => (
                     <TableRow
                       key={i}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
                         {value.name}
                       </TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
-                      <TableCell align="right">{dayjs(value?.dOBDate).format("DD/MM/YYYY")}</TableCell>
-                      <TableCell align="right">{dayjs(value?.joinDate).format("DD/MM/YYYY")}</TableCell>
                       <TableCell align="right">
-
+                        {dayjs(value?.dOBDate).format("DD/MM/YYYY")}
+                      </TableCell>
+                      <TableCell align="right">
+                        {dayjs(value?.joinDate).format("DD/MM/YYYY")}
+                      </TableCell>
+                      <TableCell align="right">
                         <Box
                           sx={{
                             display: "flex",
@@ -642,16 +664,13 @@ export default function Parents() {
                           </Button>
                         </Box>
                       </TableCell>
-
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
         )}
-
       </Box>
     </>
   );

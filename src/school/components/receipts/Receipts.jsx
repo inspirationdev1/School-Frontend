@@ -256,8 +256,8 @@ export default function Receipts() {
       let hasInvalidRow = false;
 
       for (const item of receiptDetails) {
-        if (item.invAmount === 0) {
-          setDataError("invAmount must be greater than 0");
+        if (item.invAmount === 0 || item.paidAmount === 0) {
+          setDataError("invAmount and paidAmount must be greater than 0");
           hasInvalidRow = true;
           break; // exit loop when condition met
         }

@@ -231,8 +231,8 @@ export default function Payments() {
       let hasInvalidRow = false;
 
       for (const item of paymentDetails) {
-        if (item.expenseAmount === 0) {
-          setDataError("expenseAmount must be greater than 0");
+        if (item.expenseAmount === 0 || item.paidAmount === 0) {
+          setDataError("expenseAmount or paidAmount must be greater than 0");
           hasInvalidRow = true;
           break; // exit loop when condition met
         }

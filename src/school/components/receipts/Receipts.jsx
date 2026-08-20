@@ -262,12 +262,6 @@ export default function Receipts() {
           break; // exit loop when condition met
         }
 
-        if (item.paidAmount === 0) {
-          setDataError("paidAmount must be greater than 0");
-          hasInvalidRow = true;
-          break; // exit loop when condition met
-        }
-
         console.log(item);
       }
       if (hasInvalidRow) {

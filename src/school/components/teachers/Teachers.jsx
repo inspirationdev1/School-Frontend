@@ -103,7 +103,6 @@ export default function Teachers() {
         const matchedYear = years.find((s) => s.value === resp.data.data.year);
         setSelectedYear(matchedYear || null);
 
-        
         Formik.setFieldValue(
           "dOBDate",
           resp.data.data.dOBDate?.split("T")[0] || "",
@@ -294,9 +293,7 @@ export default function Teachers() {
       });
   };
 
-  
   useEffect(() => {
-    
     fetchteachers();
     fetchStatuses();
   }, [message, params]);
@@ -525,7 +522,7 @@ export default function Teachers() {
                   </Grid>
 
                   {/* ACADEMIC YEAR */}
-                  <Grid item xs={12} md={6}>
+                  {/* <Grid item xs={12} md={6}>
                     <Autocomplete
                       options={years}
                       getOptionLabel={(option) => option.label}
@@ -548,7 +545,7 @@ export default function Teachers() {
                         />
                       )}
                     />
-                  </Grid>
+                  </Grid> */}
                   {/* Status */}
                   <Grid item xs={12} md={6}>
                     <Autocomplete
@@ -583,8 +580,6 @@ export default function Teachers() {
                       )}
                     />
                   </Grid>
-
-                  
 
                   {/* PASSWORD */}
                   {!isEdit && (

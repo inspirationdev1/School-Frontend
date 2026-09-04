@@ -160,6 +160,7 @@ import StudentResultGraphPrint from "./school/components/reports/StudentResultGr
 import StudentSubjectGraphPrint from "./school/components/reports/StudentSubjectGraphPrint";
 import JournalvoucherPrint from "./school/components/journalvouchers/JournalvoucherPrint";
 import Accountsetups from "./school/components/accountsetups/Accountsetups";
+import ParentReports from "./parent/components/reports/ParentReports";
 
 function App() {
   const { authenticated, login, themeDark } = useContext(AuthContext);
@@ -171,6 +172,7 @@ function App() {
         {/* <ThemeToggleButton /> */}
         <BrowserRouter>
           <Routes>
+            {/* school role */}
             <Route
               path="school"
               element={
@@ -394,6 +396,8 @@ function App() {
               <Route path="notice" element={<NoticeSchool />} />
             </Route>
 
+            {/* student role */}
+
             <Route
               path="student"
               element={
@@ -432,6 +436,8 @@ function App() {
 
               <Route path="notice" element={<NoticeStudent />} />
             </Route>
+
+            {/* teacher role */}
 
             <Route
               path="teacher"
@@ -485,6 +491,8 @@ function App() {
               <Route path="progresscardprint" element={<ProgressCardPrint />} />
             </Route>
 
+            {/* client role */}
+
             <Route path="/" element={<Client />}>
               <Route index element={<Home />} />
               <Route path="home" element={<Home />} />
@@ -494,6 +502,8 @@ function App() {
               <Route path="register" element={<Register />} />
               <Route path="logout" element={<Logout />} />
             </Route>
+
+            {/* parent role */}
 
             <Route
               path="parent"
@@ -515,7 +525,7 @@ function App() {
                 element={<ScheduleReportPrint />}
               />
 
-              <Route path="studentreports" element={<StudentReports />} />
+              <Route path="parentreports" element={<ParentReports />} />
               <Route
                 path="attendancereportprint"
                 element={<AttendanceReportPrint />}
@@ -532,6 +542,8 @@ function App() {
               <Route path="progresscardprint" element={<ProgressCardPrint />} />
               <Route path="notice" element={<NoticeParent />} />
             </Route>
+
+            {/* user role */}
 
             <Route
               path="user"

@@ -794,7 +794,7 @@ export default function Questionpapers() {
                 <Box>
                   <TextField
                     fullWidth
-                    label="avg_marks_limit"
+                    label="Passing Marks"
                     variant="outlined"
                     name="avg_marks_limit"
                     type="number"

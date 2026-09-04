@@ -233,7 +233,7 @@ export default function Numberseqs() {
                   variant="h4"
                   sx={{ fontWeight: "800", textAlign: "center" }}
                 >
-                  Add New numberseq
+                  Add New Number Seq
                 </Typography>
               )}{" "}
               <Box
@@ -254,7 +254,7 @@ export default function Numberseqs() {
                   <TextField
                     disabled
                     fullWidth
-                    label="Numberseq Name"
+                    label="Number Sequence Name"
                     name="numberseq_name"
                     value={Formik.values.numberseq_name}
                     onChange={Formik.handleChange}
@@ -308,7 +308,7 @@ export default function Numberseqs() {
                   <TextField
                     type="number"
                     fullWidth
-                    label="Seq"
+                    label="Sequence"
                     name="seq"
                     value={Formik.values.seq}
                     onChange={Formik.handleChange}
@@ -395,7 +395,7 @@ export default function Numberseqs() {
                   <TableRow>
                     <TableCell component="th" scope="row">
                       {" "}
-                      numberseq Name
+                      Number Seq Name
                     </TableCell>
                     <TableCell align="right">Screen</TableCell>
                     <TableCell align="right">Seq</TableCell>

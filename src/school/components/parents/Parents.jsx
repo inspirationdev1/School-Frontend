@@ -381,15 +381,8 @@ export default function Parents() {
                       value={Formik.values.parent_code}
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
+                      disabled
                     />
-                    {Formik.touched.parent_code &&
-                      Formik.errors.parent_code && (
-                        <p
-                          style={{ color: "red", textTransform: "capitalize" }}
-                        >
-                          {Formik.errors.parent_code}
-                        </p>
-                      )}
                   </Grid>
 
                   {/* QUALIFICATION */}

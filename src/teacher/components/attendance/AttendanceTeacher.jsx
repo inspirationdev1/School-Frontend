@@ -51,11 +51,12 @@ const AttendanceTeacher = () => {
 
       const [classRes, sectionRes] = await Promise.all([
         axios.get(`${baseUrl}/class/attendee`),
-        axios.get(`${baseUrl}/section/fetch-all`),
+        axios.get(`${baseUrl}/section/attendee`),
+        // axios.get(`${baseUrl}/section/attendee`),
       ]);
 
       setAttendeeClass(classRes.data);
-      setSections(sectionRes.data.data);
+      setSections(sectionRes.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -81,10 +82,10 @@ const AttendanceTeacher = () => {
         {
           params: {
             classId: selectedClass.classId,
-            sectionId: selectedSection._id,
+            sectionId: selectedSection.sectionId,
             selectedDate,
           },
-        }
+        },
       );
 
       setAttendanceTaken(attendanceRes.data.attendanceTaken);
@@ -94,9 +95,9 @@ const AttendanceTeacher = () => {
         {
           params: {
             student_class: selectedClass.classId,
-            section: selectedSection._id,
+            section: selectedSection.sectionId,
           },
-        }
+        },
       );
 
       const studentList = studentRes.data.data;
@@ -106,7 +107,7 @@ const AttendanceTeacher = () => {
       const statusMap = {};
       studentList.forEach((student) => {
         const existing = attendanceRes.data.data?.find(
-          (a) => a.student === student._id
+          (a) => a.student === student._id,
         );
         statusMap[student._id] = existing?.status || "Present";
       });
@@ -134,13 +135,13 @@ const AttendanceTeacher = () => {
         date: selectedDate,
         status: attendanceStatus[s._id],
         classId: selectedClass.classId,
-        sectionId: selectedSection._id,
+        sectionId: selectedSection.sectionId,
       }));
 
       await Promise.all(
         payload.map((record) =>
-          axios.post(`${baseUrl}/attendance/mark`, record)
-        )
+          axios.post(`${baseUrl}/attendance/mark`, record),
+        ),
       );
 
       alert("Attendance submitted successfully");
@@ -155,7 +156,7 @@ const AttendanceTeacher = () => {
 
     window.open(
       `/teacher/AttendancePrint?classId=${selectedClass.classId}&date=${date}`,
-      "_blank"
+      "_blank",
     );
   };
 
@@ -181,9 +182,7 @@ const AttendanceTeacher = () => {
           size="small"
           sx={{ mt: 1 }}
           value={attendanceStatus[student._id]}
-          onChange={(e) =>
-            handleStatusChange(student._id, e.target.value)
-          }
+          onChange={(e) => handleStatusChange(student._id, e.target.value)}
         >
           <MenuItem value="Present">Present</MenuItem>
           <MenuItem value="Absent">Absent</MenuItem>
@@ -212,9 +211,7 @@ const AttendanceTeacher = () => {
                   fullWidth
                   size="small"
                   value={attendanceStatus[s._id]}
-                  onChange={(e) =>
-                    handleStatusChange(s._id, e.target.value)
-                  }
+                  onChange={(e) => handleStatusChange(s._id, e.target.value)}
                 >
                   <MenuItem value="Present">Present</MenuItem>
                   <MenuItem value="Absent">Absent</MenuItem>

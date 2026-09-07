@@ -223,13 +223,24 @@ export default function ReceiptPrint_MMS() {
     return <Typography>Loading...</Typography>;
   }
   return (
-    <div className="max-w-2xl mx-auto my-10">
-      <div className="w-full h-[500px]">
-        <PDFViewer width="100%" height="100%">
+    <div className="w-screen h-screen flex flex-col">
+      {/* PDF Viewer */}
+      <div className="flex-1 w-full">
+        <PDFViewer
+          width="100%"
+          height="100%"
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "none",
+          }}
+        >
           <PrintPDF />
         </PDFViewer>
       </div>
-      <div className="mt-6 flex justify-center gap-3">
+
+      {/* Buttons */}
+      <div className="flex justify-center gap-3 py-3 bg-white border-t">
         <PDFDownloadLink document={<PrintPDF />} fileName="receipt.pdf">
           <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
             Download PDF
@@ -237,7 +248,7 @@ export default function ReceiptPrint_MMS() {
         </PDFDownloadLink>
 
         <button
-          className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+          className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300"
           onClick={downloadReceiptExcel}
         >
           Download Excel

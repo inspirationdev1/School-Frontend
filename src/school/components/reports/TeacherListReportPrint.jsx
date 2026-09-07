@@ -95,121 +95,116 @@ export default function TeacherListReportPrint() {
   };
 
   const downloadReportExcel = async () => {
-    
+    let paramsRpt = {};
 
-      let paramsRpt = {};
+    if (selectedClass) {
+      paramsRpt.class = selectedClass;
+    }
+    if (selectedSection) {
+      paramsRpt.section = selectedSection;
+    }
 
-      if (selectedClass) {
-        paramsRpt.class = selectedClass;
-      }
-      if (selectedSection) {
-        paramsRpt.section = selectedSection;
-      }
+    paramsRpt.requesttype = "EXL";
+    const reportResponse = await axios.post(
+      `${baseUrl}/schoolreports/teacher-list-print`,
+      {}, // ✅ empty body
+      {
+        params: paramsRpt, // ✅ goes to req.query
+      },
+    );
+    console.log("reportResponse", reportResponse.data.data);
 
-      paramsRpt.requesttype = "EXL";
-      const reportResponse = await axios.post(
-        `${baseUrl}/schoolreports/teacher-list-print`,
-        {}, // ✅ empty body
-        {
-          params: paramsRpt, // ✅ goes to req.query
-        },
-      );
-      console.log("reportResponse", reportResponse.data.data);
-      
-      if (reportResponse.data.data.length===0){
-            setMessage("No Data Found");
-            setType("error");
-            setLoading(false);
-            return;
-      }
-      // 1️⃣ Prepare Header
+    if (reportResponse.data.data.length === 0) {
+      setMessage("No Data Found");
+      setType("error");
+      setLoading(false);
+      return;
+    }
+    // 1️⃣ Prepare Header
 
-      const sheetData = [];
+    const sheetData = [];
+    sheetData.push([
+      "Teacher Name",
+      "Gender",
+      "Email",
+      "DOB Date",
+      "Join Date",
+      "Phone #",
+    ]);
+
+    // 📥 Data Rows
+    reportResponse.data.data.forEach((row) => {
       sheetData.push([
-        "Teacher Name",
-        "Gender",
-        "Email",
-        "DOB Date",
-        "Join Date",
-        "Phone #",
+        row?.name,
+        row?.gender,
+        row?.email,
+        dayjs(row.dOBDate).format("DD-MM-YYYY"),
+        dayjs(row.joinDate).format("DD-MM-YYYY"),
+        row?.phoneno,
       ]);
+    });
 
-      // 📥 Data Rows
-      reportResponse.data.data.forEach((row) => {
-        sheetData.push([
-          row?.name,
-          row?.gender,
-          row?.email,
-          dayjs(row.dOBDate).format("DD-MM-YYYY"),
-          dayjs(row.joinDate).format("DD-MM-YYYY"),
-          row?.phoneno
-        ]);
-      });
+    // 3️⃣ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
 
-      // 3️⃣ Create worksheet
-      const worksheet = XLSX.utils.json_to_sheet(sheetData);
+    // 4️⃣ Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Teacherlist");
 
-      // 4️⃣ Create workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Teacherlist");
-
-      const date = new Date();
-      // 5️⃣ Download
-      XLSX.writeFile(workbook, `Teacherlist_${date}.xlsx`);
-    
+    const date = new Date();
+    // 5️⃣ Download
+    XLSX.writeFile(workbook, `Teacherlist_${date}.xlsx`);
   };
 
-  
- 
   if (loading) {
     return <Typography>Loading...</Typography>;
   }
   return (
     <>
-    {message && (
-            <CustomizedSnackbars
-              reset={resetMessage}
-              type={type}
-              message={message}
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
+      <div className="flex-1 w-full">
+        <div className="w-full h-[600px]">
+          {pdfUrl ? (
+            <iframe
+              src={`${pdfUrl}#zoom=page-width`}
+              width="100%"
+              height="100%"
+              style={{ border: "none" }}
             />
+          ) : (
+            <Typography>Loading PDF...</Typography>
           )}
-    <div className="max-w-2xl mx-auto my-10">
-      <div className="w-full h-[600px]">
-        {pdfUrl ? (
-          <iframe
-            src={`${pdfUrl}#zoom=page-width`}
-            width="100%"
-            height="100%"
-            style={{ border: "none" }}
-          />
-        ) : (
-          <Typography>Loading PDF...</Typography>
+        </div>
+
+        {pdfUrl && (
+          <div className="mt-6 flex justify-center gap-3">
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = "Teacherlist.pdf";
+                link.click();
+              }}
+              className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+            >
+              Download PDF
+            </button>
+
+            <button
+              className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+              onClick={downloadReportExcel}
+            >
+              Download Excel
+            </button>
+          </div>
         )}
       </div>
-
-      {pdfUrl && (
-        <div className="mt-6 flex justify-center gap-3">
-          <button
-            onClick={() => {
-              const link = document.createElement("a");
-              link.href = pdfUrl;
-              link.download = "Teacherlist.pdf";
-              link.click();
-            }}
-            className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
-          >
-            Download PDF
-          </button>
-
-          <button
-            className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
-            onClick={downloadReportExcel}
-          >
-            Download Excel
-          </button>
-        </div>
-      )}
-    </div>
     </>
   );
 }

@@ -35,9 +35,8 @@ export default function ProgressCardPrint() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedExamination, setSelectedExamination] = useState(null);
-  
 
-  const [selectedYear, setSelectedYear] = useState(null)
+  const [selectedYear, setSelectedYear] = useState(null);
 
   const [isDataFound, setIsDataFound] = useState(false);
 
@@ -85,7 +84,6 @@ export default function ProgressCardPrint() {
           paramsRpt.class = data?.class;
         }
 
-
         console.log("Year:", data?.year);
         setSelectedYear(data.year);
         if (data?.year) {
@@ -120,10 +118,6 @@ export default function ProgressCardPrint() {
     }
   };
 
-  
-
-
-
   if (loading) {
     return <Typography>Loading...</Typography>;
   }
@@ -136,7 +130,7 @@ export default function ProgressCardPrint() {
           message={message}
         />
       )}
-      <div className="max-w-2xl mx-auto my-10">
+      <div className="flex-1 w-full">
         <div className="w-full h-[600px]">
           {pdfUrl ? (
             <iframe
@@ -163,8 +157,6 @@ export default function ProgressCardPrint() {
             >
               Download PDF
             </button>
-
-            
           </div>
         )}
       </div>

@@ -172,7 +172,7 @@ export default function ReceiptPrint() {
           message={message}
         />
       )}
-      <div className="max-w-2xl mx-auto my-10">
+      <div className="flex-1 w-full">
         <div className="w-full h-[600px]">
           {pdfUrl ? (
             <iframe

@@ -34,6 +34,7 @@ export default function Generalmasters() {
   const [tab, setTab] = useState(0);
 
   const [params, setParams] = useState({});
+  const [dataSource, setDataSource] = useState(null);
 
   const handleSearch = (e) => {
     let newParam;
@@ -205,6 +206,7 @@ export default function Generalmasters() {
     axios
       .get(`${baseUrl}/generalmaster/fetch-with-query`, { params })
       .then((resp) => {
+        setDataSource(resp.data.source);
         setStudentGeneralmaster(resp.data.data);
       })
       .catch(() => console.log("Error in fetching students data"));
@@ -251,9 +253,10 @@ export default function Generalmasters() {
                 <Stack spacing={2}>
                   {" "}
                   {/* 👈 controls all vertical gaps */}
+                  <p>Data Source : {dataSource}</p>
                   <TextField
                     fullWidth
-                    label="General Master Text"
+                    label="General Master Name"
                     name="generalmaster_name"
                     value={Formik.values.generalmaster_name}
                     onChange={Formik.handleChange}
@@ -342,6 +345,7 @@ export default function Generalmasters() {
                 mb: 2,
               }}
             >
+              <p>Data Source : {dataSource}</p>
               {/* Search */}
               <TextField
                 label="Search .."

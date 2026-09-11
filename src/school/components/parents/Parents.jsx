@@ -600,11 +600,12 @@ export default function Parents() {
                 <TableHead>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      Name
+                      Father Name
                     </TableCell>
+                    <TableCell align="right">Mother Name</TableCell>
                     <TableCell align="right">Email</TableCell>
-                    <TableCell align="right">dOBDate</TableCell>
                     <TableCell align="right">JoinDate</TableCell>
+                    <TableCell align="right">Phone</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -617,12 +618,15 @@ export default function Parents() {
                       <TableCell component="th" scope="row">
                         {value.name}
                       </TableCell>
+                      <TableCell component="th" scope="row">
+                        {value.mother_name}
+                      </TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
                       <TableCell align="right">
-                        {dayjs(value?.dOBDate).format("DD/MM/YYYY")}
-                      </TableCell>
-                      <TableCell align="right">
                         {dayjs(value?.joinDate).format("DD/MM/YYYY")}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {value.phoneno}
                       </TableCell>
                       <TableCell align="right">
                         <Box

@@ -2163,13 +2163,14 @@ export default function Students() {
                 <TableHead>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      Name
+                      Name{" "}
                     </TableCell>
                     <TableCell align="right">Status</TableCell>
                     <TableCell align="right">Class</TableCell>
                     <TableCell align="right">Email</TableCell>
-                    <TableCell align="right">dOBDate</TableCell>
-                    <TableCell align="right">JoinDate</TableCell>
+                    <TableCell align="right">Student Code</TableCell>
+                    <TableCell align="right">Roll No</TableCell>
+                    <TableCell align="right">Admission No</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -2188,12 +2189,9 @@ export default function Students() {
                         {value?.student_class?.class_name}
                       </TableCell>
                       <TableCell align="right">{value?.email}</TableCell>
-                      <TableCell align="right">
-                        {dayjs(value?.dOBDate).format("DD/MM/YYYY")}
-                      </TableCell>
-                      <TableCell align="right">
-                        {dayjs(value?.joinDate).format("DD/MM/YYYY")}
-                      </TableCell>
+                      <TableCell align="right">{value?.student_code}</TableCell>
+                      <TableCell align="right">{value?.roll_no}</TableCell>
+                      <TableCell align="right">{value?.admission_no}</TableCell>
                       <TableCell align="right">
                         <Box
                           sx={{

@@ -50,7 +50,7 @@ export default function Receipts() {
   const [selectedClass, setSelectedClass] = useState(null);
   const [section, setSection] = useState([]);
   const [selectedSection, setSelectedSection] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [salesinvoices, setSalesinvoices] = useState([]);
   const [selectedSalesinvoice, setSelectedSalesinvoice] = useState(null);
   const [tab, setTab] = useState(0);
@@ -254,12 +254,17 @@ export default function Receipts() {
       }
 
       let hasInvalidRow = false;
-
+      let student_name = "";
       for (const item of receiptDetails) {
         if (item.invAmount === 0 || item.paidAmount === 0) {
           setDataError("invAmount and paidAmount must be greater than 0");
           hasInvalidRow = true;
           break; // exit loop when condition met
+        }
+        if (student_name) {
+          student_name = student_name + "," + item.student.name;
+        } else {
+          student_name = item.student.name;
         }
 
         console.log(item);
@@ -273,6 +278,7 @@ export default function Receipts() {
 
       const payload = {
         ...values,
+        student_name: student_name,
         receiptDetails: receiptDetails.map((row) => ({
           class: row.class,
           section: row.section,
@@ -343,6 +349,9 @@ export default function Receipts() {
     //   });
   };
 
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
   const fetchstudentsreceipt = () => {
     axios
       .get(`${baseUrl}/receipt/fetch-all`)
@@ -483,6 +492,28 @@ export default function Receipts() {
     console.log(receiptDetails);
   };
 
+  const filteredStudentReceipt = studentReceipt.filter((value) => {
+    const search = searchTerm.toLowerCase().trim();
+
+    if (!search) return true;
+
+    const receiptCode = String(value?.receiptCode || "").toLowerCase();
+
+    const receiptDate = value?.receiptDate
+      ? dayjs(value.receiptDate).format("DD-MM-YYYY").toLowerCase()
+      : "";
+
+    const studentName = String(value?.student_name || "").toLowerCase();
+
+    const amount = String(value?.paidAmount || "").toLowerCase();
+
+    return (
+      receiptCode.includes(search) ||
+      receiptDate.includes(search) ||
+      studentName.includes(search) ||
+      amount.includes(search)
+    );
+  });
   return (
     <>
       {message && (
@@ -890,6 +921,34 @@ export default function Receipts() {
 
         {tab === 1 && (
           <Box>
+            <Box
+              sx={{
+                padding: "2px",
+                minWidth: 120,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: "5px",
+              }}
+            >
+              <TextField
+                label="Search Receipt Code / Date / Student / Amount"
+                size="small"
+                value={searchTerm}
+                onChange={handleSearch}
+                placeholder="Search..."
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: 42,
+                    width: 500,
+                    fontSize: "14px",
+                  },
+                  "& .MuiInputLabel-root": {
+                    fontSize: "13px",
+                  },
+                }}
+              />
+            </Box>
             {/* View List             */}
             <Box>
               <TableContainer component={Paper}>
@@ -899,14 +958,15 @@ export default function Receipts() {
                       {/* <TableCell component="th" scope="row"> receipt</TableCell> */}
                       <TableCell align="right">receiptCode</TableCell>
                       <TableCell align="right">Receipt Date</TableCell>
-                      <TableCell align="right">Remarks</TableCell>
+                      <TableCell align="right">Student Name</TableCell>
+                      <TableCell align="right">Amount</TableCell>
                       <TableCell align="right">Status</TableCell>
                       <TableCell align="right">Payment Method</TableCell>
                       <TableCell align="right">Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {studentReceipt.map((value, i) => (
+                    {filteredStudentReceipt.map((value, i) => (
                       <TableRow
                         key={i}
                         sx={{
@@ -919,7 +979,10 @@ export default function Receipts() {
                         <TableCell align="right">
                           {dayjs(value.receiptDate).format("DD-MM-YYYY")}
                         </TableCell>
-                        <TableCell align="right">{value.remarks}</TableCell>
+                        <TableCell align="right">
+                          {value.student_name}
+                        </TableCell>
+                        <TableCell align="right">{value?.paidAmount}</TableCell>
                         <TableCell align="right">{value.status}</TableCell>
                         <TableCell align="right">
                           {value.paymentMethod}

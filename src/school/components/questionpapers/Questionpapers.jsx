@@ -69,7 +69,7 @@ export default function Questionpapers() {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [allExaminations, setAllExaminations] = useState([]);
   const [selectedExamination, setSelectedExamination] = useState(null);
-
+  const [search, setSearch] = useState("");
   const [classExaminations, setClassExaminations] = useState([]);
 
   const [message, setMessage] = useState("");
@@ -318,6 +318,20 @@ export default function Questionpapers() {
     },
   });
 
+  // const handleSearch = (e) => {
+  //   const value = e.target.value;
+  //   setSearch(value);
+
+  //   setParams((prev) => ({
+  //     ...prev,
+  //     search: value,
+  //   }));
+  // };
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
+
   const fetchAllQuestionpapers = () => {
     axios
       .get(`${baseUrl}/questionpaper/fetch-with-query`, { params })
@@ -338,7 +352,7 @@ export default function Questionpapers() {
 
   useEffect(() => {
     fetchAllQuestionpapers();
-  }, [message, params]);
+  }, []);
 
   const fetchClasses = () => {
     axios
@@ -400,6 +414,23 @@ export default function Questionpapers() {
       });
   };
 
+  const filteredQuestionpapers = questionpapers.filter((value) => {
+    const searchText = search.toLowerCase().trim();
+
+    if (!searchText) {
+      return true;
+    }
+
+    return (
+      value.name?.toLowerCase().includes(searchText) ||
+      value.class?.class_name?.toLowerCase().includes(searchText) ||
+      value.section?.section_name?.toLowerCase().includes(searchText) ||
+      value.teacher?.name?.toLowerCase().includes(searchText) ||
+      value.subject?.subject_name?.toLowerCase().includes(searchText) ||
+      value.examination?.examination_name?.toLowerCase().includes(searchText)
+    );
+  });
+
   useEffect(() => {
     fetchClasses();
     fetchSections();
@@ -408,17 +439,6 @@ export default function Questionpapers() {
     fetchAllExaminations();
   }, []);
 
-  const handleSearch = (e) => {
-    let newParam;
-    if (e.target.value !== "") {
-      newParam = { ...params, search: e.target.value };
-    } else {
-      newParam = { ...params };
-      delete newParam["search"];
-    }
-
-    setParams(newParam);
-  };
   return (
     <>
       {message && (
@@ -883,7 +903,8 @@ export default function Questionpapers() {
               <TextField
                 label="Search  .."
                 size="small"
-                value={params.search || ""}
+                // value={params.search || ""}
+                value={search}
                 onChange={handleSearch}
                 fullWidth
                 sx={{
@@ -937,8 +958,8 @@ export default function Questionpapers() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {questionpapers &&
-                        questionpapers.map((questionpaper, i) => {
+                      {filteredQuestionpapers &&
+                        filteredQuestionpapers.map((questionpaper, i) => {
                           return (
                             <TableRow key={i}>
                               <TableCell align="left">

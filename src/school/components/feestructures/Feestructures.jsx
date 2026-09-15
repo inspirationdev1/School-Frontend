@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import {
   Box,
   Button,
@@ -15,105 +16,42 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
-import dayjs from "dayjs";
+
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { feestructureSchema } from "../../../yupSchema/feestructureSchema";
 
 export default function Feestructures() {
+  // =========================
+  // STATE
+  // =========================
+
   const [studentFeestructure, setStudentFeestructure] = useState([]);
+
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
+
+  const [search, setSearch] = useState("");
 
   const [attendeeClass, setAttendeeClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
 
   const [feestype, setFeestype] = useState([]);
   const [selectedFeestype, setSelectedFeestype] = useState(null);
-  const [selectedTaxrate, setSelectedTaxrate] = useState(null);
-
-  const [accountledgers, setAccountledgers] = useState([]);
-  const [selectedAccountledger, setSelectedAccountledger] = useState(null);
 
   const [tab, setTab] = useState(0);
 
-  const handleDelete = (id) => {
-    if (confirm("Are you sure you want to delete?")) {
-      axios
-        .delete(`${baseUrl}/feestructure/delete/${id}`)
-        .then((resp) => {
-          setMessage(resp.data.message);
-          setType("success");
-          clearForm();
-        })
-        .catch((e) => {
-          setMessage(e.response.data.message);
-          setType("error");
-          console.log("Error, deleting", e);
-        });
-    }
-  };
-  const handleEdit = (id) => {
-    console.log("Handle  Edit is called", id);
-    setEdit(true);
-    axios
-      .get(`${baseUrl}/feestructure/fetch-single/${id}`)
-      .then((resp) => {
-        Formik.setFieldValue("name", resp.data.data.name);
-        Formik.setFieldValue("code", resp.data.data.code);
-        Formik.setFieldValue("class", resp.data.data?.class?._id);
-        Formik.setFieldValue("feestype", resp?.data?.data?.feestype?._id);
-        Formik.setFieldValue("taxrate", resp?.data?.data?.taxrate?._id);
-        Formik.setFieldValue(
-          "tax_percent",
-          resp?.data?.data?.taxrate?.tax_percent,
-        );
-        Formik.setFieldValue("taxtype", resp?.data?.data?.taxrate?.taxtype);
-        Formik.setFieldValue("amount", resp.data.data.amount);
-        // const classId = resp.data.data?.class?._id;
-        // const matchedClass = attendeeClass.find(c => c._id === classId);
-        setSelectedClass(resp.data.data?.class);
-
-        // const feestypeId = resp.data?.data?.feestype?._id || "";
-        // const matchedFeestype = feestype.find(c => c._id === feestypeId);
-        setSelectedFeestype(resp.data.data?.feestype);
-        setSelectedTaxrate(resp.data.data?.taxrate);
-
-        setEditId(resp.data.data._id);
-        setTab(0); // open Create Class tab
-      })
-      .catch((e) => {
-        console.log("Error  in fetching edit data.");
-      });
-  };
-
-  const cancelEdit = () => {
-    setEdit(false);
-    // Formik.resetForm()
-    clearForm();
-  };
-
-  const clearForm = () => {
-    setEdit(false);
-    setEditId(null);
-    Formik.resetForm();
-    // 🔥 reset Autocomplete values
-    setSelectedClass(null);
-    setSelectedAccountledger(null);
-    setSelectedFeestype(null);
-    setSelectedTaxrate(null);
-  };
-
-  //   MESSAGE
+  // Snackbar
   const [message, setMessage] = useState("");
-  const [type, setType] = useState("succeess");
+  const [type, setType] = useState("success");
 
-  const resetMessage = () => {
-    setMessage("");
-  };
+  // =========================
+  // INITIAL VALUES
+  // =========================
 
   const initialValues = {
     name: "",
@@ -125,95 +63,331 @@ export default function Feestructures() {
     taxtype: "",
     amount: 0,
   };
-  const Formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: feestructureSchema,
-    onSubmit: (values) => {
-      values.taxrate = selectedFeestype?.taxrate;
-      values.tax_percent = selectedFeestype?.tax_percent;
-      values.taxtype = selectedFeestype?.taxtype || "inclusive";
 
-      if (isEdit) {
-        console.log("edit id", editId);
-        axios
-          .patch(`${baseUrl}/feestructure/update/${editId}`, {
-            ...values,
-          })
-          .then((resp) => {
-            console.log("Edit submit", resp);
-            setMessage(resp.data.message);
-            setType("success");
-            cancelEdit();
-            setTab(1); // go to View List
-          })
-          .catch((e) => {
-            setMessage(e.response.data.message);
-            setType("error");
-            console.log("Error, edit casting submit", e);
-          });
-      } else {
-        axios
-          .post(`${baseUrl}/feestructure/create`, { ...values })
-          .then((resp) => {
-            console.log("Response after submitting admin casting", resp);
-            setMessage(resp.data.message);
-            setType("success");
-            setTab(1); // go to View List
-          })
-          .catch((e) => {
-            setMessage(e.response.data.message);
-            setType("error");
-            console.log("Error, response admin casting calls", e);
-          });
-        // Formik.resetForm();
-        clearForm();
-      }
-    },
-  });
+  // =========================
+  // SNACKBAR
+  // =========================
 
-  const [month, setMonth] = useState([]);
-  const [year, setYear] = useState([]);
-
-  const fetchstudentsfeestructure = () => {
-    axios
-      .get(`${baseUrl}/feestructure/fetch-all`)
-      .then((resp) => {
-        console.log("Fetching data in  Casting Calls  admin.", resp);
-        setStudentFeestructure(resp.data.data);
-      })
-      .catch((e) => {
-        console.log("Error in fetching casting calls admin data", e);
-      });
+  const resetMessage = () => {
+    setMessage("");
   };
+
+  // =========================
+  // FETCH FEE STRUCTURES
+  // =========================
+
+  const fetchstudentsfeestructure = async () => {
+    try {
+      const resp = await axios.get(`${baseUrl}/feestructure/fetch-all`);
+
+      console.log("Fee Structure Data:", resp.data);
+
+      setStudentFeestructure(resp.data?.data || []);
+    } catch (error) {
+      console.error("Error fetching fee structures:", error);
+
+      setMessage(
+        error?.response?.data?.message || "Error fetching fee structures",
+      );
+      setType("error");
+    }
+  };
+
+  // =========================
+  // FETCH CLASS
+  // =========================
 
   const fetchClass = async () => {
     try {
-      const attendee = await axios.get(`${baseUrl}/class/fetch-all`);
-      console.log("attendee", attendee);
-      setAttendeeClass(attendee.data.data);
+      const resp = await axios.get(`${baseUrl}/class/fetch-all`);
+
+      console.log("Class Data:", resp.data);
+
+      setAttendeeClass(resp.data?.data || []);
     } catch (error) {
       console.error("Error fetching Class:", error);
+
+      setMessage(error?.response?.data?.message || "Error fetching classes");
+      setType("error");
     }
   };
 
+  // =========================
+  // FETCH FEE TYPES
+  // =========================
+
   const fetchFeestype = async () => {
     try {
-      const feestypes = await axios.get(`${baseUrl}/feestype/fetch-all`);
-      console.log("feestypes", feestypes);
-      setFeestype(feestypes.data.data);
+      const resp = await axios.get(`${baseUrl}/feestype/fetch-all`);
+
+      console.log("Fee Type Data:", resp.data);
+
+      setFeestype(resp.data?.data || []);
     } catch (error) {
-      console.error("Error fetching Class:", error);
+      console.error("Error fetching Fee Types:", error);
+
+      setMessage(error?.response?.data?.message || "Error fetching fee types");
+      setType("error");
     }
   };
+
+  // =========================
+  // INITIAL API CALLS
+  // =========================
 
   useEffect(() => {
     fetchClass();
     fetchFeestype();
-
     fetchstudentsfeestructure();
-  }, [message]);
+  }, []);
+
+  // =========================
+  // CLEAR FORM
+  // =========================
+
+  const clearForm = () => {
+    setEdit(false);
+    setEditId(null);
+
+    Formik.resetForm();
+
+    setSelectedClass(null);
+    setSelectedFeestype(null);
+  };
+
+  // =========================
+  // CANCEL EDIT
+  // =========================
+
+  const cancelEdit = () => {
+    clearForm();
+    setTab(0);
+  };
+
+  // =========================
+  // DELETE
+  // =========================
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this fee structure?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const resp = await axios.delete(`${baseUrl}/feestructure/delete/${id}`);
+
+      setMessage(resp?.data?.message || "Fee structure deleted successfully");
+      setType("success");
+
+      await fetchstudentsfeestructure();
+
+      clearForm();
+    } catch (error) {
+      console.error("Error deleting fee structure:", error);
+
+      setMessage(
+        error?.response?.data?.message || "Error deleting fee structure",
+      );
+      setType("error");
+    }
+  };
+
+  // =========================
+  // EDIT
+  // =========================
+
+  const handleEdit = async (id) => {
+    try {
+      console.log("Handle Edit:", id);
+
+      const resp = await axios.get(
+        `${baseUrl}/feestructure/fetch-single/${id}`,
+      );
+
+      const data = resp?.data?.data;
+
+      if (!data) {
+        setMessage("Fee structure data not found");
+        setType("error");
+        return;
+      }
+
+      console.log("Edit Fee Structure Data:", data);
+
+      // Enable edit mode
+      setEdit(true);
+      setEditId(data._id);
+
+      // Form values
+      Formik.setFieldValue("name", data.name || "");
+      Formik.setFieldValue("code", data.code || "");
+
+      Formik.setFieldValue("class", data?.class?._id || "");
+
+      Formik.setFieldValue("feestype", data?.feestype?._id || "");
+
+      Formik.setFieldValue("taxrate", data?.taxrate?._id || "");
+
+      Formik.setFieldValue(
+        "tax_percent",
+        data?.taxrate?.tax_percent ?? data?.feestype?.tax_percent ?? 0,
+      );
+
+      Formik.setFieldValue(
+        "taxtype",
+        data?.taxrate?.taxtype ?? data?.feestype?.taxtype ?? "inclusive",
+      );
+
+      Formik.setFieldValue("amount", data.amount ?? 0);
+
+      // Autocomplete values
+      setSelectedClass(data?.class || null);
+      setSelectedFeestype(data?.feestype || null);
+
+      // Open Add/Edit tab
+      setTab(0);
+    } catch (error) {
+      console.error("Error fetching fee structure for edit:", error);
+
+      setMessage(
+        error?.response?.data?.message || "Error fetching fee structure",
+      );
+      setType("error");
+    }
+  };
+
+  // =========================
+  // SEARCH
+  // =========================
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+  };
+
+  const filteredFeestructures = studentFeestructure.filter((value) => {
+    const searchText = search.toLowerCase().trim();
+
+    if (!searchText) {
+      return true;
+    }
+
+    return (
+      value?.name?.toLowerCase().includes(searchText) ||
+      value?.code?.toLowerCase().includes(searchText) ||
+      value?.class?.class_name?.toLowerCase().includes(searchText) ||
+      value?.class?.name?.toLowerCase().includes(searchText) ||
+      value?.feestype?.feestype_name?.toLowerCase().includes(searchText) ||
+      String(value?.amount ?? "")
+        .toLowerCase()
+        .includes(searchText)
+    );
+  });
+
+  // =========================
+  // FORMIK
+  // =========================
+
+  const Formik = useFormik({
+    initialValues,
+
+    validationSchema: feestructureSchema,
+
+    onSubmit: async (values) => {
+      try {
+        // --------------------------------
+        // Prepare payload
+        // --------------------------------
+
+        const payload = {
+          ...values,
+
+          // Send taxrate ID instead of complete object
+          taxrate: selectedFeestype?.taxrate?._id || values.taxrate || "",
+
+          tax_percent: selectedFeestype?.tax_percent ?? values.tax_percent ?? 0,
+
+          taxtype: selectedFeestype?.taxtype || values.taxtype || "inclusive",
+
+          amount: Number(values.amount),
+        };
+
+        console.log("Submitting Fee Structure:", payload);
+
+        // ================================
+        // UPDATE
+        // ================================
+
+        if (isEdit) {
+          console.log("Updating ID:", editId);
+
+          const resp = await axios.patch(
+            `${baseUrl}/feestructure/update/${editId}`,
+            payload,
+          );
+
+          console.log("Update Response:", resp.data);
+
+          setMessage(
+            resp?.data?.message || "Fee structure updated successfully",
+          );
+
+          setType("success");
+
+          await fetchstudentsfeestructure();
+
+          clearForm();
+
+          setTab(1);
+
+          return;
+        }
+
+        // ================================
+        // CREATE
+        // ================================
+
+        const resp = await axios.post(
+          `${baseUrl}/feestructure/create`,
+          payload,
+        );
+
+        console.log("Create Response:", resp.data);
+
+        setMessage(resp?.data?.message || "Fee structure created successfully");
+
+        setType("success");
+
+        await fetchstudentsfeestructure();
+
+        clearForm();
+
+        setTab(1);
+      } catch (error) {
+        console.error("Error submitting fee structure:", error);
+
+        setMessage(
+          error?.response?.data?.message || "Error submitting fee structure",
+        );
+
+        setType("error");
+      }
+    },
+  });
+
+  // =========================
+  // RENDER
+  // =========================
+
   return (
     <>
+      {/* =========================
+          SNACKBAR
+      ========================= */}
+
       {message && (
         <CustomizedSnackbars
           reset={resetMessage}
@@ -221,25 +395,47 @@ export default function Feestructures() {
           message={message}
         />
       )}
+
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        {/* =========================
+            TABS
+        ========================= */}
+
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+          }}
+        >
           <Tabs
             value={tab}
-            onChange={(e, newValue) => setTab(newValue)}
+            onChange={(event, newValue) => {
+              setTab(newValue);
+            }}
             textColor="primary"
             indicatorColor="primary"
           >
-            {/* <Tab label="Create Receipt" /> */}
             <Tab
-              label={isEdit ? "Edit Feesstructure" : "Add New Feesstructure"}
+              label={isEdit ? "Edit Feestructure" : "Add New Feestructure"}
             />
+
             <Tab label="View List" />
           </Tabs>
         </Box>
 
+        {/* ==================================================
+            TAB 0 - CREATE / EDIT
+        ================================================== */}
+
         {tab === 0 && (
-          <Box component={"div"} sx={{}}>
-            <Paper sx={{ padding: "20px", margin: "10px" }}>
+          <Box>
+            <Paper
+              sx={{
+                padding: "20px",
+                margin: "10px",
+              }}
+            >
               <Box
                 component="form"
                 noValidate
@@ -250,111 +446,124 @@ export default function Feestructures() {
                   sx={{
                     display: "grid",
                     gridTemplateColumns: {
-                      xs: "1fr", // mobile
-                      md: "1fr 1fr", // desktop
+                      xs: "1fr",
+                      md: "1fr 1fr",
                     },
                     gap: 2.5,
                     mt: 3,
                   }}
                 >
-                  <TextField
-                    fullWidth
-                    sx={{ marginTop: "10px" }}
-                    id="filled-basic"
-                    label="name "
-                    variant="outlined"
-                    name="name"
-                    value={Formik.values.name}
-                    onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                  />
-                  {Formik.touched.name && Formik.errors.name && (
-                    <p style={{ color: "red", textTransform: "capitalize" }}>
-                      {Formik.errors.name}
-                    </p>
-                  )}
+                  {/* =========================
+                      NAME
+                  ========================= */}
 
-                  <TextField
-                    disabled={isEdit}
-                    fullWidth
-                    sx={{ marginTop: "10px" }}
-                    id="filled-basic"
-                    label="code "
-                    variant="outlined"
-                    name="code"
-                    value={Formik.values.code}
-                    onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                  />
-                  {Formik.touched.code && Formik.errors.code && (
-                    <p style={{ color: "red", textTransform: "capitalize" }}>
-                      {Formik.errors.code}
-                    </p>
-                  )}
+                  <Box>
+                    <TextField
+                      fullWidth
+                      sx={{
+                        marginTop: "10px",
+                      }}
+                      label="Name"
+                      variant="outlined"
+                      name="name"
+                      value={Formik.values.name}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                      error={Formik.touched.name && Boolean(Formik.errors.name)}
+                      helperText={Formik.touched.name && Formik.errors.name}
+                    />
+                  </Box>
 
-                  {/* Class */}
-                  {attendeeClass.length > 0 && (
-                    <Box>
-                      <Autocomplete
-                        disabled={isEdit}
-                        options={attendeeClass}
-                        getOptionLabel={(option) => option?.class_name}
-                        value={selectedClass}
-                        onChange={(event, newValue) => {
-                          setSelectedClass(newValue);
+                  {/* =========================
+                      CODE
+                  ========================= */}
 
-                          Formik.setFieldValue(
-                            "class",
-                            newValue ? newValue._id : "",
-                          );
-                        }}
-                        onBlur={() => Formik.setFieldTouched("class", true)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Select Class"
-                            placeholder="Search class..."
-                            fullWidth
-                            error={
-                              Formik.touched.class &&
-                              Boolean(Formik.errors.class)
-                            }
-                            helperText={
-                              Formik.touched.class && Formik.errors.class
-                            }
-                          />
-                        )}
-                      />
-                    </Box>
-                  )}
+                  <Box>
+                    <TextField
+                      disabled={isEdit}
+                      fullWidth
+                      sx={{
+                        marginTop: "10px",
+                      }}
+                      label="Code"
+                      variant="outlined"
+                      name="code"
+                      value={Formik.values.code}
+                      onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                      error={Formik.touched.code && Boolean(Formik.errors.code)}
+                      helperText={Formik.touched.code && Formik.errors.code}
+                    />
+                  </Box>
 
-                  {/* Feestype */}
+                  {/* =========================
+                      CLASS
+                  ========================= */}
 
                   <Box>
                     <Autocomplete
-                      // disabled={isEdit}
+                      disabled={isEdit}
+                      options={attendeeClass}
+                      value={selectedClass}
+                      isOptionEqualToValue={(option, value) =>
+                        option?._id === value?._id
+                      }
+                      getOptionLabel={(option) =>
+                        option?.class_name || option?.name || ""
+                      }
+                      onChange={(event, newValue) => {
+                        setSelectedClass(newValue);
+
+                        Formik.setFieldValue("class", newValue?._id || "");
+                      }}
+                      onBlur={() => Formik.setFieldTouched("class", true)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Class"
+                          placeholder="Search class..."
+                          fullWidth
+                          error={
+                            Formik.touched.class && Boolean(Formik.errors.class)
+                          }
+                          helperText={
+                            Formik.touched.class && Formik.errors.class
+                          }
+                        />
+                      )}
+                    />
+                  </Box>
+
+                  {/* =========================
+                      FEE TYPE
+                  ========================= */}
+
+                  <Box>
+                    <Autocomplete
                       options={feestype}
-                      getOptionLabel={(option) => option.feestype_name}
                       value={selectedFeestype}
+                      isOptionEqualToValue={(option, value) =>
+                        option?._id === value?._id
+                      }
+                      getOptionLabel={(option) => option?.feestype_name || ""}
                       onChange={(event, newValue) => {
                         setSelectedFeestype(newValue);
-                        setSelectedTaxrate(newValue?.taxrate);
+
+                        Formik.setFieldValue("feestype", newValue?._id || "");
 
                         Formik.setFieldValue(
-                          "feestype",
-                          newValue ? newValue._id : "",
-                        );
-                        Formik.setFieldValue(
                           "taxrate",
-                          newValue ? newValue?.taxrate?._id : "",
+                          newValue?.taxrate?._id || "",
                         );
+
                         Formik.setFieldValue(
                           "tax_percent",
-                          newValue ? newValue?.tax_percent : 0,
+                          newValue?.tax_percent ?? 0,
                         );
+
                         Formik.setFieldValue(
                           "taxtype",
-                          newValue ? newValue?.taxtype : 0,
+                          newValue?.taxtype || "inclusive",
                         );
                       }}
                       onBlur={() => Formik.setFieldTouched("feestype", true)}
@@ -376,11 +585,14 @@ export default function Feestructures() {
                     />
                   </Box>
 
-                  {/* amount */}
+                  {/* =========================
+                      AMOUNT
+                  ========================= */}
+
                   <Box>
                     <TextField
                       fullWidth
-                      label="amount"
+                      label="Amount"
                       variant="outlined"
                       name="amount"
                       type="number"
@@ -388,26 +600,41 @@ export default function Feestructures() {
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
                       disabled={isEdit}
+                      error={
+                        Formik.touched.amount && Boolean(Formik.errors.amount)
+                      }
+                      helperText={Formik.touched.amount && Formik.errors.amount}
+                      inputProps={{
+                        min: 0,
+                      }}
                     />
-                    {Formik.touched.amount && Formik.errors.amount && (
-                      <Typography color="error" variant="caption">
-                        {Formik.errors.amount}
-                      </Typography>
-                    )}
                   </Box>
                 </Box>
 
-                <Box sx={{ marginTop: "10px" }} component={"div"}>
+                {/* =========================
+                    BUTTONS
+                ========================= */}
+
+                <Box
+                  sx={{
+                    marginTop: "20px",
+                  }}
+                >
                   <Button
                     type="submit"
-                    sx={{ marginRight: "10px" }}
+                    sx={{
+                      marginRight: "10px",
+                    }}
                     variant="contained"
                   >
-                    Submit
+                    {isEdit ? "Update" : "Submit"}
                   </Button>
+
                   {isEdit && (
                     <Button
-                      sx={{ marginRight: "10px" }}
+                      sx={{
+                        marginRight: "10px",
+                      }}
                       variant="outlined"
                       onClick={cancelEdit}
                     >
@@ -420,67 +647,180 @@ export default function Feestructures() {
           </Box>
         )}
 
+        {/* ==================================================
+            TAB 1 - VIEW LIST
+        ================================================== */}
+
         {tab === 1 && (
           <Box>
+            {/* =========================
+                SEARCH
+            ========================= */}
+
+            <Box
+              sx={{
+                mb: 2,
+              }}
+            >
+              <TextField
+                label="Search"
+                size="small"
+                value={search}
+                onChange={handleSearch}
+                placeholder="Search name, code, class, feestype, amount..."
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: 42,
+
+                    width: {
+                      xs: "100%",
+                      sm: 500,
+                    },
+
+                    fontSize: "14px",
+                  },
+
+                  "& .MuiInputLabel-root": {
+                    fontSize: "13px",
+                  },
+                }}
+              />
+            </Box>
+
+            {/* =========================
+                TABLE
+            ========================= */}
+
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table
+                sx={{
+                  minWidth: 650,
+                }}
+                aria-label="fee structure table"
+              >
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row">
-                      {" "}
-                      Name
+                    <TableCell>
+                      <strong>Name</strong>
                     </TableCell>
-                    <TableCell align="right">Code</TableCell>
-                    <TableCell align="right">Class</TableCell>
-                    <TableCell align="right">Feestype</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell align="right">Action</TableCell>
+
+                    <TableCell align="right">
+                      <strong>Code</strong>
+                    </TableCell>
+
+                    <TableCell align="right">
+                      <strong>Class</strong>
+                    </TableCell>
+
+                    <TableCell align="right">
+                      <strong>Feestype</strong>
+                    </TableCell>
+
+                    <TableCell align="right">
+                      <strong>Amount</strong>
+                    </TableCell>
+
+                    <TableCell align="right">
+                      <strong>Action</strong>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody>
-                  {studentFeestructure.map((value, i) => (
-                    <TableRow
-                      key={i}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {value.name}
-                      </TableCell>
-                      <TableCell align="right">{value.code}</TableCell>
-                      <TableCell align="right">
-                        {value?.class?.class_name}
-                      </TableCell>
-                      <TableCell align="right">
-                        {value?.feestype?.feestype_name || ""}
-                      </TableCell>
-                      <TableCell align="right">{value.amount}</TableCell>
-                      <TableCell align="right">
-                        <Box
+                  {filteredFeestructures.length > 0 ? (
+                    filteredFeestructures.map((value, i) => (
+                      <TableRow
+                        key={value?._id || i}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        {/* NAME */}
+
+                        <TableCell component="th" scope="row">
+                          {value?.name || ""}
+                        </TableCell>
+
+                        {/* CODE */}
+
+                        <TableCell align="right">{value?.code || ""}</TableCell>
+
+                        {/* CLASS */}
+
+                        <TableCell align="right">
+                          {value?.class?.class_name || value?.class?.name || ""}
+                        </TableCell>
+
+                        {/* FEE TYPE */}
+
+                        <TableCell align="right">
+                          {value?.feestype?.feestype_name || ""}
+                        </TableCell>
+
+                        {/* AMOUNT */}
+
+                        <TableCell align="right">
+                          {value?.amount ?? 0}
+                        </TableCell>
+
+                        {/* ACTION */}
+
+                        <TableCell align="right">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: 1.5,
+                            }}
+                          >
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "red",
+                                color: "#fff",
+                                "&:hover": {
+                                  background: "#cc0000",
+                                },
+                              }}
+                              onClick={() => handleDelete(value._id)}
+                            >
+                              Delete
+                            </Button>
+
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "gold",
+                                color: "#222222",
+                                "&:hover": {
+                                  background: "#d4af00",
+                                },
+                              }}
+                              onClick={() => handleEdit(value._id)}
+                            >
+                              Edit
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        <Typography
                           sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1.5, // 👈 space between buttons
+                            py: 3,
                           }}
                         >
-                          <Button
-                            variant="contained"
-                            sx={{ background: "red", color: "#fff" }}
-                            onClick={() => handleDelete(value._id)}
-                          >
-                            Delete
-                          </Button>
-
-                          <Button
-                            variant="contained"
-                            sx={{ background: "gold", color: "#222222" }}
-                            onClick={() => handleEdit(value._id)}
-                          >
-                            Edit
-                          </Button>
-                        </Box>
+                          {search
+                            ? "No fee structures found for your search."
+                            : "No fee structures found."}
+                        </Typography>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

@@ -37,7 +37,7 @@ export default function Salesinvoice() {
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [date, setDate] = useState(new Date());
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [isPrint, setPrint] = useState(false);
   const [printId, setPrintId] = useState(null);
 
@@ -1434,6 +1434,7 @@ export default function Salesinvoice() {
                       <TableCell align="right">Invoice Code</TableCell>
                       <TableCell align="right">Invoice Date</TableCell>
                       <TableCell align="right">Student</TableCell>
+                      <TableCell align="right">Amount</TableCell>
                       <TableCell align="right">Remarks</TableCell>
                       <TableCell align="right">Status</TableCell>
                       {/* <TableCell align="right">Payment Status</TableCell> */}
@@ -1457,6 +1458,7 @@ export default function Salesinvoice() {
                         <TableCell align="right">
                           {value?.student?.name}
                         </TableCell>
+                        <TableCell align="right">{value.grossAmount}</TableCell>
                         <TableCell align="right">{value.remarks}</TableCell>
                         <TableCell align="right">{value.status}</TableCell>
                         {/* <TableCell align="right">{value.paymentStatus}</TableCell> */}

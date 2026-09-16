@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   Button,
@@ -14,24 +13,37 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
-import dayjs from "dayjs";
+
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { departmentSchema } from "../../../yupSchema/departmentSchema";
 
 export default function Department() {
   const [studentDepartment, setStudentDepartment] = useState([]);
+  const [filteredDepartments, setFilteredDepartments] = useState([]);
+
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [tab, setTab] = useState(0);
 
+  // Search
+  const [search, setSearch] = useState("");
 
+  // Message
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
 
+  const resetMessage = () => {
+    setMessage("");
+  };
 
-
+  // --------------------------------------------------
+  // DELETE DEPARTMENT
+  // --------------------------------------------------
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
       axios
@@ -41,118 +53,195 @@ export default function Department() {
           setType("success");
         })
         .catch((e) => {
-          setMessage(e.response.data.message);
+          setMessage(e.response?.data?.message || "Error deleting department");
+
           setType("error");
-          console.log("Error, deleting", e);
+
+          console.log("Error, deleting department", e);
         });
     }
   };
+
+  // --------------------------------------------------
+  // EDIT DEPARTMENT
+  // --------------------------------------------------
   const handleEdit = (id) => {
-    console.log("Handle  Edit is called", id);
+    console.log("Handle Edit is called", id);
+
     setEdit(true);
-    axios.get(`${baseUrl}/department/fetch-single/${id}`)
+
+    axios
+      .get(`${baseUrl}/department/fetch-single/${id}`)
       .then((resp) => {
-        Formik.setFieldValue("department_name", resp.data.data.department_name);
-        Formik.setFieldValue("department_code", resp.data.data.department_code);
-        setEditId(resp.data.data._id);
-        setTab(0); // open Create tab
+        const data = resp.data.data;
+
+        Formik.setFieldValue("department_name", data?.department_name || "");
+
+        Formik.setFieldValue("department_code", data?.department_code || "");
+
+        setEditId(data?._id);
+
+        // Open Edit Department tab
+        setTab(0);
       })
       .catch((e) => {
-        console.log("Error  in fetching edit data.");
+        console.log("Error in fetching edit data.", e);
+
+        setMessage(
+          e.response?.data?.message || "Error fetching department details",
+        );
+
+        setType("error");
       });
   };
 
+  // --------------------------------------------------
+  // CANCEL EDIT
+  // --------------------------------------------------
   const cancelEdit = () => {
     setEdit(false);
-    Formik.resetForm()
+    setEditId(null);
+    Formik.resetForm();
   };
 
-  //   MESSAGE
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("succeess");
-
-  const resetMessage = () => {
-    setMessage("");
-  };
-
+  // --------------------------------------------------
+  // FORMIK
+  // --------------------------------------------------
   const initialValues = {
     department_name: "",
-    department_code: ""
+    department_code: "",
   };
+
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: departmentSchema,
+
     onSubmit: (values) => {
       if (isEdit) {
         console.log("edit id", editId);
+
         axios
           .patch(`${baseUrl}/department/update/${editId}`, {
             ...values,
           })
           .then((resp) => {
             console.log("Edit submit", resp);
+
             setMessage(resp.data.message);
             setType("success");
+
             cancelEdit();
-            setTab(1); // go to View List
+
+            // Go to View List
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
+            setMessage(
+              e.response?.data?.message || "Error updating department",
+            );
+
             setType("error");
-            console.log("Error, edit casting submit", e);
+
+            console.log("Error, edit department submit", e);
           });
       } else {
-
         axios
-          .post(`${baseUrl}/department/create`, { ...values })
+          .post(`${baseUrl}/department/create`, {
+            ...values,
+          })
           .then((resp) => {
-            console.log("Response after submitting admin casting", resp);
+            console.log("Response after submitting department", resp);
+
             setMessage(resp.data.message);
             setType("success");
+
             cancelEdit();
-            setTab(1); // go to View List
+
+            // Go to View List
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
-            setType("error");
-            console.log("Error, response admin casting calls", e);
-          });
-        Formik.resetForm();
+            setMessage(
+              e.response?.data?.message || "Error creating department",
+            );
 
+            setType("error");
+
+            console.log("Error, response department create", e);
+          });
       }
     },
   });
 
-  const [month, setMonth] = useState([]);
-  const [year, setYear] = useState([]);
-  const fetchStudentDepartment = () => {
-    // axios
-    //   .get(`${baseUrl}/casting/get-month-year`)
-    //   .then((resp) => {
-    //     console.log("Fetching month and year.", resp);
-    //     setMonth(resp.data.month);
-    //     setYear(resp.data.year);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching month and year", e);
-    //   });
-  };
-
+  // --------------------------------------------------
+  // FETCH DEPARTMENTS
+  // --------------------------------------------------
   const fetchstudentsdepartment = () => {
     axios
       .get(`${baseUrl}/department/fetch-all`)
       .then((resp) => {
-        console.log("Fetching data in  Casting Calls  admin.", resp);
-        setStudentDepartment(resp.data.data);
+        console.log("Fetching department data", resp);
+
+        const data = Array.isArray(resp.data.data) ? resp.data.data : [];
+
+        setStudentDepartment(data);
+        setFilteredDepartments(data);
       })
       .catch((e) => {
-        console.log("Error in fetching casting calls admin data", e);
+        console.log("Error in fetching department data", e);
+
+        setStudentDepartment([]);
+        setFilteredDepartments([]);
       });
   };
+
+  // --------------------------------------------------
+  // FETCH DATA AFTER CRUD
+  // --------------------------------------------------
   useEffect(() => {
     fetchstudentsdepartment();
-    fetchStudentDepartment();
   }, [message]);
+
+  // --------------------------------------------------
+  // SEARCH
+  // --------------------------------------------------
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
+
+  // --------------------------------------------------
+  // DYNAMIC SEARCH FILTER
+  // --------------------------------------------------
+  useEffect(() => {
+    const searchValue = search.trim().toLowerCase();
+
+    // Show all departments when search is empty
+    if (!searchValue) {
+      setFilteredDepartments(studentDepartment);
+      return;
+    }
+
+    const filtered = studentDepartment.filter((department) => {
+      const departmentName = String(
+        department?.department_name || "",
+      ).toLowerCase();
+
+      const departmentCode = String(
+        department?.department_code || "",
+      ).toLowerCase();
+
+      return (
+        departmentName.includes(searchValue) ||
+        departmentCode.includes(searchValue)
+      );
+    });
+
+    setFilteredDepartments(filtered);
+  }, [search, studentDepartment]);
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
   return (
     <>
       {message && (
@@ -162,38 +251,53 @@ export default function Department() {
           message={message}
         />
       )}
+
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        {/* ==================================================
+            TABS
+        ================================================== */}
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+          }}
+        >
           <Tabs
             value={tab}
             onChange={(e, newValue) => setTab(newValue)}
             textColor="primary"
             indicatorColor="primary"
           >
-            {/* <Tab label="Create Receipt" /> */}
             <Tab label={isEdit ? "Edit Department" : "Add New Department"} />
+
             <Tab label="View List" />
           </Tabs>
         </Box>
 
+        {/* ==================================================
+            TAB 0 - ADD / EDIT DEPARTMENT
+        ================================================== */}
         {tab === 0 && (
-          <Box component={"div"} sx={{}}>
+          <Box component="div">
             <Paper
-              sx={{ padding: '20px', margin: "10px" }}
+              sx={{
+                padding: "20px",
+                margin: "10px",
+              }}
             >
-
               <Box
                 component="form"
                 noValidate
                 autoComplete="off"
                 onSubmit={Formik.handleSubmit}
               >
-
-
+                {/* DEPARTMENT NAME */}
                 <TextField
                   fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
+                  sx={{
+                    marginTop: "10px",
+                  }}
                   label="Department Name"
                   variant="outlined"
                   name="department_name"
@@ -201,18 +305,26 @@ export default function Department() {
                   onChange={Formik.handleChange}
                   onBlur={Formik.handleBlur}
                 />
-                {Formik.touched.department_name && Formik.errors.department_name && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.department_name}
-                  </p>
-                )}
 
+                {Formik.touched.department_name &&
+                  Formik.errors.department_name && (
+                    <p
+                      style={{
+                        color: "red",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {Formik.errors.department_name}
+                    </p>
+                  )}
 
+                {/* DEPARTMENT CODE */}
                 <TextField
                   disabled={isEdit}
                   fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
+                  sx={{
+                    marginTop: "10px",
+                  }}
                   label="Department Code"
                   variant="outlined"
                   name="department_code"
@@ -220,30 +332,40 @@ export default function Department() {
                   onChange={Formik.handleChange}
                   onBlur={Formik.handleBlur}
                 />
-                {Formik.touched.department_code && Formik.errors.department_code && (
-                  <p style={{ color: "red", textTransform: "capitalize" }}>
-                    {Formik.errors.department_code}
-                  </p>
-                )}
 
+                {Formik.touched.department_code &&
+                  Formik.errors.department_code && (
+                    <p
+                      style={{
+                        color: "red",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {Formik.errors.department_code}
+                    </p>
+                  )}
 
-
-
-
-
-
-
-                <Box sx={{ marginTop: "10px" }} component={"div"}>
+                {/* BUTTONS */}
+                <Box
+                  sx={{
+                    marginTop: "10px",
+                  }}
+                >
                   <Button
                     type="submit"
-                    sx={{ marginRight: "10px" }}
+                    sx={{
+                      marginRight: "10px",
+                    }}
                     variant="contained"
                   >
                     Submit
                   </Button>
+
                   {isEdit && (
                     <Button
-                      sx={{ marginRight: "10px" }}
+                      sx={{
+                        marginRight: "10px",
+                      }}
                       variant="outlined"
                       onClick={cancelEdit}
                     >
@@ -251,70 +373,178 @@ export default function Department() {
                     </Button>
                   )}
                 </Box>
-
-
               </Box>
             </Paper>
           </Box>
         )}
 
+        {/* ==================================================
+            TAB 1 - VIEW LIST
+        ================================================== */}
         {tab === 1 && (
           <Box>
+            {/* SEARCH + TOTAL */}
+            <Paper
+              sx={{
+                p: 2,
+                mb: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <TextField
+                  label="Search Departments"
+                  placeholder="Search by Department Name or Code..."
+                  size="small"
+                  value={search}
+                  onChange={handleSearch}
+                  sx={{
+                    flex: 1,
+                    minWidth: {
+                      xs: "100%",
+                      sm: "400px",
+                    },
+
+                    "& .MuiInputBase-root": {
+                      height: 42,
+                      fontSize: "14px",
+                    },
+                  }}
+                />
+
+                {/* CLEAR BUTTON */}
+                {search && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSearch("")}
+                    sx={{
+                      height: 42,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Clear
+                  </Button>
+                )}
+
+                {/* TOTAL DEPARTMENTS */}
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Total Departments:{" "}
+                  <strong>{filteredDepartments.length}</strong>
+                </Typography>
+              </Box>
+            </Paper>
+
+            {/* TABLE */}
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table sx={{ minWidth: 650 }} aria-label="department table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row"> department Name</TableCell>
+                    <TableCell component="th" scope="row">
+                      Department Name
+                    </TableCell>
+
                     <TableCell align="right">Code</TableCell>
+
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody>
-                  {studentDepartment.map((value, i) => (
-                    <TableRow
-                      key={i}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {value.department_name}
-                      </TableCell>
-                      <TableCell align="right">{value.department_code}</TableCell>
-                      <TableCell align="right">
-                        <Box
+                  {filteredDepartments.length > 0 ? (
+                    filteredDepartments.map((value, i) => (
+                      <TableRow
+                        key={value?._id || i}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        {/* DEPARTMENT NAME */}
+                        <TableCell component="th" scope="row">
+                          {value?.department_name}
+                        </TableCell>
+
+                        {/* DEPARTMENT CODE */}
+                        <TableCell align="right">
+                          {value?.department_code}
+                        </TableCell>
+
+                        {/* ACTION */}
+                        <TableCell align="right">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: 1.5,
+                            }}
+                          >
+                            {/* DELETE */}
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "red",
+                                color: "#fff",
+                                "&:hover": {
+                                  background: "#cc0000",
+                                },
+                              }}
+                              onClick={() => handleDelete(value._id)}
+                            >
+                              Delete
+                            </Button>
+
+                            {/* EDIT */}
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "gold",
+                                color: "#222222",
+                                "&:hover": {
+                                  background: "#e6c200",
+                                },
+                              }}
+                              onClick={() => handleEdit(value._id)}
+                            >
+                              Edit
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center">
+                        <Typography
                           sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1.5, // 👈 space between buttons
+                            py: 3,
+                            color: "text.secondary",
                           }}
                         >
-                          <Button
-                            variant="contained"
-                            sx={{ background: "red", color: "#fff" }}
-                            onClick={() => handleDelete(value._id)}
-                          >
-                            Delete
-                          </Button>
-
-                          <Button
-                            variant="contained"
-                            sx={{ background: "gold", color: "#222222" }}
-                            onClick={() => handleEdit(value._id)}
-                          >
-                            Edit
-                          </Button>
-                        </Box>
-
+                          {search
+                            ? "No Departments found matching your search."
+                            : "No Departments available."}
+                        </Typography>
                       </TableCell>
-
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
         )}
-
       </Box>
     </>
   );

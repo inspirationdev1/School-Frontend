@@ -660,6 +660,10 @@ export default function Feestructures() {
             <Box
               sx={{
                 mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                flexWrap: "wrap",
               }}
             >
               <TextField
@@ -671,12 +675,10 @@ export default function Feestructures() {
                 sx={{
                   "& .MuiInputBase-root": {
                     height: 42,
-
                     width: {
                       xs: "100%",
                       sm: 500,
                     },
-
                     fontSize: "14px",
                   },
 
@@ -685,6 +687,16 @@ export default function Feestructures() {
                   },
                 }}
               />
+
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Fee Structures: {filteredFeestructures.length}
+              </Typography>
             </Box>
 
             {/* =========================

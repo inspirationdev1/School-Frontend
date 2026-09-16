@@ -580,11 +580,17 @@ export default function Transfercertificates() {
 
         {tab === 1 && (
           <Box>
-            {/* ==================================================
-                            SEARCH
-                        ================================================== */}
-
-            <Box sx={{ mb: 2 }}>
+            {/* ================================================== SEARCH + TOTAL COUNT ================================================== */}{" "}
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                flexWrap: "wrap",
+              }}
+            >
+              {" "}
               <TextField
                 label="Search"
                 size="small"
@@ -594,20 +600,20 @@ export default function Transfercertificates() {
                 sx={{
                   "& .MuiInputBase-root": {
                     height: 42,
-
-                    width: {
-                      xs: "100%",
-                      sm: 500,
-                    },
-
+                    width: { xs: "100%", sm: 500 },
                     fontSize: "14px",
                   },
-
-                  "& .MuiInputLabel-root": {
-                    fontSize: "13px",
-                  },
+                  "& .MuiInputLabel-root": { fontSize: "13px" },
                 }}
-              />
+              />{" "}
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}
+              >
+                {" "}
+                Total Transfer Certificates:{" "}
+                {filteredTransfercertificates.length}{" "}
+              </Typography>{" "}
             </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">

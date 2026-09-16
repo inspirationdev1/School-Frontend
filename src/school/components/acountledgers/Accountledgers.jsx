@@ -13,14 +13,8 @@ import {
   TableContainer,
   Tabs,
   Tab,
-  Select,
-  MenuItem,
-  Alert,
-  FormControl,
-  InputLabel,
   Autocomplete,
 } from "@mui/material";
-import dayjs from "dayjs";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -30,25 +24,63 @@ import { accountledgerSchema } from "../../../yupSchema/accountledgerSchema";
 
 export default function Accountledgers() {
   const [accountledgers, setAccountledgers] = useState([]);
+  const [filteredAccountledgers, setFilteredAccountledgers] = useState([]);
+
   const [accountlevels, setAccountlevels] = useState([]);
   const [selectedAccountlevel, setSelectedAccountlevel] = useState(null);
+
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [tab, setTab] = useState(0);
 
-  const [params, setParams] = useState({});
-  const handleSearch = (e) => {
-    let newParam;
-    if (e.target.value !== "") {
-      newParam = { ...params, search: e.target.value };
-    } else {
-      newParam = { ...params };
-      delete newParam["search"];
-    }
+  // Search
+  const [search, setSearch] = useState("");
 
-    setParams(newParam);
+  // Message
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
+
+  // ---------------------------------------------------------
+  // Reset Message
+  // ---------------------------------------------------------
+  const resetMessage = () => {
+    setMessage("");
   };
 
+  // ---------------------------------------------------------
+  // Get Account Level Name
+  // ---------------------------------------------------------
+  const getAccountLevelName = (groupId) => {
+    if (!groupId) return "";
+
+    // If groupId is populated
+    if (typeof groupId === "object") {
+      return (
+        groupId?.accountlevel_name ||
+        groupId?.accountLevel_name ||
+        groupId?.name ||
+        groupId?.accountlevel_code ||
+        ""
+      );
+    }
+
+    // If groupId is only an ID
+    const matchedAccountLevel = accountlevels.find(
+      (item) => String(item?._id) === String(groupId),
+    );
+
+    return (
+      matchedAccountLevel?.accountlevel_name ||
+      matchedAccountLevel?.accountLevel_name ||
+      matchedAccountLevel?.name ||
+      matchedAccountLevel?.accountlevel_code ||
+      ""
+    );
+  };
+
+  // ---------------------------------------------------------
+  // Delete
+  // ---------------------------------------------------------
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
       axios
@@ -58,137 +90,234 @@ export default function Accountledgers() {
           setType("success");
         })
         .catch((e) => {
-          setMessage(e.response.data.message);
+          setMessage(
+            e.response?.data?.message || "Error deleting account ledger",
+          );
           setType("error");
           console.log("Error, deleting", e);
         });
     }
   };
+
+  // ---------------------------------------------------------
+  // Edit
+  // ---------------------------------------------------------
   const handleEdit = (id) => {
-    console.log("Handle  Edit is called", id);
+    console.log("Handle Edit is called", id);
+
     setEdit(true);
+
     axios
       .get(`${baseUrl}/accountledger/fetch-single/${id}`)
       .then((resp) => {
+        const data = resp.data.data;
+
         Formik.setFieldValue(
           "accountledger_name",
-          resp.data.data.accountledger_name,
+          data?.accountledger_name || "",
         );
+
         Formik.setFieldValue(
           "accountledger_code",
-          resp.data.data.accountledger_code,
+          data?.accountledger_code || "",
         );
-        Formik.setFieldValue("groupId", resp.data.data?.groupId?._id);
-        setSelectedAccountlevel(resp.data.data?.groupId);
-        setEditId(resp.data.data._id);
-        setTab(0); // open Create Class tab
+
+        Formik.setFieldValue(
+          "groupId",
+          data?.groupId?._id || data?.groupId || "",
+        );
+
+        setSelectedAccountlevel(data?.groupId || null);
+        setEditId(data?._id);
+
+        setTab(0);
       })
       .catch((e) => {
-        console.log("Error  in fetching edit data.");
+        console.log("Error in fetching edit data.", e);
       });
   };
 
+  // ---------------------------------------------------------
+  // Cancel Edit
+  // ---------------------------------------------------------
   const cancelEdit = () => {
     setEdit(false);
+    setEditId(null);
     setSelectedAccountlevel(null);
     Formik.resetForm();
   };
 
-  //   MESSAGE
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("succeess");
-
-  const resetMessage = () => {
-    setMessage("");
-  };
-
+  // ---------------------------------------------------------
+  // Formik
+  // ---------------------------------------------------------
   const initialValues = {
     accountledger_name: "",
     accountledger_code: "",
     groupId: "",
   };
+
   const Formik = useFormik({
-    initialValues: initialValues,
+    initialValues,
     validationSchema: accountledgerSchema,
+
     onSubmit: (values) => {
-      values.groupId = selectedAccountlevel?._id;
+      const payload = {
+        ...values,
+        groupId: selectedAccountlevel?._id || selectedAccountlevel || null,
+      };
+
       if (isEdit) {
         console.log("edit id", editId);
+
         axios
-          .patch(`${baseUrl}/accountledger/update/${editId}`, {
-            ...values,
-          })
+          .patch(`${baseUrl}/accountledger/update/${editId}`, payload)
           .then((resp) => {
             console.log("Edit submit", resp);
+
             setMessage(resp.data.message);
             setType("success");
+
             cancelEdit();
-            setTab(1); // go to View List
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
+            setMessage(
+              e.response?.data?.message || "Error updating account ledger",
+            );
             setType("error");
-            console.log("Error, edit casting submit", e);
+
+            console.log("Error, edit account ledger submit", e);
           });
       } else {
         axios
-          .post(`${baseUrl}/accountledger/create`, { ...values })
+          .post(`${baseUrl}/accountledger/create`, payload)
           .then((resp) => {
-            console.log("Response after submitting admin casting", resp);
+            console.log("Response after submitting account ledger", resp);
+
             setMessage(resp.data.message);
             setType("success");
+
             cancelEdit();
-            setTab(1); // go to View List
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
+            setMessage(
+              e.response?.data?.message || "Error creating account ledger",
+            );
             setType("error");
-            console.log("Error, response admin casting calls", e);
+
+            console.log("Error creating account ledger", e);
           });
-        Formik.resetForm();
       }
     },
   });
 
-  const [month, setMonth] = useState([]);
-  const [year, setYear] = useState([]);
-
-  const fetchaccountledgers = () => {
-    // let params = {};
-
-    axios
-      .get(`${baseUrl}/accountledger/fetch-with-query`, { params })
-      .then((resp) => {
-        setAccountledgers(resp.data.data);
-      })
-      .catch(() => console.log("Error in fetching students data"));
-    // axios
-    //   .get(`${baseUrl}/accountledger/fetch-all`)
-    //   .then((resp) => {
-    //     console.log("Fetching data in  Casting Calls  admin.", resp);
-    //     setAccountledgers(resp.data.data);
-    //   })
-    //   .catch((e) => {
-    //     console.log("Error in fetching casting calls admin data", e);
-    //   });
+  // ---------------------------------------------------------
+  // Dynamic Search Handler
+  // ---------------------------------------------------------
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
   };
+
+  // ---------------------------------------------------------
+  // Fetch Account Ledgers
+  // ---------------------------------------------------------
+  const fetchaccountledgers = () => {
+    axios
+      .get(`${baseUrl}/accountledger/fetch-with-query`)
+      .then((resp) => {
+        const data = Array.isArray(resp.data.data) ? resp.data.data : [];
+
+        setAccountledgers(data);
+        setFilteredAccountledgers(data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching account ledgers", e);
+
+        setAccountledgers([]);
+        setFilteredAccountledgers([]);
+      });
+  };
+
+  // ---------------------------------------------------------
+  // Fetch Account Levels
+  // ---------------------------------------------------------
   const fetchaccountlevels = () => {
     axios
       .get(`${baseUrl}/accountlevel/fetch-all`)
       .then((resp) => {
-        console.log("Fetching data in  Casting Calls  admin.", resp);
-        setAccountlevels(resp.data.data);
+        const data = Array.isArray(resp.data.data) ? resp.data.data : [];
+
+        console.log("Fetching account levels", resp);
+
+        setAccountlevels(data);
       })
       .catch((e) => {
-        console.log("Error in fetching casting calls admin data", e);
+        console.log("Error in fetching account levels", e);
+
+        setAccountlevels([]);
       });
   };
+
+  // ---------------------------------------------------------
+  // Initial Fetch
+  // ---------------------------------------------------------
   useEffect(() => {
     fetchaccountlevels();
     fetchaccountledgers();
-  }, [message, params]);
+  }, [message]);
+
+  // ---------------------------------------------------------
+  // Dynamic Client-Side Search
+  //
+  // Searches:
+  // 1. Accountledger Name
+  // 2. Accountledger Code
+  // 3. Account Level
+  // 4. Account Type
+  // ---------------------------------------------------------
+  useEffect(() => {
+    const searchValue = search.trim().toLowerCase();
+
+    // If search is empty, show all records
+    if (!searchValue) {
+      setFilteredAccountledgers(accountledgers);
+      return;
+    }
+
+    const filtered = accountledgers.filter((accountledger) => {
+      const accountledgerName = String(
+        accountledger?.accountledger_name || "",
+      ).toLowerCase();
+
+      const accountledgerCode = String(
+        accountledger?.accountledger_code || "",
+      ).toLowerCase();
+
+      const accountLevel = getAccountLevelName(
+        accountledger?.groupId,
+      ).toLowerCase();
+
+      const accountType = String(
+        accountledger?.account_type || "",
+      ).toLowerCase();
+
+      return (
+        accountledgerName.includes(searchValue) ||
+        accountledgerCode.includes(searchValue) ||
+        accountLevel.includes(searchValue) ||
+        accountType.includes(searchValue)
+      );
+    });
+
+    setFilteredAccountledgers(filtered);
+  }, [search, accountledgers, accountlevels]);
+
   return (
     <>
+      {/* =====================================================
+          MESSAGE
+      ===================================================== */}
       {message && (
         <CustomizedSnackbars
           reset={resetMessage}
@@ -198,21 +327,33 @@ export default function Accountledgers() {
       )}
 
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        {/* =====================================================
+            TABS
+        ===================================================== */}
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+          }}
+        >
           <Tabs
             value={tab}
             onChange={(e, newValue) => setTab(newValue)}
             textColor="primary"
             indicatorColor="primary"
           >
-            {/* <Tab label="Create Receipt" /> */}
             <Tab
               label={isEdit ? "Edit Accountledger" : "Add New Accountledger"}
             />
+
             <Tab label="View List" />
           </Tabs>
         </Box>
 
+        {/* =====================================================
+            TAB 0 - ADD / EDIT ACCOUNT LEDGER
+        ===================================================== */}
         {tab === 0 && (
           <Box>
             <Paper sx={{ p: 3, m: 2 }}>
@@ -223,7 +364,10 @@ export default function Accountledgers() {
                 onSubmit={Formik.handleSubmit}
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, // ✅ 2 columns
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    md: "1fr 1fr",
+                  },
                   gap: 2,
                 }}
               >
@@ -238,6 +382,7 @@ export default function Accountledgers() {
                     onBlur={Formik.handleBlur}
                     size="small"
                   />
+
                   {Formik.touched.accountledger_name &&
                     Formik.errors.accountledger_name && (
                       <p style={{ color: "red" }}>
@@ -258,6 +403,7 @@ export default function Accountledgers() {
                     onBlur={Formik.handleBlur}
                     size="small"
                   />
+
                   {Formik.touched.accountledger_code &&
                     Formik.errors.accountledger_code && (
                       <p style={{ color: "red" }}>
@@ -266,13 +412,12 @@ export default function Accountledgers() {
                     )}
                 </Box>
 
-                {/* Accountlevel Dropdown */}
-
+                {/* Account Level */}
                 <Box>
                   <Autocomplete
                     disabled={isEdit}
                     options={accountlevels}
-                    getOptionLabel={(option) => option.accountlevel_name}
+                    getOptionLabel={(option) => option?.accountlevel_name || ""}
                     value={selectedAccountlevel}
                     onChange={(event, newValue) => {
                       setSelectedAccountlevel(newValue);
@@ -286,9 +431,10 @@ export default function Accountledgers() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Select account level"
-                        placeholder="Search Account level..."
+                        label="Select Account Level"
+                        placeholder="Search Account Level..."
                         fullWidth
+                        size="small"
                         error={
                           Formik.touched.groupId &&
                           Boolean(Formik.errors.groupId)
@@ -301,10 +447,16 @@ export default function Accountledgers() {
                   />
                 </Box>
 
+                {/* Empty Box for Grid Alignment */}
                 <Box />
 
-                {/* Buttons (Full Width) */}
-                <Box sx={{ gridColumn: "1 / -1", mt: 1 }}>
+                {/* Buttons */}
+                <Box
+                  sx={{
+                    gridColumn: "1 / -1",
+                    mt: 1,
+                  }}
+                >
                   <Button type="submit" variant="contained" sx={{ mr: 1 }}>
                     Submit
                   </Button>
@@ -320,89 +472,178 @@ export default function Accountledgers() {
           </Box>
         )}
 
+        {/* =====================================================
+            TAB 1 - VIEW LIST
+        ===================================================== */}
         {tab === 1 && (
           <Box>
-            <Box
+            {/* Search + Total Count */}
+            <Paper
               sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
+                p: 2,
                 mb: 2,
               }}
             >
-              {/* Search */}
-              <TextField
-                label="Search .."
-                size="small"
-                onChange={handleSearch}
-                fullWidth
+              <Box
                 sx={{
-                  flex: 2,
-                  "& .MuiInputBase-root": {
-                    height: 42,
-                    fontSize: "14px",
-                  },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
                 }}
-              />
-            </Box>
+              >
+                {/* Dynamic Search */}
+                <TextField
+                  label="Search Account Ledgers"
+                  placeholder="Search by Name, Code, Account Level or Account Type..."
+                  size="small"
+                  value={search}
+                  onChange={handleSearch}
+                  sx={{
+                    flex: 1,
+                    minWidth: {
+                      xs: "100%",
+                      sm: "420px",
+                    },
+                    "& .MuiInputBase-root": {
+                      height: 42,
+                      fontSize: "14px",
+                    },
+                  }}
+                />
+
+                {/* Clear Search */}
+                {search && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSearch("")}
+                    sx={{
+                      height: 42,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Clear
+                  </Button>
+                )}
+
+                {/* Total Count */}
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Total Account Ledgers:{" "}
+                  <strong>{filteredAccountledgers.length}</strong>
+                </Typography>
+              </Box>
+            </Paper>
+
+            {/* Account Ledger Table */}
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table sx={{ minWidth: 650 }} aria-label="account ledger table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row">
-                      {" "}
-                      accountledger Name
-                    </TableCell>
+                    <TableCell>Accountledger Name</TableCell>
+
                     <TableCell align="right">Code</TableCell>
+
                     <TableCell align="right">Account Level</TableCell>
+
                     <TableCell align="right">Account Type</TableCell>
+
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody>
-                  {accountledgers.map((value, i) => (
-                    <TableRow
-                      key={i}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {value.accountledger_name}
-                      </TableCell>
-                      <TableCell align="right">
-                        {value.accountledger_code}
-                      </TableCell>
-                      <TableCell align="right">
-                        {value.groupId?.accountlevel_name}
-                      </TableCell>
-                      <TableCell align="right">{value?.account_type}</TableCell>
-                      <TableCell align="right">
-                        <Box
+                  {filteredAccountledgers.length > 0 ? (
+                    filteredAccountledgers.map((value, i) => (
+                      <TableRow
+                        key={value?._id || i}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        {/* Accountledger Name */}
+                        <TableCell component="th" scope="row">
+                          {value?.accountledger_name || "-"}
+                        </TableCell>
+
+                        {/* Code */}
+                        <TableCell align="right">
+                          {value?.accountledger_code || "-"}
+                        </TableCell>
+
+                        {/* Account Level */}
+                        <TableCell align="right">
+                          {getAccountLevelName(value?.groupId) || "-"}
+                        </TableCell>
+
+                        {/* Account Type */}
+                        <TableCell align="right">
+                          {value?.account_type || "-"}
+                        </TableCell>
+
+                        {/* Action */}
+                        <TableCell align="right">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: 1.5,
+                            }}
+                          >
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "red",
+                                color: "#fff",
+                                "&:hover": {
+                                  background: "#cc0000",
+                                },
+                              }}
+                              onClick={() => handleDelete(value?._id)}
+                            >
+                              Delete
+                            </Button>
+
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "gold",
+                                color: "#222222",
+                                "&:hover": {
+                                  background: "#d4af00",
+                                },
+                              }}
+                              onClick={() => handleEdit(value?._id)}
+                            >
+                              Edit
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        <Typography
                           sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1.5, // 👈 space between buttons
+                            py: 3,
+                            color: "text.secondary",
                           }}
                         >
-                          <Button
-                            variant="contained"
-                            sx={{ background: "red", color: "#fff" }}
-                            onClick={() => handleDelete(value._id)}
-                          >
-                            Delete
-                          </Button>
-
-                          <Button
-                            variant="contained"
-                            sx={{ background: "gold", color: "#222222" }}
-                            onClick={() => handleEdit(value._id)}
-                          >
-                            Edit
-                          </Button>
-                        </Box>
+                          {search
+                            ? "No Account Ledgers found matching your search."
+                            : "No Account Ledgers available."}
+                        </Typography>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

@@ -2139,22 +2139,26 @@ export default function Students() {
 
               {/* No of Students Card */}
               <Box
+                // sx={{
+                //   flex: 1,
+                //   minWidth: { xs: "100%", sm: 160 },
+                //   height: 42,
+                //   display: "flex",
+                //   alignItems: "center",
+                //   justifyContent: "center",
+                //   borderRadius: 2,
+                //   bgcolor: "primary.main",
+                //   color: "white",
+                //   fontWeight: 600,
+                //   fontSize: "14px",
+                //   boxShadow: 2,
+                // }}
                 sx={{
-                  flex: 1,
-                  minWidth: { xs: "100%", sm: 160 },
-                  height: 42,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 2,
-                  bgcolor: "primary.main",
-                  color: "white",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  boxShadow: 2,
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
                 }}
               >
-                Students Count : {noofstudents}
+                Total Students: {noofstudents}
               </Box>
             </Box>
 

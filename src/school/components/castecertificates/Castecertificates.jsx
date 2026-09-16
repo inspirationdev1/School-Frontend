@@ -625,7 +625,15 @@ export default function Castecertificates() {
 
         {tab === 1 && (
           <Box>
-            <Box sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                flexWrap: "wrap",
+              }}
+            >
               <TextField
                 label="Search"
                 size="small"
@@ -635,12 +643,10 @@ export default function Castecertificates() {
                 sx={{
                   "& .MuiInputBase-root": {
                     height: 42,
-
                     width: {
                       xs: "100%",
                       sm: 500,
                     },
-
                     fontSize: "14px",
                   },
 
@@ -649,6 +655,16 @@ export default function Castecertificates() {
                   },
                 }}
               />
+
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Caste Certificates: {filteredCastecertificates.length}
+              </Typography>
             </Box>
             {/* =============================================
                 TABLE

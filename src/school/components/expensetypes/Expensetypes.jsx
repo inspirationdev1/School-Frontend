@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import {
   Box,
   Button,
@@ -15,27 +16,42 @@ import {
   Tab,
   Autocomplete,
 } from "@mui/material";
-import dayjs from "dayjs";
+
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { expensetypeSchema } from "../../../yupSchema/expensetypeSchema";
 
 export default function Expensetypes() {
   const [studentExpensetype, setStudentExpensetype] = useState([]);
+
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [tab, setTab] = useState(0);
+
   const [taxrates, setTaxrates] = useState([]);
   const [selectedTaxrate, setSelectedTaxrate] = useState(null);
 
   const [accountledgers, setAccountledgers] = useState([]);
   const [selectedAccountledger, setSelectedAccountledger] = useState(null);
 
+  // Dynamic search
+  const [searchText, setSearchText] = useState("");
+
+  // MESSAGE
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
+
+  const resetMessage = () => {
+    setMessage("");
+  };
+
+  // DELETE EXPENSETYPE
   const handleDelete = (id) => {
-    if (confirm("Are you sure you want to delete?")) {
+    if (window.confirm("Are you sure you want to delete?")) {
       axios
         .delete(`${baseUrl}/expensetype/delete/${id}`)
         .then((resp) => {
@@ -43,138 +59,213 @@ export default function Expensetypes() {
           setType("success");
         })
         .catch((e) => {
-          setMessage(e.response.data.message);
+          setMessage(e.response?.data?.message || "Error deleting expensetype");
           setType("error");
           console.log("Error, deleting", e);
         });
     }
   };
+
+  // EDIT EXPENSETYPE
   const handleEdit = (id) => {
-    console.log("Handle  Edit is called", id);
+    console.log("Handle Edit is called", id);
+
     setEdit(true);
+
     axios
       .get(`${baseUrl}/expensetype/fetch-single/${id}`)
       .then((resp) => {
-        Formik.setFieldValue(
-          "expensetype_name",
-          resp.data.data.expensetype_name,
-        );
-        Formik.setFieldValue(
-          "expensetype_code",
-          resp.data.data.expensetype_code,
-        );
+        const data = resp.data.data;
 
-        Formik.setFieldValue("taxrate", resp.data.data?.taxrate?._id);
-        Formik.setFieldValue("tax_percent", resp.data.data?.tax_percent);
-        Formik.setFieldValue("taxtype", resp.data.data?.taxtype);
-        setSelectedTaxrate(resp.data.data?.taxrate);
+        Formik.setFieldValue("expensetype_name", data?.expensetype_name || "");
 
-       
-        setEditId(resp.data.data._id);
-        setTab(0); // open Create Expensetype tab
+        Formik.setFieldValue("expensetype_code", data?.expensetype_code || "");
+
+        Formik.setFieldValue("taxrate", data?.taxrate?._id || "");
+
+        Formik.setFieldValue("tax_percent", data?.tax_percent || "");
+
+        Formik.setFieldValue("taxtype", data?.taxtype || "");
+
+        setSelectedTaxrate(data?.taxrate || null);
+
+        setEditId(data?._id);
+        setTab(0);
       })
       .catch((e) => {
-        console.log("Error  in fetching edit data.");
+        console.log("Error in fetching edit data.", e);
       });
   };
 
+  // CANCEL EDIT
   const cancelEdit = () => {
     setEdit(false);
+    setEditId(null);
     setSelectedTaxrate(null);
     setSelectedAccountledger(null);
     Formik.resetForm();
   };
 
-  //   MESSAGE
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("succeess");
-
-  const resetMessage = () => {
-    setMessage("");
-  };
-
+  // INITIAL VALUES
   const initialValues = {
     expensetype_name: "",
     expensetype_code: "",
     taxrate: "",
   };
+
+  // FORMIK
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: expensetypeSchema,
+
     onSubmit: (values) => {
       if (isEdit) {
         console.log("edit id", editId);
+
         axios
           .patch(`${baseUrl}/expensetype/update/${editId}`, {
             ...values,
           })
           .then((resp) => {
             console.log("Edit submit", resp);
+
             setMessage(resp.data.message);
             setType("success");
+
             cancelEdit();
-            setTab(1); // go to View List
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
+            setMessage(
+              e.response?.data?.message || "Error updating expensetype",
+            );
             setType("error");
-            console.log("Error, edit casting submit", e);
+
+            console.log("Error, edit expensetype submit", e);
           });
       } else {
         axios
-          .post(`${baseUrl}/expensetype/create`, { ...values })
+          .post(`${baseUrl}/expensetype/create`, {
+            ...values,
+          })
           .then((resp) => {
-            console.log("Response after submitting admin casting", resp);
+            console.log("Response after submitting expensetype", resp);
+
             setMessage(resp.data.message);
             setType("success");
+
             cancelEdit();
-            setTab(1); // go to View List
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
+            setMessage(
+              e.response?.data?.message || "Error creating expensetype",
+            );
             setType("error");
-            console.log("Error, response admin casting calls", e);
+
+            console.log("Error, response expensetype create", e);
           });
-        Formik.resetForm();
       }
     },
   });
 
-  const [month, setMonth] = useState([]);
-  const [year, setYear] = useState([]);
-
+  // FETCH ALL EXPENSETYPES
   const fetchstudentsexpensetype = () => {
     axios
       .get(`${baseUrl}/expensetype/fetch-all`)
       .then((resp) => {
-        console.log("Fetching data in  Casting Calls  admin.", resp);
-        setStudentExpensetype(resp.data.data);
+        console.log("Fetching expensetype data", resp);
+
+        setStudentExpensetype(resp.data.data || []);
       })
       .catch((e) => {
-        console.log("Error in fetching casting calls admin data", e);
+        console.log("Error in fetching expensetype data", e);
       });
   };
 
+  // FETCH TAX RATES
   const fetchTaxrates = async () => {
     try {
       const taxratesResponse = await axios.get(
         `${baseUrl}/taxrate/fetch-with-query`,
-      ); // Fetch based on class
-      setTaxrates(taxratesResponse.data.data);
+      );
+
+      setTaxrates(taxratesResponse.data.data || []);
     } catch (error) {
       console.error("Error fetching taxrates:", error);
     }
   };
 
-  
-
+  // FETCH DATA
   useEffect(() => {
     fetchTaxrates();
-    
     fetchstudentsexpensetype();
   }, [message]);
+
+  // SEARCH HANDLER
+  const handleSearch = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  /*
+    DYNAMIC SEARCH
+
+    Searches across:
+    1. Expensetype Name
+    2. Expensetype Code
+    3. Taxrate
+
+    Taxrate search supports:
+    - Tax rate name
+    - Tax rate code
+    - Tax percentage
+    - Tax type
+  */
+  const filteredExpensetypes = studentExpensetype.filter((expenseType) => {
+    const search = searchText.trim().toLowerCase();
+
+    // If search field is empty, show everything
+    if (!search) {
+      return true;
+    }
+
+    const expenseName = String(
+      expenseType?.expensetype_name ?? "",
+    ).toLowerCase();
+
+    const expenseCode = String(
+      expenseType?.expensetype_code ?? "",
+    ).toLowerCase();
+
+    const taxRateName = String(
+      expenseType?.taxrate?.tax_name ?? "",
+    ).toLowerCase();
+
+    const taxRateCode = String(
+      expenseType?.taxrate?.tax_code ?? "",
+    ).toLowerCase();
+
+    const taxRatePercent = String(
+      expenseType?.taxrate?.tax_percent ?? "",
+    ).toLowerCase();
+
+    const taxRateType = String(
+      expenseType?.taxrate?.taxtype ?? "",
+    ).toLowerCase();
+
+    return (
+      expenseName.includes(search) ||
+      expenseCode.includes(search) ||
+      taxRateName.includes(search) ||
+      taxRateCode.includes(search) ||
+      taxRatePercent.includes(search) ||
+      taxRateType.includes(search)
+    );
+  });
+
   return (
     <>
+      {/* MESSAGE */}
       {message && (
         <CustomizedSnackbars
           reset={resetMessage}
@@ -182,73 +273,107 @@ export default function Expensetypes() {
           message={message}
         />
       )}
+
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        {/* TABS */}
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+          }}
+        >
           <Tabs
             value={tab}
             onChange={(e, newValue) => setTab(newValue)}
             textColor="primary"
             indicatorColor="primary"
           >
-            {/* <Tab label="Create " /> */}
             <Tab label={isEdit ? "Edit Expensetype" : "Add New Expensetype"} />
+
             <Tab label="View List" />
           </Tabs>
         </Box>
 
+        {/* TAB 0 - CREATE / EDIT */}
         {tab === 0 && (
-          <Box component={"div"} sx={{}}>
-            <Paper sx={{ padding: "20px", margin: "10px" }}>
+          <Box component="div">
+            <Paper
+              sx={{
+                padding: "20px",
+                margin: "10px",
+              }}
+            >
               <Box
                 component="form"
                 noValidate
                 autoComplete="off"
                 onSubmit={Formik.handleSubmit}
               >
+                {/* EXPENSETYPE NAME */}
                 <TextField
                   fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
-                  label="Expensetype Name "
+                  sx={{
+                    marginTop: "10px",
+                  }}
+                  label="Expensetype Name"
                   variant="outlined"
                   name="expensetype_name"
                   value={Formik.values.expensetype_name}
                   onChange={Formik.handleChange}
                   onBlur={Formik.handleBlur}
                 />
+
                 {Formik.touched.expensetype_name &&
                   Formik.errors.expensetype_name && (
-                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                    <Typography
+                      sx={{
+                        color: "red",
+                        textTransform: "capitalize",
+                      }}
+                    >
                       {Formik.errors.expensetype_name}
-                    </p>
+                    </Typography>
                   )}
 
+                {/* EXPENSETYPE CODE */}
                 <TextField
-                  // disabled={isEdit}
                   fullWidth
-                  sx={{ marginTop: "10px" }}
-                  id="filled-basic"
-                  label="Expensetype Code "
+                  sx={{
+                    marginTop: "10px",
+                  }}
+                  label="Expensetype Code"
                   variant="outlined"
                   name="expensetype_code"
                   value={Formik.values.expensetype_code}
                   onChange={Formik.handleChange}
                   onBlur={Formik.handleBlur}
                 />
+
                 {Formik.touched.expensetype_code &&
                   Formik.errors.expensetype_code && (
-                    <p style={{ color: "red", textTransform: "capitalize" }}>
+                    <Typography
+                      sx={{
+                        color: "red",
+                        textTransform: "capitalize",
+                      }}
+                    >
                       {Formik.errors.expensetype_code}
-                    </p>
+                    </Typography>
                   )}
 
+                {/* TAXRATE */}
                 <Box>
                   <Autocomplete
-                    sx={{ marginTop: "10px" }}
-                    // disabled={isEdit}
+                    sx={{
+                      marginTop: "10px",
+                    }}
                     options={taxrates}
-                    getOptionLabel={(option) => option?.tax_name}
+                    getOptionLabel={(option) => option?.tax_name || ""}
                     value={selectedTaxrate}
+                    isOptionEqualToValue={(option, value) =>
+                      option?._id === value?._id
+                    }
                     onChange={(event, newValue) => {
                       setSelectedTaxrate(newValue);
 
@@ -276,19 +401,27 @@ export default function Expensetypes() {
                   />
                 </Box>
 
-                
-
-                <Box sx={{ marginTop: "10px" }} component={"div"}>
+                {/* BUTTONS */}
+                <Box
+                  sx={{
+                    marginTop: "10px",
+                  }}
+                >
                   <Button
                     type="submit"
-                    sx={{ marginRight: "10px" }}
+                    sx={{
+                      marginRight: "10px",
+                    }}
                     variant="contained"
                   >
                     Submit
                   </Button>
+
                   {isEdit && (
                     <Button
-                      sx={{ marginRight: "10px" }}
+                      sx={{
+                        marginRight: "10px",
+                      }}
                       variant="outlined"
                       onClick={cancelEdit}
                     >
@@ -301,63 +434,148 @@ export default function Expensetypes() {
           </Box>
         )}
 
+        {/* TAB 1 - VIEW LIST */}
         {tab === 1 && (
           <Box>
+            {/* SEARCH + TOTAL */}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexDirection: {
+                  xs: "column",
+                  sm: "row",
+                },
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              {/* SEARCH FIELD */}
+              <TextField
+                label="Search Expensetype"
+                placeholder="Name, Code or Taxrate"
+                size="small"
+                value={searchText}
+                onChange={handleSearch}
+                fullWidth
+                sx={{
+                  flex: 2,
+                  "& .MuiInputBase-root": {
+                    height: 42,
+                    fontSize: "14px",
+                  },
+                }}
+              />
+
+              {/* TOTAL COUNT */}
+              <Box
+              sx={{
+                    fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                  }}
+              >Total Expense Types: {filteredExpensetypes.length}</Box>
+            </Box>
+
+            {/* TABLE */}
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table
+                sx={{
+                  minWidth: 650,
+                }}
+                aria-label="expensetype table"
+              >
                 <TableHead>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      {" "}
-                      expensetype Name
+                      Expensetype Name
                     </TableCell>
+
                     <TableCell align="right">Code</TableCell>
+
                     <TableCell align="right">Taxrate</TableCell>
+
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {studentExpensetype.map((value, i) => (
-                    <TableRow
-                      key={i}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {value.expensetype_name}
-                      </TableCell>
-                      <TableCell align="right">
-                        {value.expensetype_code}
-                      </TableCell>
-                      <TableCell align="right">
-                        {(value?.taxrate?.tax_percent || "0") + " %"}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1.5, // 👈 space between buttons
-                          }}
-                        >
-                          <Button
-                            variant="contained"
-                            sx={{ background: "red", color: "#fff" }}
-                            onClick={() => handleDelete(value._id)}
-                          >
-                            Delete
-                          </Button>
 
-                          <Button
-                            variant="contained"
-                            sx={{ background: "gold", color: "#222222" }}
-                            onClick={() => handleEdit(value._id)}
+                <TableBody>
+                  {filteredExpensetypes.length > 0 ? (
+                    filteredExpensetypes.map((value, i) => (
+                      <TableRow
+                        key={value?._id || i}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        {/* EXPENSETYPE NAME */}
+                        <TableCell component="th" scope="row">
+                          {value?.expensetype_name}
+                        </TableCell>
+
+                        {/* CODE */}
+                        <TableCell align="right">
+                          {value?.expensetype_code}
+                        </TableCell>
+
+                        {/* TAXRATE */}
+                        <TableCell align="right">
+                          {value?.taxrate?.tax_name
+                            ? `${value.taxrate.tax_name} - ${
+                                value?.taxrate?.tax_percent ?? 0
+                              } %`
+                            : "0 %"}
+                        </TableCell>
+
+                        {/* ACTION */}
+                        <TableCell align="right">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: 1.5,
+                              flexWrap: "wrap",
+                            }}
                           >
-                            Edit
-                          </Button>
-                        </Box>
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "red",
+                                color: "#fff",
+                                "&:hover": {
+                                  background: "#c00000",
+                                },
+                              }}
+                              onClick={() => handleDelete(value._id)}
+                            >
+                              Delete
+                            </Button>
+
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "gold",
+                                color: "#222222",
+                                "&:hover": {
+                                  background: "#d4af00",
+                                },
+                              }}
+                              onClick={() => handleEdit(value._id)}
+                            >
+                              Edit
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        No expensetypes found
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

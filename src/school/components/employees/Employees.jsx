@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import {
   Box,
   FormControl,
@@ -28,35 +29,55 @@ import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { employeeSchema } from "../../../yupSchema/employeeSchema";
-import EmployeeCardAdmin from "../../utility components/employee card/EmployeeCard";
 import dayjs from "dayjs";
 
 export default function Employees() {
-  const [employeeClass, setemployeeClass] = useState([]);
   const [employees, setemployees] = useState([]);
+
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  const [date, setDate] = useState(null);
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+
   const [tab, setTab] = useState(0);
+
   const [selectedYear, setSelectedYear] = useState(null);
 
   const [statuses, setStatuses] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState({
+    value: "active",
+    label: "Active",
+    meaning: "Currently working",
+  });
 
-  const [accountledgers, setAccountledgers] = useState([]);
-  const [selectedAccountledger, setSelectedAccountledger] = useState(null);
+  const [searchText, setSearchText] = useState("");
+
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
+
+  const fileInputRef = useRef(null);
+
+  // -------------------------------------------------------
+  // Academic Years
+  // -------------------------------------------------------
 
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
-    return { label: `${year}-${year + 1}`, value: year };
+
+    return {
+      label: `${year}-${year + 1}`,
+      value: year,
+    };
   });
+
+  // -------------------------------------------------------
+  // Status
+  // -------------------------------------------------------
 
   const fetchStatuses = async () => {
     try {
-      const studentStatuses = [
+      const employeeStatuses = [
         {
           value: "active",
           label: "Active",
@@ -69,103 +90,60 @@ export default function Employees() {
         },
       ];
 
-      setStatuses(studentStatuses);
+      setStatuses(employeeStatuses);
     } catch (error) {
       console.error("Error fetching statuses:", error);
     }
   };
 
-  const viewUploadFile = (fileName) => {
-    const fileUrl = `${fileName}`;
-    window.open(fileUrl, "_blank", "noopener,noreferrer");
-  };
+  // -------------------------------------------------------
+  // Image Upload
+  // -------------------------------------------------------
 
   const addImage = (event) => {
-    const file = event.target.files[0];
-    setImageUrl(URL.createObjectURL(file));
-    console.log("Image", file, event.target.value);
-    setFile(file);
-  };
+    const selectedFile = event.target.files?.[0];
 
-  const [params, setParams] = useState({});
-
-  const handleSearch = (e) => {
-    let newParam;
-    if (e.target.value !== "") {
-      newParam = { ...params, search: e.target.value };
-    } else {
-      newParam = { ...params };
-      delete newParam["search"];
+    if (!selectedFile) {
+      return;
     }
 
-    setParams(newParam);
+    setImageUrl(URL.createObjectURL(selectedFile));
+    setFile(selectedFile);
+
+    console.log("Selected Employee Image:", selectedFile);
   };
 
-  const handleDelete = (id) => {
-    if (confirm("Are you sure you want to delete?")) {
-      axios
-        .delete(`${baseUrl}/employee/delete/${id}`)
-        .then((resp) => {
-          setMessage(resp.data.message);
-          setType("success");
-        })
-        .catch((e) => {
-          setMessage(e.response.data.message);
-          setType("error");
-          console.log("Error, deleting", e);
-        });
+  const handleClearFile = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
+
+    setFile(null);
+    setImageUrl(null);
   };
-  const handleEdit = (id) => {
-    console.log("Handle  Edit is called", id);
-    setEdit(true);
-    axios
-      .get(`${baseUrl}/employee/fetch-single/${id}`)
-      .then((resp) => {
-        Formik.setFieldValue("email", resp.data.data.email);
-        Formik.setFieldValue("employee_name", resp.data.data.employee_name);
-        Formik.setFieldValue("employee_code", resp.data.data.employee_code);
-        Formik.setFieldValue("qualification", resp.data.data.qualification);
-        Formik.setFieldValue("gender", resp.data.data.gender);
-        // Formik.setFieldValue("age", resp.data.data.age);
-        Formik.setFieldValue("password", resp.data.data.password);
 
-        Formik.setFieldValue("year", resp.data.data.year);
-        const matchedYear = years.find((s) => s.value === resp.data.data.year);
-        setSelectedYear(matchedYear || null);
+  // -------------------------------------------------------
+  // View Uploaded Image
+  // -------------------------------------------------------
 
-        
+  const viewUploadFile = (fileName) => {
+    if (!fileName) {
+      setMessage("Employee image is not available.");
+      setType("error");
+      return;
+    }
 
-        Formik.setFieldValue(
-          "dOBDate",
-          resp.data.data.dOBDate?.split("T")[0] || "",
-        );
-        Formik.setFieldValue(
-          "joinDate",
-          resp.data.data.joinDate?.split("T")[0] || "",
-        );
-
-        // Auto calculate age
-        const age = calculateAge(resp.data.data.dOBDate?.split("T")[0] || "");
-        Formik.setFieldValue("age", age);
-
-        Formik.setFieldValue("phoneno", resp.data.data?.phoneno);
-
-        const matchedStatus = statuses.find(
-          (s) => s.value === resp.data.data?.status,
-        );
-        setSelectedStatus(matchedStatus || null);
-
-        setEditId(resp.data.data._id);
-        setTab(0); // open Create Receipt tab
-      })
-      .catch((e) => {
-        console.log("Error  in fetching edit data.");
-      });
+    window.open(fileName, "_blank", "noopener,noreferrer");
   };
+
+  // -------------------------------------------------------
+  // Calculate Age
+  // -------------------------------------------------------
 
   const calculateAge = (dob) => {
-    if (!dob) return "";
+    if (!dob) {
+      return "";
+    }
 
     const today = new Date();
     const birthDate = new Date(dob);
@@ -174,7 +152,6 @@ export default function Employees() {
 
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    // Adjust age if birthday hasn't occurred yet this year
     if (
       monthDiff < 0 ||
       (monthDiff === 0 && today.getDate() < birthDate.getDate())
@@ -184,31 +161,10 @@ export default function Employees() {
 
     return age;
   };
-  const cancelEdit = () => {
-    setEdit(false);
-    setSelectedYear(null);
-    setSelectedStatus(null);
-    setSelectedAccountledger(null);
-    Formik.resetForm();
-  };
 
-  //   CLEARING IMAGE FILE REFENCE FROM INPUT
-  const fileInputRef = useRef(null);
-  const handleClearFile = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Clear the file input
-    }
-    setFile(null); // Reset the file state
-    setImageUrl(null); // Clear the image preview
-  };
-
-  //   MESSAGE
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("succeess");
-
-  const resetMessage = () => {
-    setMessage("");
-  };
+  // -------------------------------------------------------
+  // Initial Form Values
+  // -------------------------------------------------------
 
   const initialValues = {
     email: "",
@@ -222,87 +178,373 @@ export default function Employees() {
     dOBDate: "",
     joinDate: "",
     phoneno: "",
+    status: "active",
   };
 
-  const Formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: employeeSchema,
-    onSubmit: (values) => {
-      console.log("employee calls admin Formik values", values);
-      if (isEdit) {
-        const fd = new FormData();
-        Object.keys(values).forEach((key) => fd.append(key, values[key]));
-        if (file) {
-          fd.append("image", file, file.name);
+  // -------------------------------------------------------
+  // Reset Form
+  // -------------------------------------------------------
+
+  const resetEmployeeForm = () => {
+    Formik.resetForm({
+      values: {
+        email: "",
+        employee_name: "",
+        employee_code: "",
+        qualification: "",
+        gender: "",
+        age: "",
+        password: "",
+        year: "",
+        dOBDate: "",
+        joinDate: "",
+        phoneno: "",
+        status: "active",
+      },
+    });
+
+    setSelectedYear(null);
+
+    setSelectedStatus({
+      value: "active",
+      label: "Active",
+      meaning: "Currently working",
+    });
+
+    handleClearFile();
+  };
+
+  // -------------------------------------------------------
+  // Cancel Edit
+  // -------------------------------------------------------
+
+  const cancelEdit = () => {
+    setEdit(false);
+    setEditId(null);
+    resetEmployeeForm();
+  };
+
+  // -------------------------------------------------------
+  // Delete Employee
+  // -------------------------------------------------------
+
+  const handleDelete = (id) => {
+    if (!window.confirm("Are you sure you want to delete?")) {
+      return;
+    }
+
+    axios
+      .delete(`${baseUrl}/employee/delete/${id}`)
+      .then((resp) => {
+        setMessage(resp.data?.message || "Employee deleted successfully.");
+
+        setType("success");
+
+        // Refresh list immediately
+        fetchemployees();
+      })
+      .catch((e) => {
+        console.error("Error deleting employee:", e.response?.data || e);
+
+        setMessage(
+          e.response?.data?.message ||
+            e.response?.data?.error ||
+            "Failed to delete employee.",
+        );
+
+        setType("error");
+      });
+  };
+
+  // -------------------------------------------------------
+  // Edit Employee
+  // -------------------------------------------------------
+
+  const handleEdit = (id) => {
+    console.log("Handle Edit called:", id);
+
+    setEdit(true);
+
+    axios
+      .get(`${baseUrl}/employee/fetch-single/${id}`)
+      .then((resp) => {
+        const employee = resp.data?.data;
+
+        if (!employee) {
+          setMessage("Employee data not found.");
+          setType("error");
+          return;
         }
 
-        axios
-          .patch(`${baseUrl}/employee/update/${editId}`, fd)
-          .then((resp) => {
-            setMessage(resp.data.message);
-            setType("success");
-            handleClearFile();
-            cancelEdit();
-            setParams({});
-            setTab(1); // go to View List
-          })
-          .catch((e) => {
-            setMessage(e.response.data.message);
-            setType("error");
-          });
-      } else {
-        if (file) {
-          const fd = new FormData();
-          fd.append("image", file, file.name);
-          Object.keys(values).forEach((key) => fd.append(key, values[key]));
+        console.log("Employee data for edit:", employee);
 
-          axios
-            .post(`${baseUrl}/employee/register`, fd)
-            .then((resp) => {
-              console.log("Response after submitting admin employee", resp);
-              setMessage(resp.data.message);
-              setType("success");
-              handleClearFile();
-              cancelEdit();
-              setTab(1); // go to View List
-            })
-            .catch((e) => {
-              setMessage(e.response.data.message);
-              setType("error");
-              console.log("Error, response admin employee calls", e);
-            });
-          Formik.resetForm();
-          setFile(null);
-        } else {
-          setMessage("Please provide image.");
+        Formik.setFieldValue("email", employee.email || "");
+
+        Formik.setFieldValue("employee_name", employee.employee_name || "");
+
+        Formik.setFieldValue("employee_code", employee.employee_code || "");
+
+        Formik.setFieldValue("qualification", employee.qualification || "");
+
+        Formik.setFieldValue("gender", employee.gender || "");
+
+        Formik.setFieldValue("password", employee.password || "");
+
+        Formik.setFieldValue("year", employee.year || "");
+
+        const matchedYear = years.find((s) => s.value === employee.year);
+
+        setSelectedYear(matchedYear || null);
+
+        Formik.setFieldValue("dOBDate", employee.dOBDate?.split("T")[0] || "");
+
+        Formik.setFieldValue(
+          "joinDate",
+          employee.joinDate?.split("T")[0] || "",
+        );
+
+        const age = calculateAge(employee.dOBDate?.split("T")[0] || "");
+
+        Formik.setFieldValue("age", age);
+
+        Formik.setFieldValue("phoneno", employee.phoneno || "");
+
+        // Status
+        const employeeStatus = employee.status || "active";
+
+        Formik.setFieldValue("status", employeeStatus);
+
+        const matchedStatus = statuses.find((s) => s.value === employeeStatus);
+
+        setSelectedStatus(
+          matchedStatus || {
+            value: "active",
+            label: "Active",
+            meaning: "Currently working",
+          },
+        );
+
+        setEditId(employee._id);
+
+        setTab(0);
+      })
+      .catch((e) => {
+        console.error(
+          "Error fetching employee for edit:",
+          e.response?.data || e,
+        );
+
+        setMessage(
+          e.response?.data?.message || "Error fetching employee data.",
+        );
+
+        setType("error");
+      });
+  };
+
+  // -------------------------------------------------------
+  // Formik
+  // -------------------------------------------------------
+
+  const Formik = useFormik({
+    initialValues,
+    validationSchema: employeeSchema,
+
+    onSubmit: async (values) => {
+      console.log("Employee Formik values:", values);
+
+      // ---------------------------------------------------
+      // EDIT EMPLOYEE
+      // ---------------------------------------------------
+
+      if (isEdit) {
+        try {
+          const fd = new FormData();
+
+          Object.keys(values).forEach((key) => {
+            fd.append(
+              key,
+              values[key] !== undefined && values[key] !== null
+                ? values[key]
+                : "",
+            );
+          });
+
+          if (file) {
+            fd.append("image", file, file.name);
+          }
+
+          console.log("Updating employee...");
+          console.log("Edit ID:", editId);
+          console.log("Employee values:", values);
+
+          const resp = await axios.patch(
+            `${baseUrl}/employee/update/${editId}`,
+            fd,
+          );
+
+          console.log("Employee update response:", resp.data);
+
+          setMessage(resp.data?.message || "Employee updated successfully.");
+
+          setType("success");
+
+          resetEmployeeForm();
+
+          setEdit(false);
+          setEditId(null);
+
+          setSearchText("");
+
+          setTab(1);
+
+          // Refresh list
+          fetchemployees();
+        } catch (e) {
+          console.error("Employee update error:", e.response?.data || e);
+
+          setMessage(
+            e.response?.data?.message ||
+              e.response?.data?.error ||
+              "Employee update failed.",
+          );
+
           setType("error");
         }
+
+        return;
+      }
+
+      // ---------------------------------------------------
+      // ADD NEW EMPLOYEE
+      // ---------------------------------------------------
+
+      if (!file) {
+        setMessage("Please provide employee image.");
+        setType("error");
+        return;
+      }
+
+      try {
+        const fd = new FormData();
+
+        // Add image
+        fd.append("image", file, file.name);
+
+        // Add all Formik values
+        Object.keys(values).forEach((key) => {
+          fd.append(
+            key,
+            values[key] !== undefined && values[key] !== null
+              ? values[key]
+              : "",
+          );
+        });
+
+        // Debug FormData
+        console.log("Employee registration values:", values);
+
+        for (const pair of fd.entries()) {
+          console.log("FormData:", pair[0], pair[1]);
+        }
+
+        const resp = await axios.post(`${baseUrl}/employee/register`, fd);
+
+        console.log("Employee registration response:", resp.data);
+
+        setMessage(resp.data?.message || "Employee registered successfully.");
+
+        setType("success");
+
+        // IMPORTANT:
+        // Reset only after successful API response
+        resetEmployeeForm();
+
+        setEdit(false);
+        setEditId(null);
+
+        setSearchText("");
+
+        setTab(1);
+
+        // Refresh employee list
+        fetchemployees();
+      } catch (e) {
+        console.error("Employee registration error:", e.response?.data || e);
+
+        console.error("Employee registration status:", e.response?.status);
+
+        setMessage(
+          e.response?.data?.message ||
+            e.response?.data?.error ||
+            e.message ||
+            "Employee registration failed.",
+        );
+
+        setType("error");
       }
     },
   });
 
-  const [month, setMonth] = useState([]);
-  const [year, setYear] = useState([]);
+  // -------------------------------------------------------
+  // Fetch Employees
+  // -------------------------------------------------------
 
   const fetchemployees = () => {
     axios
-      .get(`${baseUrl}/employee/fetch-with-query`, { params: params })
+      .get(`${baseUrl}/employee/fetch-with-query`)
       .then((resp) => {
-        console.log("Fetching data in  employee Calls  admin.", resp);
-        setemployees(resp.data.data);
+        console.log("Fetching employees:", resp.data);
+
+        setemployees(resp.data?.data || []);
       })
       .catch((e) => {
-        console.log("Error in fetching employee calls admin data", e);
+        console.error("Error fetching employees:", e.response?.data || e);
       });
   };
 
-  
+  // -------------------------------------------------------
+  // Search Employees
+  // Search by:
+  // 1. Employee Name
+  // 2. Employee Email
+  // -------------------------------------------------------
+
+  const filteredEmployees = employees.filter((employee) => {
+    const search = searchText.toLowerCase().trim();
+
+    if (!search) {
+      return true;
+    }
+
+    const name = String(employee?.employee_name || "").toLowerCase();
+
+    const email = String(employee?.email || "").toLowerCase();
+
+    return name.includes(search) || email.includes(search);
+  });
+
+  // -------------------------------------------------------
+  // Initial Data
+  // -------------------------------------------------------
 
   useEffect(() => {
-    
     fetchemployees();
     fetchStatuses();
-  }, [message, params]);
+  }, []);
+
+  // -------------------------------------------------------
+  // Clear Message
+  // -------------------------------------------------------
+
+  const resetMessage = () => {
+    setMessage("");
+  };
+
+  // -------------------------------------------------------
+  // UI
+  // -------------------------------------------------------
+
   return (
     <>
       {message && (
@@ -314,27 +556,54 @@ export default function Employees() {
       )}
 
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        {/* ------------------------------------------------
+            TABS
+        ------------------------------------------------ */}
+
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+          }}
+        >
           <Tabs
             value={tab}
             onChange={(e, newValue) => setTab(newValue)}
             textColor="primary"
             indicatorColor="primary"
           >
-            {/* <Tab label="Create Receipt" /> */}
             <Tab label={isEdit ? "Edit Employee" : "Add New Employee"} />
+
             <Tab label="View List" />
           </Tabs>
         </Box>
 
+        {/* =================================================
+            TAB 0 - ADD / EDIT EMPLOYEE
+        ================================================= */}
+
         {tab === 0 && (
-          <Box component={"div"}>
-            <Paper sx={{ padding: "20px", margin: "10px" }}>
+          <Box component="div">
+            <Paper
+              sx={{
+                padding: "20px",
+                margin: "10px",
+              }}
+            >
               <Box component="form" onSubmit={Formik.handleSubmit}>
                 <Grid container spacing={2}>
-                  {/* IMAGE FULL WIDTH */}
+                  {/* Employee Image */}
+
                   <Grid item xs={12}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        flexWrap: "wrap",
+                      }}
+                    >
                       <Typography variant="h6">Employee Pic</Typography>
 
                       <TextField
@@ -342,19 +611,28 @@ export default function Employees() {
                         name="file"
                         onChange={addImage}
                         inputRef={fileInputRef}
+                        inputProps={{
+                          accept: "image/*",
+                        }}
                       />
 
-                      {file && (
+                      {file && imageUrl && (
                         <CardMedia
                           component="img"
                           image={imageUrl}
-                          sx={{ width: 120, height: 120 }}
+                          sx={{
+                            width: 120,
+                            height: 120,
+                            objectFit: "cover",
+                            borderRadius: 1,
+                          }}
                         />
                       )}
                     </Box>
                   </Grid>
 
-                  {/* EMAIL */}
+                  {/* Email */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -363,15 +641,15 @@ export default function Employees() {
                       value={Formik.values.email}
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
+                      error={
+                        Formik.touched.email && Boolean(Formik.errors.email)
+                      }
+                      helperText={Formik.touched.email && Formik.errors.email}
                     />
-                    {Formik.touched.email && Formik.errors.email && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.email}
-                      </p>
-                    )}
                   </Grid>
 
-                  {/* CODE */}
+                  {/* Employee Code */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -380,17 +658,19 @@ export default function Employees() {
                       value={Formik.values.employee_code}
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
+                      error={
+                        Formik.touched.employee_code &&
+                        Boolean(Formik.errors.employee_code)
+                      }
+                      helperText={
+                        Formik.touched.employee_code &&
+                        Formik.errors.employee_code
+                      }
                     />
-                    {Formik.touched.employee_code &&
-                      Formik.errors.employee_code && (
-                        <p
-                          style={{ color: "red", textTransform: "capitalize" }}
-                        >
-                          {Formik.errors.employee_code}
-                        </p>
-                      )}
                   </Grid>
-                  {/* NAME */}
+
+                  {/* Employee Name */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -399,18 +679,19 @@ export default function Employees() {
                       value={Formik.values.employee_name}
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
+                      error={
+                        Formik.touched.employee_name &&
+                        Boolean(Formik.errors.employee_name)
+                      }
+                      helperText={
+                        Formik.touched.employee_name &&
+                        Formik.errors.employee_name
+                      }
                     />
-                    {Formik.touched.employee_name &&
-                      Formik.errors.employee_name && (
-                        <p
-                          style={{ color: "red", textTransform: "capitalize" }}
-                        >
-                          {Formik.errors.employee_name}
-                        </p>
-                      )}
                   </Grid>
 
-                  {/* QUALIFICATION */}
+                  {/* Qualification */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -418,65 +699,81 @@ export default function Employees() {
                       name="qualification"
                       value={Formik.values.qualification}
                       onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                      error={
+                        Formik.touched.qualification &&
+                        Boolean(Formik.errors.qualification)
+                      }
+                      helperText={
+                        Formik.touched.qualification &&
+                        Formik.errors.qualification
+                      }
                     />
-                    {Formik.touched.qualification &&
-                      Formik.errors.qualification && (
-                        <p
-                          style={{ color: "red", textTransform: "capitalize" }}
-                        >
-                          {Formik.errors.qualification}
-                        </p>
-                      )}
                   </Grid>
 
-                  {/* GENDER */}
+                  {/* Gender */}
+
                   <Grid item xs={12} md={6}>
                     <FormControl fullWidth>
                       <InputLabel>Gender</InputLabel>
+
                       <Select
                         name="gender"
                         value={Formik.values.gender}
+                        label="Gender"
                         onChange={Formik.handleChange}
+                        onBlur={Formik.handleBlur}
                       >
                         <MenuItem value="">Select Gender</MenuItem>
+
                         <MenuItem value="male">Male</MenuItem>
+
                         <MenuItem value="female">Female</MenuItem>
+
                         <MenuItem value="other">Other</MenuItem>
                       </Select>
                     </FormControl>
+
                     {Formik.touched.gender && Formik.errors.gender && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
+                      <Typography color="error" variant="caption">
                         {Formik.errors.gender}
-                      </p>
+                      </Typography>
                     )}
                   </Grid>
 
-                  {/* DOB */}
+                  {/* Date of Birth */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       name="dOBDate"
                       label="Date of Birth"
                       type="date"
                       fullWidth
-                      InputLabelProps={{ shrink: true }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                       value={Formik.values.dOBDate}
                       onChange={(e) => {
                         const dob = e.target.value;
+
                         Formik.setFieldValue("dOBDate", dob);
 
                         const age = calculateAge(dob);
+
                         Formik.setFieldValue("age", age);
                       }}
+                      onBlur={Formik.handleBlur}
+                      error={
+                        Formik.touched.dOBDate && Boolean(Formik.errors.dOBDate)
+                      }
+                      helperText={
+                        Formik.touched.dOBDate && Formik.errors.dOBDate
+                      }
                     />
-
-                    {Formik.touched.dOBDate && Formik.errors.dOBDate && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.dOBDate}
-                      </p>
-                    )}
                   </Grid>
 
-                  {/* AGE */}
+                  {/* Age */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -485,56 +782,61 @@ export default function Employees() {
                       value={Formik.values.age}
                       disabled
                     />
-                    {Formik.touched.age && Formik.errors.age && (
-                      <Typography color="error" variant="caption">
-                        {Formik.errors.age}
-                      </Typography>
-                    )}
                   </Grid>
 
-                  {/* JOIN DATE */}
+                  {/* Join Date */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       name="joinDate"
                       label="Join Date"
                       type="date"
                       fullWidth
-                      InputLabelProps={{ shrink: true }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                       value={Formik.values.joinDate}
                       onChange={Formik.handleChange}
+                      onBlur={Formik.handleBlur}
+                      error={
+                        Formik.touched.joinDate &&
+                        Boolean(Formik.errors.joinDate)
+                      }
+                      helperText={
+                        Formik.touched.joinDate && Formik.errors.joinDate
+                      }
                     />
-                    {Formik.touched.joinDate && Formik.errors.joinDate && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.joinDate}
-                      </p>
-                    )}
                   </Grid>
 
-                  {/* phoneno */}
+                  {/* Phone Number */}
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="phoneno"
+                      label="Phone Number"
                       name="phoneno"
                       value={Formik.values.phoneno}
                       onChange={Formik.handleChange}
                       onBlur={Formik.handleBlur}
+                      error={
+                        Formik.touched.phoneno && Boolean(Formik.errors.phoneno)
+                      }
+                      helperText={
+                        Formik.touched.phoneno && Formik.errors.phoneno
+                      }
                     />
-                    {/* {Formik.touched.phoneno && Formik.errors.phoneno && (
-                      <p style={{ color: "red", textTransform: "capitalize" }}>
-                        {Formik.errors.phoneno}
-                      </p>
-                    )} */}
                   </Grid>
 
-                  {/* ACADEMIC YEAR */}
+                  {/* Academic Year */}
+
                   <Grid item xs={12} md={6}>
                     <Autocomplete
                       options={years}
-                      getOptionLabel={(option) => option.label}
+                      getOptionLabel={(option) => option?.label || ""}
                       value={selectedYear}
                       onChange={(e, newValue) => {
                         setSelectedYear(newValue);
+
                         Formik.setFieldValue("year", newValue?.value || "");
                       }}
                       onBlur={() => Formik.setFieldTouched("year", true)}
@@ -552,12 +854,14 @@ export default function Employees() {
                       )}
                     />
                   </Grid>
+
                   {/* Status */}
+
                   <Grid item xs={12} md={6}>
                     <Autocomplete
                       options={statuses}
                       getOptionLabel={(option) =>
-                        option.meaning + "(" + option.label + ")"
+                        option ? `${option.meaning} (${option.label})` : ""
                       }
                       value={selectedStatus}
                       onChange={(event, newValue) => {
@@ -572,7 +876,7 @@ export default function Employees() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Select status"
+                          label="Select Status"
                           placeholder="Search status..."
                           fullWidth
                           error={
@@ -587,9 +891,8 @@ export default function Employees() {
                     />
                   </Grid>
 
-                 
+                  {/* Password */}
 
-                  {/* PASSWORD */}
                   {!isEdit && (
                     <Grid item xs={12} md={6}>
                       <TextField
@@ -599,21 +902,23 @@ export default function Employees() {
                         name="password"
                         value={Formik.values.password}
                         onChange={Formik.handleChange}
+                        onBlur={Formik.handleBlur}
+                        error={
+                          Formik.touched.password &&
+                          Boolean(Formik.errors.password)
+                        }
+                        helperText={
+                          Formik.touched.password && Formik.errors.password
+                        }
                       />
-                      {Formik.touched.password && Formik.errors.password && (
-                        <p
-                          style={{ color: "red", textTransform: "capitalize" }}
-                        >
-                          {Formik.errors.password}
-                        </p>
-                      )}
                     </Grid>
                   )}
 
-                  {/* BUTTONS FULL WIDTH */}
+                  {/* Buttons */}
+
                   <Grid item xs={12}>
                     <Button type="submit" variant="contained" sx={{ mr: 1 }}>
-                      Submit
+                      {isEdit ? "Update" : "Submit"}
                     </Button>
 
                     {isEdit && (
@@ -628,140 +933,191 @@ export default function Employees() {
           </Box>
         )}
 
-        {/* {tab === 1 && (
-                    <Box>
-
-
-                        <Box
-                            sx={{
-                                padding: "5px",
-                                minWidth: 120,
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                marginBottom: "20px",
-                            }}
-                        >
-
-
-
-                            <TextField
-                                id=""
-                                label="Search Name  .. "
-                                onChange={handleSearch}
-                            />
-                        </Box>
-
-                        <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", }}>
-                            {employees &&
-                                employees.map((employee, i) => {
-                                    return (
-                                        <EmployeeCardAdmin
-                                            key={i}
-                                            handleEdit={handleEdit}
-                                            handleDelete={handleDelete}
-                                            employee={employee}
-                                        />
-                                    );
-                                })}
-                        </Box>
-                    </Box>
-                )} */}
+        {/* =================================================
+            TAB 1 - EMPLOYEE LIST
+        ================================================= */}
 
         {tab === 1 && (
           <Box>
+            {/* Search + Total Employees */}
+
             <Box
               sx={{
-                padding: "2px",
-                minWidth: 120,
                 display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: "5px",
+                gap: 2,
+                flexDirection: {
+                  xs: "column",
+                  sm: "row",
+                },
+                alignItems: {
+                  xs: "stretch",
+                  sm: "center",
+                },
+                mb: 2,
+                padding: "2px",
               }}
             >
               <TextField
-                label="Search Name .."
+                label="Search Name / Email"
                 size="small"
-                onChange={handleSearch}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
                 sx={{
+                  width: {
+                    xs: "100%",
+                    sm: 500,
+                  },
+
                   "& .MuiInputBase-root": {
                     height: 42,
-                    width: 500,
                     fontSize: "14px",
                   },
+
                   "& .MuiInputLabel-root": {
                     fontSize: "13px",
                   },
                 }}
               />
+
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Employees: {filteredEmployees.length}
+              </Typography>
             </Box>
+
+            {/* Employee Table */}
+
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table sx={{ minWidth: 650 }} aria-label="employee table">
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="row">
-                      Name
-                    </TableCell>
+                    <TableCell>Name</TableCell>
+
                     <TableCell align="right">Email</TableCell>
-                    <TableCell align="right">dOBDate</TableCell>
-                    <TableCell align="right">JoinDate</TableCell>
+
+                    <TableCell align="right">DOB</TableCell>
+
+                    <TableCell align="right">Join Date</TableCell>
+
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody>
-                  {employees.map((value, i) => (
-                    <TableRow
-                      key={i}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {value.employee_name}
-                      </TableCell>
-                      <TableCell align="right">{value?.email}</TableCell>
-                      <TableCell align="right">
-                        {dayjs(value?.dOBDate).format("DD/MM/YYYY")}
-                      </TableCell>
-                      <TableCell align="right">
-                        {dayjs(value?.joinDate).format("DD/MM/YYYY")}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Box
+                  {filteredEmployees.length > 0 ? (
+                    filteredEmployees.map((value, i) => (
+                      <TableRow
+                        key={value?._id || i}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        {/* Name */}
+
+                        <TableCell component="th" scope="row">
+                          {value?.employee_name}
+                        </TableCell>
+
+                        {/* Email */}
+
+                        <TableCell align="right">{value?.email}</TableCell>
+
+                        {/* DOB */}
+
+                        <TableCell align="right">
+                          {value?.dOBDate
+                            ? dayjs(value.dOBDate).format("DD/MM/YYYY")
+                            : ""}
+                        </TableCell>
+
+                        {/* Join Date */}
+
+                        <TableCell align="right">
+                          {value?.joinDate
+                            ? dayjs(value.joinDate).format("DD/MM/YYYY")
+                            : ""}
+                        </TableCell>
+
+                        {/* Actions */}
+
+                        <TableCell align="right">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: 1.5,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "red",
+                                color: "#fff",
+                                "&:hover": {
+                                  background: "darkred",
+                                },
+                              }}
+                              onClick={() => handleDelete(value._id)}
+                            >
+                              Delete
+                            </Button>
+
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "gold",
+                                color: "#222222",
+                                "&:hover": {
+                                  background: "#d4af00",
+                                },
+                              }}
+                              onClick={() => handleEdit(value._id)}
+                            >
+                              Edit
+                            </Button>
+
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "skyblue",
+                                color: "#000",
+                                "&:hover": {
+                                  background: "#5fb3d8",
+                                },
+                              }}
+                              onClick={() =>
+                                viewUploadFile(value?.employee_image)
+                              }
+                            >
+                              View Pic
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        <Typography
                           sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1.5, // 👈 space between buttons
+                            py: 3,
+                            fontWeight: "bold",
+                            color: "text.secondary",
                           }}
                         >
-                          <Button
-                            variant="contained"
-                            sx={{ background: "red", color: "#fff" }}
-                            onClick={() => handleDelete(value._id)}
-                          >
-                            Delete
-                          </Button>
-
-                          <Button
-                            variant="contained"
-                            sx={{ background: "gold", color: "#222222" }}
-                            onClick={() => handleEdit(value._id)}
-                          >
-                            Edit
-                          </Button>
-
-                          <Button
-                            variant="contained"
-                            sx={{ background: "skyblue", color: "#000" }}
-                            onClick={() =>
-                              viewUploadFile(value?.employee_image)
-                            }
-                          >
-                            View Pic
-                          </Button>
-                        </Box>
+                          No employees found.
+                        </Typography>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

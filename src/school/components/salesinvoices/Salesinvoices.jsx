@@ -1406,7 +1406,7 @@ export default function Salesinvoice() {
                 display: "flex",
                 gap: 2,
                 flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
+                alignItems: { xs: "stretch", sm: "center" },
                 mb: 2,
               }}
             >
@@ -1424,6 +1424,17 @@ export default function Salesinvoice() {
                   },
                 }}
               />
+
+              {/* Total Fee/Sales Invoices */}
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Fee Invoices: {studentSalesinvoice.length}
+              </Typography>
             </Box>
             <Box>
               <TableContainer component={Paper}>

@@ -1,22 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import {
-    Box,
-    Button,
-    Paper,
-    TextField,
-    Typography,
-    TableBody,
-    TableCell,
-    TableRow,
-    TableHead,
-    Table,
-    TableContainer,
-    Tabs,
-    Tab,
-    Autocomplete,
-    Grid,
-    FormControlLabel, Checkbox, FormGroup,
+  Box,
+  Button,
+  Paper,
+  TextField,
+  Typography,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
+  Table,
+  TableContainer,
+  Tabs,
+  Tab,
+  Autocomplete,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
 } from "@mui/material";
+
 import dayjs from "dayjs";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
@@ -24,631 +27,923 @@ import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { periodSchema } from "../../../yupSchema/periodSchema";
-
-
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
-
-
-
 export default function Periods() {
-    const [periods, setPeriods] = useState([]);
+  const [periods, setPeriods] = useState([]);
+  const [filteredPeriods, setFilteredPeriods] = useState([]);
+  const [search, setSearch] = useState("");
 
-    const [isEdit, setEdit] = useState(false);
-    const [editId, setEditId] = useState(null);
-    const [allClasses, setAllClasses] = useState([]);
-    const [selectedClass, setSelectedClass] = useState(null);
+  const [isEdit, setEdit] = useState(false);
+  const [editId, setEditId] = useState(null);
 
-    const [allSections, setAllSections] = useState([]);
-    const [selectedSection, setSelectedSection] = useState(null);
+  const [allClasses, setAllClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
 
-    const [allTeachers, setAllTeachers] = useState([]);
-    const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [allSections, setAllSections] = useState([]);
+  const [selectedSection, setSelectedSection] = useState(null);
 
-    const [subjects, setSubjects] = useState([]);
-    const [selectedSubject, setSelectedSubject] = useState(null);
+  const [allTeachers, setAllTeachers] = useState([]);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
 
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState(null);
 
+  const [tab, setTab] = useState(0);
 
-    const [tab, setTab] = useState(0);
-    const [fromDate, setFromDate] = useState(null);
-    const [toDate, setToDate] = useState(null);
+  // MESSAGE
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
 
-    const toMinutes = (time) => {
-        const [h, m] = time.split(":").map(Number);
-        return h * 60 + m;
-    };
-    // Fetch all classes
-    const fetchAllClasses = () => {
+  const resetMessage = () => {
+    setMessage("");
+  };
+
+  const toMinutes = (time) => {
+    if (!time) return 0;
+
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  // ---------------------------------------------------------
+  // FETCH ALL CLASSES
+  // ---------------------------------------------------------
+  const fetchAllClasses = () => {
+    axios
+      .get(`${baseUrl}/class/fetch-all`)
+      .then((resp) => {
+        setAllClasses(resp?.data?.data || []);
+      })
+      .catch((e) => {
+        console.error("Error in fetching all Classes", e);
+        setAllClasses([]);
+      });
+  };
+
+  // ---------------------------------------------------------
+  // FETCH ALL SECTIONS
+  // ---------------------------------------------------------
+  const fetchAllSections = () => {
+    axios
+      .get(`${baseUrl}/section/fetch-all`)
+      .then((resp) => {
+        setAllSections(resp?.data?.data || []);
+      })
+      .catch((e) => {
+        console.error("Error in fetching all Sections", e);
+        setAllSections([]);
+      });
+  };
+
+  // ---------------------------------------------------------
+  // FETCH ALL TEACHERS
+  // ---------------------------------------------------------
+  const fetchAllTeachers = () => {
+    axios
+      .get(`${baseUrl}/teacher/fetch-with-query`, {
+        params: {},
+      })
+      .then((resp) => {
+        setAllTeachers(resp?.data?.data || []);
+      })
+      .catch((e) => {
+        console.error("Error in fetching all Teachers", e);
+        setAllTeachers([]);
+      });
+  };
+
+  // ---------------------------------------------------------
+  // DELETE PERIOD
+  // ---------------------------------------------------------
+  const handleDelete = (id) => {
+    if (confirm("Are you sure you want to delete?")) {
+      axios
+        .delete(`${baseUrl}/period/delete/${id}`)
+        .then((resp) => {
+          setMessage(resp.data.message);
+          setType("success");
+        })
+        .catch((e) => {
+          setMessage(e?.response?.data?.message || "Error deleting period");
+          setType("error");
+          console.log("Error deleting period", e);
+        });
+    }
+  };
+
+  // ---------------------------------------------------------
+  // EDIT PERIOD
+  // ---------------------------------------------------------
+  const handleEdit = (id) => {
+    console.log("Handle Edit is called", id);
+
+    setEdit(true);
+
+    axios
+      .get(`${baseUrl}/period/single/${id}`)
+      .then((resp) => {
+        const data = resp?.data?.data;
+
+        Formik.setFieldValue("period_name", data?.period_name || "");
+        Formik.setFieldValue("period_code", data?.period_code || "");
+
+        Formik.setFieldValue("class", data?.class?._id || "");
+        setSelectedClass(data?.class || null);
+
+        Formik.setFieldValue("section", data?.section?._id || "");
+        setSelectedSection(data?.section || null);
+
+        Formik.setFieldValue("teacher", data?.teacher?._id || "");
+        setSelectedTeacher(data?.teacher || null);
+
+        Formik.setFieldValue("subject", data?.subject?._id || "");
+        setSelectedSubject(data?.subject || null);
+
+        Formik.setFieldValue("starttime", data?.starttime || "");
+        Formik.setFieldValue("endtime", data?.endtime || "");
+
+        Formik.setFieldValue("days", data?.days || []);
+
+        setEditId(data?._id);
+        setTab(0);
+      })
+      .catch((e) => {
+        console.log("Error in fetching edit data.", e);
+      });
+  };
+
+  // ---------------------------------------------------------
+  // CANCEL EDIT
+  // ---------------------------------------------------------
+  const cancelEdit = () => {
+    setEdit(false);
+    setEditId(null);
+
+    setSelectedClass(null);
+    setSelectedSection(null);
+    setSelectedSubject(null);
+    setSelectedTeacher(null);
+
+    Formik.resetForm();
+  };
+
+  // ---------------------------------------------------------
+  // FORMIK
+  // ---------------------------------------------------------
+  const initialValues = {
+    period_name: "",
+    period_code: "",
+    class: "",
+    section: "",
+    teacher: "",
+    subject: "",
+    starttime: "",
+    endtime: "",
+    days: [],
+  };
+
+  const Formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: periodSchema,
+
+    onSubmit: (values) => {
+      console.log("values", values);
+
+      const startminutes = toMinutes(values.starttime);
+      const endminutes = toMinutes(values.endtime);
+
+      if (startminutes >= endminutes) {
+        setMessage("StartTime is greater than Endtime, Set the proper time");
+        setType("error");
+        return;
+      }
+
+      values.timeseq = startminutes;
+
+      if (isEdit) {
         axios
-            .get(`${baseUrl}/class/fetch-all`)
-            .then((resp) => {
-                setAllClasses(resp.data.data);
+          .patch(`${baseUrl}/period/update/${editId}`, {
+            ...values,
+          })
+          .then((resp) => {
+            console.log("Edit submit", resp);
 
-            })
-            .catch((e) => {
-                console.error('Error in fetching all Classes');
-            });
-    };
+            setMessage(resp.data.message);
+            setType("success");
 
+            cancelEdit();
+            setTab(1);
+          })
+          .catch((e) => {
+            setMessage(e?.response?.data?.message || "Error updating period");
+            setType("error");
 
-    // Fetch all sections
-    const fetchAllSections = () => {
+            console.log("Error updating period", e);
+          });
+      } else {
         axios
-            .get(`${baseUrl}/section/fetch-all`)
-            .then((resp) => {
-                setAllSections(resp.data.data);
+          .post(`${baseUrl}/period/create`, {
+            ...values,
+          })
+          .then((resp) => {
+            console.log("Response after submitting period", resp);
 
-            })
-            .catch((e) => {
-                console.error('Error in fetching all Sections');
-            });
-    };
+            setMessage(resp.data.message);
+            setType("success");
 
-    // Fetch all Teachers
-    const fetchAllTeachers = () => {
+            cancelEdit();
+            setTab(1);
+          })
+          .catch((e) => {
+            setMessage(e?.response?.data?.message || "Error creating period");
+            setType("error");
 
-        // const teacherResponse = await axios.get(`${baseUrl}/teacher/fetch-with-query`,{params:{}});
-        axios
-            .get(`${baseUrl}/teacher/fetch-with-query`, { params: {} })
-            .then((resp) => {
-                setAllTeachers(resp.data.data);
-                
-            })
-            .catch((e) => {
-                console.error('Error in fetching all Teachers');
-            });
-    };
+            console.log("Error creating period", e);
+          });
+      }
+    },
+  });
 
+  // ---------------------------------------------------------
+  // FETCH PERIODS
+  // ---------------------------------------------------------
+  const fetchPeriods = () => {
+    axios
+      .get(`${baseUrl}/period/all`)
+      .then((resp) => {
+        const data = resp?.data?.data || [];
 
-    const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete?")) {
-            axios
-                .delete(`${baseUrl}/period/delete/${id}`)
-                .then((resp) => {
-                    setMessage(resp.data.message);
-                    setType("success");
-                })
-                .catch((e) => {
-                    setMessage(e.response.data.message);
-                    setType("error");
-                    console.log("Error, deleting", e);
-                });
-        }
-    };
-    const handleEdit = (id) => {
-        console.log("Handle  Edit is called", id);
-        setEdit(true);
-        axios.get(`${baseUrl}/period/single/${id}`)
-            .then((resp) => {
-                Formik.setFieldValue("period_name", resp.data.data.period_name);
-                Formik.setFieldValue("period_code", resp.data.data.period_code);
+        setPeriods(data);
+        setFilteredPeriods(data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching periods", e);
 
-                Formik.setFieldValue("class", resp.data?.data?.class?._id || "");
-                setSelectedClass(resp.data.data.class);
+        setPeriods([]);
+        setFilteredPeriods([]);
+      });
+  };
 
-                Formik.setFieldValue("section", resp.data?.data?.section?._id || "");
-                setSelectedSection(resp.data.data.section);
+  // ---------------------------------------------------------
+  // FETCH SUBJECTS
+  // ---------------------------------------------------------
+  const fetchSubjects = () => {
+    axios
+      .get(`${baseUrl}/subject/fetch-all`)
+      .then((resp) => {
+        setSubjects(resp?.data?.data || []);
+      })
+      .catch((e) => {
+        console.log("Error in fetching subjects", e);
+        setSubjects([]);
+      });
+  };
 
-                Formik.setFieldValue("teacher", resp.data?.data?.teacher?._id || "");
-                setSelectedTeacher(resp.data.data.teacher);
+  // ---------------------------------------------------------
+  // INITIAL FETCH
+  // ---------------------------------------------------------
+  useEffect(() => {
+    fetchAllClasses();
+    fetchAllSections();
+    fetchAllTeachers();
+    fetchSubjects();
+    fetchPeriods();
+  }, [message]);
 
-                Formik.setFieldValue("subject", resp.data?.data?.subject?._id || "");
-                setSelectedSubject(resp.data.data.subject);
+  // ---------------------------------------------------------
+  // SEARCH
+  // Period Name
+  // Period Code
+  // Start Time
+  // End Time
+  // Class
+  // Section
+  // Teacher
+  // Subject
+  // Days
+  // ---------------------------------------------------------
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
 
-                Formik.setFieldValue("starttime", resp.data.data.starttime);
-                Formik.setFieldValue("endtime", resp.data.data.endtime);
+  useEffect(() => {
+    const searchValue = search.trim().toLowerCase();
 
-                console.log("Days from API:", resp?.data?.data?.days);
-                // ✅ FIXED DAYS
-                Formik.setFieldValue("days", resp.data.data.days || []);
+    if (!searchValue) {
+      setFilteredPeriods(periods);
+      return;
+    }
 
-                setEditId(resp.data.data._id);
-                setTab(0); // open Create Period tab
-            })
-            .catch((e) => {
-                console.log("Error  in fetching edit data.");
-            });
-    };
+    const filtered = periods.filter((period) => {
+      const periodName = String(period?.period_name || "").toLowerCase();
 
-    const cancelEdit = () => {
-        setEdit(false);
-        setSelectedClass(null);
-        setSelectedSection(null);
-        setSelectedSubject(null);
-        setSelectedTeacher(null);
-        setSelectedSubject(null);
-        Formik.resetForm();
+      const periodCode = String(period?.period_code || "").toLowerCase();
 
-    };
+      const startTime = String(period?.starttime || "").toLowerCase();
 
-    //   MESSAGE
-    const [message, setMessage] = useState("");
-    const [type, setType] = useState("succeess");
+      const endTime = String(period?.endtime || "").toLowerCase();
 
-    const resetMessage = () => {
-        setMessage("");
-    };
+      const className = String(
+        period?.class?.class_name || period?.class_name || "",
+      ).toLowerCase();
 
-    const initialValues = {
-        period_name: "",
-        period_code: "",
-        class: "",
-        section: "",
-        teacher: "",
-        subject: "",
-        starttime: "",
-        endtime: "",
-        days: [],
-    };
-    const Formik = useFormik({
-        initialValues: initialValues,
-        validationSchema: periodSchema,
-        onSubmit: (values) => {
-            console.log("values", values);
-            // const [hour, minute] = values.starttime.split(":");
+      const sectionName = String(
+        period?.section?.section_name || period?.section_name || "",
+      ).toLowerCase();
 
-            // console.log(hour);   // 8
-            // console.log(minute); // 0
-            // const timeseq = hour.toString() + minute.toString();      
+      const teacherName = String(
+        period?.teacher?.name || period?.teacher_name || "",
+      ).toLowerCase();
 
+      const subjectName = String(
+        period?.subject?.subject_name || period?.subject_name || "",
+      ).toLowerCase();
 
-            const startminutes = toMinutes(values.starttime);
-            const endminutes = toMinutes(values.endtime);
+      const days = Array.isArray(period?.days)
+        ? period.days.join(" ").toLowerCase()
+        : String(period?.days || "").toLowerCase();
 
-            if (startminutes >= endminutes) {
-                setMessage("StartTime is greater than Endtime, Set the proper time");
-                setType("error");
-                console.log("Error-StartTime is greater than Endtime, Set the proper time");
-                return;
-            }
-            values.timeseq = startminutes;
-
-
-            if (isEdit) {
-                console.log("edit id", editId);
-                axios
-
-                    .patch(`${baseUrl}/period/update/${editId}`, {
-                        ...values,
-                    })
-                    .then((resp) => {
-                        console.log("Edit submit", resp);
-                        setMessage(resp.data.message);
-                        // setType("success");
-                        // cancelEdit();
-                        // setTab(1); // go to View List
-
-                        setType("success");
-                        cancelEdit();
-                        setTab(1); // go to View List
-
-
-                    })
-                    .catch((e) => {
-                        setMessage(e.response.data.message);
-                        setType("error");
-                        console.log("Error, edit casting submit", e);
-
-                    });
-            } else {
-
-                axios
-                    .post(`${baseUrl}/period/create`, { ...values })
-                    .then((resp) => {
-                        console.log("Response after submitting admin casting", resp);
-                        setMessage(resp.data.message);
-
-                        setType("success");
-                        cancelEdit();
-                        setTab(1); // go to View List
-
-
-                    })
-                    .catch((e) => {
-                        setMessage(e.response.data.message);
-                        setType("error");
-                        console.log("Error, response admin casting calls", e);
-
-                    });
-
-
-            }
-        },
+      return (
+        periodName.includes(searchValue) ||
+        periodCode.includes(searchValue) ||
+        startTime.includes(searchValue) ||
+        endTime.includes(searchValue) ||
+        className.includes(searchValue) ||
+        sectionName.includes(searchValue) ||
+        teacherName.includes(searchValue) ||
+        subjectName.includes(searchValue) ||
+        days.includes(searchValue)
+      );
     });
 
-    const [month, setMonth] = useState([]);
-    const [year, setYear] = useState([]);
+    setFilteredPeriods(filtered);
+  }, [search, periods]);
 
+  return (
+    <>
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
 
-    const fetchPeriods = () => {
-        axios
-            .get(`${baseUrl}/period/all`)
-            .then((resp) => {
-                console.log("Fetching data in  Casting Calls  admin.", resp);
-                setPeriods(resp?.data?.data || []); // ✅ SAFE
-            })
-            .catch((e) => {
-                console.log("Error in fetching casting calls admin data", e);
-                setPeriods([]); // ✅ fallback
-            });
-    };
+      <Box>
+        {/* -------------------------------------------------
+                    TABS
+                ------------------------------------------------- */}
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+          }}
+        >
+          <Tabs
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            <Tab label={isEdit ? "Edit Period" : "Add New Period"} />
+            <Tab label="View List" />
+          </Tabs>
+        </Box>
 
-    const fetchSubjects = () => {
-        axios
-            .get(`${baseUrl}/subject/fetch-all`)
-            .then((resp) => {
-                console.log("Fetching data in  Casting Calls  admin.", resp);
-                setSubjects(resp?.data?.data || []); // ✅ SAFE
-            })
-            .catch((e) => {
-                console.log("Error in fetching casting calls admin data", e);
-                setSubjects([]); // ✅ fallback
-            });
-    };
-    useEffect(() => {
+        {/* =================================================
+                    TAB 0 - ADD / EDIT PERIOD
+                ================================================= */}
+        {tab === 0 && (
+          <Box component={"div"}>
+            <Paper
+              sx={{
+                padding: "20px",
+                margin: "10px",
+              }}
+            >
+              <Box
+                component="form"
+                noValidate
+                autoComplete="off"
+                onSubmit={Formik.handleSubmit}
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "1fr 1fr",
+                  },
+                  gap: 2,
+                }}
+              >
+                {/* Period Name */}
+                <Box>
+                  <TextField
+                    fullWidth
+                    label="Period Name"
+                    name="period_name"
+                    value={Formik.values.period_name}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                  />
 
-        fetchAllClasses();
-        fetchAllSections();
-        fetchAllTeachers();
-        fetchSubjects();
-        fetchPeriods();
-
-    }, [message]);
-    return (
-        <>
-            {message && (
-                <CustomizedSnackbars
-                    reset={resetMessage}
-                    type={type}
-                    message={message}
-                />
-            )}
-            <Box>
-                <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-                    <Tabs
-                        value={tab}
-                        onChange={(e, newValue) => setTab(newValue)}
-                        textColor="primary"
-                        indicatorColor="primary"
+                  {Formik.touched.period_name && Formik.errors.period_name && (
+                    <p
+                      style={{
+                        color: "red",
+                      }}
                     >
-                        <Tab label={isEdit ? "Edit Period" : "Add New Period"} />
-                        <Tab label="View List" />
-
-                    </Tabs>
+                      {Formik.errors.period_name}
+                    </p>
+                  )}
                 </Box>
 
-                {tab === 0 && (
-                    <Box component={"div"}>
-                        <Paper sx={{ padding: "20px", margin: "10px" }}>
-                            <Box
-                                component="form"
-                                noValidate
-                                autoComplete="off"
-                                onSubmit={Formik.handleSubmit}
-                                sx={{
-                                    display: "grid",
-                                    gridTemplateColumns: {
-                                        xs: "1fr",      // mobile: 1 column
-                                        sm: "1fr 1fr",  // desktop: 2 columns
-                                    },
-                                    gap: 2,
-                                }}
+                {/* Period Code */}
+                <Box>
+                  <TextField
+                    disabled={isEdit}
+                    fullWidth
+                    label="Period Code"
+                    name="period_code"
+                    value={Formik.values.period_code}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                  />
+
+                  {Formik.touched.period_code && Formik.errors.period_code && (
+                    <p
+                      style={{
+                        color: "red",
+                      }}
+                    >
+                      {Formik.errors.period_code}
+                    </p>
+                  )}
+                </Box>
+
+                {/* Class */}
+                <Box>
+                  <Autocomplete
+                    options={allClasses}
+                    getOptionLabel={(option) => option?.class_name || ""}
+                    value={selectedClass}
+                    onChange={(event, newValue) => {
+                      setSelectedClass(newValue);
+
+                      Formik.setFieldValue(
+                        "class",
+                        newValue ? newValue._id : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("class", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Class"
+                        placeholder="Search class..."
+                        fullWidth
+                        error={
+                          Formik.touched.class && Boolean(Formik.errors.class)
+                        }
+                        helperText={Formik.touched.class && Formik.errors.class}
+                      />
+                    )}
+                  />
+                </Box>
+
+                {/* Section */}
+                <Box>
+                  <Autocomplete
+                    options={allSections}
+                    getOptionLabel={(option) => option?.section_name || ""}
+                    value={selectedSection}
+                    onChange={(event, newValue) => {
+                      setSelectedSection(newValue);
+
+                      Formik.setFieldValue(
+                        "section",
+                        newValue ? newValue._id : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("section", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Section"
+                        placeholder="Search section..."
+                        fullWidth
+                        error={
+                          Formik.touched.section &&
+                          Boolean(Formik.errors.section)
+                        }
+                        helperText={
+                          Formik.touched.section && Formik.errors.section
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+
+                {/* Teacher */}
+                <Box>
+                  <Autocomplete
+                    options={allTeachers}
+                    getOptionLabel={(option) => option?.name || ""}
+                    value={selectedTeacher}
+                    onChange={(event, newValue) => {
+                      setSelectedTeacher(newValue);
+
+                      Formik.setFieldValue(
+                        "teacher",
+                        newValue ? newValue._id : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("teacher", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Teacher"
+                        placeholder="Search teacher..."
+                        fullWidth
+                        error={
+                          Formik.touched.teacher &&
+                          Boolean(Formik.errors.teacher)
+                        }
+                        helperText={
+                          Formik.touched.teacher && Formik.errors.teacher
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+
+                {/* Subject */}
+                <Box>
+                  <Autocomplete
+                    options={subjects}
+                    getOptionLabel={(option) => option?.subject_name || ""}
+                    value={selectedSubject}
+                    onChange={(event, newValue) => {
+                      setSelectedSubject(newValue);
+
+                      Formik.setFieldValue(
+                        "subject",
+                        newValue ? newValue._id : "",
+                      );
+                    }}
+                    onBlur={() => Formik.setFieldTouched("subject", true)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Subject"
+                        placeholder="Search subject..."
+                        fullWidth
+                        error={
+                          Formik.touched.subject &&
+                          Boolean(Formik.errors.subject)
+                        }
+                        helperText={
+                          Formik.touched.subject && Formik.errors.subject
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+
+                {/* Start Time */}
+                <Box>
+                  <TimePicker
+                    label="Start Time"
+                    value={
+                      Formik.values.starttime
+                        ? dayjs(Formik.values.starttime, "HH:mm")
+                        : null
+                    }
+                    onChange={(newValue) => {
+                      Formik.setFieldValue(
+                        "starttime",
+                        newValue ? newValue.format("HH:mm") : "",
+                      );
+                    }}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        error:
+                          Formik.touched.starttime &&
+                          Boolean(Formik.errors.starttime),
+                        helperText:
+                          Formik.touched.starttime && Formik.errors.starttime,
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* End Time */}
+                <Box>
+                  <TimePicker
+                    label="End Time"
+                    value={
+                      Formik.values.endtime
+                        ? dayjs(Formik.values.endtime, "HH:mm")
+                        : null
+                    }
+                    onChange={(newValue) => {
+                      Formik.setFieldValue(
+                        "endtime",
+                        newValue ? newValue.format("HH:mm") : "",
+                      );
+                    }}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        error:
+                          Formik.touched.endtime &&
+                          Boolean(Formik.errors.endtime),
+                        helperText:
+                          Formik.touched.endtime && Formik.errors.endtime,
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* Days */}
+                <Box
+                  sx={{
+                    gridColumn: "1 / -1",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      mb: 1,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Select Days
+                  </Typography>
+
+                  <FormGroup row>
+                    {[
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday",
+                    ].map((day) => (
+                      <FormControlLabel
+                        key={day}
+                        control={
+                          <Checkbox
+                            checked={Formik.values.days.includes(day)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                Formik.setFieldValue("days", [
+                                  ...Formik.values.days,
+                                  day,
+                                ]);
+                              } else {
+                                Formik.setFieldValue(
+                                  "days",
+                                  Formik.values.days.filter((d) => d !== day),
+                                );
+                              }
+                            }}
+                          />
+                        }
+                        label={day}
+                      />
+                    ))}
+                  </FormGroup>
+
+                  {Formik.touched.days && Formik.errors.days && (
+                    <p
+                      style={{
+                        color: "red",
+                      }}
+                    >
+                      {Formik.errors.days}
+                    </p>
+                  )}
+                </Box>
+
+                {/* Buttons */}
+                <Box
+                  sx={{
+                    gridColumn: "1 / -1",
+                    mt: 1,
+                  }}
+                >
+                  <Button type="submit" sx={{ mr: 1 }} variant="contained">
+                    Submit
+                  </Button>
+
+                  {isEdit && (
+                    <Button variant="outlined" onClick={cancelEdit}>
+                      Cancel Edit
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            </Paper>
+          </Box>
+        )}
+
+        {/* =================================================
+                    TAB 1 - VIEW LIST
+                ================================================= */}
+        {tab === 1 && (
+          <Box>
+            {/* SEARCH */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <TextField
+                  label="Search Periods"
+                  placeholder="Search by Period Name, Code, Start Time, End Time, Class, Section, Teacher, Subject or Days"
+                  size="small"
+                  value={search}
+                  onChange={handleSearch}
+                  sx={{
+                    flex: 1,
+                    minWidth: {
+                      xs: "100%",
+                      sm: "400px",
+                    },
+                    "& .MuiInputBase-root": {
+                      height: 42,
+                      fontSize: "14px",
+                    },
+                  }}
+                />
+
+                {search && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSearch("")}
+                    sx={{
+                      height: 42,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Clear
+                  </Button>
+                )}
+
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Total Periods: <strong>{filteredPeriods.length}</strong>
+                </Typography>
+              </Box>
+            </Paper>
+
+            {/* TABLE */}
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="period table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Period Name</TableCell>
+
+                    <TableCell align="right">Code</TableCell>
+
+                    <TableCell align="right">Start Time</TableCell>
+
+                    <TableCell align="right">End Time</TableCell>
+
+                    <TableCell align="right">Class</TableCell>
+
+                    <TableCell align="right">Section</TableCell>
+
+                    <TableCell align="right">Teacher</TableCell>
+
+                    <TableCell align="right">Subject</TableCell>
+
+                    <TableCell align="right">Days</TableCell>
+
+                    <TableCell align="right">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {filteredPeriods.length > 0 ? (
+                    filteredPeriods.map((value, i) => (
+                      <TableRow
+                        key={value?._id || i}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {value?.period_name || ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {value?.period_code || ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {value?.starttime || ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {value?.endtime || ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {value?.class?.class_name || value?.class_name || ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {value?.section?.section_name ||
+                            value?.section_name ||
+                            ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {value?.teacher?.name || value?.teacher_name || ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {value?.subject?.subject_name ||
+                            value?.subject_name ||
+                            ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          {Array.isArray(value?.days)
+                            ? value.days.join(", ")
+                            : value?.days || ""}
+                        </TableCell>
+
+                        <TableCell align="right">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: 1.5,
+                            }}
+                          >
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "red",
+                                color: "#fff",
+                              }}
+                              onClick={() => handleDelete(value._id)}
                             >
+                              Delete
+                            </Button>
 
-                                {/* Period Name */}
-                                <Box>
-                                    <TextField
-                                        fullWidth
-                                        label="Period Name"
-                                        name="period_name"
-                                        value={Formik.values.period_name}
-                                        onChange={Formik.handleChange}
-                                        onBlur={Formik.handleBlur}
-                                    />
-                                    {Formik.touched.period_name && Formik.errors.period_name && (
-                                        <p style={{ color: "red" }}>{Formik.errors.period_name}</p>
-                                    )}
-                                </Box>
-
-                                {/* Period Code */}
-                                <Box>
-                                    <TextField
-                                        disabled={isEdit}
-                                        fullWidth
-                                        label="Period Code"
-                                        name="period_code"
-                                        value={Formik.values.period_code}
-                                        onChange={Formik.handleChange}
-                                        onBlur={Formik.handleBlur}
-                                    />
-                                    {Formik.touched.period_code && Formik.errors.period_code && (
-                                        <p style={{ color: "red" }}>{Formik.errors.period_code}</p>
-                                    )}
-                                </Box>
-
-                                {/* Class */}
-                                <Box>
-                                    <Autocomplete
-                                        options={allClasses}
-                                        getOptionLabel={(option) => option.class_name}
-                                        value={selectedClass}
-                                        onChange={(event, newValue) => {
-                                            setSelectedClass(newValue);
-                                            Formik.setFieldValue("class", newValue ? newValue._id : "");
-                                        }}
-                                        onBlur={() => Formik.setFieldTouched("class", true)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Select Class"
-                                                placeholder="Search class..."
-                                                fullWidth
-                                                error={Formik.touched.class && Boolean(Formik.errors.class)}
-                                                helperText={Formik.touched.class && Formik.errors.class}
-                                            />
-                                        )}
-                                    />
-                                </Box>
-
-                                {/* Section */}
-                                <Box>
-                                    <Autocomplete
-                                        options={allSections}
-                                        getOptionLabel={(option) => option.section_name}
-                                        value={selectedSection}
-                                        onChange={(event, newValue) => {
-                                            setSelectedSection(newValue);
-                                            Formik.setFieldValue("section", newValue ? newValue._id : "");
-                                        }}
-                                        onBlur={() => Formik.setFieldTouched("section", true)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Select Section"
-                                                placeholder="Search section..."
-                                                fullWidth
-                                                error={Formik.touched.section && Boolean(Formik.errors.section)}
-                                                helperText={Formik.touched.section && Formik.errors.section}
-                                            />
-                                        )}
-                                    />
-                                </Box>
-
-                                {/* Teacher */}
-                                <Box>
-                                    <Autocomplete
-                                        options={allTeachers}
-                                        getOptionLabel={(option) => option.name}
-                                        value={selectedTeacher}
-                                        onChange={(event, newValue) => {
-                                            setSelectedTeacher(newValue);
-                                            Formik.setFieldValue("teacher", newValue ? newValue._id : "");
-                                        }}
-                                        onBlur={() => Formik.setFieldTouched("teacher", true)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Select Teacher"
-                                                placeholder="Search teacher..."
-                                                fullWidth
-                                                error={Formik.touched.teacher && Boolean(Formik.errors.teacher)}
-                                                helperText={Formik.touched.teacher && Formik.errors.teacher}
-                                            />
-                                        )}
-                                    />
-                                </Box>
-
-
-                                {/* Subject */}
-                                <Box>
-                                    <Autocomplete
-                                        options={subjects}
-                                        getOptionLabel={(option) => option.subject_name}
-                                        value={selectedSubject}
-                                        onChange={(event, newValue) => {
-                                            setSelectedSubject(newValue);
-                                            Formik.setFieldValue("subject", newValue ? newValue._id : "");
-                                        }}
-                                        onBlur={() => Formik.setFieldTouched("subject", true)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Select Subject"
-                                                placeholder="Search subject..."
-                                                fullWidth
-                                                error={Formik.touched.subject && Boolean(Formik.errors.subject)}
-                                                helperText={Formik.touched.subject && Formik.errors.subject}
-                                            />
-                                        )}
-                                    />
-                                </Box>
-
-                                {/* Start Time */}
-                                <Box>
-                                    <TimePicker
-                                        label="Start Time"
-                                        value={Formik.values.starttime ? dayjs(Formik.values.starttime, "HH:mm") : null}
-                                        onChange={(newValue) => {
-                                            Formik.setFieldValue(
-                                                "starttime",
-                                                newValue ? newValue.format("HH:mm") : ""
-                                            );
-                                        }}
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true,
-                                                error: Formik.touched.starttime && Boolean(Formik.errors.starttime),
-                                                helperText: Formik.touched.starttime && Formik.errors.starttime,
-                                            },
-                                        }}
-                                    />
-                                </Box>
-
-                                {/* End Time */}
-                                <Box>
-                                    <TimePicker
-                                        label="End Time"
-                                        value={Formik.values.endtime ? dayjs(Formik.values.endtime, "HH:mm") : null}
-                                        onChange={(newValue) => {
-                                            Formik.setFieldValue(
-                                                "endtime",
-                                                newValue ? newValue.format("HH:mm") : ""
-                                            );
-                                        }}
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true,
-                                                error: Formik.touched.endtime && Boolean(Formik.errors.endtime),
-                                                helperText: Formik.touched.endtime && Formik.errors.endtime,
-                                            },
-                                        }}
-                                    />
-                                </Box>
-
-                                <Box sx={{ gridColumn: "1 / -1" }}>
-                                    <Typography sx={{ mb: 1, fontWeight: 500 }}>
-                                        Select Days
-                                    </Typography>
-
-                                    <FormGroup row>
-                                        {[
-                                            "Monday",
-                                            "Tuesday",
-                                            "Wednesday",
-                                            "Thursday",
-                                            "Friday",
-                                            "Saturday",
-                                            "Sunday",
-                                        ].map((day) => (
-                                            <FormControlLabel
-                                                key={day}
-                                                control={
-                                                    <Checkbox
-                                                        checked={Formik.values.days.includes(day)}
-                                                        onChange={(e) => {
-                                                            if (e.target.checked) {
-                                                                Formik.setFieldValue("days", [
-                                                                    ...Formik.values.days,
-                                                                    day,
-                                                                ]);
-                                                            } else {
-                                                                Formik.setFieldValue(
-                                                                    "days",
-                                                                    Formik.values.days.filter((d) => d !== day)
-                                                                );
-                                                            }
-                                                        }}
-                                                    />
-                                                }
-                                                label={day}
-                                            />
-                                        ))}
-                                    </FormGroup>
-
-                                    {/* Error */}
-                                    {Formik.touched.days && Formik.errors.days && (
-                                        <p style={{ color: "red" }}>{Formik.errors.days}</p>
-                                    )}
-                                </Box>
-
-
-                                {/* Buttons - Full Width */}
-                                <Box sx={{ gridColumn: "1 / -1", mt: 1 }}>
-                                    <Button
-                                        type="submit"
-                                        sx={{ mr: 1 }}
-                                        variant="contained"
-                                    >
-                                        Submit
-                                    </Button>
-
-                                    {isEdit && (
-                                        <Button variant="outlined" onClick={cancelEdit}>
-                                            Cancel Edit
-                                        </Button>
-                                    )}
-                                </Box>
-
-                            </Box>
-                        </Paper>
-                    </Box>
-
-                )}
-
-
-                {tab === 1 && (
-                    <Box>
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell component="th" scope="row"> Period Name</TableCell>
-                                        <TableCell align="right">Code</TableCell>
-                                        <TableCell align="right">Starttime</TableCell>
-                                        <TableCell align="right">Endtime</TableCell>
-                                        <TableCell align="right">Class</TableCell>
-                                        <TableCell align="right">Section</TableCell>
-                                        <TableCell align="right">Teacher</TableCell>
-                                        <TableCell align="right">Subject</TableCell>
-
-                                        <TableCell align="right">Action</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {periods.map((value, i) => (
-                                        <TableRow
-                                            key={i}
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
-                                            <TableCell component="th" scope="row">
-                                                {value?.period_name || ""}
-                                            </TableCell>
-                                            <TableCell align="right">{value?.period_code || ""}</TableCell>
-                                            <TableCell align="right">{value?.starttime || ""}</TableCell>
-                                            <TableCell align="right">{value?.endtime || ""}</TableCell>
-                                            <TableCell align="right">{value?.class?.class_name || ""}</TableCell>
-                                            <TableCell align="right">{value?.section?.section_name || ""}</TableCell>
-                                            <TableCell align="right">{value?.teacher?.name || ""}</TableCell>
-                                            <TableCell align="right">{value?.subject?.subject_name || ""}</TableCell>
-                                            <TableCell align="right">
-
-                                                <Box
-                                                    sx={{
-                                                        display: "flex",
-                                                        justifyContent: "flex-end",
-                                                        gap: 1.5, // 👈 space between buttons
-                                                    }}
-                                                >
-                                                    <Button
-                                                        variant="contained"
-                                                        sx={{ background: "red", color: "#fff" }}
-                                                        onClick={() => handleDelete(value._id)}
-                                                    >
-                                                        Delete
-                                                    </Button>
-
-                                                    <Button
-                                                        variant="contained"
-                                                        sx={{ background: "gold", color: "#222222" }}
-                                                        onClick={() => handleEdit(value._id)}
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                </Box>
-                                            </TableCell>
-
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-
-                    </Box>
-                )}
-
-
-            </Box>
-        </>
-    );
+                            <Button
+                              variant="contained"
+                              sx={{
+                                background: "gold",
+                                color: "#222222",
+                              }}
+                              onClick={() => handleEdit(value._id)}
+                            >
+                              Edit
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={10} align="center">
+                        <Typography
+                          sx={{
+                            py: 3,
+                            color: "text.secondary",
+                          }}
+                        >
+                          {search
+                            ? "No Periods found matching your search."
+                            : "No Periods available."}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
+      </Box>
+    </>
+  );
 }

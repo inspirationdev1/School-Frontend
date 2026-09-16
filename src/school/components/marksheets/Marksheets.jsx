@@ -1155,13 +1155,13 @@ export default function Marksheet() {
                 display: "flex",
                 gap: 2,
                 flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
+                alignItems: { xs: "stretch", sm: "center" },
                 mb: 2,
               }}
             >
               {/* Search */}
               <TextField
-                label="Search  .."
+                label="Search .."
                 size="small"
                 value={params.search || ""}
                 onChange={handleSearch}
@@ -1174,6 +1174,17 @@ export default function Marksheet() {
                   },
                 }}
               />
+
+              {/* Total Mark Sheets */}
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Mark Sheets: {studentMarksheet.length}
+              </Typography>
             </Box>
             <Box>
               <TableContainer component={Paper}>

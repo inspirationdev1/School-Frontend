@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   Button,
@@ -13,9 +12,7 @@ import {
   TableContainer,
   Tabs,
   Tab,
-
 } from "@mui/material";
-import dayjs from "dayjs";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -25,14 +22,29 @@ import { sectionSchema } from "../../../yupSchema/sectionSchema";
 
 export default function Section() {
   const [studentSection, setStudentSection] = useState([]);
+  const [filteredSections, setFilteredSections] = useState([]);
+
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [tab, setTab] = useState(0);
 
+  // Search
+  const [search, setSearch] = useState("");
 
+  // Message
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
 
+  // ---------------------------------------------------------
+  // Reset Message
+  // ---------------------------------------------------------
+  const resetMessage = () => {
+    setMessage("");
+  };
 
-
+  // ---------------------------------------------------------
+  // Delete
+  // ---------------------------------------------------------
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
       axios
@@ -42,108 +54,212 @@ export default function Section() {
           setType("success");
         })
         .catch((e) => {
-          setMessage(e.response.data.message);
+          setMessage(
+            e.response?.data?.message || "Error deleting section",
+          );
           setType("error");
           console.log("Error, deleting", e);
         });
     }
   };
+
+  // ---------------------------------------------------------
+  // Edit
+  // ---------------------------------------------------------
   const handleEdit = (id) => {
-    console.log("Handle  Edit is called", id);
+    console.log("Handle Edit is called", id);
+
     setEdit(true);
-    axios.get(`${baseUrl}/section/fetch-single/${id}`)
+
+    axios
+      .get(`${baseUrl}/section/fetch-single/${id}`)
       .then((resp) => {
-        Formik.setFieldValue("section_name", resp.data.data.section_name);
-        Formik.setFieldValue("section_code", resp.data.data.section_code);
-        setEditId(resp.data.data._id);
-        setTab(0); // open Create tab
+        const data = resp.data.data;
+
+        Formik.setFieldValue(
+          "section_name",
+          data?.section_name || "",
+        );
+
+        Formik.setFieldValue(
+          "section_code",
+          data?.section_code || "",
+        );
+
+        setEditId(data?._id);
+        setTab(0);
       })
       .catch((e) => {
-        console.log("Error  in fetching edit data.");
+        console.log("Error in fetching edit data.", e);
       });
   };
 
+  // ---------------------------------------------------------
+  // Cancel Edit
+  // ---------------------------------------------------------
   const cancelEdit = () => {
     setEdit(false);
-    Formik.resetForm()
+    setEditId(null);
+    Formik.resetForm();
   };
 
-  //   MESSAGE
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("succeess");
-
-  const resetMessage = () => {
-    setMessage("");
-  };
-
+  // ---------------------------------------------------------
+  // Formik
+  // ---------------------------------------------------------
   const initialValues = {
     section_name: "",
-    section_code: ""
+    section_code: "",
   };
+
   const Formik = useFormik({
-    initialValues: initialValues,
+    initialValues,
     validationSchema: sectionSchema,
+
     onSubmit: (values) => {
       if (isEdit) {
         console.log("edit id", editId);
+
         axios
           .patch(`${baseUrl}/section/update/${editId}`, {
             ...values,
           })
           .then((resp) => {
             console.log("Edit submit", resp);
+
             setMessage(resp.data.message);
             setType("success");
+
             cancelEdit();
-            setTab(1); // go to View List
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
+            setMessage(
+              e.response?.data?.message ||
+                "Error updating section",
+            );
             setType("error");
-            console.log("Error, edit casting submit", e);
+
+            console.log(
+              "Error, edit section submit",
+              e,
+            );
           });
       } else {
-
         axios
-          .post(`${baseUrl}/section/create`, { ...values })
+          .post(`${baseUrl}/section/create`, {
+            ...values,
+          })
           .then((resp) => {
-            console.log("Response after submitting admin casting", resp);
+            console.log(
+              "Response after submitting section",
+              resp,
+            );
+
             setMessage(resp.data.message);
             setType("success");
-            setTab(1); // go to View List
+
+            cancelEdit();
+            setTab(1);
           })
           .catch((e) => {
-            setMessage(e.response.data.message);
+            setMessage(
+              e.response?.data?.message ||
+                "Error creating section",
+            );
             setType("error");
-            console.log("Error, response admin casting calls", e);
-          });
-        Formik.resetForm();
 
+            console.log(
+              "Error, response section submit",
+              e,
+            );
+          });
       }
     },
   });
 
-  const [month, setMonth] = useState([]);
-  const [year, setYear] = useState([]);
+  // ---------------------------------------------------------
+  // Dynamic Search
+  // ---------------------------------------------------------
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
 
-
+  // ---------------------------------------------------------
+  // Fetch Sections
+  // ---------------------------------------------------------
   const fetchstudentssection = () => {
     axios
       .get(`${baseUrl}/section/fetch-all`)
       .then((resp) => {
-        console.log("Fetching data in  Casting Calls  admin.", resp);
-        setStudentSection(resp.data.data);
+        console.log(
+          "Fetching sections",
+          resp,
+        );
+
+        const data = Array.isArray(resp.data.data)
+          ? resp.data.data
+          : [];
+
+        setStudentSection(data);
+        setFilteredSections(data);
       })
       .catch((e) => {
-        console.log("Error in fetching casting calls admin data", e);
+        console.log(
+          "Error in fetching sections",
+          e,
+        );
+
+        setStudentSection([]);
+        setFilteredSections([]);
       });
   };
+
+  // ---------------------------------------------------------
+  // Initial Fetch
+  // ---------------------------------------------------------
   useEffect(() => {
     fetchstudentssection();
-
   }, [message]);
+
+  // ---------------------------------------------------------
+  // Dynamic Client-Side Search
+  //
+  // Searches:
+  // 1. Section Name
+  // 2. Section Code
+  // ---------------------------------------------------------
+  useEffect(() => {
+    const searchValue = search.trim().toLowerCase();
+
+    // If search is empty, display all sections
+    if (!searchValue) {
+      setFilteredSections(studentSection);
+      return;
+    }
+
+    const filtered = studentSection.filter((section) => {
+      const sectionName = String(
+        section?.section_name || "",
+      ).toLowerCase();
+
+      const sectionCode = String(
+        section?.section_code || "",
+      ).toLowerCase();
+
+      return (
+        sectionName.includes(searchValue) ||
+        sectionCode.includes(searchValue)
+      );
+    });
+
+    setFilteredSections(filtered);
+  }, [search, studentSection]);
+
   return (
     <>
+      {/* =====================================================
+          MESSAGE
+      ===================================================== */}
       {message && (
         <CustomizedSnackbars
           reset={resetMessage}
@@ -151,157 +267,339 @@ export default function Section() {
           message={message}
         />
       )}
+
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        {/* =====================================================
+            TABS
+        ===================================================== */}
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+          }}
+        >
           <Tabs
             value={tab}
             onChange={(e, newValue) => setTab(newValue)}
             textColor="primary"
             indicatorColor="primary"
           >
-            {/* <Tab label="Create Receipt" /> */}
-            <Tab label={isEdit ? "Edit Section" : "Add New Section"} />
+            <Tab
+              label={
+                isEdit
+                  ? "Edit Section"
+                  : "Add New Section"
+              }
+            />
+
             <Tab label="View List" />
           </Tabs>
         </Box>
 
+        {/* =====================================================
+            TAB 0 - ADD / EDIT SECTION
+        ===================================================== */}
         {tab === 0 && (
-        <Box component={"div"} sx={{}}>
-          <Paper
-            sx={{ padding: '20px', margin: "10px" }}
-          >
-
-            <Box
-              component="form"
-              noValidate
-              autoComplete="off"
-              onSubmit={Formik.handleSubmit}
+          <Box>
+            <Paper
+              sx={{
+                p: 3,
+                m: 2,
+              }}
             >
+              <Box
+                component="form"
+                noValidate
+                autoComplete="off"
+                onSubmit={Formik.handleSubmit}
+              >
+                {/* Section Name */}
+                <TextField
+                  fullWidth
+                  sx={{
+                    marginTop: "10px",
+                  }}
+                  label="Section Name"
+                  variant="outlined"
+                  name="section_name"
+                  value={Formik.values.section_name}
+                  onChange={Formik.handleChange}
+                  onBlur={Formik.handleBlur}
+                  size="small"
+                />
 
+                {Formik.touched.section_name &&
+                  Formik.errors.section_name && (
+                    <p
+                      style={{
+                        color: "red",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {Formik.errors.section_name}
+                    </p>
+                  )}
 
-              <TextField
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="Section Name "
-                variant="outlined"
-                name="section_name"
-                value={Formik.values.section_name}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.section_name && Formik.errors.section_name && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.section_name}
-                </p>
-              )}
+                {/* Section Code */}
+                <TextField
+                  disabled={isEdit}
+                  fullWidth
+                  sx={{
+                    marginTop: "10px",
+                  }}
+                  label="Section Code"
+                  variant="outlined"
+                  name="section_code"
+                  value={Formik.values.section_code}
+                  onChange={Formik.handleChange}
+                  onBlur={Formik.handleBlur}
+                  size="small"
+                />
 
+                {Formik.touched.section_code &&
+                  Formik.errors.section_code && (
+                    <p
+                      style={{
+                        color: "red",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {Formik.errors.section_code}
+                    </p>
+                  )}
 
-              <TextField
-                disabled={isEdit}
-                fullWidth
-                sx={{ marginTop: "10px" }}
-                id="filled-basic"
-                label="Section Code "
-                variant="outlined"
-                name="section_code"
-                value={Formik.values.section_code}
-                onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-              />
-              {Formik.touched.section_code && Formik.errors.section_code && (
-                <p style={{ color: "red", textTransform: "capitalize" }}>
-                  {Formik.errors.section_code}
-                </p>
-              )}
-
-
-
-
-
-
-
-
-              <Box sx={{ marginTop: "10px" }} component={"div"}>
-                <Button
-                  type="submit"
-                  sx={{ marginRight: "10px" }}
-                  variant="contained"
+                {/* Buttons */}
+                <Box
+                  sx={{
+                    marginTop: "10px",
+                  }}
                 >
-                  Submit
-                </Button>
-                {isEdit && (
                   <Button
-                    sx={{ marginRight: "10px" }}
-                    variant="outlined"
-                    onClick={cancelEdit}
+                    type="submit"
+                    sx={{
+                      marginRight: "10px",
+                    }}
+                    variant="contained"
                   >
-                    Cancel Edit
+                    Submit
+                  </Button>
+
+                  {isEdit && (
+                    <Button
+                      sx={{
+                        marginRight: "10px",
+                      }}
+                      variant="outlined"
+                      onClick={cancelEdit}
+                    >
+                      Cancel Edit
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            </Paper>
+          </Box>
+        )}
+
+        {/* =====================================================
+            TAB 1 - VIEW LIST
+        ===================================================== */}
+        {tab === 1 && (
+          <Box>
+            {/* Search + Total Count */}
+            <Paper
+              sx={{
+                p: 2,
+                mb: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                {/* Dynamic Search */}
+                <TextField
+                  label="Search Sections"
+                  placeholder="Search by Section Name or Code..."
+                  size="small"
+                  value={search}
+                  onChange={handleSearch}
+                  sx={{
+                    flex: 1,
+                    minWidth: {
+                      xs: "100%",
+                      sm: "400px",
+                    },
+                    "& .MuiInputBase-root": {
+                      height: 42,
+                      fontSize: "14px",
+                    },
+                  }}
+                />
+
+                {/* Clear Search */}
+                {search && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSearch("")}
+                    sx={{
+                      height: 42,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Clear
                   </Button>
                 )}
+
+                {/* Total Count */}
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Total Sections:{" "}
+                  <strong>
+                    {filteredSections.length}
+                  </strong>
+                </Typography>
               </Box>
-            </Box>
-          </Paper>
-        </Box>
-        )}
+            </Paper>
 
-        {tab === 1 && (
-        <Box>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell component="th" scope="row"> section Name</TableCell>
-                  <TableCell align="right">Code</TableCell>
-                  <TableCell align="right">Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {studentSection.map((value, i) => (
-                  <TableRow
-                    key={i}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {value.section_name}
+            {/* =================================================
+                SECTION TABLE
+            ================================================= */}
+            <TableContainer component={Paper}>
+              <Table
+                sx={{
+                  minWidth: 650,
+                }}
+                aria-label="section table"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      Section Name
                     </TableCell>
-                    <TableCell align="right">{value.section_code}</TableCell>
+
                     <TableCell align="right">
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          gap: 1.5, // 👈 space between buttons
-                        }}
-                      >
-                        <Button
-                          variant="contained"
-                          sx={{ background: "red", color: "#fff" }}
-                          onClick={() => handleDelete(value._id)}
-                        >
-                          Delete
-                        </Button>
-
-                        <Button
-                          variant="contained"
-                          sx={{ background: "gold", color: "#222222" }}
-                          onClick={() => handleEdit(value._id)}
-                        >
-                          Edit
-                        </Button>
-                      </Box>
+                      Code
                     </TableCell>
 
+                    <TableCell align="right">
+                      Action
+                    </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
 
-        </Box>
+                <TableBody>
+                  {filteredSections.length > 0 ? (
+                    filteredSections.map(
+                      (value, i) => (
+                        <TableRow
+                          key={value?._id || i}
+                          sx={{
+                            "&:last-child td, &:last-child th":
+                              {
+                                border: 0,
+                              },
+                          }}
+                        >
+                          {/* Section Name */}
+                          <TableCell
+                            component="th"
+                            scope="row"
+                          >
+                            {value?.section_name || "-"}
+                          </TableCell>
+
+                          {/* Section Code */}
+                          <TableCell align="right">
+                            {value?.section_code || "-"}
+                          </TableCell>
+
+                          {/* Action */}
+                          <TableCell align="right">
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent:
+                                  "flex-end",
+                                gap: 1.5,
+                              }}
+                            >
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  background: "red",
+                                  color: "#fff",
+                                  "&:hover": {
+                                    background:
+                                      "#cc0000",
+                                  },
+                                }}
+                                onClick={() =>
+                                  handleDelete(
+                                    value?._id,
+                                  )
+                                }
+                              >
+                                Delete
+                              </Button>
+
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  background: "gold",
+                                  color: "#222222",
+                                  "&:hover": {
+                                    background:
+                                      "#d4af00",
+                                  },
+                                }}
+                                onClick={() =>
+                                  handleEdit(
+                                    value?._id,
+                                  )
+                                }
+                              >
+                                Edit
+                              </Button>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ),
+                    )
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={3}
+                        align="center"
+                      >
+                        <Typography
+                          sx={{
+                            py: 3,
+                            color: "text.secondary",
+                          }}
+                        >
+                          {search
+                            ? "No Sections found matching your search."
+                            : "No Sections available."}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         )}
-
       </Box>
     </>
   );

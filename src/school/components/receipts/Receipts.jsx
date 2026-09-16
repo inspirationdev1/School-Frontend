@@ -928,7 +928,9 @@ export default function Receipts() {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                gap: 2,
                 marginBottom: "5px",
+                flexWrap: "wrap",
               }}
             >
               <TextField
@@ -940,7 +942,10 @@ export default function Receipts() {
                 sx={{
                   "& .MuiInputBase-root": {
                     height: 42,
-                    width: 500,
+                    width: {
+                      xs: "100%",
+                      sm: 500,
+                    },
                     fontSize: "14px",
                   },
                   "& .MuiInputLabel-root": {
@@ -948,6 +953,16 @@ export default function Receipts() {
                   },
                 }}
               />
+
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Receipts: {filteredStudentReceipt.length}
+              </Typography>
             </Box>
             {/* View List             */}
             <Box>

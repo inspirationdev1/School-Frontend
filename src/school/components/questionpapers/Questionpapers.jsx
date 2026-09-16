@@ -895,15 +895,14 @@ export default function Questionpapers() {
                 display: "flex",
                 gap: 2,
                 flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
+                alignItems: { xs: "stretch", sm: "center" },
                 mb: 2,
               }}
             >
               {/* Search */}
               <TextField
-                label="Search  .."
+                label="Search PaperName/Date/Subject/Teacher/Examination"
                 size="small"
-                // value={params.search || ""}
                 value={search}
                 onChange={handleSearch}
                 fullWidth
@@ -915,6 +914,17 @@ export default function Questionpapers() {
                   },
                 }}
               />
+
+              {/* Total Question Papers */}
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Question Papers: {filteredQuestionpapers.length}
+              </Typography>
             </Box>
             <Box>
               <Paper sx={{ padding: "20px", margin: "10px" }}>

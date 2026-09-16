@@ -1459,7 +1459,15 @@ export default function Enquiry() {
                 SEARCH
             ================================================== */}
 
-            <Box sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                flexWrap: "wrap",
+              }}
+            >
               <TextField
                 label="Search"
                 size="small"
@@ -1469,12 +1477,10 @@ export default function Enquiry() {
                 sx={{
                   "& .MuiInputBase-root": {
                     height: 42,
-
                     width: {
                       xs: "100%",
                       sm: 500,
                     },
-
                     fontSize: "14px",
                   },
 
@@ -1483,8 +1489,17 @@ export default function Enquiry() {
                   },
                 }}
               />
-            </Box>
 
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Enquiries: {studentenquiry.length}
+              </Typography>
+            </Box>
             {/* ==================================================
                 TABLE
             ================================================== */}

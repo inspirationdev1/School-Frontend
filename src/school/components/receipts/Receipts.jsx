@@ -554,7 +554,7 @@ export default function Receipts() {
                     variant="h4"
                     sx={{ fontWeight: "800", textAlign: "center" }}
                   >
-                    Add New receipt
+                    Add New Receipt
                   </Typography>
                 )}{" "}
                 <Box

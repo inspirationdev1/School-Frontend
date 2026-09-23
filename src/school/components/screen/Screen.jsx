@@ -152,7 +152,7 @@ export default function Screen() {
                 variant="h4"
                 sx={{ fontWeight: "800", textAlign: "center" }}
               >
-                Add New screens
+                Add New Screens
               </Typography>
             )}{" "}
             <Box

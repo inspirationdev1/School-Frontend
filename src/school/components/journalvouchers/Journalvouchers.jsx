@@ -852,7 +852,7 @@ export default function Journalvouchers() {
                   textAlign: "center",
                 }}
               >
-                {isEdit ? "Edit journalvoucher" : "Add New journalvoucher"}
+                {isEdit ? "Edit Journal Voucher" : "Add New Journal Voucher"}
               </Typography>
 
               <Box

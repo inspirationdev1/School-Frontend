@@ -60,12 +60,6 @@ export default function Enquiry() {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
 
-  const [boards, setBoards] = useState([]);
-  const [selectedBoard, setSelectedBoard] = useState(null);
-
-  const [previousschools, setPreviousschools] = useState([]);
-  const [selectedPreviousschool, setSelectedPreviousschool] = useState(null);
-
   const [tab, setTab] = useState(0);
   const [selectedYear, setSelectedYear] = useState(null);
 
@@ -91,7 +85,6 @@ export default function Enquiry() {
     child_name: "",
     child_dob: dayjs(),
     previousschool: null,
-    previousschool_name: "",
     board: null,
     remarks: "",
     isEdit: false,
@@ -160,8 +153,7 @@ export default function Enquiry() {
     Formik.resetForm();
 
     setSelectedClass(null);
-    setSelectedBoard(null);
-    setSelectedPreviousschool(null);
+
     setSelectedYear(null);
 
     setIsDataValid(true);
@@ -215,64 +207,12 @@ export default function Enquiry() {
   };
 
   // ============================================================
-  // FETCH BOARDS
-  // ============================================================
-
-  const fetchBoards = async () => {
-    try {
-      const params = {
-        generalmaster_type: "board",
-      };
-
-      const resp = await axios.get(
-        `${baseUrl}/generalmaster/fetch-with-query`,
-        {
-          params,
-        },
-      );
-
-      console.log("Boards:", resp.data);
-
-      setBoards(resp.data.data || []);
-    } catch (e) {
-      console.log("Error in fetching boards:", e);
-    }
-  };
-
-  // ============================================================
-  // FETCH PREVIOUS SCHOOLS
-  // ============================================================
-
-  const fetchpreviousschool = async () => {
-    try {
-      const params = {
-        generalmaster_type: "previousschool",
-      };
-
-      const resp = await axios.get(
-        `${baseUrl}/generalmaster/fetch-with-query`,
-        {
-          params,
-        },
-      );
-
-      console.log("Previous schools:", resp.data);
-
-      setPreviousschools(resp.data.data || []);
-    } catch (e) {
-      console.log("Error in fetching previous schools:", e);
-    }
-  };
-
-  // ============================================================
   // INITIAL DATA FETCH
   // ============================================================
 
   useEffect(() => {
     fetchstudentsenquiry();
     fetchClass();
-    fetchBoards();
-    fetchpreviousschool();
   }, []);
 
   // ============================================================
@@ -377,18 +317,12 @@ export default function Enquiry() {
 
         class: row.class && typeof row.class === "object" ? row.class : null,
 
-        board: row.board && typeof row.board === "object" ? row.board : null,
-
-        previousschool:
-          row.previousschool && typeof row.previousschool === "object"
-            ? row.previousschool
-            : null,
+        board: row.board || "",
+        previousschool: row.previousschool || "",
 
         child_name: row.child_name || "",
 
         child_dob: row.child_dob ? dayjs(row.child_dob) : null,
-
-        previousschool_name: row.previousschool_name || "",
 
         remarks: row.remarks || "",
 
@@ -553,26 +487,6 @@ export default function Enquiry() {
           hasInvalidRow = true;
           break;
         }
-
-        if (
-          item.board === undefined ||
-          item.board === null ||
-          item.board === ""
-        ) {
-          setDataError("Select Board");
-          hasInvalidRow = true;
-          break;
-        }
-
-        if (
-          item.previousschool === undefined ||
-          item.previousschool === null ||
-          item.previousschool === ""
-        ) {
-          setDataError("Select previous school");
-          hasInvalidRow = true;
-          break;
-        }
       }
 
       if (hasInvalidRow) {
@@ -617,11 +531,9 @@ export default function Enquiry() {
             ? dayjs(row.child_dob).format("YYYY-MM-DD")
             : null,
 
-          previousschool: row.previousschool?._id || null,
+          previousschool: row.previousschool || null,
 
-          previousschool_name: row.previousschool_name || "",
-
-          board: row.board?._id || null,
+          board: row.board || null,
 
           remarks: row.remarks || "",
 
@@ -1182,7 +1094,7 @@ export default function Enquiry() {
                   >
                     <Box
                       sx={{
-                        minWidth: "1100px",
+                        minWidth: "900px",
                       }}
                     >
                       {enquiryDetails.map((row, index) => (
@@ -1300,31 +1212,14 @@ export default function Enquiry() {
                               minWidth: 150,
                             }}
                           >
-                            <Autocomplete
-                              disabled={row.isEdit}
-                              options={boards}
-                              getOptionLabel={(option) =>
-                                option?.generalmaster_name || ""
+                            <TextField
+                              fullWidth
+                              label="Board"
+                              size="small"
+                              value={row.board || ""}
+                              onChange={(e) =>
+                                handleChange(index, "board", e.target.value)
                               }
-                              isOptionEqualToValue={(option, value) =>
-                                option._id === value?._id
-                              }
-                              value={row.board || null}
-                              onChange={(event, newValue) => {
-                                handleChange(index, "board", newValue);
-                              }}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Board"
-                                  size="small"
-                                  sx={{
-                                    "& .MuiInputBase-root": {
-                                      height: 40,
-                                    },
-                                  }}
-                                />
-                              )}
                             />
                           </Box>
 
@@ -1337,52 +1232,15 @@ export default function Enquiry() {
                               minWidth: 170,
                             }}
                           >
-                            <Autocomplete
-                              disabled={row.isEdit}
-                              options={previousschools}
-                              getOptionLabel={(option) =>
-                                option?.generalmaster_name || ""
-                              }
-                              isOptionEqualToValue={(option, value) =>
-                                option._id === value?._id
-                              }
-                              value={row.previousschool || null}
-                              onChange={(event, newValue) => {
-                                handleChange(index, "previousschool", newValue);
-                              }}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Previous School"
-                                  size="small"
-                                  sx={{
-                                    "& .MuiInputBase-root": {
-                                      height: 40,
-                                    },
-                                  }}
-                                />
-                              )}
-                            />
-                          </Box>
-
-                          {/* ========================================
-                                PREVIOUS SCHOOL NAME
-                            ======================================== */}
-
-                          <Box
-                            sx={{
-                              minWidth: 220,
-                            }}
-                          >
                             <TextField
                               fullWidth
-                              label="School Name"
+                              label="Previous School"
                               size="small"
-                              value={row.previousschool_name || ""}
+                              value={row.previousschool || ""}
                               onChange={(e) =>
                                 handleChange(
                                   index,
-                                  "previousschool_name",
+                                  "previousschool",
                                   e.target.value,
                                 )
                               }

@@ -479,7 +479,7 @@ export default function Questionpapers() {
                   mb: 3,
                 }}
               >
-                Assign Questionpaper
+                Assign Question Paper
               </Typography>
 
               <Box

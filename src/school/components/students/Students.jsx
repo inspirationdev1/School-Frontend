@@ -76,6 +76,9 @@ export default function Students() {
   const [selectedreligion, setSelectedreligion] = useState(null);
 
   const [languages, setLanguages] = useState([]);
+  const [mothertongues, setMothertongues] = useState([]);
+  const [firstlanguages, setFirstlanguages] = useState([]);
+
   const [selectedmothertongue, setSelectedmothertongue] = useState(null);
   const [selectedfirstlanguage, setSelectedfirstlanguage] = useState(null);
 
@@ -698,6 +701,36 @@ export default function Students() {
       });
   };
 
+  const fetchmothertongues = () => {
+    const params = {
+      generalmaster_type: "mothertongue",
+    };
+    axios
+      .get(`${baseUrl}/generalmaster/fetch-with-query`, { params: params })
+      .then((resp) => {
+        console.log("Fetching data in  generalmaster Calls  admin.", resp);
+        setMothertongues(resp.data.data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching generalmaster calls admin data", e);
+      });
+  };
+
+  const fetchfirstlanguages = () => {
+    const params = {
+      generalmaster_type: "firstlanguage",
+    };
+    axios
+      .get(`${baseUrl}/generalmaster/fetch-with-query`, { params: params })
+      .then((resp) => {
+        console.log("Fetching data in  generalmaster Calls  admin.", resp);
+        setFirstlanguages(resp.data.data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching generalmaster calls admin data", e);
+      });
+  };
+
   const fetchmodeoftransports = () => {
     const params = {
       generalmaster_type: "modeoftransport",
@@ -792,6 +825,8 @@ export default function Students() {
     fetchnationalities();
     fetchreligions();
     fetchlanguages();
+    fetchmothertongues();
+    fetchfirstlanguages();
     fetchmodeoftransports();
     fetchpreviouslyapplied();
     fetchAttachmenttypes();
@@ -1404,7 +1439,7 @@ export default function Students() {
                   {/* mothertongue */}
                   <Grid item xs={12} md={6}>
                     <Autocomplete
-                      options={languages}
+                      options={mothertongues}
                       getOptionLabel={(option) => option.generalmaster_name}
                       value={selectedmothertongue}
                       onChange={(e, newValue) => {
@@ -1468,7 +1503,7 @@ export default function Students() {
                   {/* firstlanguage */}
                   <Grid item xs={12} md={6}>
                     <Autocomplete
-                      options={languages}
+                      options={firstlanguages}
                       getOptionLabel={(option) => option.generalmaster_name}
                       value={selectedfirstlanguage}
                       onChange={(e, newValue) => {

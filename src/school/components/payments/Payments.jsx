@@ -769,7 +769,7 @@ export default function Payments() {
                   textAlign: "center",
                 }}
               >
-                {isEdit ? "Edit payment" : "Add New payment"}
+                {isEdit ? "Edit Payment" : "Add New Payment"}
               </Typography>
 
               <Box

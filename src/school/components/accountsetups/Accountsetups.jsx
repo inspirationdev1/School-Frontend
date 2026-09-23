@@ -377,7 +377,7 @@ export default function Accountsetups() {
                   variant="h4"
                   sx={{ fontWeight: "800", textAlign: "center" }}
                 >
-                  Add New accountsetup
+                  Add New Account Setup
                 </Typography>
               )}{" "}
               <Box

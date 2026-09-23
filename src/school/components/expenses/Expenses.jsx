@@ -822,7 +822,7 @@ export default function Expenses() {
                   textAlign: "center",
                 }}
               >
-                {isEdit ? "Edit expense" : "Add New expense"}
+                {isEdit ? "Edit Expense" : "Add New Expense"}
               </Typography>
 
               <Box

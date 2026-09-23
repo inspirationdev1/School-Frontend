@@ -628,7 +628,7 @@ export default function Marksheet() {
                     variant="h4"
                     sx={{ fontWeight: "800", textAlign: "center" }}
                   >
-                    Add New marksheet
+                    Add New Mark Sheet
                   </Typography>
                 )}{" "}
                 <Box

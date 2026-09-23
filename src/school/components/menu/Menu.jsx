@@ -165,7 +165,7 @@ export default function Menu() {
                 variant="h4"
                 sx={{ fontWeight: "800", textAlign: "center" }}
               >
-                Add New menu
+                Add New Menu
               </Typography>
             )}{" "}
             <Box

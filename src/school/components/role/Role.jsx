@@ -152,7 +152,7 @@ export default function Role() {
                 variant="h4"
                 sx={{ fontWeight: "800", textAlign: "center" }}
               >
-                Add New role
+                Add New Role
               </Typography>
             )}{" "}
             <Box

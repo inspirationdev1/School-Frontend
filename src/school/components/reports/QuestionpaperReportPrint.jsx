@@ -213,14 +213,26 @@ export default function QuestionpaperReportPrint() {
   ]);
 
   const openPDF = async () => {
+    const pdfWindow = window.open("", "_blank");
+
+    if (!pdfWindow) {
+      alert("Please allow pop-ups for this website.");
+      return;
+    }
+
     try {
       const blob = await pdf(<PrintPDF />).toBlob();
 
       const blobUrl = URL.createObjectURL(blob);
 
-      window.location.href = blobUrl;
+      pdfWindow.location.href = blobUrl;
+
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 60000);
     } catch (error) {
-      console.error("Error opening PDF:", error);
+      pdfWindow.close();
+      console.error(error);
     }
   };
 

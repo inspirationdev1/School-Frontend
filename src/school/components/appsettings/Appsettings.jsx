@@ -38,6 +38,9 @@ export default function Appsettings() {
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null); // Independent state for image preview
 
+  const [fileupi, setFileupi] = useState(null);
+  const [imageUrlupi, setImageUrlupi] = useState(null); // Independent state for image preview
+
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
       axios
@@ -99,12 +102,26 @@ export default function Appsettings() {
     onSubmit: (values) => {
       if (isEdit) {
         const fd = new FormData();
-        // Object.keys(values).forEach((key) => fd.append(key, values[key]));
+        // Object.keys(values).forEach((key) => {
+        //   fd.append(key, values[key]);
+        // });
+        // if (file) {
+        //   fd.append("image", file, file.name);
+        // }
+        // if (fileupi) {
+        //   fd.append("image", fileupi, fileupi.name,);
+        // }
+
         Object.keys(values).forEach((key) => {
           fd.append(key, values[key]);
         });
+
         if (file) {
-          fd.append("image", file, file.name);
+          fd.append("toolbar_image", file, file.name);
+        }
+
+        if (fileupi) {
+          fd.append("upi_image", fileupi, fileupi.name);
         }
 
         axios
@@ -113,6 +130,7 @@ export default function Appsettings() {
             setMessage(resp.data.message);
             setType("success");
             handleClearFile();
+            handleClearFile_upi();
             cancelEdit();
             setTab(1); // go to View List
           })
@@ -170,6 +188,7 @@ export default function Appsettings() {
   };
   //   CLEARING IMAGE FILE REFENCE FROM INPUT
   const fileInputRef = useRef(null);
+  const fileInputRefupi = useRef(null);
   const handleClearFile = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""; // Clear the file input
@@ -177,12 +196,30 @@ export default function Appsettings() {
     setFile(null); // Reset the file state
     setImageUrl(null); // Clear the image preview
   };
+
+  const handleClearFile_upi = () => {
+    if (fileInputRefupi.current) {
+      fileInputRefupi.current.value = ""; // Clear the file input
+    }
+    setFileupi(null); // Reset the file state
+    setImageUrlupi(null); // Clear the image preview
+  };
+
   // Handle image file selection
   const addImage = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
       setImageUrl(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  // Handle upi image file selection
+  const addImage_upi = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFileupi(selectedFile);
+      setImageUrlupi(URL.createObjectURL(selectedFile));
     }
   };
   useEffect(() => {
@@ -312,16 +349,28 @@ export default function Appsettings() {
                     fullWidth
                     size="small"
                     label="Toolbar Image"
-                    // onChange={(e) =>
-                    //   handleChange(
-                    //     index,
-                    //     "attachment_file",
-                    //     e.target.files[0] // ✅ use file object
-                    //   )
-
-                    // }
                     onChange={addImage}
                     inputRef={fileInputRef}
+                    InputProps={{
+                      startAdornment: (
+                        <AttachFileIcon
+                          sx={{ mr: 1, color: "text.secondary" }}
+                        />
+                      ),
+                    }}
+                  />
+                </Box>
+
+                {/* Attachment upi_image / URL */}
+                <Box>
+                  <TextField
+                    type="file"
+                    name="upi_file"
+                    fullWidth
+                    size="small"
+                    label="UPI Image"
+                    onChange={addImage_upi}
+                    inputRef={fileInputRefupi}
                     InputProps={{
                       startAdornment: (
                         <AttachFileIcon

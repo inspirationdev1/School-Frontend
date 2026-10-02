@@ -725,29 +725,28 @@ export default function Teachers() {
                   </Grid>
 
                   {/* PASSWORD */}
-                  {!isEdit && (
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label="Password"
-                        type="password"
-                        name="password"
-                        value={Formik.values.password}
-                        onChange={Formik.handleChange}
-                      />
 
-                      {Formik.touched.password && Formik.errors.password && (
-                        <p
-                          style={{
-                            color: "red",
-                            textTransform: "capitalize",
-                          }}
-                        >
-                          {Formik.errors.password}
-                        </p>
-                      )}
-                    </Grid>
-                  )}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      type="password"
+                      name="password"
+                      value={Formik.values.password}
+                      onChange={Formik.handleChange}
+                    />
+
+                    {Formik.touched.password && Formik.errors.password && (
+                      <p
+                        style={{
+                          color: "red",
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {Formik.errors.password}
+                      </p>
+                    )}
+                  </Grid>
 
                   {/* BUTTONS */}
                   <Grid item xs={12}>

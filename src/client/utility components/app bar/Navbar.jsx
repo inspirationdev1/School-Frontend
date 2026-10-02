@@ -53,6 +53,10 @@ function Navbar() {
     setAnchorElNav(null);
   };
 
+  React.useEffect(() => {
+    setAnchorElNav(null);
+  }, [location.pathname, authenticated]);
+
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
@@ -101,14 +105,16 @@ function Navbar() {
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
+              aria-label="open navigation menu"
+              aria-controls={anchorElNav ? "menu-appbar" : undefined}
               aria-haspopup="true"
+              aria-expanded={Boolean(anchorElNav)}
               onClick={handleOpenNavMenu}
               color="inherit"
             >
               <MenuIcon />
             </IconButton>
+
             <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
@@ -116,17 +122,58 @@ function Navbar() {
                 vertical: "bottom",
                 horizontal: "left",
               }}
-              keepMounted
               transformOrigin={{
                 vertical: "top",
                 horizontal: "left",
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{ display: { xs: "block", md: "none" } }}
+              keepMounted
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
             >
+              {/* ========================= */}
+              {/* NOT AUTHENTICATED */}
+              {/* ========================= */}
+
+              {!authenticated && (
+                <MenuItem onClick={handleCloseNavMenu} sx={{ p: 0 }}>
+                  <Link
+                    to="/login/school"
+                    className="nav-list"
+                    style={{
+                      textDecoration: "none",
+                      width: "100%",
+                    }}
+                  >
+                    <Button
+                      className="button-beautify button-beautify-one"
+                      sx={{
+                        my: 1,
+                        color: "white",
+                        width: "100%",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                        className="button-box"
+                      >
+                        <LoginIcon sx={{ marginRight: "5px" }} />
+                        Login
+                      </Box>
+                    </Button>
+                  </Link>
+                </MenuItem>
+              )}
+
               {!authenticated && isLoginWithAdmin && (
-                <MenuItem onClick={handleCloseNavMenu}>
+                <MenuItem onClick={handleCloseNavMenu} sx={{ p: 0 }}>
                   <Link
                     to="/register"
                     className="nav-list"
@@ -147,6 +194,7 @@ function Navbar() {
                         sx={{
                           display: "flex",
                           justifyContent: "center",
+                          alignItems: "center",
                           width: "100%",
                         }}
                         className="button-box"
@@ -158,10 +206,14 @@ function Navbar() {
                 </MenuItem>
               )}
 
-              {!authenticated && (
-                <MenuItem onClick={handleCloseNavMenu}>
+              {/* ========================= */}
+              {/* AUTHENTICATED */}
+              {/* ========================= */}
+
+              {authenticated && (
+                <MenuItem onClick={handleCloseNavMenu} sx={{ p: 0 }}>
                   <Link
-                    to="/login/school"
+                    to={`/${user?.role?.toLowerCase()}`}
                     className="nav-list"
                     style={{
                       textDecoration: "none",
@@ -179,15 +231,47 @@ function Navbar() {
                       <Box
                         sx={{
                           display: "flex",
-                          flexDirection: "row",
                           justifyContent: "center",
                           alignItems: "center",
                           width: "100%",
                         }}
                         className="button-box"
                       >
-                        <LoginIcon sx={{ marginRight: "5px" }} />
-                        Login
+                        Dashboard
+                      </Box>
+                    </Button>
+                  </Link>
+                </MenuItem>
+              )}
+
+              {authenticated && (
+                <MenuItem onClick={handleCloseNavMenu} sx={{ p: 0 }}>
+                  <Link
+                    to="/logout"
+                    className="nav-list"
+                    style={{
+                      textDecoration: "none",
+                      width: "100%",
+                    }}
+                  >
+                    <Button
+                      className="button-beautify button-beautify-danger"
+                      sx={{
+                        my: 1,
+                        color: "white",
+                        width: "100%",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                        className="button-box"
+                      >
+                        Log Out
                       </Box>
                     </Button>
                   </Link>
@@ -279,7 +363,7 @@ function Navbar() {
             )}
 
             {authenticated && (
-              <Link className="nav-list" to={`${user.role.toLowerCase()}`}>
+              <Link className="nav-list" to={`/${user?.role?.toLowerCase()}`}>
                 <Button
                   className="button-beautify button-beautify-one"
                   onClick={handleCloseNavMenu}

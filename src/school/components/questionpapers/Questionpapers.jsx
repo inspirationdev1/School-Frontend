@@ -154,15 +154,18 @@ export default function Questionpapers() {
           "description",
           resp.data.data.description,
         );
+
         // questionpaperFormik.setFieldValue(
         //   "date",
-        //   dayjs(resp.data.data.questionpaperDate),
+        //   resp.data.data.date
+        //     ? dayjs(resp.data.data.date).format("YYYY-MM-DD")
+        //     : "",
         // );
+        const rawDate = resp.data.data.date;
+
         questionpaperFormik.setFieldValue(
           "date",
-          resp.data.data.date
-            ? dayjs(resp.data.data.date).format("YYYY-MM-DD")
-            : "",
+          rawDate ? dayjs(rawDate).format("YYYY-MM-DD") : "",
         );
         questionpaperFormik.setFieldValue("class", resp.data.data?.class._id);
         questionpaperFormik.setFieldValue(
@@ -257,7 +260,8 @@ export default function Questionpapers() {
     initialValues: {
       name: "",
       description: "",
-      date: dayjs(),
+      // date: dayjs(),
+      date: dayjs().format("YYYY-MM-DD"),
       class: "",
       section: "",
       subject: "",
@@ -352,7 +356,7 @@ export default function Questionpapers() {
 
   useEffect(() => {
     fetchAllQuestionpapers();
-  }, []);
+  }, [message]);
 
   const fetchClasses = () => {
     axios

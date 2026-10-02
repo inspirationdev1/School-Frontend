@@ -23,11 +23,7 @@ import CustomizedSnackbars from "../../../basic utility components/CustomizedSna
 import { schoolreportsSchema } from "../../../yupSchema/schoolreportsSchema";
 
 export default function TeacherSchedule() {
-
-
-
   const [loading, setLoading] = useState(true);
-
 
   const [reportNames, setReportNames] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -35,19 +31,19 @@ export default function TeacherSchedule() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
-  const [sections, setSection] = useState([])
+  const [sections, setSection] = useState([]);
   const [selectedSection, setSelectedSection] = useState(null);
-  const [teachers, setTeacher] = useState([])
+  const [teachers, setTeacher] = useState([]);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
-  const [subjects, setSubject] = useState([])
+  const [subjects, setSubject] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
-  const [examinations, setExamination] = useState([])
+  const [examinations, setExamination] = useState([]);
   const [selectedExamination, setSelectedExamination] = useState(null);
-  const [questionpapers, setQuestionpaper] = useState([])
+  const [questionpapers, setQuestionpaper] = useState([]);
   const [selectedQuestionpaper, setSelectedQuestionpaper] = useState(null);
   const [isPrint, setPrint] = useState(false);
   const [isDataValid, setIsDataValid] = useState(true);
-  const [dataError, setDataError] = useState('');
+  const [dataError, setDataError] = useState("");
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -62,13 +58,11 @@ export default function TeacherSchedule() {
 
   const cancelEdit = () => {
     setEdit(false);
-    Formik.resetForm()
+    Formik.resetForm();
   };
 
   const handlePrint = async () => {
-
     setPrint(true);
-
 
     // const data = {
     //   year: 2025,
@@ -78,27 +72,20 @@ export default function TeacherSchedule() {
       fromDate: fromDate,
       toDate: toDate,
       class: selectedClass,
-      section: selectedSection
+      section: selectedSection,
     };
 
     if (selectedTeacher) {
       data.teacher = selectedTeacher;
     }
 
-
-
-
     window.open(
       `/teacher/TeacherScheduleReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-      "_blank"
+      "_blank",
     );
 
-
     setPrint(false);
-
-
   };
-
 
   //   MESSAGE
   const [message, setMessage] = useState("");
@@ -110,9 +97,9 @@ export default function TeacherSchedule() {
 
   const initialValues = {
     reportId: "",
-    year: "",   // 👈 add this
-    fromDate: "",   // 👈 add
-    toDate: "",     // 👈 add
+    year: "", // 👈 add this
+    fromDate: "", // 👈 add
+    toDate: "", // 👈 add
     class: "",
     section: "",
     teacher: "",
@@ -125,74 +112,63 @@ export default function TeacherSchedule() {
     initialValues: initialValues,
     // validationSchema: schoolreportsSchema,
     onSubmit: (values) => {
-
-
       if (!values.fromDate || !values.toDate) {
-        setDataError('Select From Date and To Date');
+        setDataError("Select From Date and To Date");
         setIsDataValid(false);
         return;
       }
 
       if (dayjs(values.fromDate).isAfter(dayjs(values.toDate))) {
-        setDataError('From Date cannot be after To Date');
+        setDataError("From Date cannot be after To Date");
         setIsDataValid(false);
         return;
       }
 
-      if (!values.class) {
-        setDataError('Select the Class');
-        setIsDataValid(false);
-        return;
-      }
+      // if (!values.class) {
+      //   setDataError('Select the Class');
+      //   setIsDataValid(false);
+      //   return;
+      // }
 
-      if (!values.section) {
-        setDataError('Select the Section');
-        setIsDataValid(false);
-        return;
-      }
+      // if (!values.section) {
+      //   setDataError('Select the Section');
+      //   setIsDataValid(false);
+      //   return;
+      // }
 
       if (!values.teacher) {
-        setDataError('Select the Teacher');
+        setDataError("Select the Teacher");
         setIsDataValid(false);
         return;
       }
 
       setIsDataValid(true);
 
-
-
       handlePrint();
     },
   });
 
-
-
-
-
   const fetchClass = async () => {
     try {
       const classData = await axios.get(`${baseUrl}/class/fetch-all`);
-      console.log("class", classData)
+      console.log("class", classData);
       setClasses(classData.data.data);
-
     } catch (error) {
-      console.error('Error fetching classes:', error);
+      console.error("Error fetching classes:", error);
     }
   };
   const fetchSection = async () => {
     try {
       const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
-      console.log("sections", sectionsData)
+      console.log("sections", sectionsData);
       setSection(sectionsData.data.data);
-
     } catch (error) {
-      console.error('Error fetching section:', error);
+      console.error("Error fetching section:", error);
     }
   };
 
   const fetchTeacher = async () => {
     const params = {};
-
 
     // axios
     //   .get(`${baseUrl}/teacher/fetch-own`, { params: params })
@@ -204,45 +180,36 @@ export default function TeacherSchedule() {
     //     console.log("Error in fetching teacher calls admin data", e);
     //   });
 
-    axios.get(`${baseUrl}/teacher/fetch-own`).then(resp => {
-
-      const teacherData = resp.data.data;
-      let teacherArray = [];
-      teacherArray.push(teacherData);
-      console.log(teacherArray);
-      setTeacher(teacherArray);
-      console.log("Single Teacher Details from Teacher Details page", resp)
-    }).catch(e => {
-      console.log("Error in teacher", e);
-    })
+    axios
+      .get(`${baseUrl}/teacher/fetch-own`)
+      .then((resp) => {
+        const teacherData = resp.data.data;
+        let teacherArray = [];
+        teacherArray.push(teacherData);
+        console.log(teacherArray);
+        setTeacher(teacherArray);
+        console.log("Single Teacher Details from Teacher Details page", resp);
+      })
+      .catch((e) => {
+        console.log("Error in teacher", e);
+      });
   };
 
   const fetchSubject = async () => {
     try {
       const subjects = await axios.get(`${baseUrl}/subject/fetch-all`);
-      console.log("subjects", subjects)
+      console.log("subjects", subjects);
       setSubject(subjects.data.data);
-
     } catch (error) {
-      console.error('Error fetching teachers:', error);
+      console.error("Error fetching teachers:", error);
     }
   };
-
-
-
 
   useEffect(() => {
     fetchClass();
     fetchSection();
     fetchTeacher();
-
-
   }, [message]);
-
-
-
-
-
 
   return (
     <>
@@ -254,14 +221,9 @@ export default function TeacherSchedule() {
         />
       )}
 
-
       <Box>
-
-
         <Box component={"div"} sx={{}}>
-          <Paper
-            sx={{ padding: '20px', margin: "10px" }}
-          >
+          <Paper sx={{ padding: "20px", margin: "10px" }}>
             <Typography
               variant="h4"
               sx={{ fontWeight: "800", textAlign: "center" }}
@@ -274,7 +236,6 @@ export default function TeacherSchedule() {
               autoComplete="off"
               onSubmit={Formik.handleSubmit}
             >
-
               {!isDataValid && (
                 <Alert severity="error" sx={{ mt: 2 }}>
                   {dataError}
@@ -285,14 +246,13 @@ export default function TeacherSchedule() {
                 sx={{
                   display: "grid",
                   gridTemplateColumns: {
-                    xs: "1fr",      // mobile
-                    md: "1fr 1fr",  // desktop → 2 columns
+                    xs: "1fr", // mobile
+                    md: "1fr 1fr", // desktop → 2 columns
                   },
                   gap: 2,
                   mt: 2,
                 }}
               >
-
                 {/* From Date */}
 
                 <Box>
@@ -306,11 +266,14 @@ export default function TeacherSchedule() {
                       Formik.setFieldValue("fromDate", e.target.value);
                       setFromDate(e.target.value);
                     }}
-                    error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
-                    helperText={Formik.touched.fromDate && Formik.errors.fromDate}
+                    error={
+                      Formik.touched.fromDate && Boolean(Formik.errors.fromDate)
+                    }
+                    helperText={
+                      Formik.touched.fromDate && Formik.errors.fromDate
+                    }
                   />
                 </Box>
-
 
                 {/* To Date */}
 
@@ -325,17 +288,16 @@ export default function TeacherSchedule() {
                       Formik.setFieldValue("toDate", e.target.value);
                       setToDate(e.target.value);
                     }}
-                    error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
+                    error={
+                      Formik.touched.toDate && Boolean(Formik.errors.toDate)
+                    }
                     helperText={Formik.touched.toDate && Formik.errors.toDate}
                   />
                 </Box>
 
-
-
                 {/* Class */}
 
                 <Box>
-
                   <Autocomplete
                     options={classes}
                     getOptionLabel={(option) => option.class_name}
@@ -345,22 +307,14 @@ export default function TeacherSchedule() {
 
                       Formik.setFieldValue(
                         "class",
-                        newValue ? newValue._id : ""
+                        newValue ? newValue._id : "",
                       );
 
                       setSelectedExamination(null);
                       setSelectedQuestionpaper(null);
 
-                      Formik.setFieldValue(
-                        "examination",
-                        ""
-                      );
-                      Formik.setFieldValue(
-                        "questionpaper",
-                        ""
-                      );
-
-
+                      Formik.setFieldValue("examination", "");
+                      Formik.setFieldValue("questionpaper", "");
                     }}
                     onBlur={() => Formik.setFieldTouched("class", true)}
                     renderInput={(params) => (
@@ -369,15 +323,14 @@ export default function TeacherSchedule() {
                         label="Select Class"
                         placeholder="Search class..."
                         fullWidth
-                        error={Formik.touched.class && Boolean(Formik.errors.class)}
+                        error={
+                          Formik.touched.class && Boolean(Formik.errors.class)
+                        }
                         helperText={Formik.touched.class && Formik.errors.class}
                       />
                     )}
                   />
-
-
                 </Box>
-
 
                 {/* Section */}
 
@@ -390,7 +343,7 @@ export default function TeacherSchedule() {
                       setSelectedSection(newValue);
                       Formik.setFieldValue(
                         "section",
-                        newValue ? newValue._id : ""
+                        newValue ? newValue._id : "",
                       );
                     }}
                     onBlur={() => Formik.setFieldTouched("section", true)}
@@ -400,15 +353,17 @@ export default function TeacherSchedule() {
                         label="Select Section"
                         placeholder="Search section..."
                         fullWidth
-                        error={Formik.touched.section && Boolean(Formik.errors.section)}
-                        helperText={Formik.touched.section && Formik.errors.section}
+                        error={
+                          Formik.touched.section &&
+                          Boolean(Formik.errors.section)
+                        }
+                        helperText={
+                          Formik.touched.section && Formik.errors.section
+                        }
                       />
                     )}
                   />
-
-
                 </Box>
-
 
                 {/* Teacher */}
 
@@ -422,7 +377,7 @@ export default function TeacherSchedule() {
 
                       Formik.setFieldValue(
                         "teacher",
-                        newValue ? newValue._id : ""
+                        newValue ? newValue._id : "",
                       );
                     }}
                     onBlur={() => Formik.setFieldTouched("teacher", true)}
@@ -432,17 +387,18 @@ export default function TeacherSchedule() {
                         label="Select Teacher"
                         placeholder="Search teacher..."
                         fullWidth
-                        error={Formik.touched.teacher && Boolean(Formik.errors.teacher)}
-                        helperText={Formik.touched.teacher && Formik.errors.teacher}
+                        error={
+                          Formik.touched.teacher &&
+                          Boolean(Formik.errors.teacher)
+                        }
+                        helperText={
+                          Formik.touched.teacher && Formik.errors.teacher
+                        }
                       />
                     )}
                   />
-
                 </Box>
-
               </Box>
-
-
 
               <Box sx={{ marginTop: "10px" }} component={"div"}>
                 <Button
@@ -465,10 +421,6 @@ export default function TeacherSchedule() {
             </Box>
           </Paper>
         </Box>
-
-
-
-
       </Box>
     </>
   );

@@ -1,5 +1,5 @@
 // import * as React from "react";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { baseUrl } from "../environment";
 import {
@@ -37,7 +37,7 @@ const drawerWidth = 240;
 export default function Teacher() {
   const { user } = React.useContext(AuthContext);
   const [appsettings, setAppsettings] = useState([]);
-  const [selectedAppsetting, setSelectedAppsetting] = useState(null)
+  const [selectedAppsetting, setSelectedAppsetting] = useState(null);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -50,10 +50,19 @@ export default function Teacher() {
   const navArr = [
     { link: "/", label: "Home", icon: HomeIcon },
     { link: "/teacher/details", label: "Details", icon: TheatersIcon },
+
+    {
+      link: "/teacher/attendance",
+      label: "Attendance",
+      icon: RecentActorsIcon,
+    },
     { link: "/teacher/periods", label: "Periods", icon: CalendarMonthIcon },
-    { link: "/teacher/attendance", label: "Attendance", icon: RecentActorsIcon },
+    {
+      link: "/teacher/questionpapers",
+      label: "Questionpapers",
+      icon: RecentActorsIcon,
+    },
     { link: "/teacher/marksheet", label: "Marksheets", icon: RecentActorsIcon },
-    { link: "/teacher/questionpapers", label: "Questionpapers", icon: RecentActorsIcon },
     { link: "/teacher/teacherreports", label: "Reports", icon: ExplicitIcon },
     { link: "/teacher/notice", label: "Notice", icon: CircleNotificationsIcon },
     { link: "/logout", label: "Logout", icon: LogoutIcon },
@@ -70,7 +79,6 @@ export default function Teacher() {
 
   useEffect(() => {
     fetchAppsettings();
-
   }, []);
 
   const fetchAppsettings = () => {
@@ -82,7 +90,6 @@ export default function Teacher() {
         const id = resp.data.data[0]._id;
         setSelectedAppsetting(resp.data.data[0]);
         console.log("selectedAppseting", selectedAppsetting);
-
       })
       .catch((e) => {
         console.log("Error in fetching casting calls admin data", e);
@@ -105,7 +112,9 @@ export default function Teacher() {
               <ListItemButton
                 onClick={() => handleNavigation(item.link)}
                 sx={{
-                  backgroundColor: isActive ? "rgba(0,0,0,0.08)" : "transparent",
+                  backgroundColor: isActive
+                    ? "rgba(0,0,0,0.08)"
+                    : "transparent",
                   "&:hover": {
                     backgroundColor: "rgba(0,0,0,0.12)",
                   },
@@ -130,13 +139,10 @@ export default function Teacher() {
       {/* ✅ AppBar */}
       <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
         <Toolbar sx={{ position: "relative" }}>
-
           {/* LEFT */}
           <IconButton color="inherit" onClick={() => setOpen(!open)}>
             <MenuIcon />
           </IconButton>
-
-
 
           {/* CENTER LOGO + TITLE */}
           <Box
@@ -173,8 +179,6 @@ export default function Teacher() {
                 objectFit: "contain",
               }}
             />
-
-
           </Box>
 
           {/* RIGHT */}

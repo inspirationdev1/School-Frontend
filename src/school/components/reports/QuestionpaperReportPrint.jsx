@@ -130,25 +130,27 @@ export default function QuestionpaperReportPrint() {
 
   const [isDataFound, setIsDataFound] = useState(false);
 
-  const id = "69b1de716debb1c7d5a431ed";
-    useEffect(() => {
-      const params = new URLSearchParams(window.location.search);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+  const [logo, setLogo] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
 
-      const dataParam = params.get("data");
+    const dataParam = params.get("data");
 
-      if (dataParam) {
-        const data = JSON.parse(decodeURIComponent(dataParam));
-        console.log("fromDate", data.fromDate);
-        setFromDate(data.fromDate);
-        console.log("toDate", data.toDate);
-        setToDate(data.toDate);
+    if (dataParam) {
+      const data = JSON.parse(decodeURIComponent(dataParam));
+      console.log("fromDate", data.fromDate);
+      setFromDate(data.fromDate);
+      console.log("toDate", data.toDate);
+      setToDate(data.toDate);
 
-        setSelectedClass(data?.class);
-        setSelectedSection(data?.section);
-        setSelectedTeacher(data?.teacher);
-        setSelectedSubject(data?.subject);
-      }
-    }, []);
+      setSelectedClass(data?.class);
+      setSelectedSection(data?.section);
+      setSelectedTeacher(data?.teacher);
+      setSelectedSubject(data?.subject);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchReportData = async () => {
@@ -216,15 +218,47 @@ export default function QuestionpaperReportPrint() {
 
       const blobUrl = URL.createObjectURL(blob);
 
-      window.open(blobUrl, "_blank");
-
-      setTimeout(() => {
-        URL.revokeObjectURL(blobUrl);
-      }, 60000);
+      window.location.href = blobUrl;
     } catch (error) {
       console.error("Error opening PDF:", error);
     }
   };
+
+  useEffect(() => {
+    const generatePDF = async () => {
+      if (!isDataFound) return;
+      if (!printData.length) return;
+
+      // Wait until logo is loaded if school has a logo
+      if (reportHeader?.school_image && !logo) {
+        return;
+      }
+
+      try {
+        setPdfGenerating(true);
+
+        const blob = await pdf(<PrintPDF />).toBlob();
+
+        const url = URL.createObjectURL(blob);
+
+        setPdfUrl((oldUrl) => {
+          if (oldUrl) {
+            URL.revokeObjectURL(oldUrl);
+          }
+
+          return url;
+        });
+      } catch (error) {
+        console.error("PDF generation error:", error);
+      } finally {
+        setPdfGenerating(false);
+      }
+    };
+
+    generatePDF();
+
+    return () => {};
+  }, [printData, reportHeader, logo, isDataFound]);
 
   const PrintPDF = () => (
     <Document>
@@ -288,8 +322,6 @@ export default function QuestionpaperReportPrint() {
     </Document>
   );
 
-  const [logo, setLogo] = useState("");
-
   useEffect(() => {
     if (reportHeader?.school_image) {
       getBase64Image(`${reportHeader.school_image}`).then(setLogo);
@@ -339,30 +371,7 @@ export default function QuestionpaperReportPrint() {
   }
   return (
     <div className="max-w-2xl mx-auto my-10">
-      <div className="w-full">
-        {printData.length > 0 ? (
-          <div className="flex justify-center py-10">
-            <button
-              onClick={openPDF}
-              className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold"
-            >
-              Open PDF
-            </button>
-          </div>
-        ) : (
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: "800",
-              textAlign: "center",
-            }}
-          >
-            No Data Found
-          </Typography>
-        )}
-      </div>
-
-      {isDataFound && (
+      {isDataFound === true ? (
         <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
           <button
             onClick={openPDF}
@@ -392,6 +401,16 @@ export default function QuestionpaperReportPrint() {
             Download Excel
           </button>
         </div>
+      ) : (
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: "800",
+            textAlign: "center",
+          }}
+        >
+          No Data Found
+        </Typography>
       )}
     </div>
   );

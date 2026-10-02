@@ -1,422 +1,398 @@
-
 import {
-    Page,
-    Text,
-    View,
-    Document,
-    PDFViewer,
-    PDFDownloadLink,
-    Image,
-    StyleSheet,
+  Page,
+  Text,
+  View,
+  Document,
+  // PDFViewer,
+  pdf,
+  PDFDownloadLink,
+  Image,
+  StyleSheet,
 } from "@react-pdf/renderer";
 // import { styles } from "./style";
 import { Table, TD, TH, TR } from "@ag-media/react-pdf-table";
 // import { tableData, totalData } from "./data";
 import { useSearchParams } from "react-router-dom";
-import { Typography } from '@mui/material';
-import axios from 'axios';
-import moment from 'moment';
-import { baseUrl, frontendUrl, formatAmount } from '../../../environment';
-import { useState, useEffect } from 'react';
+import { Typography } from "@mui/material";
+import axios from "axios";
+import moment from "moment";
+import { baseUrl, frontendUrl, formatAmount } from "../../../environment";
+import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 
 const styles = StyleSheet.create({
-    page: {
-        padding: 20,
-        fontSize: 10
-    },
+  page: {
+    padding: 20,
+    fontSize: 10,
+  },
 
-    // 🔷 Header
-    headerContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 10
-    },
+  // 🔷 Header
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
 
-    logo: {
-        width: 50,
-        height: 50,
-        marginRight: 10
-    },
+  logo: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+  },
 
-    schoolInfo: {
-        flex: 1,
-        textAlign: "center"
-    },
+  schoolInfo: {
+    flex: 1,
+    textAlign: "center",
+  },
 
-    schoolName: {
-        fontSize: 14,
-        fontWeight: "bold"
-    },
+  schoolName: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
 
-    schoolText: {
-        fontSize: 10
-    },
+  schoolText: {
+    fontSize: 10,
+  },
 
-    reportTitle: {
-        textAlign: "center",
-        fontSize: 14,
-        marginVertical: 10,
-        fontWeight: "bold"
-    },
+  reportTitle: {
+    textAlign: "center",
+    fontSize: 14,
+    marginVertical: 10,
+    fontWeight: "bold",
+  },
 
-    // 🔷 Table
-    table: {
-        width: "100%",
-        borderWidth: 1,
-        borderColor: "#000"
-    },
+  // 🔷 Table
+  table: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#000",
+  },
 
-    tableRow: {
-        flexDirection: "row"
-    },
+  tableRow: {
+    flexDirection: "row",
+  },
 
-    tableHeaderCell: {
-        borderRightWidth: 1,
-        borderBottomWidth: 1,
-        padding: 6,
-        fontWeight: "bold",
-        textAlign: "center",
-        backgroundColor: "#f2f2f2"
-    },
+  tableHeaderCell: {
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    padding: 6,
+    fontWeight: "bold",
+    textAlign: "center",
+    backgroundColor: "#f2f2f2",
+  },
 
-    tableCell: {
-        borderRightWidth: 1,
-        borderBottomWidth: 1,
-        padding: 6
-    },
+  tableCell: {
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    padding: 6,
+  },
 
-    // ✅ FIXED COLUMN WIDTHS
-    col1: {
-        width: "40%"
-    },
-    col2: {
-        width: "35%"
-    },
-    col3: {
-        width: "25%",
-        textAlign: "right"
-    },
+  // ✅ FIXED COLUMN WIDTHS
+  col1: {
+    width: "40%",
+  },
+  col2: {
+    width: "35%",
+  },
+  col3: {
+    width: "25%",
+    textAlign: "right",
+  },
 
+  // 🔷 Total Row
+  totalRow: {
+    flexDirection: "row",
+    backgroundColor: "#eee",
+  },
 
-
-    // 🔷 Total Row
-    totalRow: {
-        flexDirection: "row",
-        backgroundColor: "#eee"
-    },
-
-    boldText: {
-        fontWeight: "bold"
-    }
+  boldText: {
+    fontWeight: "bold",
+  },
 });
 
-
 export default function QuestionpaperReportPrint() {
-    const [loading, setLoading] = useState(true);
-    const [printData, setPrintData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [printData, setPrintData] = useState([]);
 
+  const [reportHeader, setReportHeader] = useState({});
+  const [rows, setRows] = useState([]);
+  const [date, setDate] = useState(new dayjs(Date()).format("YYYY-MM-DD"));
 
-    const [reportHeader, setReportHeader] = useState({});
-    const [rows, setRows] = useState([]);
-    const [date, setDate] = useState(new dayjs(Date()).format("YYYY-MM-DD"));
+  const [searchParams] = useSearchParams();
 
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
 
+  const [isDataFound, setIsDataFound] = useState(false);
 
-
-    const [searchParams] = useSearchParams();
-
-
-
-
-    const [selectedClass, setSelectedClass] = useState(null);
-    const [selectedSection, setSelectedSection] = useState(null);
-    const [selectedTeacher, setSelectedTeacher] = useState(null);
-    const [selectedSubject, setSelectedSubject] = useState(null);
-    const [fromDate, setFromDate] = useState(null);
-    const [toDate, setToDate] = useState(null);
-
-
-    const [isDataFound, setIsDataFound] = useState(false)
-
-
-
-    const id = "69b1de716debb1c7d5a431ed";
+  const id = "69b1de716debb1c7d5a431ed";
     useEffect(() => {
+      const params = new URLSearchParams(window.location.search);
 
+      const dataParam = params.get("data");
 
-        const params = new URLSearchParams(window.location.search);
+      if (dataParam) {
+        const data = JSON.parse(decodeURIComponent(dataParam));
+        console.log("fromDate", data.fromDate);
+        setFromDate(data.fromDate);
+        console.log("toDate", data.toDate);
+        setToDate(data.toDate);
 
-        const dataParam = params.get("data");
-
-
-        if (dataParam) {
-            const data = JSON.parse(decodeURIComponent(dataParam));
-            console.log("fromDate", data.fromDate);
-            setFromDate(data.fromDate);
-            console.log("toDate", data.toDate);
-            setToDate(data.toDate);
-
-            setSelectedClass(data?.class);
-            setSelectedSection(data?.section);
-            setSelectedTeacher(data?.teacher);
-            setSelectedSubject(data?.subject);
-
-        }
-
-
+        setSelectedClass(data?.class);
+        setSelectedSection(data?.section);
+        setSelectedTeacher(data?.teacher);
+        setSelectedSubject(data?.subject);
+      }
     }, []);
 
+  useEffect(() => {
+    const fetchReportData = async () => {
+      if (!fromDate || !toDate) return;
 
-    useEffect(() => {
-
-
-
-
-        const fetchReportData = async () => {
-
-            if (!fromDate) return;
-            if (!toDate) return;
-
-            try {
-
-                let params = {
-                    fromDate: fromDate,
-                    toDate: toDate
-                }
-
-                if (selectedClass){
-                    params.class = selectedClass;
-                }
-                if (selectedSection){
-                    params.section = selectedSection;
-                }
-                if (selectedTeacher){
-                    params.teacher = selectedTeacher;
-                }
-                if (selectedSubject){
-                    params.subject = selectedSubject;
-                }
-
-                const print_Response = await axios.get(`${baseUrl}/schoolreports/questionpaper-print`, {
-                    params: params
-                });
-                console.log("questionpaperPrint_Response", print_Response.data.data);
-
-
-                if (print_Response.data.data.length > 0) {
-                    setIsDataFound(true);
-                } else {
-                    setIsDataFound(false);
-                }
-
-
-
-                const rptHeader = {
-                    school_name: print_Response.data.data[0].school.school_name,
-                    address: print_Response.data.data[0].school.address,
-                    city: print_Response.data.data[0].school.city,
-                    state: print_Response.data.data[0].school.state,
-                    country: print_Response.data.data[0].school.country,
-                    school_image: print_Response.data.data[0].school.school_image
-                }
-
-                setReportHeader(rptHeader);
-                setPrintData(print_Response.data.data);
-                setLoading(false);
-
-            } catch (error) {
-                console.error('Error fetching marksheet for print:', error);
-                setLoading(false);
-                setIsDataFound(false);
-            }
+      try {
+        const params = {
+          fromDate,
+          toDate,
+          ...(selectedClass && { class: selectedClass }),
+          ...(selectedSection && { section: selectedSection }),
+          ...(selectedTeacher && { teacher: selectedTeacher }),
+          ...(selectedSubject && { subject: selectedSubject }),
         };
 
-        fetchReportData();
+        const response = await axios.get(
+          `${baseUrl}/schoolreports/questionpaper-print`,
+          { params },
+        );
 
+        const data = response.data.data;
 
+        if (data.length > 0) {
+          setIsDataFound(true);
 
-    }, [fromDate, toDate]);
+          const rptHeader = {
+            school_name: data[0].school.school_name,
+            address: data[0].school.address,
+            city: data[0].school.city,
+            state: data[0].school.state,
+            country: data[0].school.country,
+            school_image: data[0].school.school_image,
+          };
 
-
-
-
-    const PrintPDF = () => (
-        <Document>
-            <Page size="A4" style={styles.page}>
-
-                {/* 🔷 Header */}
-                <View style={styles.headerContainer}>
-                    {/* If you have logo, uncomment */}
-                    <Image src={logo} style={styles.logo} />
-
-                    <View style={styles.schoolInfo}>
-                        <Text style={styles.schoolName}>
-                            {reportHeader?.school_name}
-                        </Text>
-
-                        <Text style={styles.schoolText}>
-                            {reportHeader?.address}, {reportHeader?.city}
-                        </Text>
-
-                        <Text style={styles.schoolText}>
-                            {reportHeader?.state}, {reportHeader?.country}
-                        </Text>
-                    </View>
-                </View>
-
-                {/* 🔷 Title */}
-                <Text style={styles.reportTitle}>
-                    EXAM QUESTIONPAPER REPORT
-                </Text>
-
-                {/* 🔷 Table */}
-                <View style={styles.table}>
-
-                    {/* Header */}
-                    <View style={styles.tableRow}>
-                        <View style={[styles.tableHeaderCell, styles.col1]}>
-                            <Text>Examination</Text>
-                        </View>
-
-                        <View style={[styles.tableHeaderCell, styles.col2]}>
-                            <Text>Questionpaper</Text>
-                        </View>
-
-                        <View style={[styles.tableHeaderCell, styles.col3]}>
-                            <Text>Date</Text>
-                        </View>
-                    </View>
-
-
-                    {/* Rows */}
-                    {printData.map((row, i) => (
-                        <View style={styles.tableRow} key={i}>
-                            <View style={[styles.tableCell, styles.col1]}>
-                                <Text>{row.examination.examination_name}</Text>
-                            </View>
-
-                            <View style={[styles.tableCell, styles.col2]}>
-                                <Text>{row.name}</Text>
-                            </View>
-
-                            <View style={[styles.tableCell, styles.col3]}>
-                                <Text>{dayjs(row.date).format("DD-MM-YYYY")}</Text>
-                            </View>
-                        </View>
-                    ))}
-
-
-
-
-                </View>
-
-
-            </Page>
-        </Document>
-    );
-
-
-    const [logo, setLogo] = useState("");
-
-    useEffect(() => {
-        if (reportHeader?.school_image) {
-            getBase64Image(
-                `${reportHeader.school_image}`
-            ).then(setLogo);
+          setReportHeader(rptHeader);
+          setPrintData(data);
+        } else {
+          setIsDataFound(false);
+          setPrintData([]);
         }
-    }, [reportHeader]);
 
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching question paper report:", error);
 
-    const getBase64Image = async (url) => {
-        const res = await fetch(url);
-        const blob = await res.blob();
-
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(blob);
-        });
+        setLoading(false);
+        setIsDataFound(false);
+        setPrintData([]);
+      }
     };
 
+    fetchReportData();
+  }, [
+    fromDate,
+    toDate,
+    selectedClass,
+    selectedSection,
+    selectedTeacher,
+    selectedSubject,
+  ]);
 
-    const downloadExpenseExcel = () => {
+  const openPDF = async () => {
+    try {
+      const blob = await pdf(<PrintPDF />).toBlob();
 
-        // 1️⃣ Prepare Header
+      const blobUrl = URL.createObjectURL(blob);
 
-        const sheetData = [];
-        sheetData.push(["Examination", "Questionpaper", "Date"]);
+      window.open(blobUrl, "_blank");
 
-        // 📥 Data Rows
-        printData.forEach((row) => {
-            sheetData.push([
-                row?.examination?.examination_name || "",row?.name || "",
-                dayjs(row.date).format("DD-MM-YYYY")|| "",
-            ]);
-        });
-
-
-        
-
-        // 3️⃣ Create worksheet
-        const worksheet = XLSX.utils.json_to_sheet(sheetData);
-
-        // 4️⃣ Create workbook
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "ExamQuestionpaper");
-
-        const date = new Date();
-        // 5️⃣ Download
-        XLSX.writeFile(workbook, `ExamQuestionpaper_${date}.xlsx`);
-    };
-
-    if (loading) {
-        return <Typography>Loading...</Typography>;
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 60000);
+    } catch (error) {
+      console.error("Error opening PDF:", error);
     }
-    return (
-        <div className="max-w-2xl mx-auto my-10">
-            <div className="w-full h-[500px]">
+  };
 
-                {rows && printData.length > 0 ? (
-                    <PDFViewer width="100%" height="100%">
-                        <PrintPDF />
-                    </PDFViewer>
-                ) : (
-                    <Typography
-                        variant="h4"
-                        sx={{ fontWeight: "800", textAlign: "center" }}
-                    >
-                        No Data Found
-                    </Typography>
+  const PrintPDF = () => (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* 🔷 Header */}
+        <View style={styles.headerContainer}>
+          {/* If you have logo, uncomment */}
+          <Image src={logo} style={styles.logo} />
 
+          <View style={styles.schoolInfo}>
+            <Text style={styles.schoolName}>{reportHeader?.school_name}</Text>
 
-                )}{" "}
+            <Text style={styles.schoolText}>
+              {reportHeader?.address}, {reportHeader?.city}
+            </Text>
 
-                {/* <PDFViewer width="100%" height="100%">
-                    <PrintPDF />
-                </PDFViewer> */}
+            <Text style={styles.schoolText}>
+              {reportHeader?.state}, {reportHeader?.country}
+            </Text>
+          </View>
+        </View>
 
-            </div>
+        {/* 🔷 Title */}
+        <Text style={styles.reportTitle}>EXAM QUESTIONPAPER REPORT</Text>
 
-            {(isDataFound && <div className="mt-6 flex justify-center gap-3">
+        {/* 🔷 Table */}
+        <View style={styles.table}>
+          {/* Header */}
+          <View style={styles.tableRow}>
+            <View style={[styles.tableHeaderCell, styles.col1]}>
+              <Text>Examination</Text>
+            </View>
 
-                <PDFDownloadLink document={<PrintPDF />} fileName="Expense.pdf">
-                    <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
-                        Download PDF
-                    </button>
-                </PDFDownloadLink>
+            <View style={[styles.tableHeaderCell, styles.col2]}>
+              <Text>Questionpaper</Text>
+            </View>
 
+            <View style={[styles.tableHeaderCell, styles.col3]}>
+              <Text>Date</Text>
+            </View>
+          </View>
 
-                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300" onClick={downloadExpenseExcel}>
-                    Download Excel
-                </button>
+          {/* Rows */}
+          {printData.map((row, i) => (
+            <View style={styles.tableRow} key={i}>
+              <View style={[styles.tableCell, styles.col1]}>
+                <Text>{row.examination.examination_name}</Text>
+              </View>
 
+              <View style={[styles.tableCell, styles.col2]}>
+                <Text>{row.name}</Text>
+              </View>
 
-            </div>)}
+              <View style={[styles.tableCell, styles.col3]}>
+                <Text>{dayjs(row.date).format("DD-MM-YYYY")}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </Page>
+    </Document>
+  );
 
+  const [logo, setLogo] = useState("");
 
+  useEffect(() => {
+    if (reportHeader?.school_image) {
+      getBase64Image(`${reportHeader.school_image}`).then(setLogo);
+    }
+  }, [reportHeader]);
+
+  const getBase64Image = async (url) => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const downloadExpenseExcel = () => {
+    // 1️⃣ Prepare Header
+
+    const sheetData = [];
+    sheetData.push(["Examination", "Questionpaper", "Date"]);
+
+    // 📥 Data Rows
+    printData.forEach((row) => {
+      sheetData.push([
+        row?.examination?.examination_name || "",
+        row?.name || "",
+        dayjs(row.date).format("DD-MM-YYYY") || "",
+      ]);
+    });
+
+    // 3️⃣ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
+
+    // 4️⃣ Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ExamQuestionpaper");
+
+    const date = new Date();
+    // 5️⃣ Download
+    XLSX.writeFile(workbook, `ExamQuestionpaper_${date}.xlsx`);
+  };
+
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
+  return (
+    <div className="max-w-2xl mx-auto my-10">
+      <div className="w-full">
+        {printData.length > 0 ? (
+          <div className="flex justify-center py-10">
+            <button
+              onClick={openPDF}
+              className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold"
+            >
+              Open PDF
+            </button>
+          </div>
+        ) : (
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: "800",
+              textAlign: "center",
+            }}
+          >
+            No Data Found
+          </Typography>
+        )}
+      </div>
+
+      {isDataFound && (
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+          <button
+            onClick={openPDF}
+            className="flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-md"
+          >
+            Open PDF
+          </button>
+
+          <PDFDownloadLink
+            document={<PrintPDF />}
+            fileName="ExamQuestionpaper.pdf"
+          >
+            {({ loading }) => (
+              <button
+                disabled={loading}
+                className="flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-md"
+              >
+                {loading ? "Generating PDF..." : "Download PDF"}
+              </button>
+            )}
+          </PDFDownloadLink>
+
+          <button
+            className="flex items-center justify-center bg-green-600 text-white px-6 py-3 rounded-md"
+            onClick={downloadExpenseExcel}
+          >
+            Download Excel
+          </button>
         </div>
-    );
+      )}
+    </div>
+  );
 }

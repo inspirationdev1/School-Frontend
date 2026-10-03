@@ -23,14 +23,10 @@ import CustomizedSnackbars from "../../../basic utility components/CustomizedSna
 import { schoolreportsSchema } from "../../../yupSchema/schoolreportsSchema";
 
 // import { AuthContext } from '../context/AuthContext';
-import { AuthContext } from '../../../context/AuthContext';
+import { AuthContext } from "../../../context/AuthContext";
 
 export default function SchoolReports() {
-
-
-
   const [loading, setLoading] = useState(true);
-
 
   const [reportNames, setReportNames] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -38,19 +34,19 @@ export default function SchoolReports() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
-  const [sections, setSection] = useState([])
+  const [sections, setSection] = useState([]);
   const [selectedSection, setSelectedSection] = useState(null);
-  const [teachers, setTeacher] = useState([])
+  const [teachers, setTeacher] = useState([]);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
-  const [subjects, setSubject] = useState([])
+  const [subjects, setSubject] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
-  const [examinations, setExaminations] = useState([])
+  const [examinations, setExaminations] = useState([]);
   const [selectedExamination, setSelectedExamination] = useState(null);
-  const [questionpapers, setQuestionpaper] = useState([])
+  const [questionpapers, setQuestionpaper] = useState([]);
   const [selectedQuestionpaper, setSelectedQuestionpaper] = useState(null);
   const [isPrint, setPrint] = useState(false);
   const [isDataValid, setIsDataValid] = useState(true);
-  const [dataError, setDataError] = useState('');
+  const [dataError, setDataError] = useState("");
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -63,27 +59,22 @@ export default function SchoolReports() {
     return { label: `${year}-${year + 1}`, value: year };
   });
 
-
   const { authenticated, user } = useContext(AuthContext);
   console.log("user", user);
 
-
-
   const cancelEdit = () => {
     setEdit(false);
-    Formik.resetForm()
+    Formik.resetForm();
   };
 
   const handlePrint = async () => {
-
     setPrint(true);
-
 
     if (selectedReport.reportId == "progressCard") {
       const data = {
         student: selectedStudent._id,
         class: selectedClass?._id,
-        year: selectedYear.value
+        year: selectedYear.value,
       };
 
       // if (user?.role === 'TEACHER') {
@@ -97,128 +88,117 @@ export default function SchoolReports() {
       //     "_blank"
       //   );
       // }
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/ProgressCardPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
         window.open(
           `/school/ProgressCardPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
-
       }
     } else if (selectedReport.reportId == "attendance-summary-print") {
       const data = {
         student: selectedStudent._id,
-        year: selectedYear.value
+        year: selectedYear.value,
       };
 
-
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/AttendanceSummaryPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
         window.open(
           `/school/AttendanceSummaryPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
     } else if (selectedReport.reportId == "student-graph-print") {
-
-
       const data = {
         year: selectedYear.value,
-        year_name: selectedYear.label
+        year_name: selectedYear.label,
       };
 
       if (selectedClass) {
-        data.class = selectedClass._id
+        data.class = selectedClass._id;
       }
       if (selectedSection) {
-        data.section = selectedSection._id
+        data.section = selectedSection._id;
       }
       if (selectedStudent) {
-        data.student = selectedStudent._id
+        data.student = selectedStudent._id;
       }
 
-
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/StudentGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
         window.open(
           `/school/StudentGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
     } else if (selectedReport.reportId == "student-result-graph-print") {
-
-
       const data = {
         year: selectedYear.value,
-        year_name: selectedYear.label
+        year_name: selectedYear.label,
       };
 
       if (selectedClass) {
-        data.class = selectedClass._id
+        data.class = selectedClass._id;
       }
       if (selectedSection) {
-        data.section = selectedSection._id
+        data.section = selectedSection._id;
       }
       if (selectedStudent) {
-        data.student = selectedStudent._id
+        data.student = selectedStudent._id;
       }
 
-
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/StudentResultGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
         window.open(
           `/school/StudentResultGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
     } else if (selectedReport.reportId == "student-subject-graph-print") {
-
-
       const data = {
         year: selectedYear.value,
-        year_name: selectedYear.label
+        year_name: selectedYear.label,
       };
 
       if (selectedClass) {
-        data.class = selectedClass._id
+        data.class = selectedClass._id;
       }
       if (selectedSection) {
-        data.section = selectedSection._id
+        data.section = selectedSection._id;
       }
       if (selectedStudent) {
-        data.student = selectedStudent._id
+        data.student = selectedStudent._id;
       }
 
       if (selectedExamination) {
         data.examination = selectedExamination?._id;
       }
 
-
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/StudentSubjectGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
         window.open(
           `/school/StudentSubjectGraphPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
     } else if (selectedReport.reportId == "questionpaper-report") {
@@ -240,18 +220,17 @@ export default function SchoolReports() {
         data.subject = selectedSubect?._id;
       }
 
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/QuestionpaperReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
         window.open(
           `/school/QuestionpaperReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
-
     } else if (selectedReport.reportId === "attendance-report") {
       const data = {
         fromDate: fromDate,
@@ -265,20 +244,20 @@ export default function SchoolReports() {
         data.section = selectedSection?._id;
       }
 
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
-
         window.open(
           `/school/AttendanceReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
-
-    } else if (selectedReport.reportId === "studentlist-marks-subjectwise-report") {
+    } else if (
+      selectedReport.reportId === "studentlist-marks-subjectwise-report"
+    ) {
       const data = {
         fromDate: fromDate,
         toDate: toDate,
@@ -293,16 +272,15 @@ export default function SchoolReports() {
       if (selectedExamination) {
         data.examination = selectedExamination?._id;
       }
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/StudentListMarksSubjectwisePrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
-
         window.open(
           `/school/StudentListMarksSubjectwisePrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
     } else if (selectedReport.reportId === "student-marks-subjectwise-report") {
@@ -320,37 +298,39 @@ export default function SchoolReports() {
       if (selectedExamination) {
         data.examination = selectedExamination?._id;
       }
-      if (user?.role === 'TEACHER') {
+      if (user?.role === "TEACHER") {
         window.open(
           `/teacher/StudentMarksSubjectwisePrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       } else {
-
         window.open(
           `/school/StudentMarksSubjectwisePrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-          "_blank"
+          "_blank",
         );
       }
     } else if (selectedReport.reportId === "grade-list-print") {
-      const data = {
-      };
+      const data = {};
 
-
-
-      window.open(
-        `/school/GradeListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
-        "_blank"
-      );
-
+      if (user?.role === "TEACHER") {
+        // window.open(
+        //   `/teacher/StudentMarksSubjectwisePrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+        //   "_blank"
+        // );
+        window.open(
+          `/teacher/GradeListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank",
+        );
+      } else {
+        window.open(
+          `/school/GradeListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+          "_blank",
+        );
+      }
     }
 
-
     setPrint(false);
-
-
   };
-
 
   //   MESSAGE
   const [message, setMessage] = useState("");
@@ -374,98 +354,96 @@ export default function SchoolReports() {
     initialValues: initialValues,
     // validationSchema: schoolreportsSchema,
     onSubmit: (values) => {
-
-
       if (!values.reportId) {
-        setDataError('Select the Report Name');
+        setDataError("Select the Report Name");
         setIsDataValid(false);
         return;
       }
 
-      if (values.reportId == "progressCard" || values?.reportId === "attendance-summary-print"
-        || values?.reportId === "student-result-graph-print" || values?.reportId === "student-subject-graph-print"
+      if (
+        values.reportId == "progressCard" ||
+        values?.reportId === "attendance-summary-print" ||
+        values?.reportId === "student-result-graph-print" ||
+        values?.reportId === "student-subject-graph-print"
       ) {
         if (!values.student) {
-          setDataError('Select the Student');
+          setDataError("Select the Student");
           setIsDataValid(false);
           return;
         }
       }
 
-
-      if (values.reportId == "attendance-report"
-        || values.reportId == "questionpaper-report"
-        || values.reportId == "studentlist-marks-subjectwise-report"
-        || values.reportId == "student-marks-subjectwise-report"
+      if (
+        values.reportId == "attendance-report" ||
+        values.reportId == "questionpaper-report" ||
+        values.reportId == "studentlist-marks-subjectwise-report" ||
+        values.reportId == "student-marks-subjectwise-report"
       ) {
         if (!values.class) {
-          setDataError('Select the Class');
+          setDataError("Select the Class");
           setIsDataValid(false);
           return;
         }
       }
 
       if (
-        values.reportId == "attendance-report"
-        || values.reportId == "questionpaper-report"
-        || values.reportId == "studentlist-marks-subjectwise-report"
-        || values.reportId == "student-marks-subjectwise-report"
+        values.reportId == "attendance-report" ||
+        values.reportId == "questionpaper-report" ||
+        values.reportId == "studentlist-marks-subjectwise-report" ||
+        values.reportId == "student-marks-subjectwise-report"
       ) {
         if (!values.section) {
-          setDataError('Select the Section');
+          setDataError("Select the Section");
           setIsDataValid(false);
           return;
         }
       }
 
       if (
-        values.reportId == "studentlist-marks-subjectwise-report"
-        || values.reportId == "student-marks-subjectwise-report"
-        || values.reportId == "student-subject-graph-print"
+        values.reportId == "studentlist-marks-subjectwise-report" ||
+        values.reportId == "student-marks-subjectwise-report" ||
+        values.reportId == "student-subject-graph-print"
       ) {
         if (!values.examination) {
-          setDataError('Select the Examination');
+          setDataError("Select the Examination");
           setIsDataValid(false);
           return;
         }
       }
 
-      if (values.reportId == "questionpaper-report"
-        || values.reportId == "attendance-report"
-
+      if (
+        values.reportId == "questionpaper-report" ||
+        values.reportId == "attendance-report"
       ) {
         if (!values.fromDate) {
-          setDataError('Select From Date');
+          setDataError("Select From Date");
           setIsDataValid(false);
           return;
         }
         if (!values.toDate) {
-          setDataError('Select To Date');
+          setDataError("Select To Date");
           setIsDataValid(false);
           return;
         }
       }
 
-
-      if (values.reportId == "progressCard"
-        || values.reportId == "studentlist-marks-subjectwise-report"
-        || values.reportId == "student-marks-subjectwise-report"
-        || selectedReport?.reportId === "attendance-summary-print"
-        || selectedReport?.reportId === "student-graph-print"
-        || selectedReport?.reportId === "student-result-graph-print"
-        || selectedReport?.reportId === "student-subject-graph-print"
-        
-
+      if (
+        values.reportId == "progressCard" ||
+        values.reportId == "studentlist-marks-subjectwise-report" ||
+        values.reportId == "student-marks-subjectwise-report" ||
+        selectedReport?.reportId === "attendance-summary-print" ||
+        selectedReport?.reportId === "student-graph-print" ||
+        selectedReport?.reportId === "student-result-graph-print" ||
+        selectedReport?.reportId === "student-subject-graph-print"
       ) {
         if (!values.year) {
-          setDataError('Select the Year');
+          setDataError("Select the Year");
           setIsDataValid(false);
           return;
         }
       }
 
       setIsDataValid(true);
-
 
       handlePrint();
     },
@@ -474,48 +452,62 @@ export default function SchoolReports() {
   const [month, setMonth] = useState([]);
   const [year, setYear] = useState([]);
 
-
   const fetchReportNames = async () => {
     try {
       const reportsData = [
         { reportId: "grade-list-print", reportName: "Grade List" },
         { reportId: "progressCard", reportName: "Progress Card" },
-        { reportId: "attendance-summary-print", reportName: "Attendance Summary" },
-        { reportId: "student-graph-print", reportName: "Student Graph Summary" },
-        { reportId: "student-result-graph-print", reportName: "Student-Result Graph Summary" },
-        { reportId: "student-subject-graph-print", reportName: "Student-Subject Graph Summary" },
-        
+        {
+          reportId: "attendance-summary-print",
+          reportName: "Attendance Summary",
+        },
+        {
+          reportId: "student-graph-print",
+          reportName: "Student Graph Summary",
+        },
+        {
+          reportId: "student-result-graph-print",
+          reportName: "Student-Result Graph Summary",
+        },
+        {
+          reportId: "student-subject-graph-print",
+          reportName: "Student-Subject Graph Summary",
+        },
+
         { reportId: "questionpaper-report", reportName: "Exam Question Paper" },
-        { reportId: "studentlist-marks-subjectwise-report", reportName: "Student-List-Marks-Subjectwise" },
-        { reportId: "student-marks-subjectwise-report", reportName: "Student-Marks-Subjectwise" },
+        {
+          reportId: "studentlist-marks-subjectwise-report",
+          reportName: "Student-List-Marks-Subjectwise",
+        },
+        {
+          reportId: "student-marks-subjectwise-report",
+          reportName: "Student-Marks-Subjectwise",
+        },
         { reportId: "attendance-report", reportName: "Attendance Report" },
       ];
-      console.log("Report Names", reportsData)
+      console.log("Report Names", reportsData);
       setReportNames(reportsData);
-
     } catch (error) {
-      console.error('Error fetching Report Names:', error);
+      console.error("Error fetching Report Names:", error);
     }
   };
 
   const fetchClass = async () => {
     try {
       const classData = await axios.get(`${baseUrl}/class/fetch-all`);
-      console.log("class", classData)
+      console.log("class", classData);
       setClasses(classData.data.data);
-
     } catch (error) {
-      console.error('Error fetching classes:', error);
+      console.error("Error fetching classes:", error);
     }
   };
   const fetchSection = async () => {
     try {
       const sectionsData = await axios.get(`${baseUrl}/section/fetch-all`);
-      console.log("sections", sectionsData)
+      console.log("sections", sectionsData);
       setSection(sectionsData.data.data);
-
     } catch (error) {
-      console.error('Error fetching section:', error);
+      console.error("Error fetching section:", error);
     }
   };
 
@@ -530,23 +522,19 @@ export default function SchoolReports() {
       .catch((e) => {
         console.log("Error in fetching teacher calls admin data", e);
       });
-
   };
 
   const fetchSubject = async () => {
     try {
       const subjects = await axios.get(`${baseUrl}/subject/fetch-all`);
-      console.log("subjects", subjects)
+      console.log("subjects", subjects);
       setSubject(subjects.data.data);
-
     } catch (error) {
-      console.error('Error fetching teachers:', error);
+      console.error("Error fetching teachers:", error);
     }
   };
 
   const fetchExamination = async () => {
-
-
     const params = {};
     axios
       .get(`${baseUrl}/examination/fetch-with-query`, { params })
@@ -554,50 +542,44 @@ export default function SchoolReports() {
         setExaminations(resp.data.data);
       })
       .catch(() => console.log("Error in fetching students data"));
-
-
   };
 
   const fetchQuestionpaper = async () => {
-
     if (!selectedClass) return;
     if (!selectedSubject) return;
     if (!selectedExamination) return;
     const params = {
       parent: selectedClass?._id,
       subject: selectedSubject?._id,
-      examination: selectedExamination?._id
-    }
+      examination: selectedExamination?._id,
+    };
     axios
       .get(`${baseUrl}/questionpaper/fetch-with-query`, { params })
       .then((resp) => {
         setQuestionpaper(resp.data.data);
       })
       .catch(() => console.log("Error in fetching students data"));
-
-
   };
 
-
   const fetchStudents = async () => {
-
     if (!selectedClass?._id) return;
     if (!selectedSection?._id) return;
 
     try {
-      const studentsResponse = await axios.get(`${baseUrl}/student/fetch-with-query`, {
-        params: {
-          student_class: selectedClass?._id,
-          section: selectedSection?._id
-        }
-      }); // Fetch based on class
+      const studentsResponse = await axios.get(
+        `${baseUrl}/student/fetch-with-query`,
+        {
+          params: {
+            student_class: selectedClass?._id,
+            section: selectedSection?._id,
+          },
+        },
+      ); // Fetch based on class
       setStudents(studentsResponse.data.data);
-
     } catch (error) {
-      console.error('Error fetching students or checking attendance:', error);
+      console.error("Error fetching students or checking attendance:", error);
     }
   };
-
 
   useEffect(() => {
     fetchReportNames();
@@ -605,9 +587,7 @@ export default function SchoolReports() {
     fetchSection();
     fetchTeacher();
     fetchSubject();
-
   }, [message, user]);
-
 
   useEffect(() => {
     fetchExamination();
@@ -619,7 +599,6 @@ export default function SchoolReports() {
 
   useEffect(() => {
     fetchStudents();
-
   }, [selectedClass, selectedSection]);
 
   return (
@@ -632,15 +611,9 @@ export default function SchoolReports() {
         />
       )}
 
-
-      <Box sx={{ padding: "40px 10px 20px 10px" }}
-      >
-
-
+      <Box sx={{ padding: "40px 10px 20px 10px" }}>
         <Box component={"div"} sx={{}}>
-          <Paper
-            sx={{ padding: '20px', margin: "10px" }}
-          >
+          <Paper sx={{ padding: "20px", margin: "10px" }}>
             <Typography
               variant="h4"
               sx={{ fontWeight: "800", textAlign: "center" }}
@@ -653,7 +626,6 @@ export default function SchoolReports() {
               autoComplete="off"
               onSubmit={Formik.handleSubmit}
             >
-
               {!isDataValid && (
                 <Alert severity="error" sx={{ mt: 2 }}>
                   {dataError}
@@ -664,18 +636,15 @@ export default function SchoolReports() {
                 sx={{
                   display: "grid",
                   gridTemplateColumns: {
-                    xs: "1fr",      // mobile
-                    md: "1fr 1fr",  // desktop → 2 columns
+                    xs: "1fr", // mobile
+                    md: "1fr 1fr", // desktop → 2 columns
                   },
                   gap: 2,
                   mt: 2,
                 }}
               >
-
-
                 {/* ReportNames */}
                 <Box>
-
                   <Autocomplete
                     options={reportNames}
                     getOptionLabel={(option) => option.reportName}
@@ -685,10 +654,8 @@ export default function SchoolReports() {
 
                       Formik.setFieldValue(
                         "reportId",
-                        newValue ? newValue.reportId : ""
+                        newValue ? newValue.reportId : "",
                       );
-
-
                     }}
                     onBlur={() => Formik.setFieldTouched("reportId", true)}
                     renderInput={(params) => (
@@ -697,34 +664,34 @@ export default function SchoolReports() {
                         label="Select Report Name"
                         placeholder="Search report name..."
                         fullWidth
-                        error={Formik.touched.reportId && Boolean(Formik.errors.reportId)}
-                        helperText={Formik.touched.reportId && Formik.errors.reportId}
+                        error={
+                          Formik.touched.reportId &&
+                          Boolean(Formik.errors.reportId)
+                        }
+                        helperText={
+                          Formik.touched.reportId && Formik.errors.reportId
+                        }
                       />
                     )}
                   />
-
-
                 </Box>
-
-
 
                 {/* (selectedReport && selectedReport.reportId) */}
                 {/* Class */}
-                {selectedReport && (selectedReport.reportId === "progressCard"
-                  || selectedReport?.reportId === "attendance-summary-print"
-                  || selectedReport?.reportId === "student-graph-print"
-                  || selectedReport?.reportId === "student-result-graph-print"
-                  || selectedReport?.reportId === "student-subject-graph-print"
-                  || selectedReport?.reportId === "questionpaper-report"
-                  || selectedReport?.reportId === "attendance-report"
-                  || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
-                  || selectedReport?.reportId === "student-marks-subjectwise-report"
-
-
-                )
-                  && (
+                {selectedReport &&
+                  (selectedReport.reportId === "progressCard" ||
+                    selectedReport?.reportId === "attendance-summary-print" ||
+                    selectedReport?.reportId === "student-graph-print" ||
+                    selectedReport?.reportId === "student-result-graph-print" ||
+                    selectedReport?.reportId ===
+                      "student-subject-graph-print" ||
+                    selectedReport?.reportId === "questionpaper-report" ||
+                    selectedReport?.reportId === "attendance-report" ||
+                    selectedReport?.reportId ===
+                      "studentlist-marks-subjectwise-report" ||
+                    selectedReport?.reportId ===
+                      "student-marks-subjectwise-report") && (
                     <Box>
-
                       <Autocomplete
                         options={classes}
                         getOptionLabel={(option) => option.class_name}
@@ -734,22 +701,14 @@ export default function SchoolReports() {
 
                           Formik.setFieldValue(
                             "class",
-                            newValue ? newValue._id : ""
+                            newValue ? newValue._id : "",
                           );
 
                           setSelectedExamination(null);
                           setSelectedQuestionpaper(null);
 
-                          Formik.setFieldValue(
-                            "examination",
-                            ""
-                          );
-                          Formik.setFieldValue(
-                            "questionpaper",
-                            ""
-                          );
-
-
+                          Formik.setFieldValue("examination", "");
+                          Formik.setFieldValue("questionpaper", "");
                         }}
                         onBlur={() => Formik.setFieldTouched("class", true)}
                         renderInput={(params) => (
@@ -758,28 +717,33 @@ export default function SchoolReports() {
                             label="Select Class"
                             placeholder="Search class..."
                             fullWidth
-                            error={Formik.touched.class && Boolean(Formik.errors.class)}
-                            helperText={Formik.touched.class && Formik.errors.class}
+                            error={
+                              Formik.touched.class &&
+                              Boolean(Formik.errors.class)
+                            }
+                            helperText={
+                              Formik.touched.class && Formik.errors.class
+                            }
                           />
                         )}
                       />
-
-
                     </Box>
                   )}
 
                 {/* Section */}
-                {selectedReport && (selectedReport.reportId === "progressCard"
-                  || selectedReport?.reportId === "attendance-summary-print"
-                  || selectedReport?.reportId === "student-graph-print"
-                  || selectedReport?.reportId === "student-result-graph-print"
-                  || selectedReport?.reportId === "student-subject-graph-print"
-                  || selectedReport.reportId === "questionpaper-report"
-                  || selectedReport?.reportId === "attendance-report"
-                  || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
-                  || selectedReport?.reportId === "student-marks-subjectwise-report"
-                )
-                  && (
+                {selectedReport &&
+                  (selectedReport.reportId === "progressCard" ||
+                    selectedReport?.reportId === "attendance-summary-print" ||
+                    selectedReport?.reportId === "student-graph-print" ||
+                    selectedReport?.reportId === "student-result-graph-print" ||
+                    selectedReport?.reportId ===
+                      "student-subject-graph-print" ||
+                    selectedReport.reportId === "questionpaper-report" ||
+                    selectedReport?.reportId === "attendance-report" ||
+                    selectedReport?.reportId ===
+                      "studentlist-marks-subjectwise-report" ||
+                    selectedReport?.reportId ===
+                      "student-marks-subjectwise-report") && (
                     <Box>
                       <Autocomplete
                         options={sections}
@@ -789,7 +753,7 @@ export default function SchoolReports() {
                           setSelectedSection(newValue);
                           Formik.setFieldValue(
                             "section",
-                            newValue ? newValue._id : ""
+                            newValue ? newValue._id : "",
                           );
                         }}
                         onBlur={() => Formik.setFieldTouched("section", true)}
@@ -799,23 +763,24 @@ export default function SchoolReports() {
                             label="Select Section"
                             placeholder="Search section..."
                             fullWidth
-                            error={Formik.touched.section && Boolean(Formik.errors.section)}
-                            helperText={Formik.touched.section && Formik.errors.section}
+                            error={
+                              Formik.touched.section &&
+                              Boolean(Formik.errors.section)
+                            }
+                            helperText={
+                              Formik.touched.section && Formik.errors.section
+                            }
                           />
                         )}
                       />
-
-
                     </Box>
                   )}
 
                 {/* Teacher */}
-                {selectedReport && (selectedReport.reportId === "otherReport"
-                  || selectedReport.reportId === "questionpaper-report"
-                  || selectedReport?.reportId === "attendance-report"
-
-                )
-                  && (
+                {selectedReport &&
+                  (selectedReport.reportId === "otherReport" ||
+                    selectedReport.reportId === "questionpaper-report" ||
+                    selectedReport?.reportId === "attendance-report") && (
                     <Box>
                       <Autocomplete
                         options={teachers}
@@ -826,7 +791,7 @@ export default function SchoolReports() {
 
                           Formik.setFieldValue(
                             "teacher",
-                            newValue ? newValue._id : ""
+                            newValue ? newValue._id : "",
                           );
                         }}
                         onBlur={() => Formik.setFieldTouched("teacher", true)}
@@ -836,56 +801,64 @@ export default function SchoolReports() {
                             label="Select Teacher"
                             placeholder="Search teacher..."
                             fullWidth
-                            error={Formik.touched.teacher && Boolean(Formik.errors.teacher)}
-                            helperText={Formik.touched.teacher && Formik.errors.teacher}
+                            error={
+                              Formik.touched.teacher &&
+                              Boolean(Formik.errors.teacher)
+                            }
+                            helperText={
+                              Formik.touched.teacher && Formik.errors.teacher
+                            }
                           />
                         )}
                       />
-
                     </Box>
                   )}
 
-
-
                 {/* Subject */}
-                {selectedReport && selectedReport.reportId === "otherReport" && (
-                  <Box>
-                    <Autocomplete
-                      options={subjects}
-                      getOptionLabel={(option) => option.subject_name}
-                      value={selectedSubject}
-                      onChange={(event, newValue) => {
-                        setSelectedSubject(newValue);
+                {selectedReport &&
+                  selectedReport.reportId === "otherReport" && (
+                    <Box>
+                      <Autocomplete
+                        options={subjects}
+                        getOptionLabel={(option) => option.subject_name}
+                        value={selectedSubject}
+                        onChange={(event, newValue) => {
+                          setSelectedSubject(newValue);
 
-                        Formik.setFieldValue(
-                          "subject",
-                          newValue ? newValue._id : ""
-                        );
-                      }}
-                      onBlur={() => Formik.setFieldTouched("subject", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Subject"
-                          placeholder="Search subject..."
-                          fullWidth
-                          error={Formik.touched.subject && Boolean(Formik.errors.subject)}
-                          helperText={Formik.touched.subject && Formik.errors.subject}
-                        />
-                      )}
-                    />
-
-                  </Box>
-                )}
+                          Formik.setFieldValue(
+                            "subject",
+                            newValue ? newValue._id : "",
+                          );
+                        }}
+                        onBlur={() => Formik.setFieldTouched("subject", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Subject"
+                            placeholder="Search subject..."
+                            fullWidth
+                            error={
+                              Formik.touched.subject &&
+                              Boolean(Formik.errors.subject)
+                            }
+                            helperText={
+                              Formik.touched.subject && Formik.errors.subject
+                            }
+                          />
+                        )}
+                      />
+                    </Box>
+                  )}
 
                 {/* Examination */}
 
-                {selectedReport && (
-                  selectedReport?.reportId === "studentlist-marks-subjectwise-report" 
-                  || selectedReport?.reportId === "student-marks-subjectwise-report"
-                  || selectedReport?.reportId === "student-subject-graph-print"
-                ) && (
-
+                {selectedReport &&
+                  (selectedReport?.reportId ===
+                    "studentlist-marks-subjectwise-report" ||
+                    selectedReport?.reportId ===
+                      "student-marks-subjectwise-report" ||
+                    selectedReport?.reportId ===
+                      "student-subject-graph-print") && (
                     <Box>
                       <Autocomplete
                         options={examinations}
@@ -896,68 +869,80 @@ export default function SchoolReports() {
                           setSelectedQuestionpaper(null);
                           Formik.setFieldValue(
                             "examination",
-                            newValue ? newValue._id : ""
+                            newValue ? newValue._id : "",
                           );
-                          Formik.setFieldValue(
-                            "questionpaper",
-                            ""
-                          );
-
+                          Formik.setFieldValue("questionpaper", "");
                         }}
-                        onBlur={() => Formik.setFieldTouched("examination", true)}
+                        onBlur={() =>
+                          Formik.setFieldTouched("examination", true)
+                        }
                         renderInput={(params) => (
                           <TextField
                             {...params}
                             label="Select Examination"
                             placeholder="Search examination..."
                             fullWidth
-                            error={Formik.touched.examination && Boolean(Formik.errors.examination)}
-                            helperText={Formik.touched.examination && Formik.errors.examination}
+                            error={
+                              Formik.touched.examination &&
+                              Boolean(Formik.errors.examination)
+                            }
+                            helperText={
+                              Formik.touched.examination &&
+                              Formik.errors.examination
+                            }
                           />
                         )}
                       />
-
                     </Box>
                   )}
 
-
                 {/* Questionpaper */}
-                {selectedReport && selectedReport.reportId === "otherReport" && (
-                  <Box>
-                    <Autocomplete
-                      options={questionpapers}
-                      getOptionLabel={(option) => option.name}
-                      value={selectedQuestionpaper}
-                      onChange={(event, newValue) => {
-                        setSelectedQuestionpaper(newValue);
+                {selectedReport &&
+                  selectedReport.reportId === "otherReport" && (
+                    <Box>
+                      <Autocomplete
+                        options={questionpapers}
+                        getOptionLabel={(option) => option.name}
+                        value={selectedQuestionpaper}
+                        onChange={(event, newValue) => {
+                          setSelectedQuestionpaper(newValue);
 
-                        Formik.setFieldValue(
-                          "questionpaper",
-                          newValue ? newValue._id : ""
-                        );
-
-                      }}
-                      onBlur={() => Formik.setFieldTouched("questionpaper", true)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Questionpaper"
-                          placeholder="Search questionpaper..."
-                          fullWidth
-                          error={Formik.touched.questionpaper && Boolean(Formik.errors.questionpaper)}
-                          helperText={Formik.touched.questionpaper && Formik.errors.questionpaper}
-                        />
-                      )}
-                    />
-
-                  </Box>
-                )}
+                          Formik.setFieldValue(
+                            "questionpaper",
+                            newValue ? newValue._id : "",
+                          );
+                        }}
+                        onBlur={() =>
+                          Formik.setFieldTouched("questionpaper", true)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Questionpaper"
+                            placeholder="Search questionpaper..."
+                            fullWidth
+                            error={
+                              Formik.touched.questionpaper &&
+                              Boolean(Formik.errors.questionpaper)
+                            }
+                            helperText={
+                              Formik.touched.questionpaper &&
+                              Formik.errors.questionpaper
+                            }
+                          />
+                        )}
+                      />
+                    </Box>
+                  )}
 
                 {/* Students */}
-                {selectedReport && (selectedReport.reportId === "progressCard" || selectedReport?.reportId === "attendance-summary-print"
-                  || selectedReport?.reportId === "student-graph-print" || selectedReport?.reportId === "student-result-graph-print"
-                  || selectedReport?.reportId === "student-subject-graph-print"
-                ) && (
+                {selectedReport &&
+                  (selectedReport.reportId === "progressCard" ||
+                    selectedReport?.reportId === "attendance-summary-print" ||
+                    selectedReport?.reportId === "student-graph-print" ||
+                    selectedReport?.reportId === "student-result-graph-print" ||
+                    selectedReport?.reportId ===
+                      "student-subject-graph-print") && (
                     <Box>
                       <Autocomplete
                         options={students}
@@ -968,9 +953,8 @@ export default function SchoolReports() {
 
                           Formik.setFieldValue(
                             "student",
-                            newValue ? newValue._id : ""
+                            newValue ? newValue._id : "",
                           );
-
                         }}
                         onBlur={() => Formik.setFieldTouched("student", true)}
                         renderInput={(params) => (
@@ -979,25 +963,31 @@ export default function SchoolReports() {
                             label="Select Student"
                             placeholder="Search student..."
                             fullWidth
-                            error={Formik.touched.student && Boolean(Formik.errors.student)}
-                            helperText={Formik.touched.student && Formik.errors.student}
+                            error={
+                              Formik.touched.student &&
+                              Boolean(Formik.errors.student)
+                            }
+                            helperText={
+                              Formik.touched.student && Formik.errors.student
+                            }
                           />
                         )}
                       />
-
                     </Box>
                   )}
 
                 {/* Academic Year */}
-                {selectedReport && (
-                  selectedReport?.reportId === "progressCard"
-                  || selectedReport?.reportId === "attendance-summary-print"
-                  || selectedReport?.reportId === "student-graph-print"
-                  || selectedReport?.reportId === "student-result-graph-print"
-                  || selectedReport?.reportId === "student-subject-graph-print"
-                  || selectedReport?.reportId === "studentlist-marks-subjectwise-report"
-                  || selectedReport?.reportId === "student-marks-subjectwise-report"
-                ) && (
+                {selectedReport &&
+                  (selectedReport?.reportId === "progressCard" ||
+                    selectedReport?.reportId === "attendance-summary-print" ||
+                    selectedReport?.reportId === "student-graph-print" ||
+                    selectedReport?.reportId === "student-result-graph-print" ||
+                    selectedReport?.reportId ===
+                      "student-subject-graph-print" ||
+                    selectedReport?.reportId ===
+                      "studentlist-marks-subjectwise-report" ||
+                    selectedReport?.reportId ===
+                      "student-marks-subjectwise-report") && (
                     <Box>
                       <Autocomplete
                         options={years}
@@ -1008,7 +998,7 @@ export default function SchoolReports() {
 
                           Formik.setFieldValue(
                             "year",
-                            newValue ? newValue.value : ""
+                            newValue ? newValue.value : "",
                           );
                         }}
                         onBlur={() => Formik.setFieldTouched("year", true)}
@@ -1018,19 +1008,22 @@ export default function SchoolReports() {
                             label="Select Academic Year"
                             placeholder="Search year..."
                             fullWidth
-                            error={Formik.touched.year && Boolean(Formik.errors.year)}
-                            helperText={Formik.touched.year && Formik.errors.year}
+                            error={
+                              Formik.touched.year && Boolean(Formik.errors.year)
+                            }
+                            helperText={
+                              Formik.touched.year && Formik.errors.year
+                            }
                           />
                         )}
                       />
                     </Box>
                   )}
 
-
                 {/* From Date */}
-                {selectedReport && (selectedReport.reportId === "questionpaper-report"
-                  || selectedReport?.reportId === "attendance-report"
-                ) && (
+                {selectedReport &&
+                  (selectedReport.reportId === "questionpaper-report" ||
+                    selectedReport?.reportId === "attendance-report") && (
                     <Box>
                       <TextField
                         label="From Date"
@@ -1042,16 +1035,21 @@ export default function SchoolReports() {
                           Formik.setFieldValue("fromDate", e.target.value);
                           setFromDate(e.target.value);
                         }}
-                        error={Formik.touched.fromDate && Boolean(Formik.errors.fromDate)}
-                        helperText={Formik.touched.fromDate && Formik.errors.fromDate}
+                        error={
+                          Formik.touched.fromDate &&
+                          Boolean(Formik.errors.fromDate)
+                        }
+                        helperText={
+                          Formik.touched.fromDate && Formik.errors.fromDate
+                        }
                       />
                     </Box>
                   )}
 
                 {/* To Date */}
-                {selectedReport && (selectedReport.reportId === "questionpaper-report"
-                  || selectedReport?.reportId === "attendance-report"
-                ) && (
+                {selectedReport &&
+                  (selectedReport.reportId === "questionpaper-report" ||
+                    selectedReport?.reportId === "attendance-report") && (
                     <Box>
                       <TextField
                         label="To Date"
@@ -1063,16 +1061,16 @@ export default function SchoolReports() {
                           Formik.setFieldValue("toDate", e.target.value);
                           setToDate(e.target.value);
                         }}
-                        error={Formik.touched.toDate && Boolean(Formik.errors.toDate)}
-                        helperText={Formik.touched.toDate && Formik.errors.toDate}
+                        error={
+                          Formik.touched.toDate && Boolean(Formik.errors.toDate)
+                        }
+                        helperText={
+                          Formik.touched.toDate && Formik.errors.toDate
+                        }
                       />
                     </Box>
                   )}
-
-
               </Box>
-
-
 
               <Box sx={{ marginTop: "10px" }} component={"div"}>
                 <Button
@@ -1095,10 +1093,6 @@ export default function SchoolReports() {
             </Box>
           </Paper>
         </Box>
-
-
-
-
       </Box>
     </>
   );

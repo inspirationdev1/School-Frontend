@@ -57,7 +57,7 @@ export default function GradeListReportPrint() {
         const data = JSON.parse(decodeURIComponent(dataParam));
 
         let paramsRpt = {};
-        
+
         paramsRpt.requesttype = "PDF";
 
         const response = await axios.post(
@@ -87,113 +87,101 @@ export default function GradeListReportPrint() {
   };
 
   const downloadReportExcel = async () => {
-    
+    let paramsRpt = {};
 
-      let paramsRpt = {};
+    paramsRpt.requesttype = "EXL";
+    const reportResponse = await axios.post(
+      `${baseUrl}/schoolreports/grade-list-print`,
+      {}, // ✅ empty body
+      {
+        params: paramsRpt, // ✅ goes to req.query
+      },
+    );
+    console.log("reportResponse", reportResponse.data.data);
 
-      
-      paramsRpt.requesttype = "EXL";
-      const reportResponse = await axios.post(
-        `${baseUrl}/schoolreports/grade-list-print`,
-        {}, // ✅ empty body
-        {
-          params: paramsRpt, // ✅ goes to req.query
-        },
-      );
-      console.log("reportResponse", reportResponse.data.data);
-      
-      if (reportResponse.data.data.length===0){
-            setMessage("No Data Found");
-            setType("error");
-            setLoading(false);
-            return;
-      }
-      // 1️⃣ Prepare Header
+    if (reportResponse.data.data.length === 0) {
+      setMessage("No Data Found");
+      setType("error");
+      setLoading(false);
+      return;
+    }
+    // 1️⃣ Prepare Header
 
-      const sheetData = [];
+    const sheetData = [];
+    sheetData.push(["Marks Limit", "Marks Min", "Marks Max", "Grade", "GPA"]);
+
+    // 📥 Data Rows
+    reportResponse.data.data.forEach((row) => {
       sheetData.push([
-        "Marks Limit",
-        "Marks Min",
-        "Marks Max",
-        "Grade",
-        "GPA",
+        row?.marks_limit,
+        row?.marks_min,
+        row?.marks_max,
+        row?.grade_code,
+        row?.gpa,
       ]);
+    });
 
-      // 📥 Data Rows
-      reportResponse.data.data.forEach((row) => {
-        sheetData.push([
-          row?.marks_limit,
-          row?.marks_min,
-          row?.marks_max,
-          row?.grade_code,
-          row?.gpa
-        ]);
-      });
+    // 3️⃣ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
 
-      // 3️⃣ Create worksheet
-      const worksheet = XLSX.utils.json_to_sheet(sheetData);
+    // 4️⃣ Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Gradelist");
 
-      // 4️⃣ Create workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Gradelist");
-
-      const date = new Date();
-      // 5️⃣ Download
-      XLSX.writeFile(workbook, `Gradelist_${date}.xlsx`);
-    
+    const date = new Date();
+    // 5️⃣ Download
+    XLSX.writeFile(workbook, `Gradelist_${date}.xlsx`);
   };
 
-  
- 
   if (loading) {
     return <Typography>Loading...</Typography>;
   }
   return (
     <>
-    {message && (
-            <CustomizedSnackbars
-              reset={resetMessage}
-              type={type}
-              message={message}
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
+      <div className="max-w-2xl mx-auto my-10">
+        <div className="w-full h-[600px]">
+          {pdfUrl ? (
+            <iframe
+              src={`${pdfUrl}#zoom=page-width`}
+              width="100%"
+              height="100%"
+              style={{ border: "none" }}
             />
+          ) : (
+            <Typography>Loading PDF...</Typography>
           )}
-    <div className="max-w-2xl mx-auto my-10">
-      <div className="w-full h-[600px]">
-        {pdfUrl ? (
-          <iframe
-            src={`${pdfUrl}#zoom=page-width`}
-            width="100%"
-            height="100%"
-            style={{ border: "none" }}
-          />
-        ) : (
-          <Typography>Loading PDF...</Typography>
+        </div>
+
+        {pdfUrl && (
+          <div className="mt-6 flex justify-center gap-3">
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = "Gradelist.pdf";
+                link.click();
+              }}
+              className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+            >
+              Download PDF
+            </button>
+
+            <button
+              className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+              onClick={downloadReportExcel}
+            >
+              Download Excel
+            </button>
+          </div>
         )}
       </div>
-
-      {pdfUrl && (
-        <div className="mt-6 flex justify-center gap-3">
-          <button
-            onClick={() => {
-              const link = document.createElement("a");
-              link.href = pdfUrl;
-              link.download = "Gradelist.pdf";
-              link.click();
-            }}
-            className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
-          >
-            Download PDF
-          </button>
-
-          <button
-            className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
-            onClick={downloadReportExcel}
-          >
-            Download Excel
-          </button>
-        </div>
-      )}
-    </div>
     </>
   );
 }

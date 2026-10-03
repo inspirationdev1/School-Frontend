@@ -459,7 +459,23 @@ function App() {
                 path="schoolreportsprint"
                 element={<SchoolReportsPrint />}
               />
-
+              <Route
+                path="gradelistreportprint"
+                element={<GradeListReportPrint />}
+              />
+              <Route
+                path="attendancesummaryprint"
+                element={<AttendanceSummaryPrint />}
+              />
+              <Route path="studentgraphprint" element={<StudentGraphPrint />} />
+              <Route
+                path="studentresultgraphprint"
+                element={<StudentResultGraphPrint />}
+              />
+              <Route
+                path="studentsubjectgraphprint"
+                element={<StudentSubjectGraphPrint />}
+              />
               <Route path="periods" element={<TeacherSchedule />} />
               <Route
                 path="teacherschedulereportprint"

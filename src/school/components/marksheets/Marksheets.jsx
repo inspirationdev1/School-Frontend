@@ -1096,14 +1096,29 @@ export default function Marksheet() {
                         <Box>
                           <TextField
                             fullWidth
-                            label="marks"
+                            label="Marks"
                             variant="outlined"
                             name="marks"
                             type="number"
                             value={row.marks}
-                            onChange={(e) =>
-                              handleChange(index, "marks", e.target.value)
-                            }
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                                step: 1,
+                              },
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "-" || e.key === "e") {
+                                e.preventDefault();
+                              }
+                            }}
+                            onChange={(e) => {
+                              const value = e.target.value;
+
+                              if (value === "" || Number(value) >= 0) {
+                                handleChange(index, "marks", value);
+                              }
+                            }}
                           />
                         </Box>
 

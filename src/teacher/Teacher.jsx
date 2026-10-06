@@ -50,7 +50,18 @@ export default function Teacher() {
   const navArr = [
     { link: "/", label: "Home", icon: HomeIcon },
     { link: "/teacher/details", label: "Details", icon: TheatersIcon },
-
+    // { label: "Students", link: "/school/students" },
+    // { label: "Parents", link: "/school/parents" },
+    {
+      link: "/teacher/students",
+      label: "Students",
+      icon: RecentActorsIcon,
+    },
+    {
+      link: "/teacher/parents",
+      label: "Parents",
+      icon: RecentActorsIcon,
+    },
     {
       link: "/teacher/attendance",
       label: "Attendance",

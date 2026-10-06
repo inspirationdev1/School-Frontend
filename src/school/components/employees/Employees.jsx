@@ -34,6 +34,9 @@ import dayjs from "dayjs";
 export default function Employees() {
   const [employees, setemployees] = useState([]);
 
+  const [designations, setDesignations] = useState([]);
+  const [selecteddesignation, setSelecteddesignation] = useState(null);
+
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
 
@@ -178,6 +181,7 @@ export default function Employees() {
     dOBDate: "",
     joinDate: "",
     phoneno: "",
+    designation: "",
     status: "active",
   };
 
@@ -221,6 +225,7 @@ export default function Employees() {
   const cancelEdit = () => {
     setEdit(false);
     setEditId(null);
+    setSelecteddesignation(null);
     resetEmployeeForm();
   };
 
@@ -324,6 +329,7 @@ export default function Employees() {
           },
         );
 
+        setSelecteddesignation(employee?.designation || null);
         setEditId(employee._id);
 
         setTab(0);
@@ -352,7 +358,7 @@ export default function Employees() {
 
     onSubmit: async (values) => {
       console.log("Employee Formik values:", values);
-
+      values.designation = selecteddesignation?._id;
       // ---------------------------------------------------
       // EDIT EMPLOYEE
       // ---------------------------------------------------
@@ -527,8 +533,22 @@ export default function Employees() {
   // -------------------------------------------------------
   // Initial Data
   // -------------------------------------------------------
-
+  const fetchdesignations = () => {
+    const params = {
+      generalmaster_type: "designation",
+    };
+    axios
+      .get(`${baseUrl}/generalmaster/fetch-with-query`, { params: params })
+      .then((resp) => {
+        console.log("Fetching data in  generalmaster Calls  admin.", resp);
+        setDesignations(resp.data.data);
+      })
+      .catch((e) => {
+        console.log("Error in fetching generalmaster calls admin data", e);
+      });
+  };
   useEffect(() => {
+    fetchdesignations();
     fetchemployees();
     fetchStatuses();
   }, []);
@@ -741,6 +761,37 @@ export default function Employees() {
                     )}
                   </Grid>
 
+                  {/* Designation */}
+                  <Grid item xs={12} md={6}>
+                    <Autocomplete
+                      options={designations}
+                      getOptionLabel={(option) => option.generalmaster_name}
+                      value={selecteddesignation}
+                      onChange={(e, newValue) => {
+                        setSelecteddesignation(newValue);
+                        Formik.setFieldValue(
+                          "designation",
+                          newValue?._id || "",
+                        );
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Designation"
+                          placeholder="Search designation..."
+                          fullWidth
+                          error={
+                            Formik.touched.designation &&
+                            Boolean(Formik.errors.designation)
+                          }
+                          helperText={
+                            Formik.touched.designation &&
+                            Formik.errors.designation
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
                   {/* Date of Birth */}
 
                   <Grid item xs={12} md={6}>

@@ -569,7 +569,7 @@ export default function Parents() {
                       onChange={Formik.handleChange}
                     />
 
-                    {Formik.touched.qualification &&
+                    {/* {Formik.touched.qualification &&
                       Formik.errors.qualification && (
                         <p
                           style={{
@@ -579,7 +579,7 @@ export default function Parents() {
                         >
                           {Formik.errors.qualification}
                         </p>
-                      )}
+                      )} */}
                   </Grid>
 
                   {/* GENDER */}

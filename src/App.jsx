@@ -449,6 +449,8 @@ function App() {
             >
               <Route index element={<TeacherDetails />} />
               <Route path="details" element={<TeacherDetails />} />
+              <Route path="students" element={<Students />} />
+              <Route path="parents" element={<Parents />} />
               <Route path="examinations" element={<TeacherExaminations />} />
               <Route path="teacherreports" element={<SchoolReports />} />
               <Route

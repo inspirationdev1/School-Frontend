@@ -482,49 +482,50 @@ export default function Students() {
     initialValues,
     validationSchema: studentSchema,
     onSubmit: (values) => {
-      if (!selectedbloodgroup) {
-        setMessage("Select Bloodgroup on Tab-2");
-        setType("error");
-        return;
-      }
+      // if (!selectedbloodgroup) {
+      //   setMessage("Select Bloodgroup on Tab-2");
+      //   setType("error");
+      //   return;
+      // }
 
-      if (!selectednationality) {
-        setMessage("Select Nationality on Tab-2");
-        setType("error");
-        return;
-      }
+      // if (!selectednationality) {
+      //   setMessage("Select Nationality on Tab-2");
+      //   setType("error");
+      //   return;
+      // }
 
-      if (!selectedreligion) {
-        setMessage("Select religion on Tab-2");
-        setType("error");
-        return;
-      }
+      // if (!selectedreligion) {
+      //   setMessage("Select religion on Tab-2");
+      //   setType("error");
+      //   return;
+      // }
 
-      if (!selectedmothertongue) {
-        setMessage("Select mothertongue on Tab-2");
-        setType("error");
-        return;
-      }
+      // if (!selectedmothertongue) {
+      //   setMessage("Select mothertongue on Tab-2");
+      //   setType("error");
+      //   return;
+      // }
 
-      if (!selectedmodeoftransport) {
-        setMessage("Select modeoftransport on Tab-2");
-        setType("error");
-        return;
-      }
+      // if (!selectedmodeoftransport) {
+      //   setMessage("Select modeoftransport on Tab-2");
+      //   setType("error");
+      //   return;
+      // }
 
-      if (!selectedfirstlanguage) {
-        setMessage("Select firstlanguage on Tab-2");
-        setType("error");
-        return;
-      }
+      // if (!selectedfirstlanguage) {
+      //   setMessage("Select firstlanguage on Tab-2");
+      //   setType("error");
+      //   return;
+      // }
 
       values.student_class = selectedClass?._id;
       values.section = selectedSection?._id;
       values.parent = selectedParent?._id;
-      values.bloodgroup = selectedbloodgroup?._id;
-      values.vaccinated = selectedVaccinated?.fieldId;
-      values.nationality = selectednationality?._id;
-      values.status = selectedStatus?.value;
+      // values.bloodgroup = selectedbloodgroup?._id;
+      values.bloodgroup = selectedbloodgroup?._id ?? null;
+      values.vaccinated = selectedVaccinated?.fieldId ?? null;
+      values.nationality = selectednationality?._id ?? null;
+      values.status = selectedStatus?.value ?? null;
 
       if (isEdit) {
         const fd = new FormData();

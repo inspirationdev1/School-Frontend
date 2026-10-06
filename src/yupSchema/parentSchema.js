@@ -7,22 +7,22 @@ export const parentSchema = yup.object({
     .required("Email is required field."),
   name: yup.string().required("Name is required"),
   // parent_code: yup.string().required("Code is required"),
-  qualification: yup
-    .string()
-    .min(4, "Qualification must contain 4 characters.")
-    .required("Qualification is required."),
-  gender: yup
-    .string("Gender must be string value.")
-    .required("You must select a Gender."),
-  age: yup.number("Age must be a number.").required("You must give Age."),
+  // qualification: yup
+  //   .string()
+  //   .min(4, "Qualification must contain 4 characters.")
+  //   .required("Qualification is required."),
+  // gender: yup
+  //   .string("Gender must be string value.")
+  //   .required("You must select a Gender."),
+  // age: yup.number("Age must be a number.").required("You must give Age."),
   password: yup.string().required("Password is a required field."),
-  dOBDate: yup
-    .string()
-    .min(4, "dOBDate must contain 4 characters")
-    .required("dOBDate is required"),
-  joinDate: yup
-    .string()
-    .min(4, "joinDate must contain 4 characters")
-    .required("joinDate is required"),
-  year: yup.string().required("Year is required"),
+  // dOBDate: yup
+  //   .string()
+  //   .min(4, "dOBDate must contain 4 characters")
+  //   .required("dOBDate is required"),
+  // joinDate: yup
+  //   .string()
+  //   .min(4, "joinDate must contain 4 characters")
+  //   .required("joinDate is required"),
+  // year: yup.string().required("Year is required"),
 });

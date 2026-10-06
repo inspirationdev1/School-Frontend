@@ -13,11 +13,14 @@ import {
   useMediaQuery,
   TextField,
   Button,
+  CardMedia,
 } from "@mui/material";
+
 import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 
@@ -25,8 +28,10 @@ export default function TeacherDetails() {
   const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -34,101 +39,353 @@ export default function TeacherDetails() {
   const [message, setMessage] = useState("");
   const [type, setType] = useState("success");
 
+  const fileInputRef = useRef(null);
+
+  // =========================================================
+  // MESSAGE
+  // =========================================================
+
   const resetMessage = () => {
     setMessage("");
   };
+
+  // =========================================================
+  // IMAGE UPLOAD
+  // =========================================================
+
+  const addImage = (event) => {
+    const selectedFile = event.target.files?.[0];
+
+    if (!selectedFile) {
+      return;
+    }
+
+    // Optional validation
+    if (!selectedFile.type.startsWith("image/")) {
+      setMessage("Please select a valid image file.");
+      setType("error");
+
+      event.target.value = "";
+      return;
+    }
+
+    // Optional size validation - 5 MB
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setMessage("Image size should not exceed 5 MB.");
+      setType("error");
+
+      event.target.value = "";
+      return;
+    }
+
+    setFile(selectedFile);
+
+    // Create preview
+    setImageUrl(URL.createObjectURL(selectedFile));
+  };
+
+  // =========================================================
+  // CLEAR IMAGE
+  // =========================================================
+
+  const handleClearFile = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    // Release preview URL
+    if (imageUrl) {
+      URL.revokeObjectURL(imageUrl);
+    }
+
+    setFile(null);
+    setImageUrl(null);
+  };
+
+  // =========================================================
+  // FORMIK
+  // =========================================================
+
   const Formik = useFormik({
     initialValues: {
       password: "",
     },
 
-    validationSchema: Yup.object({
-      password: Yup.string()
-        .required("Password is required")
-        .min(6, "Password must be at least 6 characters"),
-    }),
+    // validationSchema: Yup.object({
+    //   password: Yup.string()
+    //     .required("Password is required")
+    //     .min(6, "Password must be at least 6 characters"),
+    // }),
 
     onSubmit: async (values) => {
-      console.log("Password:", values.password);
+      try {
+        const fd = new FormData();
 
-      // API call will go here
-      const fd = new FormData();
+        // Password
+        if (values.password) {
+          fd.append("password", values.password);
+        }
 
-      Object.keys(values).forEach((key) => {
-        fd.append(key, values[key]);
-      });
+        // Image
+        if (file) {
+          fd.append("image", file, file.name);
+        }
 
-      if (file) {
-        fd.append("image", file, file.name);
+        const resp = await axios.patch(`${baseUrl}/teacher/updateprofile`, fd);
+
+        setMessage(resp.data.message);
+        setType("success");
+
+        // Clear password
+        Formik.resetForm();
+
+        // Clear selected image
+        handleClearFile();
+
+        // Refresh teacher details
+        await getTeacherDetails();
+      } catch (e) {
+        console.error("Error updating teacher profile:", e);
+
+        setMessage(
+          e.response?.data?.message || "Error updating teacher profile",
+        );
+
+        setType("error");
       }
-
-      axios
-        .patch(`${baseUrl}/teacher/updateprofile`, fd)
-        .then((resp) => {
-          setMessage(resp.data.message);
-          setType("success");
-          // setLoading(true);
-        })
-        .catch((e) => {
-          setMessage(
-            e.response?.data?.message || "Error updating teacher profile",
-          );
-          setType("error");
-        });
     },
   });
 
-  // ✅ Fetch Teacher
+  // =========================================================
+  // FETCH TEACHER
+  // =========================================================
+
   const getTeacherDetails = async () => {
     try {
       setLoading(true);
+      setError("");
+
       const resp = await axios.get(`${baseUrl}/teacher/fetch-own`);
-      setTeacher(resp.data.data);
+
+      const teacherData = resp.data.data;
+
+      setTeacher(teacherData);
     } catch (e) {
       console.error("Error fetching teacher:", e);
+
       setError("Failed to load teacher details");
     } finally {
       setLoading(false);
     }
   };
 
+  // =========================================================
+  // INITIAL LOAD
+  // =========================================================
+
   useEffect(() => {
     getTeacherDetails();
-  }, [message]);
 
-  // ✅ Loading State
+    // Cleanup image preview when component unmounts
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, []);
+
+  // =========================================================
+  // LOADING
+  // =========================================================
+
   if (loading) {
     return (
-      <>
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-          <CircularProgress />
-        </Box>
-      </>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 300,
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
-  // ✅ Error State
+  // =========================================================
+  // ERROR
+  // =========================================================
+
   if (error) {
-    return <Alert severity="error">{error}</Alert>;
+    return (
+      <Box sx={{ p: 2 }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
   }
 
-  // ✅ Empty State
+  // =========================================================
+  // EMPTY
+  // =========================================================
+
   if (!teacher) {
-    return <Alert severity="info">No teacher data found</Alert>;
+    return (
+      <Box sx={{ p: 2 }}>
+        <Alert severity="info">No teacher data found</Alert>
+      </Box>
+    );
   }
 
-  // ✅ Mobile Card View
-  // ✅ Mobile Responsive View
+  // =========================================================
+  // DISPLAY IMAGE
+  // =========================================================
+
+  const displayImage = imageUrl || teacher.teacher_image;
+
+  // =========================================================
+  // REUSABLE ROW
+  // =========================================================
+
+  const renderRow = (label, value) => (
+    <Box sx={{ mb: 1 }}>
+      <Typography variant="body2" color="text.secondary">
+        {label}
+      </Typography>
+
+      <Typography variant="body1" fontWeight="500">
+        {value || "-"}
+      </Typography>
+    </Box>
+  );
+
+  // =========================================================
+  // IMAGE UPLOAD SECTION
+  // =========================================================
+
+  const renderImageUpload = () => (
+    <Box
+      sx={{
+        mt: 3,
+        p: { xs: 2, sm: 3 },
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 2,
+        width: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      <Typography
+        variant="subtitle1"
+        sx={{
+          fontWeight: 600,
+          mb: 2,
+        }}
+      >
+        Update Teacher Image
+      </Typography>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: {
+            xs: "column",
+            sm: "row",
+          },
+          alignItems: {
+            xs: "center",
+            sm: "center",
+          },
+          gap: 2,
+        }}
+      >
+        {/* IMAGE PREVIEW */}
+
+        <CardMedia
+          component="img"
+          image={displayImage}
+          alt="Teacher"
+          sx={{
+            width: {
+              xs: 120,
+              sm: 140,
+            },
+            height: {
+              xs: 120,
+              sm: 140,
+            },
+            borderRadius: "50%",
+            objectFit: "cover",
+            border: "3px solid lightgreen",
+            p: "3px",
+            flexShrink: 0,
+          }}
+        />
+
+        {/* FILE INPUT */}
+
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: {
+              xs: "100%",
+              sm: 400,
+            },
+          }}
+        >
+          <TextField
+            fullWidth
+            type="file"
+            inputRef={fileInputRef}
+            onChange={addImage}
+            inputProps={{
+              accept: "image/*",
+            }}
+            sx={{
+              "& input": {
+                fontSize: {
+                  xs: "13px",
+                  sm: "14px",
+                },
+              },
+            }}
+          />
+
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{
+              display: "block",
+              mt: 1,
+            }}
+          >
+            Select JPG, JPEG, PNG or other image file. Maximum size: 5 MB.
+          </Typography>
+
+          {file && (
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={handleClearFile}
+              sx={{
+                mt: 1.5,
+              }}
+            >
+              Clear Image
+            </Button>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  // =========================================================
+  // MOBILE VIEW
+  // =========================================================
+
   const renderMobileView = () => (
     <>
-      {message && (
-        <CustomizedSnackbars
-          reset={resetMessage}
-          type={type}
-          message={message}
-        />
-      )}
-
       <Paper
         elevation={3}
         sx={{
@@ -141,25 +398,37 @@ export default function TeacherDetails() {
       >
         <Box
           sx={{
-            p: { xs: 2, sm: 3 },
+            p: {
+              xs: 2,
+              sm: 3,
+            },
           }}
         >
-          {/* Teacher Details */}
+          {/* DETAILS */}
+
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: { xs: 1.5, sm: 2 },
+              gap: {
+                xs: 1.5,
+                sm: 2,
+              },
             }}
           >
             {renderRow("Name", teacher.name)}
+
             {renderRow("Email", teacher.email)}
+
             {renderRow("Age", teacher.age)}
+
             {renderRow("Gender", teacher.gender)}
+
             {renderRow("Qualification", teacher.qualification)}
           </Box>
 
-          {/* Divider */}
+          {/* DIVIDER */}
+
           <Box
             sx={{
               borderTop: "1px solid",
@@ -168,9 +437,25 @@ export default function TeacherDetails() {
             }}
           />
 
-          {/* Password */}
-          <Box sx={{ width: "100%" }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          {/* IMAGE UPLOAD */}
+
+          {renderImageUpload()}
+
+          {/* PASSWORD */}
+
+          <Box
+            sx={{
+              width: "100%",
+              mt: 3,
+            }}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                mb: 1,
+              }}
+            >
               Password
             </Typography>
 
@@ -191,17 +476,24 @@ export default function TeacherDetails() {
               size="medium"
               sx={{
                 "& .MuiInputBase-root": {
-                  minHeight: { xs: 52, sm: 56 },
+                  minHeight: {
+                    xs: 52,
+                    sm: 56,
+                  },
                 },
               }}
             />
           </Box>
 
-          {/* Buttons */}
+          {/* BUTTONS */}
+
           <Box
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
+              flexDirection: {
+                xs: "column",
+                sm: "row",
+              },
               gap: 1.5,
               mt: 3,
               width: "100%",
@@ -212,12 +504,13 @@ export default function TeacherDetails() {
               variant="contained"
               color="primary"
               onClick={Formik.handleSubmit}
+              disabled={Formik.isSubmitting}
               sx={{
                 minHeight: 48,
                 fontWeight: 600,
               }}
             >
-              Submit
+              {Formik.isSubmitting ? "Updating..." : "Update"}
             </Button>
 
             <Button
@@ -226,6 +519,7 @@ export default function TeacherDetails() {
               color="secondary"
               onClick={() => {
                 Formik.resetForm();
+                handleClearFile();
               }}
               sx={{
                 minHeight: 48,
@@ -240,29 +534,12 @@ export default function TeacherDetails() {
     </>
   );
 
-  // ✅ Table Row Reusable
-  const renderRow = (label, value) => (
-    <Box sx={{ mb: 1 }}>
-      <Typography variant="body2" color="text.secondary">
-        {label}
-      </Typography>
-      <Typography variant="body1" fontWeight="500">
-        {value || "-"}
-      </Typography>
-    </Box>
-  );
+  // =========================================================
+  // DESKTOP VIEW
+  // =========================================================
 
-  // ✅ Desktop Table View
   const renderTableView = () => (
     <>
-      {message && (
-        <CustomizedSnackbars
-          reset={resetMessage}
-          type={type}
-          message={message}
-        />
-      )}
-
       <TableContainer
         component={Paper}
         sx={{
@@ -282,15 +559,28 @@ export default function TeacherDetails() {
               ["Qualification", teacher.qualification],
             ].map(([label, value]) => (
               <TableRow key={label}>
-                <TableCell sx={{ fontWeight: "bold", width: "40%" }}>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    width: "40%",
+                  }}
+                >
                   {label}
                 </TableCell>
+
                 <TableCell>{value || "-"}</TableCell>
               </TableRow>
             ))}
-            {/* Password */}
+
+            {/* PASSWORD */}
+
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold", width: "40%" }}>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  width: "40%",
+                }}
+              >
                 Password
               </TableCell>
 
@@ -315,9 +605,26 @@ export default function TeacherDetails() {
               </TableCell>
             </TableRow>
 
-            {/* Submit and Cancel Buttons */}
+            {/* IMAGE */}
+
             <TableRow>
-              <TableCell></TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  width: "40%",
+                  verticalAlign: "top",
+                }}
+              >
+                Teacher Image
+              </TableCell>
+
+              <TableCell>{renderImageUpload()}</TableCell>
+            </TableRow>
+
+            {/* BUTTONS */}
+
+            <TableRow>
+              <TableCell />
 
               <TableCell>
                 <Box
@@ -331,8 +638,9 @@ export default function TeacherDetails() {
                     variant="contained"
                     color="primary"
                     onClick={Formik.handleSubmit}
+                    disabled={Formik.isSubmitting}
                   >
-                    Submit
+                    {Formik.isSubmitting ? "Updating..." : "Update"}
                   </Button>
 
                   <Button
@@ -340,6 +648,7 @@ export default function TeacherDetails() {
                     color="secondary"
                     onClick={() => {
                       Formik.resetForm();
+                      handleClearFile();
                     }}
                   >
                     Cancel
@@ -353,21 +662,51 @@ export default function TeacherDetails() {
     </>
   );
 
+  // =========================================================
+  // MAIN UI
+  // =========================================================
+
   return (
-    <Box sx={{ px: { xs: 2, sm: 3 }, py: 3 }}>
-      {/* Title */}
+    <Box
+      sx={{
+        px: {
+          xs: 1.5,
+          sm: 3,
+        },
+        py: 3,
+        width: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* MESSAGE */}
+
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
+
+      {/* TITLE */}
+
       <Typography
         sx={{
           textAlign: "center",
           fontWeight: "bold",
           mb: 3,
-          fontSize: { xs: "22px", sm: "26px", md: "32px" },
+          fontSize: {
+            xs: "22px",
+            sm: "26px",
+            md: "32px",
+          },
         }}
       >
         Teacher Details
       </Typography>
 
-      {/* Image */}
+      {/* CURRENT / PREVIEW IMAGE */}
+
       <Box
         sx={{
           display: "flex",
@@ -377,11 +716,19 @@ export default function TeacherDetails() {
       >
         <Box
           component="img"
-          src={teacher.teacher_image}
+          src={displayImage}
           alt="teacher"
           sx={{
-            width: { xs: 140, sm: 200, md: 250 },
-            height: { xs: 140, sm: 200, md: 250 },
+            width: {
+              xs: 140,
+              sm: 200,
+              md: 250,
+            },
+            height: {
+              xs: 140,
+              sm: 200,
+              md: 250,
+            },
             borderRadius: "50%",
             objectFit: "cover",
             border: "3px solid lightgreen",
@@ -390,7 +737,8 @@ export default function TeacherDetails() {
         />
       </Box>
 
-      {/* Data */}
+      {/* RESPONSIVE DATA */}
+
       {isMobile ? renderMobileView() : renderTableView()}
     </Box>
   );

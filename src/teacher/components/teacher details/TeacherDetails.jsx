@@ -118,21 +118,126 @@ export default function TeacherDetails() {
   }
 
   // ✅ Mobile Card View
+  // ✅ Mobile Responsive View
   const renderMobileView = () => (
-    <Box
-      sx={{
-        border: "1px solid #ddd",
-        borderRadius: 3,
-        p: 2,
-        boxShadow: 2,
-      }}
-    >
-      {renderRow("Name", teacher.name)}
-      {renderRow("Email", teacher.email)}
-      {renderRow("Age", teacher.age)}
-      {renderRow("Gender", teacher.gender)}
-      {renderRow("Qualification", teacher.qualification)}
-    </Box>
+    <>
+      {message && (
+        <CustomizedSnackbars
+          reset={resetMessage}
+          type={type}
+          message={message}
+        />
+      )}
+
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          maxWidth: 600,
+          mx: "auto",
+          borderRadius: 3,
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            p: { xs: 2, sm: 3 },
+          }}
+        >
+          {/* Teacher Details */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: { xs: 1.5, sm: 2 },
+            }}
+          >
+            {renderRow("Name", teacher.name)}
+            {renderRow("Email", teacher.email)}
+            {renderRow("Age", teacher.age)}
+            {renderRow("Gender", teacher.gender)}
+            {renderRow("Qualification", teacher.qualification)}
+          </Box>
+
+          {/* Divider */}
+          <Box
+            sx={{
+              borderTop: "1px solid",
+              borderColor: "divider",
+              my: 2.5,
+            }}
+          />
+
+          {/* Password */}
+          <Box sx={{ width: "100%" }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              Password
+            </Typography>
+
+            <TextField
+              fullWidth
+              label="Password"
+              type="password"
+              name="password"
+              value={Formik.values.password}
+              onChange={Formik.handleChange}
+              onBlur={Formik.handleBlur}
+              error={Formik.touched.password && Boolean(Formik.errors.password)}
+              helperText={
+                Formik.touched.password && Formik.errors.password
+                  ? Formik.errors.password
+                  : "Enter a new password"
+              }
+              size="medium"
+              sx={{
+                "& .MuiInputBase-root": {
+                  minHeight: { xs: 52, sm: 56 },
+                },
+              }}
+            />
+          </Box>
+
+          {/* Buttons */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1.5,
+              mt: 3,
+              width: "100%",
+            }}
+          >
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={Formik.handleSubmit}
+              sx={{
+                minHeight: 48,
+                fontWeight: 600,
+              }}
+            >
+              Submit
+            </Button>
+
+            <Button
+              fullWidth
+              variant="outlined"
+              color="secondary"
+              onClick={() => {
+                Formik.resetForm();
+              }}
+              sx={{
+                minHeight: 48,
+                fontWeight: 600,
+              }}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </>
   );
 
   // ✅ Table Row Reusable

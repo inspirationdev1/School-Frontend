@@ -605,8 +605,19 @@ export default function Marksheet() {
             onChange={(e, newValue) => setTab(newValue)}
             textColor="primary"
             indicatorColor="primary"
+            variant="fullWidth"
+            sx={{
+              "& .MuiTab-root": {
+                minHeight: 48,
+                fontSize: {
+                  xs: "13px",
+                  sm: "14px",
+                  md: "15px",
+                },
+                fontWeight: 600,
+              },
+            }}
           >
-            {/* <Tab label="Create Receipt" /> */}
             <Tab label={isEdit ? "Edit Mark Sheet" : "Create Mark Sheet"} />
             <Tab label="View List" />
           </Tabs>
@@ -615,18 +626,51 @@ export default function Marksheet() {
         {tab === 0 && (
           <Box>
             <Box component={"div"} sx={{}}>
-              <Paper sx={{ padding: "20px", margin: "10px" }}>
+              <Paper
+                sx={{
+                  p: {
+                    xs: 1.5,
+                    sm: 2,
+                    md: 3,
+                  },
+                  m: {
+                    xs: 0.5,
+                    sm: 1,
+                    md: 2,
+                  },
+                  borderRadius: {
+                    xs: 1,
+                    md: 2,
+                  },
+                }}
+              >
                 {isEdit ? (
                   <Typography
-                    variant="h4"
-                    sx={{ fontWeight: "800", textAlign: "center" }}
+                    sx={{
+                      fontWeight: 800,
+                      textAlign: "center",
+                      fontSize: {
+                        xs: "1.35rem",
+                        sm: "1.6rem",
+                        md: "2.125rem",
+                      },
+                      mb: 2,
+                    }}
                   >
                     Edit marksheet
                   </Typography>
                 ) : (
                   <Typography
-                    variant="h4"
-                    sx={{ fontWeight: "800", textAlign: "center" }}
+                    sx={{
+                      fontWeight: 800,
+                      textAlign: "center",
+                      fontSize: {
+                        xs: "1.35rem",
+                        sm: "1.6rem",
+                        md: "2.125rem",
+                      },
+                      mb: 2,
+                    }}
                   >
                     Add New Mark Sheet
                   </Typography>
@@ -644,7 +688,11 @@ export default function Marksheet() {
                         xs: "1fr", // mobile
                         md: "1fr 1fr", // desktop → 2 columns
                       },
-                      gap: 2,
+                      gap: {
+                        xs: 1.5,
+                        sm: 2,
+                        md: 2,
+                      },
                       mt: 2,
                     }}
                   >
@@ -660,11 +708,6 @@ export default function Marksheet() {
                         onBlur={Formik.handleBlur}
                         disabled
                       />
-                      {/* {Formik.touched.msCode && Formik.errors.msCode && (
-                                                <Typography color="error" variant="caption">
-                                                    {Formik.errors.msCode}
-                                                </Typography>
-                                            )} */}
                     </Box>
 
                     {/* Marksheet Name */}
@@ -1040,36 +1083,35 @@ export default function Marksheet() {
                     </Box>
                   </Box>
 
-                  {/* MarksheetDetail */}
+                  {/* Marksheet Details */}
                   <Box sx={{ mt: 3 }}>
                     {!isDataValid && (
-                      <Alert severity="error" sx={{ mt: 2 }}>
+                      <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
                         {dataError}
                       </Alert>
                     )}
 
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "3fr 1fr 1fr 1fr 0.5fr",
-                        gap: 1,
-                        fontWeight: "bold",
-                        mb: 1,
-                      }}
-                    ></Box>
-
-                    {/* Rows */}
                     {marksheetDetails.map((row, index) => (
                       <Box
                         key={index}
                         sx={{
                           display: "grid",
-                          gridTemplateColumns: "3fr 1fr 1fr 1fr 0.5fr",
-                          gap: 1,
-                          mb: 1,
+
+                          // Desktop
+                          gridTemplateColumns: {
+                            xs: "1fr",
+                            sm: "minmax(0, 1fr)",
+                            md: "minmax(0, 3fr) minmax(120px, 1fr) 50px",
+                          },
+
+                          gap: { xs: 1.5, sm: 1, md: 1 },
+                          mb: 2,
+                          alignItems: "center",
+                          width: "100%",
                         }}
                       >
-                        <Box>
+                        {/* Student */}
+                        <Box sx={{ width: "100%", minWidth: 0 }}>
                           <Autocomplete
                             disabled={row.isEdit}
                             options={students}
@@ -1081,19 +1123,52 @@ export default function Marksheet() {
                             onChange={(event, newValue) => {
                               handleChange(index, "student", newValue);
                             }}
+                            fullWidth
                             renderInput={(params) => (
                               <TextField
                                 {...params}
                                 label="Select Student"
                                 placeholder="Search student..."
                                 fullWidth
+                                sx={{
+                                  width: "100%",
+
+                                  "& .MuiInputBase-root": {
+                                    minHeight: {
+                                      xs: 52,
+                                      sm: 52,
+                                      md: 56,
+                                    },
+                                    fontSize: {
+                                      xs: "15px",
+                                      sm: "15px",
+                                      md: "16px",
+                                    },
+                                  },
+
+                                  "& .MuiInputBase-input": {
+                                    padding: {
+                                      xs: "14px 14px",
+                                      md: "16px 14px",
+                                    },
+                                  },
+                                }}
                               />
                             )}
                           />
                         </Box>
 
-                        {/* marks */}
-                        <Box>
+                        {/* Marks */}
+                        <Box
+                          sx={{
+                            width: "100%",
+                            minWidth: {
+                              xs: 0,
+                              sm: 120,
+                              md: 120,
+                            },
+                          }}
+                        >
                           <TextField
                             fullWidth
                             label="Marks"
@@ -1119,13 +1194,51 @@ export default function Marksheet() {
                                 handleChange(index, "marks", value);
                               }
                             }}
+                            sx={{
+                              "& .MuiInputBase-root": {
+                                minHeight: {
+                                  xs: 52,
+                                  sm: 52,
+                                  md: 56,
+                                },
+                                fontSize: {
+                                  xs: "15px",
+                                  sm: "15px",
+                                  md: "16px",
+                                },
+                              },
+                            }}
                           />
                         </Box>
 
-                        <Box>
+                        {/* Delete */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: {
+                              xs: "flex-end",
+                              md: "center",
+                            },
+                            alignItems: "center",
+                          }}
+                        >
                           <Button
                             color="error"
+                            variant="outlined"
                             onClick={() => removeRow(index)}
+                            sx={{
+                              minWidth: {
+                                xs: 52,
+                                md: 44,
+                              },
+                              minHeight: {
+                                xs: 48,
+                                md: 44,
+                              },
+                              fontSize: "20px",
+                              fontWeight: "bold",
+                              px: 1,
+                            }}
                           >
                             ✕
                           </Button>
@@ -1134,25 +1247,60 @@ export default function Marksheet() {
                     ))}
 
                     {/* Add Row */}
-                    <Button variant="outlined" onClick={addRow}>
-                      + Add Item
+                    <Button
+                      variant="outlined"
+                      onClick={addRow}
+                      sx={{
+                        minHeight: 46,
+                        px: 3,
+                        mt: 1,
+                      }}
+                    >
+                      + Add Student
                     </Button>
                   </Box>
 
                   <Box
                     sx={{
                       display: "flex",
-                      gap: 2,
+                      gap: 1.5,
                       mt: 4,
-                      justifyContent: "flex-end",
+                      justifyContent: {
+                        xs: "stretch",
+                        sm: "flex-end",
+                      },
+                      flexDirection: {
+                        xs: "column",
+                        sm: "row",
+                      },
                     }}
                   >
-                    <Button type="submit" variant="contained">
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        minHeight: 48,
+                        minWidth: {
+                          xs: "100%",
+                          sm: 120,
+                        },
+                      }}
+                    >
                       {isEdit ? "Update" : "Submit"}
                     </Button>
 
                     {isEdit && (
-                      <Button variant="outlined" onClick={cancelEdit}>
+                      <Button
+                        variant="outlined"
+                        onClick={cancelEdit}
+                        sx={{
+                          minHeight: 48,
+                          minWidth: {
+                            xs: "100%",
+                            sm: 120,
+                          },
+                        }}
+                      >
                         Cancel
                       </Button>
                     )}
@@ -1202,8 +1350,19 @@ export default function Marksheet() {
               </Typography>
             </Box>
             <Box>
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableContainer
+                component={Paper}
+                sx={{
+                  width: "100%",
+                  overflowX: "auto",
+                }}
+              >
+                <Table
+                  sx={{
+                    minWidth: 750,
+                  }}
+                  aria-label="marksheet table"
+                >
                   <TableHead>
                     <TableRow>
                       {/* <TableCell component="th" scope="row"> marksheet</TableCell> */}

@@ -111,7 +111,7 @@ export default function Teachers() {
 
         Formik.setFieldValue("password", resp.data.data.password);
 
-        Formik.setFieldValue("year", resp.data.data.year);
+        // Formik.setFieldValue("year", resp.data.data.year);
 
         const matchedYear = years.find((s) => s.value === resp.data.data.year);
 
@@ -211,7 +211,7 @@ export default function Teachers() {
     gender: "",
     age: "",
     password: "",
-    year: "",
+    // year: "",
     dOBDate: "",
     joinDate: "",
     phoneno: "",

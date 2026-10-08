@@ -116,6 +116,15 @@ export default function Employees() {
     console.log("Selected Employee Image:", selectedFile);
   };
 
+  // Handle upi image file selection
+  const addImage_sign = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFilesign(selectedFile);
+      setImageUrlsign(URL.createObjectURL(selectedFile));
+    }
+  };
+
   const handleClearFile = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -123,6 +132,18 @@ export default function Employees() {
 
     setFile(null);
     setImageUrl(null);
+  };
+
+  const fileInputRefsign = useRef(null);
+  const [filesign, setFilesign] = useState(null);
+  const [imageUrlsign, setImageUrlsign] = useState(null); // Independent state for image preview
+
+  const handleClearFile_sign = () => {
+    if (fileInputRefsign.current) {
+      fileInputRefsign.current.value = ""; // Clear the file input
+    }
+    setFilesign(null); // Reset the file state
+    setImageUrlsign(null); // Clear the image preview
   };
 
   // -------------------------------------------------------
@@ -216,6 +237,7 @@ export default function Employees() {
     });
 
     handleClearFile();
+    handleClearFile_sign();
   };
 
   // -------------------------------------------------------
@@ -380,6 +402,10 @@ export default function Employees() {
             fd.append("image", file, file.name);
           }
 
+          if (filesign) {
+            fd.append("sign_image", filesign, filesign.name);
+          }
+
           console.log("Updating employee...");
           console.log("Edit ID:", editId);
           console.log("Employee values:", values);
@@ -437,6 +463,9 @@ export default function Employees() {
         // Add image
         fd.append("image", file, file.name);
 
+        if (filesign) {
+          fd.append("sign_image", filesign, filesign.name);
+        }
         // Add all Formik values
         Object.keys(values).forEach((key) => {
           fd.append(
@@ -708,6 +737,67 @@ export default function Employees() {
                         Formik.errors.employee_name
                       }
                     />
+                  </Grid>
+
+                  {/* SIGN IMAGE */}
+                  <Grid item xs={12} md={6}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {/* Hidden File Input */}
+                      <input
+                        type="file"
+                        name="filesign"
+                        accept="image/*"
+                        onChange={addImage_sign}
+                        ref={fileInputRefsign}
+                        style={{ display: "none" }}
+                      />
+
+                      {/* Choose Sign Button */}
+                      <Button
+                        variant="outlined"
+                        onClick={() => fileInputRefsign.current?.click()}
+                      >
+                        Choose Signature
+                      </Button>
+
+                      {/* Selected File Name */}
+                      {filesign && (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            maxWidth: 250,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {filesign.name}
+                        </Typography>
+                      )}
+
+                      {/* Sign Preview */}
+                      {filesign && imageUrlsign && (
+                        <CardMedia
+                          component="img"
+                          image={imageUrlsign}
+                          alt="Signature"
+                          sx={{
+                            width: 120,
+                            height: 80,
+                            objectFit: "contain",
+                            border: "1px solid #ddd",
+                            borderRadius: 1,
+                          }}
+                        />
+                      )}
+                    </Box>
                   </Grid>
 
                   {/* Qualification */}

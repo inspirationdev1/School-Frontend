@@ -30,6 +30,7 @@ import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { teacherSchema } from "../../../yupSchema/teacherSchemal";
 import dayjs from "dayjs";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 export default function Teachers() {
   const [teacherClass, setteacherClass] = useState([]);
@@ -66,6 +67,15 @@ export default function Teachers() {
     setImageUrl(URL.createObjectURL(file));
     console.log("Image", file, event.target.value);
     setFile(file);
+  };
+
+  // Handle upi image file selection
+  const addImage_sign = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFilesign(selectedFile);
+      setImageUrlsign(URL.createObjectURL(selectedFile));
+    }
   };
 
   // =========================
@@ -190,6 +200,18 @@ export default function Teachers() {
     setImageUrl(null);
   };
 
+  const fileInputRefsign = useRef(null);
+  const [filesign, setFilesign] = useState(null);
+  const [imageUrlsign, setImageUrlsign] = useState(null); // Independent state for image preview
+
+  const handleClearFile_sign = () => {
+    if (fileInputRefsign.current) {
+      fileInputRefsign.current.value = ""; // Clear the file input
+    }
+    setFilesign(null); // Reset the file state
+    setImageUrlsign(null); // Clear the image preview
+  };
+
   // =========================
   // MESSAGE
   // =========================
@@ -237,6 +259,9 @@ export default function Teachers() {
         if (file) {
           fd.append("image", file, file.name);
         }
+        if (filesign) {
+          fd.append("sign_image", filesign, filesign.name);
+        }
 
         axios
           .patch(`${baseUrl}/teacher/update/${editId}`, fd)
@@ -245,6 +270,7 @@ export default function Teachers() {
             setType("success");
 
             handleClearFile();
+            handleClearFile_sign();
             cancelEdit();
 
             // Clear search
@@ -263,6 +289,9 @@ export default function Teachers() {
 
           fd.append("image", file, file.name);
 
+          if (filesign) {
+            fd.append("sign_image", filesign, filesign.name);
+          }
           Object.keys(values).forEach((key) => {
             fd.append(key, values[key]);
           });
@@ -276,6 +305,7 @@ export default function Teachers() {
               setType("success");
 
               handleClearFile();
+              handleClearFile_sign();
               cancelEdit();
 
               // Clear search
@@ -495,6 +525,67 @@ export default function Teachers() {
                         {Formik.errors.email}
                       </p>
                     )}
+                  </Grid>
+
+                  {/* SIGN IMAGE */}
+                  <Grid item xs={12} md={6}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {/* Hidden File Input */}
+                      <input
+                        type="file"
+                        name="filesign"
+                        accept="image/*"
+                        onChange={addImage_sign}
+                        ref={fileInputRefsign}
+                        style={{ display: "none" }}
+                      />
+
+                      {/* Choose Sign Button */}
+                      <Button
+                        variant="outlined"
+                        onClick={() => fileInputRefsign.current?.click()}
+                      >
+                        Choose Signature
+                      </Button>
+
+                      {/* Selected File Name */}
+                      {filesign && (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            maxWidth: 250,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {filesign.name}
+                        </Typography>
+                      )}
+
+                      {/* Sign Preview */}
+                      {filesign && imageUrlsign && (
+                        <CardMedia
+                          component="img"
+                          image={imageUrlsign}
+                          alt="Signature"
+                          sx={{
+                            width: 120,
+                            height: 80,
+                            objectFit: "contain",
+                            border: "1px solid #ddd",
+                            borderRadius: 1,
+                          }}
+                        />
+                      )}
+                    </Box>
                   </Grid>
 
                   {/* NAME */}

@@ -102,15 +102,7 @@ export default function Appsettings() {
     onSubmit: (values) => {
       if (isEdit) {
         const fd = new FormData();
-        // Object.keys(values).forEach((key) => {
-        //   fd.append(key, values[key]);
-        // });
-        // if (file) {
-        //   fd.append("image", file, file.name);
-        // }
-        // if (fileupi) {
-        //   fd.append("image", fileupi, fileupi.name,);
-        // }
+        
 
         Object.keys(values).forEach((key) => {
           fd.append(key, values[key]);

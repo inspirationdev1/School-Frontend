@@ -387,6 +387,7 @@ export default function Receipts() {
       const studentsResponse = await axios.get(
         `${baseUrl}/student/fetch-with-query`,
       ); // Fetch based on class
+
       setStudents(studentsResponse.data.data);
     } catch (error) {
       console.error("Error fetching students or checking attendance:", error);
@@ -784,12 +785,31 @@ export default function Receipts() {
                             <Autocomplete
                               disabled={row.isEdit}
                               options={students}
-                              getOptionLabel={(option) => option.name}
+                              getOptionLabel={(option) => {
+                                const studentName = option.name || "";
+
+                                const fatherName =
+                                  option.parent?.father_name || "";
+
+                                const motherName =
+                                  option.parent?.mother_name || "";
+
+                                return [
+                                  studentName,
+                                  fatherName && `Father: ${fatherName}`,
+                                  motherName && `Mother: ${motherName}`,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" | ");
+                              }}
                               value={row.student}
                               onChange={(event, newValue) => {
                                 setSelectedStudent(newValue);
                                 handleChange(index, "student", newValue);
                               }}
+                              isOptionEqualToValue={(option, value) =>
+                                option._id === value?._id
+                              }
                               renderInput={(params) => (
                                 <TextField
                                   {...params}

@@ -35,9 +35,8 @@ export default function StudentGraphPrint() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedExamination, setSelectedExamination] = useState(null);
-  
 
-  const [selectedYear, setSelectedYear] = useState(null)
+  const [selectedYear, setSelectedYear] = useState(null);
 
   const [isDataFound, setIsDataFound] = useState(false);
 
@@ -48,8 +47,17 @@ export default function StudentGraphPrint() {
     setMessage("");
   };
 
+  // useEffect(() => {
+  //   fetchReportData();
+  // }, []);
   useEffect(() => {
     fetchReportData();
+
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
   }, []);
 
   const fetchReportData = async () => {
@@ -62,7 +70,6 @@ export default function StudentGraphPrint() {
         const data = JSON.parse(decodeURIComponent(dataParam));
 
         let paramsRpt = {};
-        
 
         if (data?.class) {
           paramsRpt.class = data?.class;
@@ -120,8 +127,6 @@ export default function StudentGraphPrint() {
   };
 
   const downloadReportExcel = async () => {
-
-
     let paramsRpt = {};
 
     if (selectedClass) {
@@ -167,7 +172,7 @@ export default function StudentGraphPrint() {
         row?.email,
         dayjs(row.dOBDate).format("DD-MM-YYYY"),
         dayjs(row.joinDate).format("DD-MM-YYYY"),
-        row?.phoneno
+        row?.phoneno,
       ]);
     });
 
@@ -181,14 +186,16 @@ export default function StudentGraphPrint() {
     const date = new Date();
     // 5️⃣ Download
     XLSX.writeFile(workbook, `Teacherlist_${date}.xlsx`);
-
   };
 
-
-
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <div className="flex h-[calc(100dvh-64px)] w-full items-center justify-center">
+        <Typography>Loading report...</Typography>
+      </div>
+    );
   }
+
   return (
     <>
       {message && (
@@ -198,40 +205,63 @@ export default function StudentGraphPrint() {
           message={message}
         />
       )}
-      <div className="max-w-2xl mx-auto my-10">
-        <div className="w-full h-[600px]">
+
+      {/* PDF report container */}
+      <div
+        className="
+        box-border
+        flex
+        h-[calc(100dvh-64px)]
+        w-full
+        min-w-0
+        flex-col
+        overflow-hidden
+        p-2
+        sm:p-3
+      "
+      >
+        {/* PDF Viewer */}
+        <div className="min-h-0 w-full flex-1 overflow-hidden rounded-md border border-gray-300">
           {pdfUrl ? (
             <iframe
-              src={`${pdfUrl}#zoom=page-width`}
-              width="100%"
-              height="100%"
-              style={{ border: "none" }}
+              key={pdfUrl}
+              src={`${pdfUrl}#zoom=80&page=1&view=FitH`}
+              title="Student Graph Report"
+              className="block h-full w-full border-0"
             />
           ) : (
-            <Typography>Loading PDF...</Typography>
+            <div className="flex h-full items-center justify-center">
+              <Typography>Loading PDF...</Typography>
+            </div>
           )}
         </div>
 
+        {/* Download button */}
         {pdfUrl && (
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="flex shrink-0 justify-center gap-3 py-2">
             <button
               onClick={() => {
                 const link = document.createElement("a");
                 link.href = pdfUrl;
                 link.download = "StudentPercentage.pdf";
+                document.body.appendChild(link);
                 link.click();
+                link.remove();
               }}
-              className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+              className="
+              rounded-md
+              bg-blue-600
+              px-4
+              py-2
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:bg-blue-700
+            "
             >
               Download PDF
             </button>
-
-            {/* <button
-              className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
-              onClick={downloadReportExcel}
-            >
-              Download Excel
-            </button> */}
           </div>
         )}
       </div>

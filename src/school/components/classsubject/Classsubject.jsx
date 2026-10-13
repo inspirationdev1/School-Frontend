@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   Button,
@@ -10,46 +11,69 @@ import {
   TableHead,
   Table,
   TableContainer,
+  Select,
+  MenuItem,
+  Alert,
+  FormControl,
+  InputLabel,
+  Autocomplete,
   Tabs,
   Tab,
-  Autocomplete,
 } from "@mui/material";
+// import { Container, Button, Table, TableBody, TableCell, TableHead, TableRow, Typography, Select, MenuItem, Alert, FormControl, InputLabel, Autocomplete, TextField, Box } from '@mui/material';
+import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { classsubjectSchema } from "../../../yupSchema/classsubjectSchema";
+import ClasssubjectPrint from "./ClasssubjectPrint";
+import { AuthContext } from "../../../context/AuthContext";
 
 export default function Classsubject() {
-  const [classsubject, setClasssubject] = useState([]);
-  const [filteredClasssubjects, setFilteredClasssubjects] = useState([]);
-
+  const { authenticated, user } = useContext(AuthContext);
+  const [isDataValid, setIsDataValid] = useState(true);
+  const [dataError, setDataError] = useState("");
+  const [studentClasssubject, setStudentClasssubject] = useState([]);
   const [isEdit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [tab, setTab] = useState(0);
+  const [date, setDate] = useState(new Date());
 
+  const [isPrint, setPrint] = useState(false);
+  const [printId, setPrintId] = useState(null);
+
+  const [params, setParams] = useState({});
+
+  const [loading, setLoading] = useState(true);
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
 
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState(null);
 
-  // Search
-  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState(0);
 
-  // Message
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("success");
+  const [classsubjectDetails, setClasssubjectDetails] = useState([
+    {
+      subject: null,
+      seq: 0,
+      remarks: "",
+      isEdit: false,
+    },
+  ]);
 
-  const resetMessage = () => {
-    setMessage("");
+  const clearClasssubjectDetails = () => {
+    setClasssubjectDetails([
+      {
+        subject: null,
+        seq: 0,
+        remarks: "",
+        isEdit: false,
+      },
+    ]);
+    console.log("classsubjectDetails", classsubjectDetails);
   };
 
-  // --------------------------------------------------
-  // DELETE
-  // --------------------------------------------------
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete?")) {
       axios
@@ -59,245 +83,285 @@ export default function Classsubject() {
           setType("success");
         })
         .catch((e) => {
-          setMessage(
-            e.response?.data?.message || "Error deleting class subject",
-          );
+          setMessage(e.response.data.message);
           setType("error");
-
           console.log("Error, deleting", e);
         });
     }
   };
-
-  // --------------------------------------------------
-  // EDIT
-  // --------------------------------------------------
-  const handleEdit = (id) => {
-    console.log("Handle Edit is called", id);
-
+  const handleEdit = async (id) => {
+    console.log("Handle  Edit is called", id);
     setEdit(true);
-
     axios
       .get(`${baseUrl}/classsubject/fetch-single/${id}`)
       .then((resp) => {
-        const data = resp.data.data;
+        Formik.setFieldValue(
+          "classsubject_code",
+          resp.data.data?.classsubject_code,
+        );
+        Formik.setFieldValue(
+          "classsubject_name",
+          resp.data.data?.classsubject_name,
+        );
+        Formik.setFieldValue("class", resp.data.data?.class._id);
 
-        Formik.setFieldValue("class", data?.class?._id || "");
+        Formik.setFieldValue("remarks", resp.data.data?.remarks);
 
-        Formik.setFieldValue("subject", data?.subject?._id || "");
+        setSelectedClass(resp.data.data?.class || null);
 
-        Formik.setFieldValue("seq", data?.seq ?? 0);
+        setEditId(resp.data.data._id);
 
-        setSelectedClass(data?.class || null);
-        setSelectedSubject(data?.subject || null);
+        const editClasssubjectDetails = resp.data.data?.classsubjectDetails.map(
+          (row) => ({
+            ...row,
+            subject: subjects.find((f) => f._id === row.subject) || null,
+            isEdit: true,
+          }),
+        );
 
-        setEditId(data?._id);
-
-        // Open Edit tab
-        setTab(0);
+        setClasssubjectDetails(editClasssubjectDetails);
+        setTab(0); // open Create Receipt tab
       })
       .catch((e) => {
-        console.log("Error in fetching edit data.", e);
-
-        setMessage(
-          e.response?.data?.message || "Error fetching class subject details",
-        );
-        setType("error");
+        console.log("Error  in fetching edit data.");
       });
   };
 
-  // --------------------------------------------------
-  // CANCEL EDIT
-  // --------------------------------------------------
+  const handlePrint = async (id) => {
+    console.log("Handle  Print is called", id);
+    setPrint(true);
+
+    if (user?.role === "TEACHER") {
+      window.open(`/teacher/ClasssubjectPrint?id=${id}`, "_blank");
+    } else {
+      window.open(`/school/ClasssubjectPrint?id=${id}`, "_blank");
+    }
+
+    setPrint(false);
+  };
+
   const cancelEdit = () => {
     setEdit(false);
     setEditId(null);
-    setSelectedClass(null);
-    setSelectedSubject(null);
     Formik.resetForm();
+    // 🔥 reset Autocomplete values
+    setSelectedClass(null);
+
+    setIsDataValid(true);
+    // 🔥 reset Autocomplete values
+    clearClasssubjectDetails();
   };
 
-  // --------------------------------------------------
-  // FORMIK
-  // --------------------------------------------------
+  const clearForm = () => {
+    setEdit(false);
+    setEditId(null);
+    Formik.resetForm();
+    // 🔥 reset Autocomplete values
+    setSelectedClass(null);
+
+    clearClasssubjectDetails();
+  };
+
+  //   MESSAGE
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("succeess");
+
+  const resetMessage = () => {
+    setMessage("");
+  };
+
   const initialValues = {
+    classsubject_code: "",
+    classsubject_name: "",
     class: "",
-    class_name: "",
-    subject: "",
-    subject_name: "",
     seq: 0,
+    status: "valid",
+    remarks: "",
   };
-
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: classsubjectSchema,
-
     onSubmit: (values) => {
-      const submitValues = {
-        ...values,
-        class: selectedClass?._id || "",
-        subject: selectedSubject?._id || "",
-        class_name: selectedClass?.class_name || "",
-        subject_name: selectedSubject?.subject_name || "",
-      };
+      if (classsubjectDetails.length == 0) {
+        setDataError("Invoice Details is missing");
+        setIsDataValid(false);
+        return;
+      }
 
+      let hasInvalidRow = false;
+
+      for (const item of classsubjectDetails) {
+        if (
+          item.subject === undefined ||
+          item.subject === "" ||
+          item.subject === null
+        ) {
+          setDataError("Select Subject");
+          hasInvalidRow = true;
+          break; // exit loop when condition met
+        }
+
+        console.log(item);
+      }
+      if (hasInvalidRow) {
+        setIsDataValid(false);
+        return;
+      }
+
+      const hasDuplicate =
+        new Set(classsubjectDetails.map((d) => d.subject?._id.toString()))
+          .size !== classsubjectDetails.length;
+      console.log(hasDuplicate); // true
+      if (hasDuplicate) {
+        setIsDataValid(false);
+        setDataError("Subject selection is duplicated");
+        return;
+      }
+
+      //    const isValidTeacher =  validateTeacher();
+      //     if (!isValidTeacher){
+      //         return;
+      //     }
+      setIsDataValid(true);
+
+      const payload = {
+        ...values,
+        classsubjectDetails: classsubjectDetails.map((row) => ({
+          class: values?.class,
+
+          subject: row?.subject?._id, // 👈 convert here
+          seq: row?.seq,
+          remarks: "",
+        })),
+      };
       if (isEdit) {
         console.log("edit id", editId);
 
         axios
-          .patch(`${baseUrl}/classsubject/update/${editId}`, submitValues)
+          .patch(`${baseUrl}/classsubject/update/${editId}`, payload)
           .then((resp) => {
             console.log("Edit submit", resp);
-
             setMessage(resp.data.message);
             setType("success");
-
-            cancelEdit();
-            setTab(1);
+            setParams({});
+            // cancelEdit();
+            clearForm();
+            setTab(1); // go to View List
           })
           .catch((e) => {
-            setMessage(
-              e.response?.data?.message || "Error updating class subject",
-            );
-
+            setMessage(e.response.data.message);
             setType("error");
-
-            console.log("Error, edit class subject submit", e);
+            console.log("Error, edit casting submit", e);
           });
       } else {
         axios
-          .post(`${baseUrl}/classsubject/create`, submitValues)
+          .post(`${baseUrl}/classsubject/create`, payload)
           .then((resp) => {
-            console.log("Response after submitting class subject", resp);
-
+            console.log("Response after submitting admin casting", resp);
             setMessage(resp.data.message);
             setType("success");
-
-            cancelEdit();
-            setTab(1);
+            setParams({});
           })
           .catch((e) => {
-            setMessage(
-              e.response?.data?.message || "Error creating class subject",
-            );
-
+            setMessage(e.response.data.message);
             setType("error");
-
-            console.log("Error, response class subject create", e);
+            console.log("Error, response admin casting calls", e);
           });
+        // Formik.resetForm();
+        clearForm();
+        setTab(1); // go to View List
       }
     },
   });
 
-  // --------------------------------------------------
-  // FETCH CLASS SUBJECTS
-  // --------------------------------------------------
-  const fetchClasssubject = () => {
+  const [month, setMonth] = useState([]);
+  const [year, setYear] = useState([]);
+
+  const fetchstudentsclasssubject = () => {
     axios
-      .get(`${baseUrl}/classsubject/fetch-with-query`)
+      .get(`${baseUrl}/classsubject/fetch-with-query`, { params })
       .then((resp) => {
-        console.log("Fetching class subject data", resp);
-
-        const data = Array.isArray(resp.data.data) ? resp.data.data : [];
-
-        setClasssubject(data);
-        setFilteredClasssubjects(data);
+        setStudentClasssubject(resp.data.data);
       })
-      .catch((e) => {
-        console.log("Error in fetching classsubject data", e);
-
-        setClasssubject([]);
-        setFilteredClasssubjects([]);
-      });
+      .catch(() => console.log("Error in fetching salesinvoices data"));
   };
-
-  // --------------------------------------------------
-  // FETCH CLASSES
-  // --------------------------------------------------
-  const fetchClasses = async () => {
+  const fetchClass = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/class/fetch-all`);
-
-      console.log("classes", response);
-
-      const data = Array.isArray(response.data.data) ? response.data.data : [];
-
-      setClasses(data);
+      const classData = await axios.get(`${baseUrl}/class/fetch-all`);
+      console.log("class", classData);
+      setClasses(classData.data.data);
     } catch (error) {
       console.error("Error fetching classes:", error);
-
-      setClasses([]);
     }
   };
 
-  // --------------------------------------------------
-  // FETCH SUBJECTS
-  // --------------------------------------------------
-  const fetchSubjects = async () => {
+  const fetchSubject = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/subject/fetch-all`);
-
-      console.log("subjects", response);
-
-      const data = Array.isArray(response.data.data) ? response.data.data : [];
-
-      setSubjects(data);
+      const subjectsData = await axios.get(`${baseUrl}/subject/fetch-all`);
+      setSubjects(subjectsData.data.data);
     } catch (error) {
-      console.error("Error fetching Subjects:", error);
-
-      setSubjects([]);
+      console.error("Error fetching teachers:", error);
     }
   };
 
-  // --------------------------------------------------
-  // INITIAL / AFTER CRUD FETCH
-  // --------------------------------------------------
   useEffect(() => {
-    fetchClasses();
-    fetchSubjects();
-    fetchClasssubject();
-  }, [message]);
+    fetchstudentsclasssubject();
 
-  // --------------------------------------------------
-  // DYNAMIC SEARCH
-  // --------------------------------------------------
+    fetchClass();
+
+    fetchSubject();
+  }, [message, params]);
+
+  useEffect(() => {
+    console.log("classsubjectDetails:", classsubjectDetails);
+  }, [classsubjectDetails]);
+
+  useEffect(() => {
+    console.log("isDataValid:", isDataValid);
+  }, [isDataValid]);
+
+  const handleChange = (index, field, value) => {
+    const updated = [...classsubjectDetails];
+    updated[index][field] = value;
+
+    if (field === "marks") {
+      const marksLimit = Formik.values.marksLimit || 0;
+      if (updated[index].marks > marksLimit) {
+        updated[index].marks = 0;
+      }
+    }
+
+    setClasssubjectDetails(updated);
+  };
+
+  const addRow = () => {
+    setClasssubjectDetails([
+      ...classsubjectDetails,
+      {
+        subject: "",
+        seq: 0,
+        remarks: "",
+      },
+    ]);
+  };
+
+  const removeRow = (index) => {
+    setClasssubjectDetails(classsubjectDetails.filter((_, i) => i !== index));
+    console.log(classsubjectDetails);
+  };
+
   const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  useEffect(() => {
-    const searchValue = search.trim().toLowerCase();
-
-    // Show all records when search is empty
-    if (!searchValue) {
-      setFilteredClasssubjects(classsubject);
-      return;
+    let newParam;
+    if (e.target.value !== "") {
+      newParam = { ...params, search: e.target.value };
+    } else {
+      newParam = { ...params };
+      delete newParam["search"];
     }
 
-    const filtered = classsubject.filter((item) => {
-      const className = String(
-        item?.class?.class_name || item?.class_name || "",
-      ).toLowerCase();
+    setParams(newParam);
+  };
 
-      const subjectName = String(
-        item?.subject?.subject_name || item?.subject_name || "",
-      ).toLowerCase();
-
-      const seq = String(item?.seq ?? "").toLowerCase();
-
-      return (
-        className.includes(searchValue) ||
-        subjectName.includes(searchValue) ||
-        seq.includes(searchValue)
-      );
-    });
-
-    setFilteredClasssubjects(filtered);
-  }, [search, classsubject]);
-
-  // --------------------------------------------------
-  // UI
-  // --------------------------------------------------
   return (
     <>
       {message && (
@@ -307,342 +371,589 @@ export default function Classsubject() {
           message={message}
         />
       )}
-
       <Box>
-        {/* ==================================================
-            TABS
-        ================================================== */}
-        <Box
-          sx={{
-            borderBottom: 1,
-            borderColor: "divider",
-            mb: 2,
-          }}
-        >
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs
             value={tab}
             onChange={(e, newValue) => setTab(newValue)}
             textColor="primary"
             indicatorColor="primary"
+            variant="fullWidth"
+            sx={{
+              "& .MuiTab-root": {
+                minHeight: 48,
+                fontSize: {
+                  xs: "13px",
+                  sm: "14px",
+                  md: "15px",
+                },
+                fontWeight: 600,
+              },
+            }}
           >
             <Tab
-              label={isEdit ? "Edit Class Subject" : "Add New Class Subject"}
+              label={isEdit ? "Edit Class Subject" : "Create Class Subject"}
             />
-
             <Tab label="View List" />
           </Tabs>
         </Box>
 
-        {/* ==================================================
-            TAB 0 - ADD / EDIT
-        ================================================== */}
         {tab === 0 && (
           <Box>
-            <Paper
-              sx={{
-                p: 3,
-                m: 1,
-              }}
-            >
-              <Box
-                component="form"
-                noValidate
-                autoComplete="off"
-                onSubmit={Formik.handleSubmit}
+            <Box component={"div"} sx={{}}>
+              <Paper
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
+                  p: {
+                    xs: 1.5,
+                    sm: 2,
+                    md: 3,
+                  },
+                  m: {
+                    xs: 0.5,
+                    sm: 1,
+                    md: 2,
+                  },
+                  borderRadius: {
+                    xs: 1,
+                    md: 2,
+                  },
                 }}
               >
-                {/* CLASS */}
-                <Box>
-                  <Autocomplete
-                    disabled={isEdit}
-                    options={classes}
-                    getOptionLabel={(option) => option?.class_name || ""}
-                    value={selectedClass}
-                    isOptionEqualToValue={(option, value) =>
-                      option?._id === value?._id
-                    }
-                    onChange={(event, newValue) => {
-                      setSelectedClass(newValue);
-
-                      Formik.setFieldValue(
-                        "class",
-                        newValue ? newValue._id : "",
-                      );
-
-                      Formik.setFieldValue(
-                        "class_name",
-                        newValue ? newValue.class_name : "",
-                      );
-                    }}
-                    onBlur={() => Formik.setFieldTouched("class", true)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Class"
-                        placeholder="Search class..."
-                        fullWidth
-                        error={
-                          Formik.touched.class && Boolean(Formik.errors.class)
-                        }
-                        helperText={Formik.touched.class && Formik.errors.class}
-                      />
-                    )}
-                  />
-                </Box>
-
-                {/* SUBJECT */}
-                <Box>
-                  <Autocomplete
-                    disabled={isEdit}
-                    options={subjects}
-                    getOptionLabel={(option) => option?.subject_name || ""}
-                    value={selectedSubject}
-                    isOptionEqualToValue={(option, value) =>
-                      option?._id === value?._id
-                    }
-                    onChange={(event, newValue) => {
-                      setSelectedSubject(newValue);
-
-                      Formik.setFieldValue(
-                        "subject",
-                        newValue ? newValue._id : "",
-                      );
-
-                      Formik.setFieldValue(
-                        "subject_name",
-                        newValue ? newValue.subject_name : "",
-                      );
-                    }}
-                    onBlur={() => Formik.setFieldTouched("subject", true)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Subject"
-                        placeholder="Search subject..."
-                        fullWidth
-                        error={
-                          Formik.touched.subject &&
-                          Boolean(Formik.errors.subject)
-                        }
-                        helperText={
-                          Formik.touched.subject && Formik.errors.subject
-                        }
-                      />
-                    )}
-                  />
-                </Box>
-
-                {/* SEQ */}
-                <Box>
-                  <TextField
-                    type="number"
-                    fullWidth
-                    label="Seq"
-                    name="seq"
-                    value={Formik.values.seq}
-                    onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                  />
-
-                  {Formik.touched.seq && Formik.errors.seq && (
-                    <p
-                      style={{
-                        color: "red",
-                      }}
-                    >
-                      {Formik.errors.seq}
-                    </p>
-                  )}
-                </Box>
-
-                {/* BUTTONS */}
-                <Box>
-                  <Button type="submit" sx={{ mr: 1 }} variant="contained">
-                    Submit
-                  </Button>
-
-                  {isEdit && (
-                    <Button variant="outlined" onClick={cancelEdit}>
-                      Cancel Edit
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-            </Paper>
-          </Box>
-        )}
-
-        {/* ==================================================
-            TAB 1 - VIEW LIST
-        ================================================== */}
-        {tab === 1 && (
-          <Box>
-            {/* SEARCH + TOTAL */}
-            <Paper
-              sx={{
-                p: 2,
-                mb: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  flexWrap: "wrap",
-                }}
-              >
-                <TextField
-                  label="Search Class Subjects"
-                  placeholder="Search by Class, Subject or Seq..."
-                  size="small"
-                  value={search}
-                  onChange={handleSearch}
-                  sx={{
-                    flex: 1,
-                    minWidth: {
-                      xs: "100%",
-                      sm: "400px",
-                    },
-                    "& .MuiInputBase-root": {
-                      height: 42,
-                      fontSize: "14px",
-                    },
-                  }}
-                />
-
-                {/* CLEAR */}
-                {search && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => setSearch("")}
+                {isEdit ? (
+                  <Typography
                     sx={{
-                      height: 42,
-                      whiteSpace: "nowrap",
+                      fontWeight: 800,
+                      textAlign: "center",
+                      fontSize: {
+                        xs: "1.35rem",
+                        sm: "1.6rem",
+                        md: "2.125rem",
+                      },
+                      mb: 2,
                     }}
                   >
-                    Clear
-                  </Button>
-                )}
-
-                {/* TOTAL */}
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontWeight: "bold",
-                    whiteSpace: "nowrap",
-                  }}
+                    Edit classsubject
+                  </Typography>
+                ) : (
+                  <Typography
+                    sx={{
+                      fontWeight: 800,
+                      textAlign: "center",
+                      fontSize: {
+                        xs: "1.35rem",
+                        sm: "1.6rem",
+                        md: "2.125rem",
+                      },
+                      mb: 2,
+                    }}
+                  >
+                    Add New Class Subject
+                  </Typography>
+                )}{" "}
+                <Box
+                  component="form"
+                  noValidate
+                  autoComplete="off"
+                  onSubmit={Formik.handleSubmit}
                 >
-                  Total Class Subjects:{" "}
-                  <strong>{filteredClasssubjects.length}</strong>
-                </Typography>
-              </Box>
-            </Paper>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: {
+                        xs: "1fr", // mobile
+                        md: "1fr 1fr", // desktop → 2 columns
+                      },
+                      gap: {
+                        xs: 1.5,
+                        sm: 2,
+                        md: 2,
+                      },
+                      mt: 2,
+                    }}
+                  >
+                    {/* Classsubject Code */}
+                    <Box>
+                      <TextField
+                        fullWidth
+                        label="Code"
+                        variant="outlined"
+                        name="classsubject_code"
+                        value={Formik.values.classsubject_code}
+                        onChange={Formik.handleChange}
+                        onBlur={Formik.handleBlur}
+                        // disabled
+                      />
+                    </Box>
 
-            {/* TABLE */}
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="class subject table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="right">Class</TableCell>
+                    {/* Classsubject Name */}
+                    <Box>
+                      <TextField
+                        fullWidth
+                        label="name"
+                        variant="outlined"
+                        name="classsubject_name"
+                        value={Formik.values.classsubject_name}
+                        onChange={Formik.handleChange}
+                        onBlur={Formik.handleBlur}
+                      />
+                      {Formik.touched.classsubject_name &&
+                        Formik.errors.classsubject_name && (
+                          <Typography color="error" variant="caption">
+                            {Formik.errors.classsubject_name}
+                          </Typography>
+                        )}
+                    </Box>
 
-                    <TableCell align="right">Subject</TableCell>
+                    {/* Class */}
 
-                    <TableCell align="right">Seq</TableCell>
+                    <Box>
+                      <Autocomplete
+                        disabled={isEdit}
+                        options={classes}
+                        getOptionLabel={(option) => option.class_name}
+                        value={selectedClass}
+                        onChange={(event, newValue) => {
+                          setSelectedClass(newValue);
 
-                    <TableCell align="right">Action</TableCell>
-                  </TableRow>
-                </TableHead>
+                          Formik.setFieldValue(
+                            "class",
+                            newValue ? newValue._id : "",
+                          );
 
-                <TableBody>
-                  {filteredClasssubjects.length > 0 ? (
-                    filteredClasssubjects.map((value, i) => (
-                      <TableRow
-                        key={value?._id || i}
+                          Formik.setFieldValue("seq", 0);
+                        }}
+                        onBlur={() => Formik.setFieldTouched("class", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Class"
+                            placeholder="Search class..."
+                            fullWidth
+                            error={
+                              Formik.touched.class &&
+                              Boolean(Formik.errors.class)
+                            }
+                            helperText={
+                              Formik.touched.class && Formik.errors.class
+                            }
+                          />
+                        )}
+                      />
+                    </Box>
+
+                    <Box>
+                      <TextField
+                        select
+                        fullWidth
+                        required
+                        label="Status"
+                        name="status"
+                        value={Formik.values.status}
+                        onChange={Formik.handleChange}
+                        onBlur={Formik.handleBlur}
+                        disabled
+                      >
+                        <MenuItem value="">Select Status</MenuItem>
+                        <MenuItem value="valid">Valid</MenuItem>
+                        <MenuItem value="cancel">Cancel</MenuItem>
+                      </TextField>
+                      {Formik.touched.status && Formik.errors.status && (
+                        <p
+                          style={{ color: "red", textTransform: "capitalize" }}
+                        >
+                          {Formik.errors.status}
+                        </p>
+                      )}
+                    </Box>
+
+                    {/* Remarks → full width */}
+                    <Box sx={{ gridColumn: "1 / -1" }}>
+                      <TextField
+                        fullWidth
+                        label="Remarks"
+                        variant="outlined"
+                        name="remarks"
+                        value={Formik.values.remarks}
+                        onChange={Formik.handleChange}
+                        onBlur={Formik.handleBlur}
+                        multiline
+                        rows={3}
+                      />
+                      {Formik.touched.remarks && Formik.errors.remarks && (
+                        <Typography color="error" variant="caption">
+                          {Formik.errors.remarks}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+
+                  {/* Classsubject Details */}
+                  <Box sx={{ mt: 3 }}>
+                    {!isDataValid && (
+                      <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+                        {dataError}
+                      </Alert>
+                    )}
+
+                    {classsubjectDetails.map((row, index) => (
+                      <Box
+                        key={index}
                         sx={{
-                          "&:last-child td, &:last-child th": {
-                            border: 0,
+                          display: "grid",
+
+                          // Desktop
+                          gridTemplateColumns: {
+                            xs: "1fr",
+                            sm: "minmax(0, 1fr)",
+                            md: "minmax(0, 3fr) minmax(120px, 1fr) 50px",
+                          },
+
+                          gap: { xs: 1.5, sm: 1, md: 1 },
+                          mb: 2,
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                      >
+                        {/* Subject */}
+                        <Box sx={{ width: "100%", minWidth: 0 }}>
+                          <Autocomplete
+                            disabled={row.isEdit}
+                            options={subjects}
+                            getOptionLabel={(option) =>
+                              option?.subject_name || ""
+                            }
+                            isOptionEqualToValue={(option, value) =>
+                              option._id === value?._id
+                            }
+                            value={row.subject}
+                            onChange={(event, newValue) => {
+                              handleChange(index, "subject", newValue);
+                            }}
+                            fullWidth
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Select Subject"
+                                placeholder="Search subject..."
+                                fullWidth
+                                sx={{
+                                  width: "100%",
+
+                                  "& .MuiInputBase-root": {
+                                    minHeight: {
+                                      xs: 52,
+                                      sm: 52,
+                                      md: 56,
+                                    },
+                                    fontSize: {
+                                      xs: "15px",
+                                      sm: "15px",
+                                      md: "16px",
+                                    },
+                                  },
+
+                                  "& .MuiInputBase-input": {
+                                    padding: {
+                                      xs: "14px 14px",
+                                      md: "16px 14px",
+                                    },
+                                  },
+                                }}
+                              />
+                            )}
+                          />
+                        </Box>
+
+                        {/* Seq */}
+                        <Box
+                          sx={{
+                            width: "100%",
+                            minWidth: {
+                              xs: 0,
+                              sm: 120,
+                              md: 120,
+                            },
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            label="Seq"
+                            variant="outlined"
+                            name="seq"
+                            type="number"
+                            value={row.seq}
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                                step: 1,
+                              },
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "-" || e.key === "e") {
+                                e.preventDefault();
+                              }
+                            }}
+                            onChange={(e) => {
+                              const value = e.target.value;
+
+                              if (value === "" || Number(value) >= 0) {
+                                handleChange(index, "seq", value);
+                              }
+                            }}
+                            sx={{
+                              "& .MuiInputBase-root": {
+                                minHeight: {
+                                  xs: 52,
+                                  sm: 52,
+                                  md: 56,
+                                },
+                                fontSize: {
+                                  xs: "15px",
+                                  sm: "15px",
+                                  md: "16px",
+                                },
+                              },
+                            }}
+                          />
+                        </Box>
+
+                        {/* Delete */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: {
+                              xs: "flex-end",
+                              md: "center",
+                            },
+                            alignItems: "center",
+                          }}
+                        >
+                          <Button
+                            color="error"
+                            variant="outlined"
+                            onClick={() => removeRow(index)}
+                            sx={{
+                              minWidth: {
+                                xs: 52,
+                                md: 44,
+                              },
+                              minHeight: {
+                                xs: 48,
+                                md: 44,
+                              },
+                              fontSize: "20px",
+                              fontWeight: "bold",
+                              px: 1,
+                            }}
+                          >
+                            ✕
+                          </Button>
+                        </Box>
+                      </Box>
+                    ))}
+
+                    {/* Add Row */}
+                    <Button
+                      variant="outlined"
+                      onClick={addRow}
+                      sx={{
+                        minHeight: 46,
+                        px: 3,
+                        mt: 1,
+                      }}
+                    >
+                      + Add Subject
+                    </Button>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 1.5,
+                      mt: 4,
+                      justifyContent: {
+                        xs: "stretch",
+                        sm: "flex-end",
+                      },
+                      flexDirection: {
+                        xs: "column",
+                        sm: "row",
+                      },
+                    }}
+                  >
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        minHeight: 48,
+                        minWidth: {
+                          xs: "100%",
+                          sm: 120,
+                        },
+                      }}
+                    >
+                      {isEdit ? "Update" : "Submit"}
+                    </Button>
+
+                    {isEdit && (
+                      <Button
+                        variant="outlined"
+                        onClick={cancelEdit}
+                        sx={{
+                          minHeight: 48,
+                          minWidth: {
+                            xs: "100%",
+                            sm: 120,
                           },
                         }}
                       >
-                        {/* CLASS */}
-                        <TableCell align="right">
-                          {value?.class?.class_name || value?.class_name || ""}
+                        Cancel
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+              </Paper>
+            </Box>
+          </Box>
+        )}
+
+        {tab === 1 && (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "stretch", sm: "center" },
+                mb: 2,
+              }}
+            >
+              {/* Search */}
+              <TextField
+                label="Search .."
+                size="small"
+                value={params.search || ""}
+                onChange={handleSearch}
+                fullWidth
+                sx={{
+                  flex: 2,
+                  "& .MuiInputBase-root": {
+                    height: 42,
+                    fontSize: "14px",
+                  },
+                }}
+              />
+
+              {/* Total Class Subjects */}
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Total Class Subjects: {studentClasssubject.length}
+              </Typography>
+            </Box>
+            <Box>
+              <TableContainer
+                component={Paper}
+                sx={{
+                  width: "100%",
+                  overflowX: "auto",
+                }}
+              >
+                <Table
+                  sx={{
+                    minWidth: 750,
+                  }}
+                  aria-label="classsubject table"
+                >
+                  <TableHead>
+                    <TableRow>
+                      {/* <TableCell component="th" scope="row"> classsubject</TableCell> */}
+                      <TableCell align="right">Code</TableCell>
+                      <TableCell align="right">Name</TableCell>
+                      <TableCell align="right">Class</TableCell>
+                      <TableCell align="right">Remarks</TableCell>
+
+                      <TableCell align="right">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {studentClasssubject.map((value, i) => (
+                      <TableRow
+                        key={i}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {value?.classsubject_code}
+                        </TableCell>
+                        <TableCell component="th" scope="row">
+                          {value?.classsubject_name}
                         </TableCell>
 
-                        {/* SUBJECT */}
                         <TableCell align="right">
-                          {value?.subject?.subject_name ||
-                            value?.subject_name ||
-                            ""}
+                          {value?.class?.class_name}
                         </TableCell>
-
-                        {/* SEQ */}
-                        <TableCell align="right">{value?.seq}</TableCell>
-
-                        {/* ACTION */}
+                        <TableCell align="right">{value?.remarks}</TableCell>
                         <TableCell align="right">
+                          {" "}
                           <Box
+                            component={"div"}
                             sx={{
+                              bottom: 0,
                               display: "flex",
-                              justifyContent: "flex-end",
-                              gap: 1.5,
+                              justifyContent: "end",
                             }}
                           >
-                            <Button
-                              variant="contained"
+                            <Box
+                              component="div"
                               sx={{
-                                background: "red",
-                                color: "#fff",
-                                "&:hover": {
-                                  background: "#cc0000",
-                                },
+                                display: "flex",
+                                justifyContent: "end",
+                                gap: 1.5, // 👈 adds space between buttons
                               }}
-                              onClick={() => handleDelete(value._id)}
                             >
-                              Delete
-                            </Button>
+                              <>
+                                <Button
+                                  variant="contained"
+                                  sx={{ background: "red", color: "#fff" }}
+                                  onClick={() => handleDelete(value._id)}
+                                >
+                                  Delete
+                                </Button>
 
-                            <Button
-                              variant="contained"
-                              sx={{
-                                background: "gold",
-                                color: "#222222",
-                                "&:hover": {
-                                  background: "#e6c200",
-                                },
-                              }}
-                              onClick={() => handleEdit(value._id)}
-                            >
-                              Edit
-                            </Button>
+                                <Button
+                                  variant="contained"
+                                  sx={{
+                                    background: "gold",
+                                    color: "#222222",
+                                  }}
+                                  onClick={() => handleEdit(value._id)}
+                                >
+                                  Edit
+                                </Button>
+                              </>
+
+                              {/* <Button
+                                variant="contained"
+                                sx={{ background: "green", color: "#fff" }}
+                                onClick={() => handlePrint(value._id)}
+                              >
+                                Print
+                              </Button> */}
+                            </Box>
                           </Box>
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} align="center">
-                        <Typography
-                          sx={{
-                            py: 3,
-                            color: "text.secondary",
-                          }}
-                        >
-                          {search
-                            ? "No Class Subjects found matching your search."
-                            : "No Class Subjects available."}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
           </Box>
         )}
       </Box>

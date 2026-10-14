@@ -172,7 +172,7 @@ export default function Salesinvoice() {
           resp.data.data?.monthname || "January",
         );
         const matchedMonth = months.find(
-          (s) => s.value === resp.data.data?.month || 1,
+          (s) => s.value === resp.data.data?.month,
         );
         setSelectedMonth(matchedMonth || null);
 

@@ -151,7 +151,7 @@ export default function Marksheet() {
         const editMarksheetDetails = resp.data.data.marksheetDetails.map(
           (row) => ({
             ...row,
-            student: allStudents.find((f) => f._id === row.student) || null,
+            // student: allStudents.find((f) => f._id === row.student) || null,
             isEdit: true,
           }),
         );

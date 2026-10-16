@@ -228,8 +228,12 @@ export default function Students() {
   };
 
   const [params, setParams] = useState({});
+  const [search, setSearch] = useState("");
 
   const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
+  const handleSearch_Orig = (e) => {
     let newParam;
     if (e.target.value !== "") {
       newParam = { ...params, search: e.target.value };
@@ -305,9 +309,11 @@ export default function Students() {
         const matchedSection = section.find((c) => c._id === sectionId);
         setSelectedSection(matchedSection || null);
 
-        const parentId = data?.parent?._id || data.parent;
-        const matchedParent = parent.find((c) => c._id === parentId);
-        setSelectedParent(matchedParent || null);
+        // const parentId = data?.parent?._id || data.parent;
+        // const matchedParent = parent.find((c) => c._id === parentId);
+        // setSelectedParent(matchedParent || null);
+        setSelectedParent(data?.parent);
+        setSelectedClasssubject(data?.classsubject);
 
         // Formik.setFieldValue("year", resp.data.data.year);
 
@@ -348,6 +354,7 @@ export default function Students() {
           class_name: data?.class_name || "",
           section: data.section?._id,
           parent: data.parent?._id,
+          classsubject: data?.classsubject?._id || "",
           gender: data.gender,
           age: age,
           guardian: data.guardian,
@@ -427,6 +434,7 @@ export default function Students() {
     setSelectedAccountledger(null);
 
     clearAdmissionAttachments();
+    setSearch("");
   };
 
   const [message, setMessage] = useState("");
@@ -647,6 +655,18 @@ export default function Students() {
     }
   };
 
+  // Filter Tab 2 results by Transfer Certificate Name, Code, Class, Section, or Student.
+  const filteredStudents = students.filter((value) => {
+    const searchText = search.toLowerCase().trim();
+
+    if (!searchText) return true;
+
+    return value?.name?.toLowerCase().includes(searchText);
+    // value.transfercertificate_code?.toLowerCase().includes(searchText) ||
+    // value.class?.class_name?.toLowerCase().includes(searchText) ||
+    // value.section?.section_name?.toLowerCase().includes(searchText) ||
+    // value.student?.name?.toLowerCase().includes(searchText)
+  });
   const fetchStudents = () => {
     axios
       .get(`${baseUrl}/student/fetch-with-query`, { params })
@@ -832,8 +852,9 @@ export default function Students() {
 
   useEffect(() => {
     fetchSection();
-    fetchStudents();
     fetchParent();
+    fetchStudents();
+
     fetchStudentClass();
     fetchClasssubject();
     fetchbloodgroups();
@@ -849,7 +870,7 @@ export default function Students() {
     fetchAttachmenttypes();
 
     fetchAttachmentstatuses();
-  }, [message, params]);
+  }, [message]);
 
   //   CLEARING IMAGE FILE REFENCE FROM INPUT
   const fileInputRef = useRef(null);
@@ -2323,7 +2344,7 @@ export default function Students() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {students.map((value, i) => (
+                  {filteredStudents.map((value, i) => (
                     <TableRow
                       key={i}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

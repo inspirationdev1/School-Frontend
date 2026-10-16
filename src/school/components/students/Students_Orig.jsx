@@ -38,6 +38,10 @@ import UploadIcon from "@mui/icons-material/Upload";
 export default function Students_Orig() {
   const [studentClass, setStudentClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
+
+  const [classsubjects, setClasssubjects] = useState([]);
+  const [selectedClasssubject, setSelectedClasssubject] = useState(null);
+
   const [section, setSection] = useState([]);
   const [selectedSection, setSelectedSection] = useState(null);
   const [students, setStudents] = useState([]);
@@ -436,6 +440,7 @@ export default function Students_Orig() {
     student_class: "",
     class_name: "",
     section: "",
+    classsubject: "",
     parent: "",
     gender: "",
     age: "",
@@ -520,6 +525,7 @@ export default function Students_Orig() {
 
       values.student_class = selectedClass?._id;
       values.section = selectedSection?._id;
+      values.classsubject = selectedClasssubject?._id;
       values.parent = selectedParent?._id;
       // values.bloodgroup = selectedbloodgroup?._id;
       values.bloodgroup = selectedbloodgroup?._id ?? null;
@@ -610,6 +616,15 @@ export default function Students_Orig() {
         setStudentClass(resp.data.data);
       })
       .catch(() => console.log("Error in fetching student Class"));
+  };
+
+  const fetchClasssubject = () => {
+    axios
+      .get(`${baseUrl}/classsubject/fetch-all`)
+      .then((resp) => {
+        setClasssubjects(resp.data.data);
+      })
+      .catch(() => console.log("Error in fetching Class Subject"));
   };
 
   const fetchSection = async () => {
@@ -820,6 +835,7 @@ export default function Students_Orig() {
     fetchStudents();
     fetchParent();
     fetchStudentClass();
+    fetchClasssubject();
     fetchbloodgroups();
     fetchVaccinated();
     fetchStatuses();
@@ -860,18 +876,68 @@ export default function Students_Orig() {
         />
       )}
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100%",
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+            overflow: "hidden",
+          }}
+        >
           <Tabs
             value={tab}
-            onChange={(e, newValue) => setTab(newValue)}
+            onChange={(event, newValue) => setTab(newValue)}
+            variant="fullWidth"
             textColor="primary"
             indicatorColor="primary"
+            aria-label="Student management tabs"
+            sx={{
+              minHeight: { xs: 48, sm: 56 },
+
+              "& .MuiTab-root": {
+                minWidth: 0,
+                minHeight: { xs: 48, sm: 56 },
+                flex: 1,
+                px: { xs: 0.5, sm: 2 },
+                py: 1,
+                fontSize: { xs: "0.68rem", sm: "0.875rem" },
+                fontWeight: 600,
+                whiteSpace: "normal",
+                lineHeight: 1.25,
+                overflowWrap: "anywhere",
+              },
+
+              "& .MuiTabs-indicator": {
+                height: 3,
+                borderRadius: "3px 3px 0 0",
+              },
+            }}
           >
-            {/* <Tab label="Create Receipt" /> */}
-            <Tab label={isEdit ? "Edit Student-1" : "Add New Student-1"} />
-            <Tab label={isEdit ? "Edit Student-2" : "Add New Student-2"} />
-            <Tab label={isEdit ? "Edit Student-3" : "Add New Student-3"} />
-            <Tab label="View List" />
+            <Tab
+              label={isEdit ? "Edit Student 1" : "Add Student 1"}
+              id="student-tab-0"
+              aria-controls="student-panel-0"
+            />
+
+            <Tab
+              label={isEdit ? "Edit Student 2" : "Add Student 2"}
+              id="student-tab-1"
+              aria-controls="student-panel-1"
+            />
+
+            <Tab
+              label={isEdit ? "Edit Student 3" : "Add Student 3"}
+              id="student-tab-2"
+              aria-controls="student-panel-2"
+            />
+
+            <Tab
+              label="View List"
+              id="student-tab-3"
+              aria-controls="student-panel-3"
+            />
           </Tabs>
         </Box>
 
@@ -1009,6 +1075,38 @@ export default function Students_Orig() {
                           }
                           helperText={
                             Formik.touched.section && Formik.errors.section
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  {/* Classsubject */}
+                  <Grid item xs={12} md={6}>
+                    <Autocomplete
+                      options={classsubjects}
+                      getOptionLabel={(option) => option?.classsubject_name}
+                      value={selectedClasssubject}
+                      onChange={(e, newValue) => {
+                        setSelectedClasssubject(newValue);
+                        Formik.setFieldValue(
+                          "classsubject",
+                          newValue?._id || "",
+                        );
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Class subject"
+                          placeholder="Search class subject..."
+                          fullWidth
+                          error={
+                            Formik.touched.classsubject &&
+                            Boolean(Formik.errors.classsubject)
+                          }
+                          helperText={
+                            Formik.touched.classsubject &&
+                            Formik.errors.classsubject
                           }
                         />
                       )}
@@ -2152,45 +2250,35 @@ export default function Students_Orig() {
             <Box
               sx={{
                 display: "flex",
-                gap: 2,
                 flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
+                alignItems: { xs: "stretch", sm: "center" },
+                gap: 1.5,
                 mb: 2,
+                width: "100%",
               }}
             >
-              {/* Search */}
               <TextField
-                label="Search Name .."
+                label="Search Student"
                 size="small"
                 onChange={handleSearch}
                 fullWidth
                 sx={{
-                  flex: 2,
+                  flex: 1,
                   "& .MuiInputBase-root": {
-                    height: 42,
-                    fontSize: "14px",
+                    minHeight: 44,
                   },
                 }}
               />
 
-              {/* No of Students Card */}
               <Box
-                // sx={{
-                //   flex: 1,
-                //   minWidth: { xs: "100%", sm: 160 },
-                //   height: 42,
-                //   display: "flex",
-                //   alignItems: "center",
-                //   justifyContent: "center",
-                //   borderRadius: 2,
-                //   bgcolor: "primary.main",
-                //   color: "white",
-                //   fontWeight: 600,
-                //   fontSize: "14px",
-                //   boxShadow: 2,
-                // }}
                 sx={{
-                  fontWeight: "bold",
+                  px: 2,
+                  py: 1.25,
+                  borderRadius: 1.5,
+                  bgcolor: "action.hover",
+                  fontWeight: 600,
+                  fontSize: "0.875rem",
+                  textAlign: { xs: "left", sm: "center" },
                   whiteSpace: "nowrap",
                 }}
               >
@@ -2198,8 +2286,28 @@ export default function Students_Orig() {
               </Box>
             </Box>
 
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableContainer
+              component={Paper}
+              sx={{
+                width: "100%",
+                maxWidth: "100%",
+                overflowX: "auto",
+                WebkitOverflowScrolling: "touch",
+                borderRadius: 2,
+              }}
+            >
+              <Table
+                sx={{
+                  minWidth: { xs: 900, md: 1100 },
+                  "& th, & td": {
+                    px: { xs: 1, sm: 2 },
+                    py: { xs: 1, sm: 1.5 },
+                    whiteSpace: "nowrap",
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  },
+                }}
+                aria-label="Student list"
+              >
                 <TableHead>
                   <TableRow>
                     <TableCell component="th" scope="row">

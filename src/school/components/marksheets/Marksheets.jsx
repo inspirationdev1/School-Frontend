@@ -47,6 +47,8 @@ export default function Marksheet() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [allStudents, setAllStudents] = useState([]);
 
+  const [classsubjects, setClasssubjects] = useState([]);
+
   const [periods, setPeriods] = useState([]);
   const [params, setParams] = useState({});
 
@@ -111,6 +113,8 @@ export default function Marksheet() {
   const handleEdit = async (id) => {
     console.log("Handle  Edit is called", id);
     setEdit(true);
+    setDataError("");
+    setIsDataValid(true);
     axios
       .get(`${baseUrl}/marksheet/fetch-single/${id}`)
       .then((resp) => {
@@ -254,6 +258,29 @@ export default function Marksheet() {
           setDataError("Select student");
           hasInvalidRow = true;
           break; // exit loop when condition met
+        }
+
+        if (item.marks == "" || item.marks == null) {
+          setDataError("Enter the marks");
+          hasInvalidRow = true;
+          break; // exit loop when condition met
+        }
+
+        if (item.student) {
+          const classsubjectId = item?.student?.classsubject;
+          const subjectId = values?.subject;
+          const filteredClasssubject = classsubjects.filter(
+            (row) =>
+              row?.csId?.toString() === classsubjectId?.toString() &&
+              row?.subject?._id?.toString() === subjectId?.toString(),
+          );
+          if (filteredClasssubject.length == 0) {
+            setDataError(
+              "Subject is not allowed to the student : " + item?.student?.name,
+            );
+            hasInvalidRow = true;
+            break; // exit loop when condition met
+          }
         }
 
         console.log(item);
@@ -452,6 +479,24 @@ export default function Marksheet() {
     }
   };
 
+  const fetchClasssubjects = async () => {
+    if (!selectedClass?._id) return;
+
+    try {
+      const classsubjectsResponse = await axios.get(
+        `${baseUrl}/classsubject/fetch-classsubjectdetail`,
+        {
+          params: {
+            class: selectedClass?._id,
+          },
+        },
+      ); // Fetch based on class
+      setClasssubjects(classsubjectsResponse.data.data);
+    } catch (error) {
+      console.error("Error fetching classsubjects", error);
+    }
+  };
+
   const fetchAllStudents = async () => {
     const studentsResponse = await axios.get(
       `${baseUrl}/student/fetch-with-query`,
@@ -534,6 +579,10 @@ export default function Marksheet() {
   useEffect(() => {
     fetchStudents();
   }, [selectedClass, selectedSection]);
+
+  useEffect(() => {
+    fetchClasssubjects();
+  }, [selectedClass]);
 
   useEffect(() => {
     fetchPeriods();

@@ -66,6 +66,7 @@ export default function Classsubject() {
     setClasssubjectDetails([
       {
         subject: null,
+        subject_name: "",
         seq: 0,
         remarks: "",
         isEdit: false,
@@ -104,6 +105,7 @@ export default function Classsubject() {
           resp.data.data?.classsubject_name,
         );
         Formik.setFieldValue("class", resp.data.data?.class._id);
+        Formik.setFieldValue("class_name", resp.data.data?.class?.class_name);
 
         Formik.setFieldValue("remarks", resp.data.data?.remarks);
 
@@ -174,6 +176,7 @@ export default function Classsubject() {
     classsubject_code: "",
     classsubject_name: "",
     class: "",
+    class_name: "",
     seq: 0,
     status: "valid",
     remarks: "",
@@ -230,6 +233,7 @@ export default function Classsubject() {
           class: values?.class,
 
           subject: row?.subject?._id, // 👈 convert here
+          subject_name: row?.subject?.subject_name,
           seq: row?.seq,
           remarks: "",
         })),
@@ -329,6 +333,9 @@ export default function Classsubject() {
       if (updated[index].marks > marksLimit) {
         updated[index].marks = 0;
       }
+    }
+    if (field === "subject") {
+      updated[index].subject_name = value?.subject_name;
     }
 
     setClasssubjectDetails(updated);

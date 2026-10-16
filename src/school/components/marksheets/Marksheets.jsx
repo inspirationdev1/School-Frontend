@@ -267,7 +267,7 @@ export default function Marksheet() {
         }
 
         if (item.student) {
-          const classsubjectId = item?.student?.classsubject;
+          const classsubjectId = item?.student?.classsubject?._id;
           const subjectId = values?.subject;
           const filteredClasssubject = classsubjects.filter(
             (row) =>

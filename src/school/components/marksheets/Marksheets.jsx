@@ -260,11 +260,20 @@ export default function Marksheet() {
           break; // exit loop when condition met
         }
 
-        if (item.marks == "" || item.marks == null) {
+        if (
+          item.marks === "" ||
+          item.marks === null ||
+          item.marks === undefined
+        ) {
           setDataError("Enter the marks");
           hasInvalidRow = true;
-          break; // exit loop when condition met
+          break;
         }
+        // if (item.marks == "" || item.marks == null) {
+        //   setDataError("Enter the marks");
+        //   hasInvalidRow = true;
+        //   break; // exit loop when condition met
+        // }
 
         if (item.student) {
           const classsubjectId =

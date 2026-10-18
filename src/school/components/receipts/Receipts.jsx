@@ -486,6 +486,7 @@ export default function Receipts() {
         monthname: "",
       },
     ]);
+    setSelectedStudent(null);
   };
 
   const removeRow = (index) => {

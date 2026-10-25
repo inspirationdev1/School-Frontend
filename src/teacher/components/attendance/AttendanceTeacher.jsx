@@ -271,7 +271,26 @@ const AttendanceTeacher = () => {
           )}
         />
 
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {/* Date */}
+        <TextField
+          name="date"
+          label="Date"
+          type="date"
+          variant="outlined"
+          fullWidth
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          value={dayjs(attendanceDate).format("YYYY-MM-DD")}
+          onChange={(event) => {
+            setAttendanceDate(dayjs(event.target.value));
+          }}
+          sx={{
+            "& .MuiInputBase-root": {
+              height: 40,
+            },
+          }}
+        />
+        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="Date"
             value={attendanceDate}
@@ -279,7 +298,7 @@ const AttendanceTeacher = () => {
             format="DD/MM/YYYY"
             slotProps={{ textField: { size: "small" } }}
           />
-        </LocalizationProvider>
+        </LocalizationProvider> */}
       </Box>
 
       {/* Loading */}

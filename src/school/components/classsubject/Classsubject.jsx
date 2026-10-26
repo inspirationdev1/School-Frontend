@@ -108,6 +108,7 @@ export default function Classsubject() {
         Formik.setFieldValue("class_name", resp.data.data?.class?.class_name);
 
         Formik.setFieldValue("remarks", resp.data.data?.remarks);
+        Formik.setFieldValue("status", resp.data.data?.status ?? "valid");
 
         setSelectedClass(resp.data.data?.class || null);
 
@@ -883,6 +884,7 @@ export default function Classsubject() {
                       <TableCell align="right">Name</TableCell>
                       <TableCell align="right">Class</TableCell>
                       <TableCell align="right">Remarks</TableCell>
+                      <TableCell align="right">Status</TableCell>
 
                       <TableCell align="right">Action</TableCell>
                     </TableRow>
@@ -906,6 +908,9 @@ export default function Classsubject() {
                           {value?.class?.class_name}
                         </TableCell>
                         <TableCell align="right">{value?.remarks}</TableCell>
+                        <TableCell align="right">
+                          {value?.status ?? "valid"}
+                        </TableCell>
                         <TableCell align="right">
                           {" "}
                           <Box

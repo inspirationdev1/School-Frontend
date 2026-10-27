@@ -1,9 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, Paper, CardMedia, IconButton, TextField, Button, Autocomplete } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  CardMedia,
+  IconButton,
+  TextField,
+  Button,
+  Autocomplete,
+} from "@mui/material";
 import Grid2 from "@mui/material/Grid2"; // Importing Grid2
 import axios from "axios";
 import { Bar } from "react-chartjs-2";
-import PreviewIcon from '@mui/icons-material/Preview';
+import PreviewIcon from "@mui/icons-material/Preview";
 import { useFormik } from "formik";
 
 // ChartJS setup
@@ -19,15 +28,17 @@ import {
 import { baseUrl } from "../../../environment";
 import styled from "@emotion/styled";
 import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
-ChartJS.register(CategoryScale,
+ChartJS.register(
+  CategoryScale,
   LinearScale,
   BarElement,
   Title,
   Tooltip,
-  Legend);
+  Legend,
+);
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#fff",
   minWidth: "400px",
@@ -46,8 +57,9 @@ const SchoolDashboard = () => {
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [schoolDetails, setSchoolDetails] = useState(null);
-  const [schoolName, setSchoolName] = useState('');
-  const [schooImage, setSchoolImage] = useState('');
+  const [schoolName, setSchoolName] = useState("");
+  const [password, setPassword] = useState("");
+  const [schooImage, setSchoolImage] = useState("");
   const [schoolEdit, setSchoolEdit] = useState(false);
   const [preview, setPreview] = useState(false);
 
@@ -78,25 +90,24 @@ const SchoolDashboard = () => {
     const fetchData = async () => {
       try {
         const studentRes = await axios.get(
-          `${baseUrl}/student/fetch-with-query`, { params: {} }
+          `${baseUrl}/student/fetch-with-query`,
+          { params: {} },
         );
         const teacherRes = await axios.get(
-          `${baseUrl}/teacher/fetch-with-query`, { params: {} }
+          `${baseUrl}/teacher/fetch-with-query`,
+          { params: {} },
         );
         const classesRes = await axios.get(`${baseUrl}/class/fetch-all`);
         const subjectsRes = await axios.get(`${baseUrl}/subject/fetch-all`);
         const schoolData = await axios.get(`${baseUrl}/school/fetch-single`);
 
-        console.log(studentRes, teacherRes)
+        console.log(studentRes, teacherRes);
         setSchoolDetails(schoolData.data.data);
         setSchoolName(schoolData.data.data.school_name);
-        setSchoolImage(schoolData.data.data.school_image)
-        setTotalStudents(
-          studentRes.data.data.length
-        );
-        setTotalTeachers(
-          teacherRes.data.data.length
-        );
+        setPassword(schoolData.data.data?.password ?? "");
+        setSchoolImage(schoolData.data.data.school_image);
+        setTotalStudents(studentRes.data.data.length);
+        setTotalTeachers(teacherRes.data.data.length);
         setClasses(classesRes.data.data || dummyData.classes);
         setSubjects(subjectsRes.data.data || dummyData.subjects);
       } catch (error) {
@@ -138,10 +149,9 @@ const SchoolDashboard = () => {
   };
 
   const handleSchoolEdit = () => {
-    setSchoolEdit(true)
-    setImageUrl(null)
-  }
-
+    setSchoolEdit(true);
+    setImageUrl(null);
+  };
 
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null); // Independent state for image preview
@@ -155,7 +165,6 @@ const SchoolDashboard = () => {
     }
   };
 
-
   const fileInputRef = useRef(null);
   const handleClearFile = () => {
     if (fileInputRef.current) {
@@ -167,10 +176,24 @@ const SchoolDashboard = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (
+      typeof password !== "string" ||
+      password == null ||
+      password.trim() === ""
+    ) {
+      setMessage("Please set the password");
+      setType("error");
+      return;
+    }
     const fd = new FormData();
-    fd.append("school_name", schoolName)
+    fd.append("school_name", schoolName);
     if (file) {
       fd.append("image", file, file.name);
+    }
+
+    if (password) {
+      fd.append("password", password);
     }
 
     axios
@@ -179,21 +202,19 @@ const SchoolDashboard = () => {
         setMessage(resp.data.message);
         setType("success");
         handleClearFile();
-        setSchoolEdit(false)
-        console.log("Response", resp)
+        setSchoolEdit(false);
+        console.log("Response", resp);
       })
       .catch((e) => {
         setMessage(e.response.data.message);
         setType("error");
       });
-
-  }
+  };
 
   const years = Array.from({ length: 10 }, (_, i) => {
     const year = new Date().getFullYear() - i;
     return { label: `${year}-${year + 1}`, value: year };
   });
-
 
   const getTodayDate = () => {
     const today = new Date();
@@ -213,77 +234,66 @@ const SchoolDashboard = () => {
     datasets: [
       {
         label: "Students",
-        data: [
-          0,
-          0,
-          0
-        ],
+        data: [0, 0, 0],
         backgroundColor: ["#1976d2", "#2e7d32", "#d32f2f"],
       },
     ],
   });
 
-
   useEffect(() => {
     const fetchPrintIncomeExpense = async () => {
-
       if (!selectedYear) return;
 
       try {
-
-
-        const income_expense_Print_Response = await axios.get(`${baseUrl}/schoolreports/income-expense-dashboard`, {
-          params: {
-            year: selectedYear?.value
-          }
-        });
-        console.log("income_expense_Print_Response", income_expense_Print_Response.data.data);
+        const income_expense_Print_Response = await axios.get(
+          `${baseUrl}/schoolreports/income-expense-dashboard`,
+          {
+            params: {
+              year: selectedYear?.value,
+            },
+          },
+        );
+        console.log(
+          "income_expense_Print_Response",
+          income_expense_Print_Response.data.data,
+        );
         const resultData = income_expense_Print_Response.data.data;
 
-
         setIncomeExpenseData(resultData);
-
       } catch (error) {
-        console.error('Error fetching marksheet for print:', error);
+        console.error("Error fetching marksheet for print:", error);
         setLoading(false);
         setIsDataFound(false);
       }
     };
 
     fetchPrintIncomeExpense();
-
-
-
   }, [selectedYear]);
 
   useEffect(() => {
     const fetchAttendance = async () => {
-
       if (!selectedDate) return;
 
       try {
-
-
-        const attData = await axios.get(`${baseUrl}/schoolreports/attendance-dashboard`, {
-          params: {
-            fromDate: selectedDate,
-            toDate: selectedDate
-          }
-        });
+        const attData = await axios.get(
+          `${baseUrl}/schoolreports/attendance-dashboard`,
+          {
+            params: {
+              fromDate: selectedDate,
+              toDate: selectedDate,
+            },
+          },
+        );
         console.log("attData", attData);
         setAttendanceData(attData.data.data);
-
       } catch (error) {
-        console.error('Error fetching marksheet for print:', error);
+        console.error("Error fetching marksheet for print:", error);
         setLoading(false);
         setIsDataFound(false);
       }
     };
     fetchAttendance();
   }, [selectedDate]);
-
-
-
 
   // Data for Income and Expense Chart
   const income_expense_Data = {
@@ -302,8 +312,6 @@ const SchoolDashboard = () => {
     ],
   };
 
-
-
   return (
     <Box sx={{ p: 3 }}>
       {message && (
@@ -313,19 +321,26 @@ const SchoolDashboard = () => {
           message={message}
         />
       )}
-      {schoolEdit &&
-        <Paper sx={{ maxWidth: '780px', margin: "auto", padding: "10px", marginTop: "120px" }} >
-          <Box
-            component="form"
-            noValidate
-            autoComplete="off" >
+      {schoolEdit && (
+        <Paper
+          sx={{
+            maxWidth: "780px",
+            margin: "auto",
+            padding: "10px",
+            marginTop: "120px",
+          }}
+        >
+          <Box component="form" noValidate autoComplete="off">
             <Box
               sx={{
-                display: 'flex',
-                flexDirection: 'column'
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              <Typography sx={{ marginRight: "50px" }} variant="h4"> School Pic </Typography>
+              <Typography sx={{ marginRight: "50px" }} variant="h4">
+                {" "}
+                School Pic{" "}
+              </Typography>
 
               <TextField
                 name="file"
@@ -333,14 +348,14 @@ const SchoolDashboard = () => {
                 onChange={addImage}
                 inputRef={fileInputRef}
               />
-              {imageUrl &&
+              {imageUrl && (
                 <CardMedia
                   component="img"
-                  sx={{ marginTop: '10px' }}
+                  sx={{ marginTop: "10px" }}
                   image={imageUrl}
                   height="440px"
                 />
-              }
+              )}
             </Box>
             <TextField
               fullWidth
@@ -349,175 +364,204 @@ const SchoolDashboard = () => {
               id="filled-basic"
               label="School Name "
               variant="outlined"
-              onChange={e => { setSchoolName(e.target.value) }}
+              onChange={(e) => {
+                setSchoolName(e.target.value);
+              }}
+            />
+
+            <TextField
+              fullWidth
+              sx={{ marginTop: "10px" }}
+              value={password}
+              id="filled-basic"
+              label="Password "
+              type="password"
+              variant="outlined"
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
             />
             <Box>
               <Button
                 onClick={handleSubmit}
                 variant="outlined"
-                sx={{ marginTop: "10px", marginRight: '5px' }} >
+                sx={{ marginTop: "10px", marginRight: "5px" }}
+              >
                 Submit
               </Button>
 
               <Button
-                onClick={() => { setSchoolEdit(false) }}
+                onClick={() => {
+                  setSchoolEdit(false);
+                }}
                 variant="outlined"
                 sx={{ marginTop: "10px" }}
               >
                 Cancel
               </Button>
             </Box>
-
-
           </Box>
-
         </Paper>
-
-      }
+      )}
 
       {/* <Typography variant="h4" gutterBottom>
         Admin/School Owner Dashboard {schoolDetails && `[ ${schoolDetails.school_name} ]`}
       </Typography> */}
 
-
-      {preview &&
-        <Box sx={{
-          position: "fixed", top: '0', left: '0', zIndex: '9999', height: '100vh',
-          width: "100%", background: 'black', padding: '10px'
-        }}>
+      {preview && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: "0",
+            left: "0",
+            zIndex: "9999",
+            height: "100vh",
+            width: "100%",
+            background: "black",
+            padding: "10px",
+          }}
+        >
           <Box sx={{ height: "100%", width: "100%" }}>
-            <CardMedia
-              component="img"
-              image={`${schooImage}`}
-              height="100%"
-            />
-            <Button onClick={() => { setPreview(false) }} sx={{ color: '#fff', background: 'tomato', position: 'absolute', right: '10px', top: "47%" }}> X</Button>
+            <CardMedia component="img" image={`${schooImage}`} height="100%" />
+            <Button
+              onClick={() => {
+                setPreview(false);
+              }}
+              sx={{
+                color: "#fff",
+                background: "tomato",
+                position: "absolute",
+                right: "10px",
+                top: "47%",
+              }}
+            >
+              {" "}
+              X
+            </Button>
           </Box>
         </Box>
-      }
+      )}
 
       {schoolDetails && (
         <Box>
           {/* <Typography variant="h2">{schoolDetails.school_name}</Typography> */}
-          <Box sx={{ position: 'absolute', bottom: '10px', right: '10px' }} >
-            <Button onClick={() => { setPreview(true) }}>
-              <PreviewIcon sx={{ color: "#fff", fontSize: '40px' }} />
+          <Box sx={{ position: "absolute", bottom: "10px", right: "10px" }}>
+            <Button
+              onClick={() => {
+                setPreview(true);
+              }}
+            >
+              <PreviewIcon sx={{ color: "#fff", fontSize: "40px" }} />
             </Button>
 
-            <IconButton sx={{ background: 'white' }} onClick={handleSchoolEdit} color="primary">
+            <IconButton
+              sx={{ background: "white" }}
+              onClick={handleSchoolEdit}
+              color="primary"
+            >
               <EditIcon />
             </IconButton>
           </Box>
         </Box>
       )}
 
-
-
       <Grid2 container spacing={3}>
+        {/* 🔷 Row 1 → Cards */}
+        <Grid2 size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6">Total Students</Typography>
+            <Typography variant="h4">{totalStudents}</Typography>
+          </Paper>
+        </Grid2>
 
-  {/* 🔷 Row 1 → Cards */}
-  <Grid2 size={{ xs: 12, md: 6 }}>
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="h6">Total Students</Typography>
-      <Typography variant="h4">{totalStudents}</Typography>
-    </Paper>
-  </Grid2>
+        <Grid2 size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6">Total Teachers</Typography>
+            <Typography variant="h4">{totalTeachers}</Typography>
+          </Paper>
+        </Grid2>
 
-  <Grid2 size={{ xs: 12, md: 6 }}>
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="h6">Total Teachers</Typography>
-      <Typography variant="h4">{totalTeachers}</Typography>
-    </Paper>
-  </Grid2>
+        {/* 🔷 Row 2 → Income Chart with Academic Year */}
+        <Grid2 size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 2 }}>
+            {/* Filter */}
+            <Box sx={{ mb: 2 }}>
+              <Autocomplete
+                options={years}
+                getOptionLabel={(option) => option?.label || ""}
+                value={selectedYear}
+                onChange={(event, newValue) => {
+                  setSelectedYear(newValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Academic Year"
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
+            </Box>
 
-  {/* 🔷 Row 2 → Income Chart with Academic Year */}
-  <Grid2 size={{ xs: 12, md: 6 }}>
-    <Paper sx={{ p: 2 }}>
+            {/* Title */}
+            <Typography variant="h6" gutterBottom>
+              Income vs Expense Overview
+            </Typography>
 
-      {/* Filter */}
-      <Box sx={{ mb: 2 }}>
-        <Autocomplete
-          options={years}
-          getOptionLabel={(option) => option?.label || ""}
-          value={selectedYear}
-          onChange={(event, newValue) => {
-            setSelectedYear(newValue);
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Academic Year"
-              fullWidth
-              size="small"
+            {/* Chart */}
+            <Bar
+              data={income_expense_Data}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { position: "top" },
+                },
+              }}
             />
-          )}
-        />
-      </Box>
+          </Paper>
+        </Grid2>
 
-      {/* Title */}
-      <Typography variant="h6" gutterBottom>
-        Income vs Expense Overview
-      </Typography>
+        {/* 🔷 Row 2 → Attendance Chart with Date */}
+        <Grid2 size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 2 }}>
+            {/* Filter */}
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                type="date"
+                label="Select Date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                fullWidth
+                size="small"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Box>
 
-      {/* Chart */}
-      <Bar
-        data={income_expense_Data}
-        options={{
-          responsive: true,
-          plugins: {
-            legend: { position: "top" },
-          },
-        }}
-      />
-    </Paper>
-  </Grid2>
+            {/* Title */}
+            <Typography variant="h6" gutterBottom>
+              Attendance Overview
+            </Typography>
 
-  {/* 🔷 Row 2 → Attendance Chart with Date */}
-  <Grid2 size={{ xs: 12, md: 6 }}>
-    <Paper sx={{ p: 2 }}>
-
-      {/* Filter */}
-      <Box sx={{ mb: 2 }}>
-        <TextField
-          type="date"
-          label="Select Date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          fullWidth
-          size="small"
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-      </Box>
-
-      {/* Title */}
-      <Typography variant="h6" gutterBottom>
-        Attendance Overview
-      </Typography>
-
-      {/* Chart */}
-      <Bar
-        data={attendanceData}
-        options={{
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            title: {
-              display: true,
-              text: "Student Attendance",
-            },
-          },
-        }}
-      />
-    </Paper>
-  </Grid2>
-
-</Grid2>
-
-
-
-
+            {/* Chart */}
+            <Bar
+              data={attendanceData}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { display: false },
+                  title: {
+                    display: true,
+                    text: "Student Attendance",
+                  },
+                },
+              }}
+            />
+          </Paper>
+        </Grid2>
+      </Grid2>
     </Box>
   );
 };

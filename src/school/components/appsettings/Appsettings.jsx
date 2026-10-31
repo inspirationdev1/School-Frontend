@@ -67,7 +67,15 @@ export default function Appsettings() {
         Formik.setFieldValue("udise_no", resp.data.data?.udise_no);
         Formik.setFieldValue("discPerAllowed", resp.data.data.discPerAllowed);
         Formik.setFieldValue("print_tax", resp.data.data?.print_tax || false);
-        Formik.setFieldValue("print_tax", resp.data.data?.print_tax || false);
+
+        Formik.setFieldValue(
+          "RAZORPAY_KEY_ID",
+          resp.data.data?.RAZORPAY_KEY_ID,
+        );
+        Formik.setFieldValue(
+          "RAZORPAY_SECRET",
+          resp.data.data?.RAZORPAY_SECRET,
+        );
         setEditId(resp.data.data._id);
         setTab(0); // open Create Class tab
       })
@@ -95,6 +103,8 @@ export default function Appsettings() {
     discPerAllowed: 0,
     udise_no: "",
     print_tax: false,
+    RAZORPAY_KEY_ID: "",
+    RAZORPAY_SECRET: "",
   };
   const Formik = useFormik({
     initialValues: initialValues,
@@ -102,7 +112,6 @@ export default function Appsettings() {
     onSubmit: (values) => {
       if (isEdit) {
         const fd = new FormData();
-        
 
         Object.keys(values).forEach((key) => {
           fd.append(key, values[key]);
@@ -385,6 +394,36 @@ export default function Appsettings() {
                       />
                     }
                     label="Print Tax"
+                  />
+                </Box>
+
+                {/* RAZORPAY_KEY_ID */}
+                <Box>
+                  <TextField
+                    // disabled={isEdit}
+                    fullWidth
+                    label="RAZORPAY_KEY_ID"
+                    name="RAZORPAY_KEY_ID"
+                    value={Formik.values.RAZORPAY_KEY_ID}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                    size="small"
+                    type="password"
+                  />
+                </Box>
+
+                {/* RAZORPAY_SECRET */}
+                <Box>
+                  <TextField
+                    // disabled={isEdit}
+                    fullWidth
+                    label="RAZORPAY_SECRET"
+                    name="RAZORPAY_SECRET"
+                    value={Formik.values.RAZORPAY_SECRET}
+                    onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                    size="small"
+                    type="password"
                   />
                 </Box>
 

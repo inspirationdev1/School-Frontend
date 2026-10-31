@@ -237,10 +237,97 @@ export default function Receipts() {
     return false;
   };
 
+  const paymentHandler = async (payload) => {
+    // "http://localhost:5001/order"
+    // `${baseUrl}/receipt/create`
+    // `${baseUrl}/receipt/razorOrder`
+
+    // const amount = payload?.paidAmount ?? 0;
+    // const currency = "INR";
+    // const receipt = payload?.receiptNumber ?? "RCT-1";
+
+    // const response = await fetch(`${baseUrl}/receipt/razorOrder`, {
+    //   method: "POST",
+    //   body: JSON.stringify({
+    //     amount: amount,
+    //     currency: currency,
+    //     receipt: receipt,
+    //   }),
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
+
+    axios
+      .post(`${baseUrl}/receipt/razorOrder`, payload)
+      .then((resp) => {
+        console.log("Response after submitting admin casting", resp);
+        const order = resp?.data;
+        console.log(order);
+        const RAZORPAY_KEY_ID = order?.RAZORPAY_KEY_ID;
+        console.log(RAZORPAY_KEY_ID);
+        // var options = {
+        //   key: RAZORPAY_KEY_ID,//"rzp_test_TtDwiBiRGLDzbB", // Enter the Key ID generated from the Dashboard
+        //   amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        //   currency,
+        //   name: "Acme Corp", //your business name
+        //   description: "Test Transaction",
+        //   image: "https://example.com/your_logo",
+        //   order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        //   handler: async function (response) {
+        //     const body = {
+        //       ...response,
+        //     };
+
+        //     const validateRes = await fetch(
+        //       "http://localhost:5001/order/validate",
+        //       {
+        //         method: "POST",
+        //         body: JSON.stringify(body),
+        //         headers: {
+        //           "Content-Type": "application/json",
+        //         },
+        //       },
+        //     );
+        //     const jsonRes = await validateRes.json();
+        //     console.log(jsonRes);
+        //   },
+        //   prefill: {
+        //     //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+        //     name: "Web Dev Matrix", //your customer's name
+        //     email: "webdevmatrix@example.com",
+        //     contact: "9000000000", //Provide the customer's phone number for better conversion rates
+        //   },
+        //   notes: {
+        //     address: "Razorpay Corporate Office",
+        //   },
+        //   theme: {
+        //     color: "#3399cc",
+        //   },
+        // };
+        // var rzp1 = new window.Razorpay(options);
+        // rzp1.on("payment.failed", function (response) {
+        //   alert(response.error.code);
+        //   alert(response.error.description);
+        //   alert(response.error.source);
+        //   alert(response.error.step);
+        //   alert(response.error.reason);
+        //   alert(response.error.metadata.order_id);
+        //   alert(response.error.metadata.payment_id);
+        // });
+        // rzp1.open();
+        // e.preventDefault();
+      })
+      .catch((e) => {
+        // setMessage(e.response.data.message);
+        // setType("error");
+        console.log("Error, response admin casting calls", e);
+      });
+  };
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: receiptSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       if (receiptDetails.length == 0) {
         setDataError("Receipt Details is missing");
         setIsDataValid(false);
@@ -255,6 +342,7 @@ export default function Receipts() {
 
       let hasInvalidRow = false;
       let student_name = "";
+      let paidAmount = 0;
       for (const item of receiptDetails) {
         if (item.invAmount === 0 || item.paidAmount === 0) {
           setDataError("invAmount and paidAmount must be greater than 0");
@@ -268,6 +356,7 @@ export default function Receipts() {
         }
 
         console.log(item);
+        paidAmount += item?.paidAmount ?? 0;
       }
       if (hasInvalidRow) {
         setIsDataValid(false);
@@ -279,6 +368,7 @@ export default function Receipts() {
       const payload = {
         ...values,
         student_name: student_name,
+        paidAmount: paidAmount,
         receiptDetails: receiptDetails.map((row) => ({
           class: row.class,
           section: row.section,
@@ -313,6 +403,10 @@ export default function Receipts() {
             console.log("Error, edit casting submit", e);
           });
       } else {
+        // const orderData = await paymentHandler(payload);
+        // if (orderData) {
+        //   console.log(orderData);
+        // }
         axios
           .post(`${baseUrl}/receipt/create`, payload)
           .then((resp) => {

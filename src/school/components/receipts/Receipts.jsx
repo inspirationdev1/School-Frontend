@@ -23,15 +23,20 @@ import {
 // import { Container, Button, Table, TableBody, TableCell, TableHead, TableRow, Typography, Select, MenuItem, Alert, FormControl, InputLabel, Autocomplete, TextField, Box } from '@mui/material';
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { baseUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { receiptSchema } from "../../../yupSchema/receiptSchema";
 import ReceiptPrint from "./ReceiptPrint";
 import ReceiptPrint_MMS from "./ReceiptPrint_MMS";
+// import { AuthContext } from '../../../context/AuthContext';
+import { AuthContext } from "../../../context/AuthContext";
 
 export default function Receipts() {
+  const { authenticated, user, selectedAppsetting } = useContext(AuthContext);
+  console.log("user", user);
+  console.log("selectedAppsetting", selectedAppsetting);
   const [isDataValid, setIsDataValid] = useState(true);
   const [dataError, setDataError] = useState("");
   const [studentReceipt, setStudentReceipt] = useState([]);
@@ -53,6 +58,7 @@ export default function Receipts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [salesinvoices, setSalesinvoices] = useState([]);
   const [selectedSalesinvoice, setSelectedSalesinvoice] = useState(null);
+
   const [tab, setTab] = useState(0);
   const [selectedYear, setSelectedYear] = useState(null);
 
@@ -237,93 +243,6 @@ export default function Receipts() {
     return false;
   };
 
-  const paymentHandler = async (payload) => {
-    // "http://localhost:5001/order"
-    // `${baseUrl}/receipt/create`
-    // `${baseUrl}/receipt/razorOrder`
-
-    // const amount = payload?.paidAmount ?? 0;
-    // const currency = "INR";
-    // const receipt = payload?.receiptNumber ?? "RCT-1";
-
-    // const response = await fetch(`${baseUrl}/receipt/razorOrder`, {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     amount: amount,
-    //     currency: currency,
-    //     receipt: receipt,
-    //   }),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    // });
-
-    axios
-      .post(`${baseUrl}/receipt/razorOrder`, payload)
-      .then((resp) => {
-        console.log("Response after submitting admin casting", resp);
-        const order = resp?.data;
-        console.log(order);
-        const RAZORPAY_KEY_ID = order?.RAZORPAY_KEY_ID;
-        console.log(RAZORPAY_KEY_ID);
-        // var options = {
-        //   key: RAZORPAY_KEY_ID,//"rzp_test_TtDwiBiRGLDzbB", // Enter the Key ID generated from the Dashboard
-        //   amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-        //   currency,
-        //   name: "Acme Corp", //your business name
-        //   description: "Test Transaction",
-        //   image: "https://example.com/your_logo",
-        //   order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        //   handler: async function (response) {
-        //     const body = {
-        //       ...response,
-        //     };
-
-        //     const validateRes = await fetch(
-        //       "http://localhost:5001/order/validate",
-        //       {
-        //         method: "POST",
-        //         body: JSON.stringify(body),
-        //         headers: {
-        //           "Content-Type": "application/json",
-        //         },
-        //       },
-        //     );
-        //     const jsonRes = await validateRes.json();
-        //     console.log(jsonRes);
-        //   },
-        //   prefill: {
-        //     //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-        //     name: "Web Dev Matrix", //your customer's name
-        //     email: "webdevmatrix@example.com",
-        //     contact: "9000000000", //Provide the customer's phone number for better conversion rates
-        //   },
-        //   notes: {
-        //     address: "Razorpay Corporate Office",
-        //   },
-        //   theme: {
-        //     color: "#3399cc",
-        //   },
-        // };
-        // var rzp1 = new window.Razorpay(options);
-        // rzp1.on("payment.failed", function (response) {
-        //   alert(response.error.code);
-        //   alert(response.error.description);
-        //   alert(response.error.source);
-        //   alert(response.error.step);
-        //   alert(response.error.reason);
-        //   alert(response.error.metadata.order_id);
-        //   alert(response.error.metadata.payment_id);
-        // });
-        // rzp1.open();
-        // e.preventDefault();
-      })
-      .catch((e) => {
-        // setMessage(e.response.data.message);
-        // setType("error");
-        console.log("Error, response admin casting calls", e);
-      });
-  };
   const Formik = useFormik({
     initialValues: initialValues,
     validationSchema: receiptSchema,
@@ -403,25 +322,113 @@ export default function Receipts() {
             console.log("Error, edit casting submit", e);
           });
       } else {
-        // const orderData = await paymentHandler(payload);
-        // if (orderData) {
-        //   console.log(orderData);
-        // }
-        axios
-          .post(`${baseUrl}/receipt/create`, payload)
-          .then((resp) => {
-            console.log("Response after submitting admin casting", resp);
-            clearForm();
-            cancelEdit();
-            setMessage(resp.data.message);
-            setType("success");
-          })
-          .catch((e) => {
-            setMessage(e.response.data.message);
-            setType("error");
-            console.log("Error, response admin casting calls", e);
-          });
-        // Formik.resetForm();
+        if (
+          selectedAppsetting?.RAZORPAY_KEY_ID &&
+          values?.paymentMethod != "cash"
+        ) {
+          axios
+            .post(`${baseUrl}/receipt/razororder`, payload)
+            .then((respOrder) => {
+              console.log("Response after submitting admin casting", respOrder);
+              payload.order_id = respOrder.data?.data?.id ?? null;
+              payload.payment_id = respOrder.data?.data?.id ?? null;
+
+              var options = {
+                key: respOrder.data?.data?.RAZORPAY_KEY_ID, //"rzp_test_TtDwiBiRGLDzbB", // Enter the Key ID generated from the Dashboard
+                amount: payload.paidAmount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                currency: "INR",
+                name: "Acme Corp", //your business name
+                description: "Test Transaction",
+                image: "https://example.com/your_logo",
+                order_id: payload.order_id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                handler: async function (response) {
+                  const body = {
+                    ...response,
+                  };
+
+                  axios
+                    .post(`${baseUrl}/receipt/razorvalidate`, body)
+                    .then((validateRes) => {
+                      console.log(
+                        "Response after submitting admin casting",
+                        validateRes,
+                      );
+                      payload.order_id = validateRes?.data?.orderId ?? null;
+                      payload.payment_id = validateRes?.data?.paymentId ?? null;
+
+                      axios
+                        .post(`${baseUrl}/receipt/create`, payload)
+                        .then((resp) => {
+                          console.log(
+                            "Response after submitting admin casting",
+                            resp,
+                          );
+                          clearForm();
+                          cancelEdit();
+                          setMessage(resp.data.message);
+                          setType("success");
+                        })
+                        .catch((e) => {
+                          setMessage(e.response.data.message);
+                          setType("error");
+                          console.log("Error, response admin casting calls", e);
+                        });
+                    })
+                    .catch((e) => {
+                      setMessage(e.response.data.message);
+                      setType("error");
+                      console.log("Error, response admin casting calls", e);
+                    });
+                },
+                prefill: {
+                  //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+                  name: "Web Dev Matrix", //your customer's name
+                  email: "webdevmatrix@example.com",
+                  contact: "9000000000", //Provide the customer's phone number for better conversion rates
+                },
+                notes: {
+                  address: "Razorpay Corporate Office",
+                },
+                theme: {
+                  color: "#3399cc",
+                },
+              };
+              var rzp1 = new window.Razorpay(options);
+              rzp1.on("payment.failed", function (response) {
+                alert(response.error.code);
+                alert(response.error.description);
+                alert(response.error.source);
+                alert(response.error.step);
+                alert(response.error.reason);
+                alert(response.error.metadata.order_id);
+                alert(response.error.metadata.payment_id);
+              });
+              rzp1.open();
+              // e.preventDefault();
+            })
+            .catch((e) => {
+              setMessage(e.response.data.message);
+              setType("error");
+              console.log("Error, response admin casting calls", e);
+            });
+        } else {
+          //Cash is selected or RAZORPAY_KEY_ID is not set
+          axios
+            .post(`${baseUrl}/receipt/create`, payload)
+            .then((resp) => {
+              console.log("Response after submitting admin casting", resp);
+              clearForm();
+              cancelEdit();
+              setMessage(resp.data.message);
+              setType("success");
+            })
+            .catch((e) => {
+              setMessage(e.response.data.message);
+              setType("error");
+              console.log("Error, response admin casting calls", e);
+            });
+        }
+
         clearForm();
         setTab(1); // go to View List
       }

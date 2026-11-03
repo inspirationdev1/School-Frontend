@@ -34,9 +34,11 @@ import ReceiptPrint_MMS from "./ReceiptPrint_MMS";
 import { AuthContext } from "../../../context/AuthContext";
 
 export default function Receipts() {
-  const { authenticated, user, selectedAppsetting } = useContext(AuthContext);
+  const { authenticated, user } = useContext(AuthContext);
   console.log("user", user);
-  console.log("selectedAppsetting", selectedAppsetting);
+  const [appsettings, setAppsettings] = useState([]);
+  const [selectedAppsetting, setSelectedAppsetting] = useState(null);
+
   const [isDataValid, setIsDataValid] = useState(true);
   const [dataError, setDataError] = useState("");
   const [studentReceipt, setStudentReceipt] = useState([]);
@@ -513,7 +515,22 @@ export default function Receipts() {
     }
   };
 
+  const fetchAppsettings = () => {
+    axios
+      .get(`${baseUrl}/appsetting/fetch-all`)
+      .then((resp) => {
+        console.log("Fetching data in  Casting Calls  admin.", resp);
+        setAppsettings(resp.data.data);
+        const id = resp.data.data[0]._id;
+        setSelectedAppsetting(resp.data.data[0]);
+        console.log("selectedAppseting", selectedAppsetting);
+      })
+      .catch((e) => {
+        console.log("Error in fetching casting calls admin data", e);
+      });
+  };
   useEffect(() => {
+    fetchAppsettings();
     fetchstudentsreceipt();
     fetchStudentReceipt();
     fetchClass();

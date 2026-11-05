@@ -179,12 +179,18 @@ export default function Numberseqs() {
         { screen_id: "teacher", screen_name: "Teacher" },
         { screen_id: "user", screen_name: "User" },
         { screen_id: "salesinvoice", screen_name: "Sales Invoice" },
+
         { screen_id: "receipt", screen_name: "Receipt" },
         { screen_id: "expense", screen_name: "Expense" },
         { screen_id: "payment", screen_name: "Payment" },
         { screen_id: "marksheet", screen_name: "Marksheet" },
         { screen_id: "employee", screen_name: "Employee" },
         { screen_id: "journalvoucher", screen_name: "Journal Voucher" },
+        { screen_id: "purchaseinvoice", screen_name: "Purchase Invoice" },
+        { screen_id: "supplier", screen_name: "Supplier Master" },
+        { screen_id: "openingstock", screen_name: "Opening Stock" },
+        { screen_id: "stockinvoice", screen_name: "Stock Invoice" },
+        { screen_id: "inventorystock", screen_name: "Inventory Stock" },
       ];
       setScreens(screensData);
     } catch (error) {

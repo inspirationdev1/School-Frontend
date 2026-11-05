@@ -189,8 +189,7 @@ export default function Numberseqs() {
         { screen_id: "purchaseinvoice", screen_name: "Purchase Invoice" },
         { screen_id: "supplier", screen_name: "Supplier Master" },
         { screen_id: "openingstock", screen_name: "Opening Stock" },
-        { screen_id: "stockinvoice", screen_name: "Stock Invoice" },
-        { screen_id: "inventorystock", screen_name: "Inventory Stock" },
+        { screen_id: "stockissue", screen_name: "Stock Issue" },
       ];
       setScreens(screensData);
     } catch (error) {

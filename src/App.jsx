@@ -163,6 +163,15 @@ import JournalvoucherPrint from "./school/components/journalvouchers/Journalvouc
 import Accountsetups from "./school/components/accountsetups/Accountsetups";
 import ParentReports from "./parent/components/reports/ParentReports";
 
+//*****Inventory Module */
+import Itemtypes from "./school/components/itemtypes/Itemtypes";
+import Itemgroups from "./school/components/itemgroups/Itemgroups";
+import Items from "./school/components/items/Items";
+import Suppliers from "./school/components/supplier/Suppliers";
+import Purchaseinvoices from "./school/components/purchaseinvoices/Purchaseinvoices";
+import Openingstocks from "./school/components/openingstocks/Openingstocks";
+import Stockissues from "./school/components/stockissues/Stockissues";
+//******* */
 function App() {
   const { authenticated, login, themeDark } = useContext(AuthContext);
 
@@ -247,6 +256,16 @@ function App() {
               <Route path="menu" element={<Menu />} />
               <Route path="role" element={<Role />} />
               <Route path="screen" element={<Screen />} />
+
+              {/* INVENTORY ROUTES */}
+              <Route path="itemtypes" element={<Itemtypes />} />
+              <Route path="itemgroup" element={<Itemgroups />} />
+              <Route path="item" element={<Items />} />
+              <Route path="supplier" element={<Suppliers />} />
+              <Route path="purchaseinvoice" element={<Purchaseinvoices />} />
+              <Route path="openingstock" element={<Openingstocks />} />
+              <Route path="stockissue" element={<Stockissues />} />
+              {/* <Route path="inventorystock" element={<Inventorystock />} /> */}
 
               <Route path="numberseq" element={<Numberseqs />} />
               <Route path="appsetting" element={<Appsettings />} />

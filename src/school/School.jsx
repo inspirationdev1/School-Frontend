@@ -144,6 +144,20 @@ export default function School() {
       ],
     },
     {
+      label: "Inventory",
+      icon: MenuBookIcon,
+      children: [
+        { label: "Item Type", link: "/school/itemtypes" },
+        { label: "Item Group", link: "/school/itemgroup" },
+        { label: "Item Master", link: "/school/item" },
+        { label: "Supplier Master", link: "/school/supplier" },
+        { label: "Opening Stock", link: "/school/openingstock" },
+        { label: "Purchase Invoice", link: "/school/purchaseinvoice" },
+        { label: "Stock Issue", link: "/school/stockissue" },
+        // { label: "Inventory Stock", link: "/school/inventorystock" },
+      ],
+    },
+    {
       label: "Permissions",
       icon: GroupIcon,
       children: [

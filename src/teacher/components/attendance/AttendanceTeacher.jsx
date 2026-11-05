@@ -323,11 +323,14 @@ const AttendanceTeacher = () => {
               mt: 3,
             }}
           >
-            {!attendanceTaken && (
+            {/* {!attendanceTaken && (
               <Button fullWidth variant="contained" onClick={submitAttendance}>
                 Submit
               </Button>
-            )}
+            )} */}
+            <Button fullWidth variant="contained" onClick={submitAttendance}>
+              Submit
+            </Button>
 
             {attendanceTaken && (
               <Button fullWidth variant="contained" onClick={printAttendance}>

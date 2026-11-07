@@ -290,6 +290,7 @@ export default function Receipts() {
         ...values,
         student_name: student_name,
         paidAmount: paidAmount,
+        method: values?.paymentMethod ?? "upi",
         receiptDetails: receiptDetails.map((row) => ({
           class: row.class,
           section: row.section,
@@ -328,6 +329,11 @@ export default function Receipts() {
           selectedAppsetting?.RAZORPAY_KEY_ID &&
           values?.paymentMethod != "cash"
         ) {
+          const parent_name = receiptDetails[0].student?.parent.name;
+          const parent_phoneno = receiptDetails[0].student?.parent.phoneno;
+          const parent_email = receiptDetails[0].student?.parent.email;
+          const parent_address = receiptDetails[0].student?.permanentaddress;
+
           axios
             .post(`${baseUrl}/receipt/razororder`, payload)
             .then((respOrder) => {
@@ -339,9 +345,9 @@ export default function Receipts() {
                 key: respOrder.data?.data?.RAZORPAY_KEY_ID, //"rzp_test_TtDwiBiRGLDzbB", // Enter the Key ID generated from the Dashboard
                 amount: payload.paidAmount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                 currency: "INR",
-                name: "Acme Corp", //your business name
-                description: "Test Transaction",
-                image: "https://example.com/your_logo",
+                name: respOrder.data?.data?.name, //"Acme Corp", //your business name
+                description: respOrder.data?.data?.description, //"Test Transaction",
+                image: respOrder.data?.data?.image, //"https://example.com/your_logo",
                 order_id: payload.order_id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
                 handler: async function (response) {
                   const body = {
@@ -384,12 +390,12 @@ export default function Receipts() {
                 },
                 prefill: {
                   //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-                  name: "Web Dev Matrix", //your customer's name
-                  email: "webdevmatrix@example.com",
-                  contact: "9000000000", //Provide the customer's phone number for better conversion rates
+                  name: parent_name, //"Inspiration Innovations", //your customer's name
+                  email: parent_email, //"webdevmatrix@example.com",
+                  contact: parent_phoneno, //"9000000000", //Provide the customer's phone number for better conversion rates
                 },
                 notes: {
-                  address: "Razorpay Corporate Office",
+                  address: parent_address, // "Razorpay Corporate Office",
                 },
                 theme: {
                   color: "#3399cc",
@@ -807,7 +813,8 @@ export default function Receipts() {
                       >
                         <MenuItem value="">Select Payment Method</MenuItem>
                         <MenuItem value="cash">Cash</MenuItem>
-                        <MenuItem value="bank">Bank</MenuItem>
+                        <MenuItem value="netbanking">Net Banking</MenuItem>
+                        <MenuItem value="card">Card</MenuItem>
                         <MenuItem value="upi">UPI</MenuItem>
                       </TextField>
                       {Formik.touched.paymentMethod &&

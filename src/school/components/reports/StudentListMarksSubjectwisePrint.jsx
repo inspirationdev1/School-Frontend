@@ -35,7 +35,7 @@ export default function StudentListMarksSubjectwisePrint() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedExamination, setSelectedExamination] = useState(null);
 
-  const [selectedYear, setSelectedYear] = useState(null)
+  const [selectedYear, setSelectedYear] = useState(null);
 
   const [isDataFound, setIsDataFound] = useState(false);
 
@@ -106,8 +106,6 @@ export default function StudentListMarksSubjectwisePrint() {
   };
 
   const downloadReportExcel = async () => {
-
-
     let paramsRpt = {};
 
     if (selectedClass) {
@@ -153,7 +151,7 @@ export default function StudentListMarksSubjectwisePrint() {
         row?.email,
         dayjs(row.dOBDate).format("DD-MM-YYYY"),
         dayjs(row.joinDate).format("DD-MM-YYYY"),
-        row?.phoneno
+        row?.phoneno,
       ]);
     });
 
@@ -167,10 +165,7 @@ export default function StudentListMarksSubjectwisePrint() {
     const date = new Date();
     // 5️⃣ Download
     XLSX.writeFile(workbook, `Teacherlist_${date}.xlsx`);
-
   };
-
-
 
   if (loading) {
     return <Typography>Loading...</Typography>;
@@ -184,7 +179,7 @@ export default function StudentListMarksSubjectwisePrint() {
           message={message}
         />
       )}
-      <div className="max-w-2xl mx-auto my-10">
+      {/* <div className="max-w-2xl mx-auto my-10">
         <div className="w-full h-[600px]">
           {pdfUrl ? (
             <iframe
@@ -217,6 +212,66 @@ export default function StudentListMarksSubjectwisePrint() {
               onClick={downloadReportExcel}
             >
               Download Excel
+            </button>
+          </div>
+        )}
+      </div> */}
+
+      {/* PDF report container */}
+      <div
+        className="
+        box-border
+        flex
+        h-[calc(100dvh-64px)]
+        w-full
+        min-w-0
+        flex-col
+        overflow-hidden
+        p-2
+        sm:p-3
+      "
+      >
+        {/* PDF Viewer */}
+        <div className="min-h-0 w-full flex-1 overflow-hidden rounded-md border border-gray-300">
+          {pdfUrl ? (
+            <iframe
+              key={pdfUrl}
+              src={`${pdfUrl}#zoom=80&page=1&view=FitH`}
+              title="Student Graph Report"
+              className="block h-full w-full border-0"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <Typography>Loading PDF...</Typography>
+            </div>
+          )}
+        </div>
+
+        {/* Download button */}
+        {pdfUrl && (
+          <div className="flex shrink-0 justify-center gap-3 py-2">
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = "StudentPercentage.pdf";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+              }}
+              className="
+              rounded-md
+              bg-blue-600
+              px-4
+              py-2
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:bg-blue-700
+            "
+            >
+              Download PDF
             </button>
           </div>
         )}

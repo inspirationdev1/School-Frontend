@@ -9,6 +9,10 @@ export const purchaseinvoiceSchema = yup.object({
     .string()
     .min(3, "Must Contain 3 Character.")
     .required("Supplier is  required."),
+  warehouse: yup
+    .string()
+    .min(3, "Must Contain 3 Character.")
+    .required("Warehouse is  required."),
   status: yup
     .string()
     .min(1, "Must Contain 3 Character.")

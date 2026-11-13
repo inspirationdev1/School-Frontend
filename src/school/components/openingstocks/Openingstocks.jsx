@@ -40,6 +40,8 @@ const emptyRow = () => ({
 
 const initialForm = () => ({
   openingStockDate: dayjs().format("YYYY-MM-DD"),
+  warehouse: "",
+  warehouse_name: "",
   remarks: "",
   status: "valid",
 });
@@ -57,6 +59,23 @@ const getItemName = (item) => {
   return item.item?.name || item.name || item.item_name || "";
 };
 
+const getWarehouseLabel = (warehouse) => {
+  if (!warehouse) return "";
+
+  if (typeof warehouse === "string") return warehouse;
+
+  return (
+    warehouse.name || warehouse.warehouse_name || warehouse.warehouseCode || ""
+  );
+};
+
+const getArray = (response) => {
+  const data = response?.data;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
+  return [];
+};
+
 export default function Openingstocks() {
   const [records, setRecords] = useState([]);
   const [items, setItems] = useState([]);
@@ -71,11 +90,11 @@ export default function Openingstocks() {
 
   const [viewRecord, setViewRecord] = useState(null);
   const [viewLoading, setViewLoading] = useState(false);
-
+  const [warehouses, setWarehouses] = useState([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
-
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   // --------------------------------------------------
   // TOTALS
   // --------------------------------------------------
@@ -122,10 +141,26 @@ export default function Openingstocks() {
     }
   }, []);
 
+  const fetchWarehouses = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/warehouse/fetch-with-query`,
+        {
+          params: {},
+        },
+      );
+
+      setWarehouses(getArray(response));
+    } catch (error) {
+      console.error("Error fetching warehouses:", error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchRecords();
     fetchItems();
-  }, [fetchRecords, fetchItems]);
+    fetchWarehouses();
+  }, [fetchRecords, fetchItems, fetchWarehouses]);
 
   // --------------------------------------------------
   // SEARCH: CODE, ITEM NAME AND STATUS
@@ -190,6 +225,7 @@ export default function Openingstocks() {
   const reset = () => {
     setForm(initialForm());
     setRows([emptyRow()]);
+    setSelectedWarehouse(null);
     setEditId(null);
     setError("");
   };
@@ -211,8 +247,37 @@ export default function Openingstocks() {
 
       setEditId(data._id);
 
+      const savedWarehouse =
+        data.warehouse || data.invoiceDetails?.[0]?.warehouse || "";
+      const warehouseId =
+        typeof savedWarehouse === "object"
+          ? savedWarehouse?._id
+          : savedWarehouse;
+
+      const matchedWarehouse =
+        warehouses.find((warehouse) => warehouse._id === warehouseId) ||
+        (typeof savedWarehouse === "object"
+          ? savedWarehouse
+          : warehouseId
+            ? {
+                _id: warehouseId,
+                warehouse_name:
+                  data.warehouse_name ||
+                  data.invoiceDetails?.[0]?.warehouse_name ||
+                  "",
+              }
+            : null);
+
+      setSelectedWarehouse(matchedWarehouse || null);
+
       setForm({
         openingStockDate: dayjs(data.openingStockDate).format("YYYY-MM-DD"),
+        warehouse: warehouseId || "",
+        warehouse_name:
+          data.warehouse_name ||
+          data.invoiceDetails?.[0]?.warehouse_name ||
+          getWarehouseLabel(matchedWarehouse) ||
+          "",
         remarks: data.remarks || "",
         status: data.status || "valid",
       });
@@ -289,6 +354,10 @@ export default function Openingstocks() {
       return setError("Select the Opening Stock date.");
     }
 
+    if (!form.warehouse) {
+      return setError("Please select a warehouse.");
+    }
+
     if (
       !rows.length ||
       rows.some(
@@ -317,6 +386,9 @@ export default function Openingstocks() {
       monthname: dayjs(form.openingStockDate).format("MMMM"),
       year: dayjs(form.openingStockDate).year(),
 
+      warehouse: form.warehouse,
+      warehouse_name:
+        getWarehouseLabel(selectedWarehouse) || form.warehouse_name,
       invoiceDetails: rows.map((r) => ({
         item: r.item._id,
         item_name: getItemName(r.item),
@@ -593,6 +665,32 @@ export default function Openingstocks() {
               InputLabelProps={{ shrink: true }}
             />
 
+            <Autocomplete
+              options={warehouses}
+              getOptionLabel={(option) => option?.warehouse_name || ""}
+              isOptionEqualToValue={(option, value) =>
+                option?._id === value?._id
+              }
+              value={selectedWarehouse}
+              onChange={(_, newValue) => {
+                setSelectedWarehouse(newValue);
+                setForm((old) => ({
+                  ...old,
+                  warehouse: newValue ? newValue._id : "",
+                  warehouse_name: newValue ? newValue.warehouse_name : "",
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Warehouse"
+                  placeholder="Search warehouse..."
+                  required
+                  fullWidth
+                />
+              )}
+            />
+
             <TextField
               label="Remarks"
               value={form.remarks}
@@ -762,7 +860,9 @@ export default function Openingstocks() {
                     <b>Date</b>
                   </TableCell>
 
-                  
+                  <TableCell>
+                    <b>Warehouse</b>
+                  </TableCell>
 
                   <TableCell>
                     <b>Remarks</b>
@@ -789,7 +889,7 @@ export default function Openingstocks() {
                         : "—"}
                     </TableCell>
 
-                    <TableCell
+                    {/* <TableCell
                       sx={{
                         minWidth: 180,
                         maxWidth: 300,
@@ -803,6 +903,22 @@ export default function Openingstocks() {
                         )
                         .filter(Boolean)
                         .join(", ") || "—"}
+                    </TableCell> */}
+
+                    <TableCell
+                      sx={{
+                        minWidth: 180,
+                        maxWidth: 300,
+                        whiteSpace: "normal",
+                      }}
+                    >
+                      {getWarehouseLabel(record.warehouse) ||
+                        record.warehouse_name ||
+                        getWarehouseLabel(
+                          record.invoiceDetails?.[0]?.warehouse,
+                        ) ||
+                        record.invoiceDetails?.[0]?.warehouse_name ||
+                        "—"}
                     </TableCell>
 
                     <TableCell>{record.remarks || "—"}</TableCell>
@@ -832,6 +948,7 @@ export default function Openingstocks() {
                           <>
                             <Button
                               size="small"
+                              sx={{ background: "yellow", color: "#0c0303" }}
                               onClick={() => editRecord(record._id)}
                             >
                               Edit
@@ -840,6 +957,7 @@ export default function Openingstocks() {
                             <Button
                               size="small"
                               color="error"
+                              sx={{ background: "red", color: "#fff" }}
                               onClick={() => cancelRecord(record._id)}
                             >
                               Delete
@@ -850,6 +968,7 @@ export default function Openingstocks() {
                         <Button
                           size="small"
                           color="secondary"
+                          sx={{ background: "green", color: "#fff" }}
                           onClick={() => printRecord(record)}
                         >
                           Print

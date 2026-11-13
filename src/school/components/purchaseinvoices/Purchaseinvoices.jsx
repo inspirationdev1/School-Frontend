@@ -44,6 +44,9 @@ export default function Purchaseinvoice() {
   const [suppliers, setSuppliers] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
 
+  const [warehouses, setWarehouses] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+
   const [appsettings, setAppsettings] = useState([]);
   const [selectedAppsetting, setSelectedAppsetting] = useState(null);
 
@@ -155,6 +158,8 @@ export default function Purchaseinvoice() {
         // Formik.setFieldValue("geolocation", resp.data.data.geolocation);
         Formik.setFieldValue("supplier", resp.data.data.supplier);
         Formik.setFieldValue("supplier_name", resp.data.data?.supplier_name);
+        Formik.setFieldValue("warehouse", resp.data.data.warehouse);
+        Formik.setFieldValue("warehouse_name", resp.data.data?.warehouse_name);
         Formik.setFieldValue("status", resp.data.data.status);
         Formik.setFieldValue("year", resp.data.data.year);
 
@@ -175,13 +180,15 @@ export default function Purchaseinvoice() {
         // const geolocationId =
         //   resp.data.data?.geolocation || resp.data.geolocation;
         const supplierId = resp.data.data?.supplier || resp.data.supplier;
+        const warehouseId = resp.data.data?.warehouse || resp.data.warehouse;
         // const matchedGeolocation = geolocation.find(
         //   (s) => s._id === geolocationId,
         // );
         const matchedSupplier = suppliers.find((s) => s._id === supplierId);
-
+        const matchedWarehouse = warehouses.find((s) => s._id === warehouseId);
         // setSelectedGeolocation(matchedGeolocation || null);
         setSelectedSupplier(matchedSupplier || null);
+        setSelectedWarehouse(matchedWarehouse || null);
         setEditId(resp.data.data._id);
 
         const editInvoiceDetails = resp.data.data.invoiceDetails.map((row) => ({
@@ -223,6 +230,7 @@ export default function Purchaseinvoice() {
     // 🔥 reset Autocomplete values
     // setSelectedGeolocation(null);
     setSelectedSupplier(null);
+    setSelectedWarehouse(null);
     setIsDataValid(true);
     // 🔥 reset Autocomplete values
     clearInvoiceDetails();
@@ -235,6 +243,7 @@ export default function Purchaseinvoice() {
     // 🔥 reset Autocomplete values
     // setSelectedGeolocation(null);
     setSelectedSupplier(null);
+    setSelectedWarehouse(null);
     clearInvoiceDetails();
   };
 
@@ -253,6 +262,8 @@ export default function Purchaseinvoice() {
     geolocation: null,
     supplier: "",
     supplier_name: "",
+    warehouse: "",
+    warehouse_name: "",
     status: "valid",
     remarks: "",
     month: "",
@@ -357,6 +368,7 @@ export default function Purchaseinvoice() {
           taxrate: row?.taxrate || null,
           remarks: "",
           supplier: values.supplier,
+          warehouse: values.warehouse,
           year: values.year,
           month: values?.month || 1,
           monthname: values?.monthname || "January",
@@ -452,6 +464,27 @@ export default function Purchaseinvoice() {
     }
   };
 
+  const getArray = (response) => {
+    const data = response?.data;
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+    return [];
+  };
+  const fetchWarehouses = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/warehouse/fetch-with-query`,
+        {
+          params: {},
+        },
+      );
+
+      setWarehouses(getArray(response));
+    } catch (error) {
+      console.error("Error fetching warehouses:", error);
+    }
+  };
+
   const fetchItems = async () => {
     try {
       const itemResponse = await axios.get(`${baseUrl}/item/fetch-with-query`, {
@@ -474,6 +507,7 @@ export default function Purchaseinvoice() {
 
   useEffect(() => {
     fetchAppsettings();
+    fetchWarehouses();
     fetchpurchaseinvoice();
 
     // fetchGeolocation();
@@ -841,6 +875,49 @@ export default function Purchaseinvoice() {
                         )}
                       />
                     </Box>
+                    <Box>
+                      <Autocomplete
+                        disabled={isEdit}
+                        options={warehouses}
+                        getOptionLabel={(option) =>
+                          option?.warehouse_name || ""
+                        }
+                        isOptionEqualToValue={(option, value) =>
+                          option._id === value?._id
+                        }
+                        value={selectedWarehouse}
+                        onChange={(event, newValue) => {
+                          setSelectedWarehouse(newValue);
+
+                          Formik.setFieldValue(
+                            "warehouse",
+                            newValue ? newValue._id : "",
+                          );
+
+                          Formik.setFieldValue(
+                            "warehouse_name",
+                            newValue ? newValue.warehouse_name : "",
+                          );
+                        }}
+                        onBlur={() => Formik.setFieldTouched("warehouse", true)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Warehouse"
+                            placeholder="Search warehouse..."
+                            fullWidth
+                            error={
+                              Formik.touched.warehouse &&
+                              Boolean(Formik.errors.warehouse)
+                            }
+                            helperText={
+                              Formik.touched.warehouse &&
+                              Formik.errors.warehouse
+                            }
+                          />
+                        )}
+                      />
+                    </Box>
 
                     <Box>
                       <TextField
@@ -1131,7 +1208,7 @@ export default function Purchaseinvoice() {
             >
               {/* Search */}
               <TextField
-                label="Search Name .."
+                label="Search.."
                 size="small"
                 onChange={handleSearch}
                 fullWidth
@@ -1153,6 +1230,7 @@ export default function Purchaseinvoice() {
                       <TableCell align="right">Invoice Code</TableCell>
                       <TableCell align="right">Invoice Date</TableCell>
                       <TableCell align="right">Supplier</TableCell>
+                      <TableCell align="right">Warehouse</TableCell>
                       <TableCell align="right">Remarks</TableCell>
                       <TableCell align="right">Status</TableCell>
                       {/* <TableCell align="right">Payment Status</TableCell> */}
@@ -1175,6 +1253,9 @@ export default function Purchaseinvoice() {
                         </TableCell>
                         <TableCell align="right">
                           {value?.supplier?.name}
+                        </TableCell>
+                        <TableCell align="right">
+                          {value?.warehouse?.warehouse_name}
                         </TableCell>
                         <TableCell align="right">{value.remarks}</TableCell>
                         <TableCell align="right">{value.status}</TableCell>

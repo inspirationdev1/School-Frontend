@@ -171,6 +171,7 @@ import Suppliers from "./school/components/supplier/Suppliers";
 import Purchaseinvoices from "./school/components/purchaseinvoices/Purchaseinvoices";
 import Openingstocks from "./school/components/openingstocks/Openingstocks";
 import Stockissues from "./school/components/stockissues/Stockissues";
+import Warehouses from "./school/components/warehouses/Warehouses";
 //******* */
 function App() {
   const { authenticated, login, themeDark } = useContext(AuthContext);
@@ -265,6 +266,7 @@ function App() {
               <Route path="purchaseinvoice" element={<Purchaseinvoices />} />
               <Route path="openingstock" element={<Openingstocks />} />
               <Route path="stockissue" element={<Stockissues />} />
+              <Route path="warehouse" element={<Warehouses />} />
               {/* <Route path="inventorystock" element={<Inventorystock />} /> */}
 
               <Route path="numberseq" element={<Numberseqs />} />

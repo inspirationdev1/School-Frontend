@@ -69,13 +69,21 @@ const getEmployeeLabel = (employee) => {
     ""
   );
 };
+const getWarehouseLabel = (warehouse) => {
+  if (!warehouse) return "";
 
+  if (typeof warehouse === "string") return warehouse;
+
+  return (
+    warehouse.name || warehouse.warehouse_name || warehouse.warehouseCode || ""
+  );
+};
 const getItemLabel = (item) => {
   if (!item) return "";
 
   if (typeof item === "string") return item;
 
-  return item.name || item.item_name || item.code || "";
+  return item.name || item.item_name || item.itemName || item.code || "";
 };
 
 const getItemId = (item) => {
@@ -86,10 +94,11 @@ const getItemId = (item) => {
 export default function Stockissues() {
   const [stockissues, setStockissues] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
   const [items, setItems] = useState([]);
 
   const [issueDetails, setIssueDetails] = useState([emptyRow()]);
-
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const [isEdit, setEdit] = useState(false);
@@ -116,6 +125,8 @@ export default function Stockissues() {
     issueDate: dayjs().format("YYYY-MM-DD"),
     employee: "",
     employee_name: "",
+    warehouse: "",
+    warehouse_name: "",
     remarks: "",
     status: "valid",
   };
@@ -131,6 +142,11 @@ export default function Stockissues() {
         if (!values.employee) {
           setIsDataValid(false);
           setDataError("Please select an employee");
+          return;
+        }
+        if (!values.warehouse) {
+          setIsDataValid(false);
+          setDataError("Please select a warehouse");
           return;
         }
 
@@ -184,6 +200,9 @@ export default function Stockissues() {
           employee: values.employee,
           employee_name:
             getEmployeeLabel(selectedEmployee) || values.employee_name,
+          warehouse: values.warehouse,
+          warehouse_name:
+            getWarehouseLabel(selectedWarehouse) || values.warehouse_name,
           remarks: values.remarks || "",
           status: "valid",
 
@@ -249,6 +268,25 @@ export default function Stockissues() {
   };
 
   // --------------------------------------------------
+  // FETCH WAREHOUSES
+  // --------------------------------------------------
+
+  const fetchWarehouses = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/warehouse/fetch-with-query`,
+        {
+          params: {},
+        },
+      );
+
+      setWarehouses(getArray(response));
+    } catch (error) {
+      console.error("Error fetching warehouses:", error);
+    }
+  };
+
+  // --------------------------------------------------
   // FETCH ITEMS
   // --------------------------------------------------
 
@@ -258,12 +296,17 @@ export default function Stockissues() {
         params: {},
       });
 
-      setItems(getArray(response));
+      const itemList = getArray(response);
+
+      setItems(itemList);
+
+      // Return the fetched items so handleEdit can use them immediately.
+      return itemList;
     } catch (error) {
       console.error("Error fetching items:", error);
+      return [];
     }
   };
-
   // --------------------------------------------------
   // FETCH STOCK ISSUE LIST
   // --------------------------------------------------
@@ -283,6 +326,11 @@ export default function Stockissues() {
 
   useEffect(() => {
     fetchEmployees();
+    fetchItems();
+  }, []);
+
+  useEffect(() => {
+    fetchWarehouses();
     fetchItems();
   }, []);
 
@@ -405,6 +453,7 @@ export default function Stockissues() {
 
   const handleEdit = async (id) => {
     try {
+      // Fetch stock issue details
       const response = await axios.get(
         `${baseUrl}/stockissue/fetch-single/${id}`,
       );
@@ -415,52 +464,120 @@ export default function Stockissues() {
         throw new Error("Stock issue not found");
       }
 
+      // IMPORTANT: Ensure items are loaded before binding Autocomplete.
+      const availableItems = await fetchItems();
+
       setEdit(true);
       setEditId(id);
+
+      // -----------------------------
+      // EMPLOYEE
+      // -----------------------------
 
       const employeeObject =
         data.employee && typeof data.employee === "object"
           ? data.employee
-          : employees.find((employee) => employee._id === data.employee) ||
-            null;
+          : employees.find(
+              (employee) => String(employee._id) === String(data.employee),
+            ) || null;
 
       setSelectedEmployee(employeeObject);
 
+      // -----------------------------
+      // WAREHOUSE
+      // -----------------------------
+
+      const warehouseObject =
+        data.warehouse && typeof data.warehouse === "object"
+          ? data.warehouse
+          : warehouses.find(
+              (warehouse) => String(warehouse._id) === String(data.warehouse),
+            ) || null;
+
+      setSelectedWarehouse(warehouseObject);
+
+      // -----------------------------
+      // FORMIK VALUES
+      // -----------------------------
+
       Formik.setValues({
         siCode: data.siCode || "",
+
         issueDate: data.issueDate
           ? dayjs(data.issueDate).format("YYYY-MM-DD")
           : "",
+
         employee:
           typeof data.employee === "object"
             ? data.employee?._id
             : data.employee || "",
+
         employee_name: data.employee_name || getEmployeeLabel(employeeObject),
+
+        warehouse:
+          typeof data.warehouse === "object"
+            ? data.warehouse?._id
+            : data.warehouse || "",
+
+        warehouse_name:
+          data.warehouse_name || getWarehouseLabel(warehouseObject),
+
         remarks: data.remarks || "",
         status: data.status || "valid",
       });
+
+      // -----------------------------
+      // ITEM DETAILS
+      // -----------------------------
 
       const details = data.issueDetails || [];
 
       const updatedDetails = await Promise.all(
         details.map(async (row) => {
-          const itemObject =
-            row.item && typeof row.item === "object"
-              ? row.item
-              : items.find((item) => item._id === row.item) || null;
+          // Get item ID whether populated or unpopulated
+          const itemId =
+            typeof row.item === "object" ? row.item?._id : row.item;
+
+          // Find matching item from fetched item list
+          let itemObject = availableItems.find(
+            (item) => String(item._id) === String(itemId),
+          );
+
+          // If item is populated in API response,
+          // use its data as fallback.
+          if (!itemObject && typeof row.item === "object") {
+            itemObject = row.item;
+          }
+
+          // Final fallback using stored item name
+          if (!itemObject && itemId) {
+            itemObject = {
+              _id: itemId,
+              name: row.item_name || "",
+            };
+          }
 
           let availableQuantity = 0;
 
           if (itemObject?._id) {
-            availableQuantity = await fetchAvailableStock(itemObject._id, id);
+            try {
+              availableQuantity = await fetchAvailableStock(itemObject._id, id);
+            } catch (error) {
+              console.error("Unable to fetch available stock:", error);
+            }
           }
 
           return {
-            item: itemObject,
+            item: itemObject || null,
+
             quantity: Number(row.quantity || 0),
+
             availableQuantity,
+
             purchase_price: Number(row.purchase_price || 0),
+
             grossAmount: Number(row.grossAmount || 0),
+
             remarks: row.remarks || "",
           };
         }),
@@ -470,8 +587,12 @@ export default function Stockissues() {
 
       setTab(0);
       setIsDataValid(true);
+      setDataError("");
     } catch (error) {
+      console.error("Edit Stock Issue Error:", error);
+
       setType("error");
+
       setMessage(
         error.response?.data?.message ||
           error.message ||
@@ -479,7 +600,6 @@ export default function Stockissues() {
       );
     }
   };
-
   // --------------------------------------------------
   // CANCEL STOCK ISSUE
   // --------------------------------------------------
@@ -665,6 +785,33 @@ export default function Stockissues() {
                     )}
                   />
 
+                  <Autocomplete
+                    options={warehouses}
+                    value={selectedWarehouse}
+                    fullWidth
+                    getOptionLabel={getWarehouseLabel}
+                    isOptionEqualToValue={(option, value) =>
+                      option?._id === value?._id
+                    }
+                    onChange={(event, value) => {
+                      setSelectedWarehouse(value);
+
+                      Formik.setFieldValue("warehouse", value?._id || "");
+
+                      Formik.setFieldValue(
+                        "warehouse_name",
+                        getWarehouseLabel(value),
+                      );
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Warehouse"
+                        required
+                      />
+                    )}
+                  />
+
                   <TextField
                     fullWidth
                     label="Remarks"
@@ -710,23 +857,23 @@ export default function Stockissues() {
 
                           <TableCell sx={{ minWidth: 220 }}>
                             <Autocomplete
-                              options={items}
-                              value={row.item}
-                              getOptionLabel={getItemLabel}
-                              isOptionEqualToValue={(option, value) =>
-                                option?._id === value?._id
-                              }
-                              onChange={(event, value) =>
-                                handleChange(index, "item", value)
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Select Item"
-                                  size="small"
-                                />
-                              )}
-                            />
+  options={items}
+  value={row.item || null}
+  getOptionLabel={getItemLabel}
+  isOptionEqualToValue={(option, value) =>
+    String(option?._id) === String(value?._id)
+  }
+  onChange={(event, value) =>
+    handleChange(index, "item", value)
+  }
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Select Item"
+      size="small"
+    />
+  )}
+/>
                           </TableCell>
 
                           {/* <TableCell align="right">
@@ -922,6 +1069,7 @@ export default function Stockissues() {
                     <TableCell>Issue Code</TableCell>
                     <TableCell>Issue Date</TableCell>
                     <TableCell>Employee</TableCell>
+                    <TableCell>Warehouse</TableCell>
                     <TableCell>Remarks</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell align="right">Actions</TableCell>
@@ -949,6 +1097,10 @@ export default function Stockissues() {
                         <TableCell>
                           {value.employee_name ||
                             getEmployeeLabel(value.employee)}
+                        </TableCell>
+                        <TableCell>
+                          {value.warehouse_name ||
+                            getWarehouseLabel(value.warehouse)}
                         </TableCell>
 
                         <TableCell>{value.remarks}</TableCell>
@@ -983,7 +1135,7 @@ export default function Stockissues() {
                                   color="error"
                                   onClick={() => handleDelete(value._id)}
                                 >
-                                  Cancel
+                                  Delete
                                 </Button>
 
                                 <Button

@@ -154,6 +154,7 @@ export default function School() {
         { label: "Opening Stock", link: "/school/openingstock" },
         { label: "Purchase Invoice", link: "/school/purchaseinvoice" },
         { label: "Stock Issue", link: "/school/stockissue" },
+        { label: "Warehouse", link: "/school/warehouse" },
         // { label: "Inventory Stock", link: "/school/inventorystock" },
       ],
     },

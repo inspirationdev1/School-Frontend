@@ -17,6 +17,7 @@ import {
   FormControl,
   InputLabel,
   Autocomplete,
+  Checkbox,
   Tabs,
   Tab,
 } from "@mui/material";
@@ -25,7 +26,7 @@ import dayjs from "dayjs";
 import { useFormik } from "formik";
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { baseUrl } from "../../../environment";
+import { baseUrl, frontendUrl } from "../../../environment";
 import CustomizedSnackbars from "../../../basic utility components/CustomizedSnackbars";
 import { receiptSchema } from "../../../yupSchema/receiptSchema";
 import ReceiptPrint from "./ReceiptPrint";
@@ -51,7 +52,12 @@ export default function Receipts() {
 
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedStudentlist, setSelectedStudentlist] = useState(null);
+  const [selectedpaymentMethod, setSelectedPaymentMethod] = useState(null);
 
+  const [generatedlink, setGeneratedlink] = useState("");
+  const [onlineAmount, setOnlineAmount] = useState(0);
+  onlineAmount;
   const [loading, setLoading] = useState(true);
   const [attendeeClass, setAttendeeClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -199,6 +205,103 @@ export default function Receipts() {
     setIsDataValid(true);
     // 🔥 reset Autocomplete values
     clearReceiptDetails();
+  };
+
+  const cancelGenerateLink = () => {
+    setSelectedStudentlist([]);
+    setSelectedYear(null);
+    setSelectedPaymentMethod(null);
+    setGeneratedlink("");
+    setOnlineAmount(0);
+    setIsDataValid(true);
+  };
+
+  const generatePayLink = async () => {
+    try {
+      if (!selectedYear) {
+        setMessage("Select Year");
+        setType("error");
+        return;
+      }
+
+      if (!selectedStudentlist) {
+        setMessage("Select Student");
+        setType("error");
+        return;
+      }
+
+      console.log(selectedStudentlist);
+
+      if (!selectedpaymentMethod) {
+        setMessage("Select Payment Method");
+        setType("error");
+        return;
+      }
+
+      const parent_id = selectedStudentlist[0].parent?._id;
+      const parent_name = selectedStudentlist[0].parent?.name;
+      const parent_phoneno = selectedStudentlist[0].parent?.phoneno;
+      const parent_email = selectedStudentlist[0].parent?.email;
+      const parent_address = selectedStudentlist[0].permanentaddress;
+      const studentIdList = [];
+      for (const item of selectedStudentlist) {
+        studentIdList.push(item?._id);
+      }
+
+      const invoicesResponse = await axios.get(
+        `${baseUrl}/salesinvoice/fetch-multiple-student-invoice`,
+        {
+          params: {
+            student: studentIdList,
+            paymentMethod: selectedpaymentMethod,
+            parent: parent_id,
+            parent_name: parent_name,
+            parent_phoneno: parent_phoneno,
+            parent_email: parent_email,
+            parent_address: parent_address,
+          },
+        },
+      ); // Fetch based on Student
+
+      console.log(invoicesResponse);
+
+      const invList = invoicesResponse?.data?.data;
+      console.log(invList);
+      if (invList) {
+        const encodedInvoiceList = encodeURIComponent(JSON.stringify(invList));
+        console.log(`/razorpay?invoiceList=${encodedInvoiceList}`);
+        setGeneratedlink(
+          `${frontendUrl}/razorpay?invoiceList=${encodedInvoiceList}`,
+        );
+        setMessage("Generated Pay Link");
+        setType("success");
+      } else {
+        setMessage("Pending Invoice not found");
+        setType("error");
+      }
+    } catch (error) {
+      setMessage("Generate Pay Link Problem", error.message);
+      setType("error");
+    }
+  };
+
+  const copyLink = async () => {
+    try {
+      if (!generatedlink) {
+        setMessage("Select Year");
+        setType("error");
+        return;
+      }
+
+      await navigator.clipboard.writeText(generatedlink);
+
+      setMessage("Link Copied");
+      setType("success");
+    } catch (error) {
+      console.error("Unable to copy link:", error);
+      setMessage(error.message);
+      setType("error");
+    }
   };
 
   const clearForm = () => {
@@ -521,8 +624,8 @@ export default function Receipts() {
     }
   };
 
-  const fetchAppsettings = () => {
-    axios
+  const fetchAppsettings = async () => {
+    await axios
       .get(`${baseUrl}/appsetting/fetch-all`)
       .then((resp) => {
         console.log("Fetching data in  Casting Calls  admin.", resp);
@@ -659,6 +762,7 @@ export default function Receipts() {
           >
             <Tab label={isEdit ? "Edit Receipt" : "Create Receipt"} />
             <Tab label="View List" />
+            <Tab label="Generate Pay Link" />
           </Tabs>
         </Box>
 
@@ -1203,6 +1307,161 @@ export default function Receipts() {
                   </TableBody>
                 </Table>
               </TableContainer>
+            </Box>
+          </Box>
+        )}
+
+        {tab === 2 && (
+          <Box>
+            {/* Generate Pay Link */}
+
+            <Box component={"div"} sx={{}}>
+              <Paper sx={{ padding: "20px", margin: "10px" }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: "800", textAlign: "center" }}
+                >
+                  Generate Pay Link
+                </Typography>
+                <Box
+                  component="form"
+                  noValidate
+                  autoComplete="off"
+                  // onSubmit={Formik.handleSubmit}
+                >
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: {
+                        xs: "1fr", // mobile
+                        md: "1fr 1fr", // desktop → 2 columns
+                      },
+                      gap: 2,
+                      mt: 2,
+                    }}
+                  >
+                    {/* Academic Year */}
+                    <Box>
+                      <Autocomplete
+                        options={years}
+                        getOptionLabel={(option) => option.label}
+                        value={selectedYear}
+                        onChange={(event, newValue) => {
+                          setSelectedYear(newValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Academic Year"
+                            placeholder="Search year..."
+                            fullWidth
+                          />
+                        )}
+                      />
+                    </Box>
+
+                    {/* Payment Method */}
+                    <Box>
+                      <TextField
+                        select
+                        fullWidth
+                        required
+                        label="Payment Method"
+                        name="paymentMethod"
+                        value={selectedpaymentMethod || ""}
+                        onChange={(event) => {
+                          setSelectedPaymentMethod(event.target.value);
+                        }}
+                      >
+                        <MenuItem value="">Select Payment Method</MenuItem>
+                        <MenuItem value="netbanking">Net Banking</MenuItem>
+                        <MenuItem value="card">Card</MenuItem>
+                        <MenuItem value="upi">UPI</MenuItem>
+                      </TextField>
+                    </Box>
+
+                    <Box>
+                      <Autocomplete
+                        multiple
+                        options={students || []}
+                        value={selectedStudentlist || []}
+                        disableCloseOnSelect
+                        limitTags={2}
+                        getOptionLabel={(option) => option?.name || ""}
+                        isOptionEqualToValue={(option, value) =>
+                          option?._id === value?._id
+                        }
+                        onChange={(event, newValue) => {
+                          setSelectedStudentlist(newValue || []);
+                        }}
+                        renderOption={(props, option, { selected }) => (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 1 }} />
+                            {option.name}
+                          </li>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Students"
+                            placeholder="Search student..."
+                            fullWidth
+                          />
+                        )}
+                      />
+                    </Box>
+
+                    {/* invAmount */}
+                    <Box>
+                      <TextField
+                        fullWidth
+                        label="onlineAmount"
+                        variant="outlined"
+                        name="onlineAmount"
+                        type="number"
+                        value={onlineAmount}
+                        disabled
+                      />
+                    </Box>
+
+                    {/* generatedlink → full width */}
+                    <Box sx={{ gridColumn: "1 / -1" }}>
+                      <TextField
+                        fullWidth
+                        label="Generated Link"
+                        variant="outlined"
+                        name="generatedlink"
+                        value={generatedlink}
+                        multiline
+                        rows={3}
+                        disabled
+                      />
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      mt: 4,
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <Button variant="outlined" onClick={generatePayLink}>
+                      Generate
+                    </Button>
+
+                    <Button variant="outlined" onClick={cancelGenerateLink}>
+                      Cancel
+                    </Button>
+                    {generatedlink && (
+                      <Button variant="outlined" onClick={copyLink}>
+                        Copy Link
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+              </Paper>
             </Box>
           </Box>
         )}

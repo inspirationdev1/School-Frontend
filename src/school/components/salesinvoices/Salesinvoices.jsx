@@ -159,6 +159,7 @@ export default function Salesinvoice() {
         Formik.setFieldValue("section", resp.data.data.section);
         Formik.setFieldValue("student", resp.data.data.student);
         Formik.setFieldValue("student_name", resp.data.data?.student_name);
+        Formik.setFieldValue("parent", resp.data.data?.parent);
         // Formik.setFieldValue("paymentStatus", resp.data.data.paymentStatus);
         Formik.setFieldValue("status", resp.data.data.status);
         Formik.setFieldValue("year", resp.data.data.year);
@@ -275,6 +276,7 @@ export default function Salesinvoice() {
     section: "",
     student: "",
     student_name: "",
+    parent: null,
     status: "valid",
     remarks: "",
     month: "",
@@ -1041,6 +1043,10 @@ export default function Salesinvoice() {
                             Formik.setFieldValue(
                               "student_name",
                               newValue ? newValue.name : "",
+                            );
+                            Formik.setFieldValue(
+                              "parent",
+                              newValue ? newValue.parent._id : null,
                             );
                           }}
                           onBlur={() => Formik.setFieldTouched("student", true)}

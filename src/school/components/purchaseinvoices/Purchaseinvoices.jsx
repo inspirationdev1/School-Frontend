@@ -269,6 +269,7 @@ export default function Purchaseinvoice() {
     month: "",
     monthname: "",
     year: "",
+    netAmount: 0,
   };
   const Formik = useFormik({
     initialValues: initialValues,
@@ -329,6 +330,13 @@ export default function Purchaseinvoice() {
 
         console.log(item);
       }
+
+      const totalNetAmount = invoiceDetails.reduce(
+        (sum, item) => sum + (Number(item.netAmount) || 0),
+        0,
+      );
+
+      values.netAmount = totalNetAmount;
 
       if (hasInvalidRow) {
         // setDataError('Invoice Details is missing');
@@ -1231,6 +1239,7 @@ export default function Purchaseinvoice() {
                       <TableCell align="right">Invoice Date</TableCell>
                       <TableCell align="right">Supplier</TableCell>
                       <TableCell align="right">Warehouse</TableCell>
+                      <TableCell align="right">Net Amount</TableCell>
                       <TableCell align="right">Remarks</TableCell>
                       <TableCell align="right">Status</TableCell>
                       {/* <TableCell align="right">Payment Status</TableCell> */}
@@ -1257,6 +1266,7 @@ export default function Purchaseinvoice() {
                         <TableCell align="right">
                           {value?.warehouse?.warehouse_name}
                         </TableCell>
+                        <TableCell align="right">{value?.netAmount}</TableCell>
                         <TableCell align="right">{value.remarks}</TableCell>
                         <TableCell align="right">{value.status}</TableCell>
                         {/* <TableCell align="right">{value.paymentStatus}</TableCell> */}

@@ -184,7 +184,7 @@ export default function StudentMarksSubjectwisePrint() {
           message={message}
         />
       )}
-      <div className="max-w-2xl mx-auto my-10">
+      <div className="w-full max-w-none mx-0 my-2">
         <div className="w-full h-[600px]">
           {pdfUrl ? (
             <iframe

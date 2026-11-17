@@ -127,6 +127,7 @@ export default function Stockissues() {
     employee_name: "",
     warehouse: "",
     warehouse_name: "",
+    netAmount: 0,
     remarks: "",
     status: "valid",
   };
@@ -195,6 +196,12 @@ export default function Stockissues() {
           // }
         }
 
+        const netAmount = issueDetails.reduce(
+          (total, row) =>
+            total + Number(row.quantity || 0) * Number(row.purchase_price || 0),
+          0,
+        );
+
         const payload = {
           issueDate: values.issueDate,
           employee: values.employee,
@@ -205,7 +212,7 @@ export default function Stockissues() {
             getWarehouseLabel(selectedWarehouse) || values.warehouse_name,
           remarks: values.remarks || "",
           status: "valid",
-
+          netAmount: netAmount,
           issueDetails: issueDetails.map((row) => ({
             item: getItemId(row.item),
             item_name: getItemLabel(row.item),
@@ -857,23 +864,23 @@ export default function Stockissues() {
 
                           <TableCell sx={{ minWidth: 220 }}>
                             <Autocomplete
-  options={items}
-  value={row.item || null}
-  getOptionLabel={getItemLabel}
-  isOptionEqualToValue={(option, value) =>
-    String(option?._id) === String(value?._id)
-  }
-  onChange={(event, value) =>
-    handleChange(index, "item", value)
-  }
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      label="Select Item"
-      size="small"
-    />
-  )}
-/>
+                              options={items}
+                              value={row.item || null}
+                              getOptionLabel={getItemLabel}
+                              isOptionEqualToValue={(option, value) =>
+                                String(option?._id) === String(value?._id)
+                              }
+                              onChange={(event, value) =>
+                                handleChange(index, "item", value)
+                              }
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Select Item"
+                                  size="small"
+                                />
+                              )}
+                            />
                           </TableCell>
 
                           {/* <TableCell align="right">
@@ -1070,6 +1077,7 @@ export default function Stockissues() {
                     <TableCell>Issue Date</TableCell>
                     <TableCell>Employee</TableCell>
                     <TableCell>Warehouse</TableCell>
+                    <TableCell>Amount</TableCell>
                     <TableCell>Remarks</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell align="right">Actions</TableCell>
@@ -1102,7 +1110,7 @@ export default function Stockissues() {
                           {value.warehouse_name ||
                             getWarehouseLabel(value.warehouse)}
                         </TableCell>
-
+                        <TableCell>{value?.netAmount}</TableCell>
                         <TableCell>{value.remarks}</TableCell>
 
                         <TableCell>

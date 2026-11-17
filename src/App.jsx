@@ -172,6 +172,12 @@ import Purchaseinvoices from "./school/components/purchaseinvoices/Purchaseinvoi
 import Openingstocks from "./school/components/openingstocks/Openingstocks";
 import Stockissues from "./school/components/stockissues/Stockissues";
 import Warehouses from "./school/components/warehouses/Warehouses";
+import InventoryReports from "./school/components/reports/InventoryReports";
+import WarehouseListReportPrint from "./school/components/reports/WarehouseListReportPrint";
+import purchaseinvoices from "./school/components/purchaseinvoices/Purchaseinvoices";
+import PurchaseInvoiceListReportPrint from "./school/components/reports/PurchaseInvoiceListReportPrint";
+import StockIssueListReportPrint from "./school/components/reports/StockIssueListReportPrint";
+
 //******* */
 function App() {
   const { authenticated, login, themeDark } = useContext(AuthContext);
@@ -267,7 +273,19 @@ function App() {
               <Route path="openingstock" element={<Openingstocks />} />
               <Route path="stockissue" element={<Stockissues />} />
               <Route path="warehouse" element={<Warehouses />} />
-              {/* <Route path="inventorystock" element={<Inventorystock />} /> */}
+              <Route path="inventoryreports" element={<InventoryReports />} />
+              <Route
+                path="warehouselistreportprint"
+                element={<WarehouseListReportPrint />}
+              />
+              <Route
+                path="purchaseinvoicelistreportprint"
+                element={<PurchaseInvoiceListReportPrint />}
+              />
+              <Route
+                path="stockissuelistreportprint"
+                element={<StockIssueListReportPrint />}
+              />
 
               <Route path="numberseq" element={<Numberseqs />} />
               <Route path="appsetting" element={<Appsettings />} />

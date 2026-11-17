@@ -168,7 +168,7 @@ export default function TeacherListReportPrint() {
           message={message}
         />
       )}
-      <div className="flex-1 w-full">
+      <div className="w-full max-w-none mx-0 my-2">
         <div className="w-full h-[600px]">
           {pdfUrl ? (
             <iframe

@@ -382,7 +382,7 @@ export default function QuestionpaperReportPrint() {
     return <Typography>Loading...</Typography>;
   }
   return (
-    <div className="max-w-2xl mx-auto my-10">
+    <div className="w-full max-w-none mx-0 my-2">
       {isDataFound === true ? (
         <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
           <button

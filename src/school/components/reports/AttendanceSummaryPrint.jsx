@@ -35,9 +35,8 @@ export default function AttendanceSummaryPrint() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedExamination, setSelectedExamination] = useState(null);
-  
 
-  const [selectedYear, setSelectedYear] = useState(null)
+  const [selectedYear, setSelectedYear] = useState(null);
 
   const [isDataFound, setIsDataFound] = useState(false);
 
@@ -62,7 +61,6 @@ export default function AttendanceSummaryPrint() {
         const data = JSON.parse(decodeURIComponent(dataParam));
 
         let paramsRpt = {};
-        
 
         setSelectedStudent(data?.student);
         if (data?.student) {
@@ -73,8 +71,6 @@ export default function AttendanceSummaryPrint() {
         if (data?.examination) {
           paramsRpt.examination = data?.examination;
         }
-
-
 
         console.log("Year:", data?.year);
         setSelectedYear(data.year);
@@ -108,8 +104,6 @@ export default function AttendanceSummaryPrint() {
   };
 
   const downloadReportExcel = async () => {
-
-
     let paramsRpt = {};
 
     if (selectedClass) {
@@ -155,7 +149,7 @@ export default function AttendanceSummaryPrint() {
         row?.email,
         dayjs(row.dOBDate).format("DD-MM-YYYY"),
         dayjs(row.joinDate).format("DD-MM-YYYY"),
-        row?.phoneno
+        row?.phoneno,
       ]);
     });
 
@@ -169,10 +163,7 @@ export default function AttendanceSummaryPrint() {
     const date = new Date();
     // 5️⃣ Download
     XLSX.writeFile(workbook, `Teacherlist_${date}.xlsx`);
-
   };
-
-
 
   if (loading) {
     return <Typography>Loading...</Typography>;
@@ -186,7 +177,7 @@ export default function AttendanceSummaryPrint() {
           message={message}
         />
       )}
-      <div className="max-w-2xl mx-auto my-10">
+      <div className="w-full max-w-none mx-0 my-2">
         <div className="w-full h-[600px]">
           {pdfUrl ? (
             <iframe

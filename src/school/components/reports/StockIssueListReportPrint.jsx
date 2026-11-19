@@ -123,15 +123,15 @@ export default function StockIssueListReportPrint() {
     // 1️⃣ Prepare Header
 
     const sheetData = [];
-    sheetData.push(["Stock Issue Code", "Stock Issue Date"]);
+    sheetData.push(["Stock Issue Code", "Stock Issue Date", "Gross Amount"]);
 
     // 📥 Data Rows
     reportResponse.data.data.forEach((row) => {
-      sheetData.push([row?.siCode, row?.issueDate]);
+      sheetData.push([row?.siCode, row?.issueDate, row?.grossAmount]);
     });
 
     // 3️⃣ Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(sheetData);
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
     // 4️⃣ Create workbook
     const workbook = XLSX.utils.book_new();

@@ -172,10 +172,16 @@ export default function PurchaseInvoiceListReportPrint() {
       }
 
       // Prepare Excel data.
-      const sheetData = [["Purchase Invoice Code", "Purchase Invoice Date"]];
+      const sheetData = [
+        ["Purchase Invoice Code", "Purchase Invoice Date", "Net Amount"],
+      ];
 
       reportData.forEach((row) => {
-        sheetData.push([row?.piCode || "", row?.invoiceDate || ""]);
+        sheetData.push([
+          row?.piCode || "",
+          row?.invoiceDate || "",
+          row?.netAmount || "",
+        ]);
       });
 
       // Create worksheet.

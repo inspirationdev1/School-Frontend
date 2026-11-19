@@ -19,6 +19,7 @@ import Register from "./client/components/register/Register";
 
 import Logout from "./client/components/logout/Logout";
 import Razorpay from "./client/components/razorpay/Razorpay";
+import Razorprint from "./client/components/razorpay/RazorPrint";
 import School from "./school/School";
 import SchoolDashboard from "./school/components/dashboard/SchoolDashboard";
 import UserDashboard from "./user/components/dashboard/UserDashboard";
@@ -565,6 +566,7 @@ function App() {
               <Route path="register" element={<Register />} />
               <Route path="logout" element={<Logout />} />
               <Route path="razorpay" element={<Razorpay />} />
+              <Route path="razorprint" element={<Razorprint />} />
             </Route>
 
             {/* parent role */}

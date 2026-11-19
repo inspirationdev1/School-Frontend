@@ -177,6 +177,7 @@ import WarehouseListReportPrint from "./school/components/reports/WarehouseListR
 import purchaseinvoices from "./school/components/purchaseinvoices/Purchaseinvoices";
 import PurchaseInvoiceListReportPrint from "./school/components/reports/PurchaseInvoiceListReportPrint";
 import StockIssueListReportPrint from "./school/components/reports/StockIssueListReportPrint";
+import InventoryBalanceListReportPrint from "./school/components/reports/InventoryBalanceListReportPrint";
 
 //******* */
 function App() {
@@ -285,6 +286,10 @@ function App() {
               <Route
                 path="stockissuelistreportprint"
                 element={<StockIssueListReportPrint />}
+              />
+              <Route
+                path="inventorybalancelistreportprint"
+                element={<InventoryBalanceListReportPrint />}
               />
 
               <Route path="numberseq" element={<Numberseqs />} />

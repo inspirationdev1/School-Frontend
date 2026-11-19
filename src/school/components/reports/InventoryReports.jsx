@@ -104,6 +104,11 @@ export default function InventoryReports() {
         `/school/StockIssueListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
         "_blank",
       );
+    } else if (selectedReport.reportId === "inventorybalance-list-report") {
+      window.open(
+        `/school/InventoryBalanceListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+        "_blank",
+      );
     } else if (selectedReport.reportId === "employee-list-report") {
       window.open(
         `/school/EmployeeListReportPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
@@ -213,7 +218,7 @@ export default function InventoryReports() {
           reportName: "Stock Issue-List Report",
         },
         {
-          reportId: "inventorybalance-report",
+          reportId: "inventorybalance-list-report",
           reportName: "Inventory Balance-Report",
         },
       ];

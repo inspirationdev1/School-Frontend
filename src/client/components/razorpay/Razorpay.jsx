@@ -45,7 +45,7 @@ export default function Razorpay() {
   const [date, setDate] = useState(new Date());
 
   const [isPrint, setPrint] = useState(false);
-  const [printId, setPrintId] = useState(null);
+  const [printId, setPrintId] = useState("");
 
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -86,7 +86,12 @@ export default function Razorpay() {
         class: null,
         section: null,
         student: null,
+        student_name: "",
         parent: null,
+        parent_name: "",
+        parent_email: "",
+        parent_phoneno: "",
+        parent_address: "",
         siId: null,
         invAmount: 0,
         paidAmount: 0,
@@ -100,16 +105,23 @@ export default function Razorpay() {
     console.log("receiptDetails", receiptDetails);
   };
 
-  const handlePrint = async (id) => {
+  const handlePrint = async () => {
+    if (!printId) {
+      setMessage("Receipt is not found");
+      setType("error");
+      return;
+    }
+    const id = printId;
     console.log("Handle  Print is called", id);
     setPrint(true);
 
     const data = {
       id: id,
+      school: receiptDetails[0].school,
     };
 
     window.open(
-      `/school/ReceiptPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
+      `/RazorPrint?data=${encodeURIComponent(JSON.stringify(data))}`,
       "_blank",
     );
 
@@ -228,6 +240,7 @@ export default function Razorpay() {
 
       const payload = {
         ...values,
+        student_name: student_name,
         paidAmount: paidAmount,
         method: values?.paymentMethod ?? "upi",
         receiptDetails: receiptDetails.map((row) => ({
@@ -299,6 +312,7 @@ export default function Razorpay() {
                           "Response after submitting admin casting",
                           resp,
                         );
+                        setPrintId(resp.data.data?._id);
                         clearForm();
                         cancelEdit();
                         setMessage(resp.data.message);
@@ -813,6 +827,9 @@ export default function Razorpay() {
               <Typography variant="body1" sx={{ mt: 2 }}>
                 Your payment has been successfully completed.
               </Typography>
+              <Button variant="outlined" onClick={handlePrint}>
+                Print
+              </Button>
             </Box>
           )}
         </>

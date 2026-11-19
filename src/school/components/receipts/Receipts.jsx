@@ -57,7 +57,7 @@ export default function Receipts() {
 
   const [generatedlink, setGeneratedlink] = useState("");
   const [onlineAmount, setOnlineAmount] = useState(0);
-  onlineAmount;
+
   const [loading, setLoading] = useState(true);
   const [attendeeClass, setAttendeeClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -265,8 +265,9 @@ export default function Receipts() {
 
       console.log(invoicesResponse);
 
-      const invList = invoicesResponse?.data?.data;
+      const invList = invoicesResponse?.data?.data?.invoiceList;
       console.log(invList);
+      setOnlineAmount(invoicesResponse?.data?.data?.totalAmount ?? 0);
       if (invList) {
         const encodedInvoiceList = encodeURIComponent(JSON.stringify(invList));
         console.log(`/razorpay?invoiceList=${encodedInvoiceList}`);

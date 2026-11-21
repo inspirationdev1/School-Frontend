@@ -185,13 +185,6 @@ export default function Receipts() {
     setPrint(false);
   };
 
-  // const handlePrint = (id) => {
-  //   setPrint(true);
-  //   const url = `${window.location.origin}/school/ReceiptPrint_MMS?id=${id}`;
-  //   window.open(url, "_blank");
-  //   setPrint(false);
-  // };
-
   const cancelEdit = () => {
     setEdit(false);
     setEditId(null);
@@ -231,12 +224,21 @@ export default function Receipts() {
       }
 
       console.log(selectedStudentlist);
+      if (!areParentsUnique(selectedStudentlist)) {
+        setMessage("Parents are different for selected Students.");
+        setType("error");
+        setGeneratedlink("");
+        setOnlineAmount(0);
+        return;
+      }
 
       if (!selectedpaymentMethod) {
         setMessage("Select Payment Method");
         setType("error");
         return;
       }
+
+      setIsDataValid(true);
 
       const parent_id = selectedStudentlist[0].parent?._id;
       const parent_name = selectedStudentlist[0].parent?.name;
@@ -347,6 +349,16 @@ export default function Receipts() {
     }
 
     return false;
+  };
+
+  const areParentsUnique = (array) => {
+    const parents = array.map((item) => item.parent._id);
+
+    const uniqueValues = new Set(parents.map((item) => item));
+    if (uniqueValues.size > 1) {
+      return false; // not unique
+    }
+    return true; //  unique
   };
 
   const Formik = useFormik({
